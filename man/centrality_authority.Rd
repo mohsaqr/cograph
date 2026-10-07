@@ -10,25 +10,41 @@ centrality_authority(x, ...)
 centrality_hub(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed}.}
 }
 \value{
-Named numeric vector of authority or hub scores.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Kleinberg's HITS algorithm. \code{centrality_authority} scores nodes
-pointed to by good hubs. \code{centrality_hub} scores nodes that point
-to good authorities.
+The HITS algorithm (Kleinberg 1999) assigns each node an authority score
+from the hubs that point to it and a hub score from the authorities it
+points to:
+\deqn{a = \lambda^{-1} A^{T} h, \qquad h = \lambda^{-1} A a .}{
+  a = A^T h / lambda, h = A a / lambda.}
+Authorities are the dominant eigenvector of \eqn{A^{T} A}{A^T A} and hubs
+the dominant eigenvector of \eqn{A A^{T}}{A A^T}.
+}
+\details{
+\eqn{A} holds the edge weights. Edge weights are always used, and
+\code{weighted = FALSE} has no effect. Both scores are scaled to a maximum
+of one, so they lie between 0 and 1. On an undirected network both equal
+eigenvector centrality. A network without edges gives every node a score
+of one. \code{centrality_hub()} returns the hub scores.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_authority(adj)
-centrality_hub(adj)
+centrality_authority(regulation_net)
+centrality_hub(regulation_net)
+}
+\references{
+Kleinberg, J. M. (1999). Authoritative sources in a hyperlinked
+environment. Journal of the ACM, 46(5), 604-632.
+\doi{10.1145/324133.324140}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_eigenvector}},
+\code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 }

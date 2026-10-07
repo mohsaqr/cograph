@@ -13,59 +13,52 @@ centrality_fuzzy_local_dimension(x, mode = "all", ...)
 centrality_local_volume_dimension(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{ld_radius}{Radius \eqn{r} for \code{local_dimension_fixed}, in
-hops. A single number of at least 1; default 2. Anything else raises a
-\code{cograph_bad_parameter} error.}
+\item{ld_radius}{Radius \eqn{r} for \code{local_dimension_fixed}, in hops
+(default 2).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Three further members of the local-dimension family, all computed from
-hop counts (edge weights are ignored) with the center node counted in
-its own ball, as in \code{\link{centrality_local_dimension}}.
+Three members of the local-dimension family, with the center node counted
+in its own ball. The fixed-radius local dimension (Silva and Costa 2013)
+is
+\eqn{D_i(r) = r\, n_i(r) / B_i(r)}{D_i(r) = r n_i(r) / B_i(r)} at one
+radius \eqn{r}, where \eqn{n_i(r)}{n_i(r)} counts the nodes at distance
+\eqn{r} and \eqn{B_i(r)}{B_i(r)} those within it. The fuzzy local
+dimension (Wen and Jiang 2019) is the slope of \eqn{\log N_i(r)}{log N_i(r)}
+on \eqn{\log r}{log r} for the fuzzy ball
+\deqn{N_i(r) = \frac{\sum_{d_{ij} \le r} e^{-d_{ij}^2 / r^2}}
+  {|\{j : d_{ij} \le r\}|}.}{
+  N_i(r) = sum_{d_ij <= r} exp(-d_ij^2 / r^2) / |{j : d_ij <= r}|.}
+The local volume dimension (Li and Deng 2021) is the slope of
+\eqn{\ln V_i(l)}{ln V_i(l)} on \eqn{\ln l}{ln l} for the volume
+\eqn{V_i(l) = \sum_{d_{ij} \le l} k_j}{V_i(l) = sum_{d_ij <= l} k_j}.
 }
 \details{
-\describe{
-\item{\code{local_dimension_fixed} (Silva & Costa 2013)}{The
-discretized estimator \eqn{D_i(r) = r\, n_i(r) / B_i(r)} at one
-radius \code{ld_radius} (default 2), where \eqn{n_i(r)} is the ring
-at distance \eqn{r} and \eqn{B_i(r)} the ball within it. A
-structural descriptor rather than an importance ranking; nodes with
-eccentricity below the radius score 0. The paper defines a curve in
-\eqn{r} and fixes \eqn{r} per figure; the Zoo lists this fixed-radius
-form separately from Pu et al.'s regression form.}
-\item{\code{fuzzy_local_dimension} (Wen & Jiang 2019)}{Fuzzy ball
-\eqn{N_i(r) = \sum_{d_{ij} \le r} e^{-d_{ij}^2 / r^2} / |\{j : d_{ij}
-    \le r\}|} for \eqn{r = 1, \ldots, d_{\max}(i)}; the measure is the
-slope of \eqn{\log N_i(r)} on \eqn{\log r}. Larger = more
-influential. Reproduces Table 1 of the paper (Krackhardt kite) and
-its karate-club top ten in order.}
-\item{\code{local_volume_dimension} (Li & Deng 2021)}{Volume
-\eqn{V_i(l) = \sum_{d_{ij} \le l} k_j}, \eqn{l = 1, \ldots,
-    ecc(i)}; the measure is the slope of \eqn{\ln V_i(l)} on \eqn{\ln
-    l}. Smaller = more important. The article is closed access; the
-definition follows the authors' own later preprint and the Zoo
-entry, and no published per-node values exist to check against.}
-}
-The two regression measures return \code{NaN} for a node with fewer
-than two radii.
+Distances are hop counts, so edge weights are ignored. On a directed
+network \code{mode} sets the direction of the paths. The fixed-radius
+form is a structural descriptor, and nodes whose eccentricity is below
+the radius score 0. Larger fuzzy dimensions and smaller volume dimensions
+mark more influential nodes. The two regression forms return \code{NaN}
+for a node with fewer than two radii. The volume dimension follows a
+later preprint of the authors and the Centrality Zoo entry. A
+\code{ld_radius} that is not a single number of at least 1 raises an
+error of class \code{cograph_bad_parameter}.
 }
 \examples{
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_local_dimension_fixed(path5)
-centrality_fuzzy_local_dimension(path5)
-centrality_local_volume_dimension(path5)
+centrality_local_dimension_fixed(regulation_net)
+centrality_fuzzy_local_dimension(regulation_net)
+centrality_local_volume_dimension(regulation_net)
 }
 \references{
 Silva, F. N., & Costa, L. da F. (2013). Local dimension of complex
@@ -81,5 +74,6 @@ Journal of Modern Physics B, 35(5), 2150069.
 }
 \seealso{
 \code{\link{centrality_local_dimension}},
-\code{\link{centrality_local_information_dimension}}.
+\code{\link{centrality_local_information_dimension}},
+\code{\link{centrality}}.
 }

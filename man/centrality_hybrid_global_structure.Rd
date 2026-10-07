@@ -2,49 +2,51 @@
 % Please edit documentation in R/centrality-batch21.R
 \name{centrality_hybrid_global_structure}
 \alias{centrality_hybrid_global_structure}
-\title{Hybrid global structure model centrality}
+\title{Hybrid Global Structure Model Centrality}
 \usage{
 centrality_hybrid_global_structure(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Mukhtar et al.'s H-GSM (2023) uses
-\eqn{s_i=\exp(k_s(i)k_i/N)},
-\eqn{a=\lceil\log_2(N^{-1}\sum_i s_i)\rceil}, and
-\eqn{H\text{-}GSM(i)=s_i\sum_{j\ne i}s_j/d_{ij}^{a}}.
-k_i is simple degree, k_s(i) is original coreness, and d is hop distance.
-The ceiling exponent is computed from the mean self-influence over ALL
-original nodes, including isolates whose self-influence is one. The
-factor s_i alone is not the final centrality score.
+The hybrid global structure model (H-GSM; Mukhtar et al. 2023) combines
+a self-influence
+\eqn{s_i = \exp(k_s(i)\, k_i / N)}{s_i = exp(k_s(i) k_i / N)}
+with a distance exponent \eqn{a} computed from the mean self-influence:
+\deqn{HGSM(i) = s_i \sum_{j \ne i} \frac{s_j}{d_{ij}^{a}}, \qquad
+  a = \left\lceil \log_2 \frac{1}{N} \sum_l s_l \right\rceil.}{
+  HGSM(i) = s_i sum_{j != i} s_j / d_ij^a,
+  a = ceiling(log2(sum_l s_l / N)).}
+Here \eqn{k_s(i)} is the core number, \eqn{k_i} the degree and \eqn{N}
+the number of nodes, isolated nodes included.
 }
 \details{
-Topology and disconnected-graph conventions are shared with
-\code{\link{centrality_global_structure}}. The adaptive exponent is
-used exactly as specified, including its discontinuities at powers of
-two; it is not smoothed or replaced by a fixed exponent.
-
-Self-influence, its mean and final sums are evaluated in logarithmic
-form. Raw scores exceeding double precision raise an error. With
-\code{normalized = TRUE}, final scores are computed directly as
-exponentials of log-score differences, so normalized results remain
-available even when raw scores overflow. Extremely small normalized
-ratios may underflow to zero. Normalization is applied to the complete
-score, not separately to self-influence or neighbor contributions.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and \code{mode} has no effect.
+Only reachable nodes contribute to the sum. Other components affect the
+scores through \eqn{N} and the mean self-influence, to which each
+isolated node adds 1. An isolated node scores 0. Raw scores beyond
+double precision raise an error. With \code{normalized = TRUE} the
+scores are computed on the log scale and remain available in that case.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_hybrid_global_structure(igraph::make_ring(4))
-\dontshow{\}) # examplesIf}
+centrality_hybrid_global_structure(regulation_net)
 }
 \references{
 Mukhtar, M. F., et al. (2023). Integrating local and global information to
 identify influential nodes in complex networks. Scientific Reports, 13,
 11411. \doi{10.1038/s41598-023-37570-7}.
+}
+\seealso{
+\code{\link{centrality_global_structure}},
+\code{\link{centrality_improved_global_structure}},
+\code{\link{centrality}}.
 }

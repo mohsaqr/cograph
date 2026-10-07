@@ -33,13 +33,11 @@ when \code{keep_format = TRUE}. Named pairs that carry no edge are
 reported in a \code{cograph_no_such_edge} warning.
 }
 \description{
-Remove Edges from a Network
+Deletes the edges between given pairs of nodes. In an undirected network
+the order of the two endpoints does not matter.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-remove_edges(adj, from = "A", to = "B")
+remove_edges(regulation_net, from = "Plan", to = "Monitor")
 }
 \seealso{
 \code{\link{add_edges}}, \code{\link{filter_edges}},

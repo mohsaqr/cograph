@@ -22,8 +22,8 @@ weights.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Not used. Any argument supplied here raises an
+\code{"unused argument"} error.}
 }
 \value{
 A list with class "cograph_k_paths" containing:
@@ -57,17 +57,7 @@ paths exist between the two nodes.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Find 3 shortest paths in a small network
-adj <- matrix(c(
-  0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0,
-  0, 0, 0, 1, 1,
-  0, 0, 0, 0, 1,
-  0, 0, 0, 0, 0
-), 5, 5, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-kp <- cograph::k_shortest_paths(adj, from = "A", to = "E", k = 3)
-kp
+cograph::k_shortest_paths(regulation_net, from = "Plan", to = "Share", k = 3)
 \dontshow{\}) # examplesIf}
 }
 \references{

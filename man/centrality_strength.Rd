@@ -4,7 +4,7 @@
 \alias{centrality_strength}
 \alias{centrality_instrength}
 \alias{centrality_outstrength}
-\title{Strength Centrality (Weighted Degree)}
+\title{Strength Centrality}
 \usage{
 centrality_strength(x, mode = "all", ...)
 
@@ -13,28 +13,43 @@ centrality_instrength(x, ...)
 centrality_outstrength(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"in"} or \code{"out"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{loops} (keep self-loops, default \code{TRUE}) and
+\code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of strength values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of edge weights connected to each node. For directed networks,
-\code{centrality_instrength} sums incoming weights and
-\code{centrality_outstrength} sums outgoing weights.
+Strength (Barrat et al. 2004) is the sum of the weights of the edges
+incident to a node, the weighted counterpart of degree. With
+\code{mode = "in"} it sums incoming weights and with \code{mode = "out"}
+outgoing weights. \code{centrality_instrength()} and
+\code{centrality_outstrength()} are these two forms.
+}
+\details{
+The stored weights are always summed, and \code{weighted = FALSE} has no
+effect; \code{\link{centrality_degree}} counts edges. A self-loop
+counts twice on an undirected network and under \code{mode = "all"}, and
+once under \code{"in"} or \code{"out"}; \code{loops = FALSE} drops it.
+Negative weights are summed with their sign. \code{normalized = TRUE}
+divides the scores by their maximum.
 }
 \examples{
-mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-centrality_strength(mat)
+centrality_strength(regulation_net)
+}
+\references{
+Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A. (2004).
+The architecture of complex weighted networks. Proceedings of the
+National Academy of Sciences, 101(11), 3747-3752.
+\doi{10.1073/pnas.0400087101}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_degree}} for the unweighted version.
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

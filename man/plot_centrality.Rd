@@ -25,41 +25,44 @@ plot_centrality(
 \item{x}{Output of \code{\link{centrality}}, or any network input
 (matrix, igraph, cograph_network, tna, netobject).}
 
-\item{measures}{Character vector of measure names. Default pulls the
-classical five (degree, strength, betweenness, closeness, eigenvector)
-when \code{x} is a network; default \code{NULL} keeps all columns
-when \code{x} is already a centrality data frame.}
+\item{measures}{Character vector of measure names. When \code{x} is a
+network and \code{measures} is NULL (default), degree, strength,
+betweenness, closeness and eigenvector are computed. When \code{x} is a
+centrality data frame, NULL keeps all its measure columns.}
 
 \item{style}{Character: "line" (default), "bar", "lollipop", or "dot".}
 
 \item{orientation}{Character: "horizontal" (default, nodes on y-axis) or
 "vertical" (nodes on x-axis).}
 
-\item{scale}{Character: "raw" (default, native units; in the "line"
-style this forces free y-axis per measure via faceting), "normalized" ([0, 1]
-within measure), "z" (standardized within measure), or "rank"
-(1..n, highest value = 1).}
+\item{scale}{Character: "raw" (default, native units with a free value
+axis per facet), "normalized" (min-max scaled to [0, 1] within
+measure), "z" (standardized within measure), or "rank" (1 = highest
+value within measure).}
 
-\item{order_by}{Character. For "bar"/"lollipop": which measure sorts
-nodes. Defaults to the first measure. Use \code{"alpha"} for
-alphabetical. For "line", this also controls node ordering unless
-\code{"alpha"} is requested.}
+\item{order_by}{Character. Name of the measure column that sorts the
+nodes (e.g., "degree_all"), or \code{"alpha"} for alphabetical order.
+Defaults to the first measure. In the "bar", "lollipop" and "dot"
+styles an unknown name raises an error; in the "line" style it falls
+back to the first measure.}
 
-\item{top_n}{Optional integer to keep only the top-N nodes (by
-\code{order_by}). Useful for large graphs.}
+\item{top_n}{Optional integer. Keeps only the top-N nodes by
+\code{order_by} (by the first measure when \code{order_by = "alpha"}).}
 
-\item{highlight}{Optional integer: highlight the top-N bars/lines per
-measure in full color; mute the rest. Default 0 (no highlighting).}
+\item{highlight}{Integer. In the "bar", "lollipop" and "dot" styles, the
+top-N nodes per measure are plotted in full color and the rest are
+muted. Default 0 (no highlighting). Ignored by the "line" style.}
 
-\item{cluster}{Optional named vector or data-frame column mapping each
-node to a cluster/community. Colors nodes by cluster when supplied.}
+\item{cluster}{Optional cluster assignment of the nodes, given as the name
+of a column of \code{x}, a vector in node order, or a vector named by
+node. Colors the nodes by cluster in the "bar", "lollipop" and "dot"
+styles.}
 
-\item{palette}{Character or vector. \code{"cograph"} (default) uses
-cograph's teal-gold-leaf palette; \code{"okabe"} uses Okabe-Ito;
-\code{"viridis"} uses viridis; or supply a character vector of colors.}
+\item{palette}{Currently unused. Cluster colors are taken from the
+built-in cograph palette.}
 
-\item{ncol}{For faceted styles ("bar", "lollipop"): number of columns.
-Default \code{NULL} chooses sensibly based on measure count.}
+\item{ncol}{Number of facet columns. Default \code{NULL} uses up to three
+columns for eight or fewer measures and four otherwise.}
 
 \item{title}{Plot title. Default NULL.}
 
@@ -71,27 +74,19 @@ Default \code{NULL} chooses sensibly based on measure count.}
 A ggplot object.
 }
 \description{
-Publication-quality visualization of one or more centrality measures.
-Accepts the data frame from \code{\link{centrality}} directly or any
-network input.
+Plots one or more centrality measures, one facet per measure. Accepts the
+data frame from \code{\link{centrality}} or any network input.
 }
 \details{
 Four styles are available:
 \describe{
-\item{\code{"line"}}{Faceted line view with one panel per measure.
-Nodes are ordered along the requested orientation and connected within
-each measure.}
-\item{\code{"bar"}}{Horizontal bars, one facet per measure. Best for
-reading individual measure values.}
-\item{\code{"lollipop"}}{Like \code{"bar"} but with a dot at the tip.
-Softer visual weight; useful on dense grids.}
-\item{\code{"dot"}}{Dot-only variant of the lollipop style.}
+\item{\code{"line"}}{Points connected by a line within each measure, with
+nodes in the order set by \code{order_by}.}
+\item{\code{"bar"}}{Bars of the measure values.}
+\item{\code{"lollipop"}}{Segments ending in a dot.}
+\item{\code{"dot"}}{Dots only.}
 }
 }
 \examples{
-adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-              5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-plot_centrality(adj)
-plot_centrality(adj, style = "bar", highlight = 2)
+plot_centrality(regulation_net)
 }

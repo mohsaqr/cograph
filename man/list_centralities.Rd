@@ -28,26 +28,20 @@ measure accepts \code{mode} and its column carries a mode suffix),
 \code{include = }). Rows are ordered by measure name.
 }
 \description{
-A tidy table of every measure \code{\link{centrality}} can compute, with
-the facts you need before you read a column of results: which end of the
-scale marks a prominent node, whether the measure needs a community
-partition, whether it reads edge weights, and whether it is held back
-from \code{type = "all"} because its cost grows steeply.
+Returns a table of every measure \code{\link{centrality}} can compute.
+For each measure the table records which end of the scale marks a
+prominent node, whether the measure accepts \code{mode}, whether it
+requires a community partition, whether it uses edge weights, and
+whether \code{type = "all"} holds it back because its cost grows
+steeply with network size.
 }
 \details{
-Twelve measures are oriented so that a \strong{low} value marks the more
-central node, and sorting their column the usual way puts the periphery on top.
-Filter with \code{orientation = "lower"} to see them.
+For some measures a low value marks the more central node, so a
+descending sort of their column places the most peripheral nodes first.
+\code{orientation = "lower"} lists them.
 }
 \examples{
-# Every measure, with the facts needed to read its column
-head(list_centralities())
-
-# The measures where a low value marks the more central node
 list_centralities(orientation = "lower")
-
-# The measures held back from type = "all"
-list_centralities(costly = TRUE)
 }
 \seealso{
 \code{\link{centrality}} to compute them,

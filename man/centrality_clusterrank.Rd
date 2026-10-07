@@ -2,30 +2,47 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_clusterrank}
 \alias{centrality_clusterrank}
-\title{ClusterRank Centrality}
+\title{ClusterRank}
 \usage{
 centrality_clusterrank(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of ClusterRank values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Product of clustering coefficient and sum of (neighbor degree + 1).
+ClusterRank (Chen et al. 2013) combines the local clustering coefficient
+\eqn{c_v} of a node with the degrees of its neighbors:
+\deqn{CR(v) = c_v \sum_{u \in N(v)} (k_u + 1).}{
+  CR(v) = c_v sum_{u in N(v)} (k_u + 1).}
+}
+\details{
+Edge weights are ignored. \code{mode} sets both the neighbor set and the
+degrees, and on a directed network a reciprocated neighbor enters the sum
+twice under \code{mode = "all"}. The clustering coefficient ignores edge
+direction. A node with fewer than two neighbors has no clustering
+coefficient and returns \code{NaN}. Chen et al. weight the sum by
+\eqn{10^{-c_v}}{10^(-c_v)}, and the measure here multiplies by \eqn{c_v}
+itself, as the centiserve package does.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_clusterrank(adj)
+centrality_clusterrank(regulation_net)
+}
+\references{
+Chen, D.-B., Gao, H., Lu, L., & Zhou, T. (2013). Identifying influential
+nodes in large-scale directed networks: The role of clustering. PLoS ONE,
+8(10), e77455. \doi{10.1371/journal.pone.0077455}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_transitivity}},
+\code{\link{centrality_expected}}, \code{\link{centrality}}.
 }

@@ -7,18 +7,17 @@
 n_communities(x)
 }
 \arguments{
-\item{x}{A cograph_communities object}
+\item{x}{A \code{cograph_communities} object.}
 }
 \value{
-Integer count of communities
+A single integer, the number of distinct communities.
 }
 \description{
 Get Number of Communities
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
+comm <- community_walktrap(regulation_net)
 n_communities(comm)
 \dontshow{\}) # examplesIf}
 }

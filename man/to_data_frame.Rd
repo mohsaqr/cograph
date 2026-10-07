@@ -23,27 +23,17 @@ columns:
 \item \code{to}: Target node name/label
 \item \code{weight}: Edge weight
 }
-Any further edge columns the network carries (for example \code{session}
-or \code{time} from temporal edge lists) are \emph{not} included; use
-\code{\link{get_edges}}, which returns the edge table whole. An
-undirected network contributes one row per unordered pair, not two.
+Further edge columns, such as \code{session} or \code{time} from
+temporal edge lists, are dropped. \code{\link{get_edges}} returns the
+full edge table. An undirected network contributes one row per unordered
+pair.
 }
 \description{
 Converts a network to an edge list data frame with columns for source,
 target, and weight.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Convert to edge list
-to_data_frame(adj)
-
-# Use alias
-to_df(adj)
+to_data_frame(regulation_net)
 }
 \seealso{
 \code{\link{to_df}}, \code{\link{to_igraph}}, \code{\link{as_cograph}}

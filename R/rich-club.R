@@ -9,44 +9,49 @@
 
 #' Rich Club Coefficient
 #'
-#' Computes the rich club curve across all prominence thresholds, measuring
-#' whether prominent nodes preferentially direct their strongest ties toward
-#' each other. Supports both unweighted (Colizza et al. 2006) and weighted
-#' (Opsahl et al. 2008) formulations.
+#' Computes the rich club curve across all prominence thresholds. The
+#' unweighted coefficient (Colizza et al. 2006) measures the density of ties
+#' among prominent nodes. The weighted coefficient (Opsahl et al. 2008)
+#' measures whether prominent nodes concentrate the strongest ties of the
+#' network among themselves. A directed network is converted to an undirected
+#' one before the computation, with the weights of reciprocal edges summed,
+#' and self-loops are removed.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna
 #'   object.
 #' @param rich Character. Prominence definition: \code{"k"} (degree, default)
-#'   or \code{"s"} (strength / weighted degree).
+#'   or \code{"s"} (strength, the weighted degree).
 #' @param weighted Logical. If TRUE (default), compute the weighted rich club
 #'   coefficient. If FALSE, compute the unweighted version (density among rich
 #'   nodes).
 #' @param normalized Logical. If TRUE (default), normalize against
-#'   degree-preserving random graphs and include confidence intervals. The
-#'   null graphs are drawn with \code{igraph::sample_degseq()} (which fixes the
-#'   degree sequence); for a weighted rich club the observed edge weights are
-#'   additionally reshuffled across the null edges, following Opsahl et al.
+#'   degree-preserving random graphs and report the null distribution. The
+#'   null graphs are generated with \code{igraph::sample_degseq()}, which fixes
+#'   the degree sequence. For a weighted rich club the observed edge weights
+#'   are also reshuffled across the null edges, following Opsahl et al.
 #'   (2008).
 #' @param n_random Integer. Number of random graphs for normalization. Default
 #'   100.
 #' @param directed Logical or NULL. Default NULL (auto-detect).
-#' @param seed Integer or NULL. Random seed for reproducibility. Default NULL.
-#' @param digits Integer or NULL. Round numeric output. Default NULL.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param seed Integer or NULL. Random seed for the null graphs. When a seed
+#'   is given, the caller's random state is restored on exit. Default NULL.
+#' @param digits Integer or NULL. Round all numeric columns, including
+#'   \code{threshold}. Default NULL.
+#' @param ... Passed to \code{\link{to_igraph}}, which takes no further
+#'   arguments, so any argument supplied here raises an error.
 #'
 #' @return A data frame with class \code{"cograph_rich_club"}, one row per
-#'   prominence threshold at which at least two nodes are "rich", and columns:
+#'   prominence threshold at which at least two nodes are rich, and columns:
 #'   \describe{
-#'     \item{threshold}{The prominence cut-off; nodes with prominence strictly
+#'     \item{threshold}{The prominence cut-off. Nodes with prominence strictly
 #'       greater than this value form the club. Thresholds range over the
 #'       observed prominence values excluding the maximum.}
 #'     \item{n_rich}{Number of club members at that threshold.}
 #'     \item{phi}{Observed rich club coefficient.}
 #'     \item{phi_norm, phi_rand, ci_lo, ci_hi}{Present only when
-#'       \code{normalized = TRUE}: the observed coefficient divided by the null
-#'       mean, the null mean itself, and the 2.5\% / 97.5\% quantiles of the
-#'       null distribution.}
+#'       \code{normalized = TRUE}. They hold the observed coefficient divided by
+#'       the null mean, the null mean itself, and the 2.5\% and 97.5\%
+#'       quantiles of the null distribution.}
 #'   }
 #'   The data frame has zero rows for graphs that are too small, complete, or
 #'   regular for any threshold to yield a club. The arguments \code{rich},
@@ -54,13 +59,20 @@
 #'   (\code{"network"}) are stored as attributes.
 #'
 #' @details
-#' **Unweighted**: \eqn{\phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}
+#' The unweighted coefficient is
+#' \eqn{\phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}{phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}, where \eqn{N_{>k}} is
+#' the number of nodes with prominence above \eqn{k} and \eqn{E_{>k}} the
+#' number of edges among them.
 #'
-#' **Weighted**: \eqn{\phi^w(k) = W_{>k} / \sum_{l=1}^{E_{>k}} w_l^{ranked}}
+#' The weighted coefficient is
+#' \eqn{\phi^w(k) = W_{>k} / \sum_{l=1}^{E_{>k}} w_l^{ranked}}{phi^w(k) = W_{>k} / sum_{l=1}^{E_{>k}} w_l^{ranked}}, where
+#' \eqn{W_{>k}} is the total weight of the edges among the rich nodes and
+#' \eqn{w_l^{ranked}} is the \eqn{l}-th largest edge weight in the network.
 #'
-#' **Normalization**: \eqn{\phi_{norm} = \phi_{obs} / \bar{\phi}_{rand}}. A
-#' value > 1 indicates rich club ordering beyond what the degree sequence
-#' alone explains.
+#' The normalized coefficient is
+#' \eqn{\phi_{norm} = \phi_{obs} / \bar{\phi}_{rand}}{phi_{norm} = phi_{obs} / bar{phi}_{rand}}. A value above 1
+#' indicates rich club ordering beyond what the degree sequence alone
+#' explains.
 #'
 #' @references
 #' Opsahl, T., Colizza, V., Panzarasa, P. & Ramasco, J.J. (2008).
@@ -74,11 +86,15 @@
 #' @seealso \code{\link{rich_club_local}}, \code{\link{robustness}},
 #'   \code{\link{centrality}}
 #'
+#' @section Printing and plotting:
+#' Printing the result shows the prominence definition, the weighting and
+#' normalization settings, the number of thresholds with \code{phi_norm > 1}
+#' and the first ten rows of the table. \code{plot()} on the result is
+#' documented in \code{\link{plot-results}}.
+#'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-#' rc <- cograph::rich_club(g, n_random = 20)
-#' plot(rc)
+#' rich_club(regulation_net, n_random = 20, seed = 1)
 rich_club <- function(x,
                       rich = c("k", "s"),
                       weighted = TRUE,
@@ -242,33 +258,37 @@ rich_club <- function(x,
 
 #' Local Rich Club Score
 #'
-#' For each node, measures whether it preferentially directs its strongest
-#' ties toward prominent nodes. A score > 1 means the node's ties to
-#' prominent nodes are stronger than average.
+#' Computes, for each node, whether its strongest ties go to prominent nodes.
+#' The score is the mean weight of the node's ties to prominent neighbors
+#' divided by the mean weight of all its ties. A score above 1 means that the
+#' node's ties to prominent nodes are stronger than its average tie. A
+#' directed network is converted to an undirected one before the computation,
+#' with the weights of reciprocal edges summed, and self-loops are removed.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna
 #'   object.
-#' @param prominence Integer or logical vector indicating which nodes are
-#'   prominent (1/TRUE = prominent), OR a numeric threshold. If NULL, nodes
-#'   above median degree (or strength) are prominent.
+#' @param prominence Which nodes are prominent. Either a logical or 0/1
+#'   vector with one element per node (TRUE or 1 marks a prominent node), or
+#'   a single number used as a threshold, in which case nodes with degree or
+#'   strength strictly greater than it are prominent. If NULL (default), nodes
+#'   with degree or strength strictly above the median are prominent.
 #' @param rich Character. \code{"k"} (degree, default) or \code{"s"}
 #'   (strength). Used when \code{prominence} is NULL or a threshold.
 #' @param directed Logical or NULL. Default NULL (auto-detect).
 #' @param digits Integer or NULL. Round scores. Default NULL.
-#' @param sort_by Character or NULL. Column to sort by (descending). Default
-#'   \code{"score"}.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param sort_by Character or NULL. Column to sort by in descending order,
+#'   \code{"score"} (default) or \code{"node"}. Any other value, and NULL,
+#'   keep the node order.
+#' @param ... Passed to \code{\link{to_igraph}}, which takes no further
+#'   arguments, so any argument supplied here raises an error.
 #'
 #' @return A plain data frame with one row per node and columns \code{node}
-#'   (node label) and \code{score}, sorted by \code{sort_by} descending
-#'   (\code{"score"} by default; pass \code{sort_by = NULL} to keep node
-#'   order). Values > 1 indicate the node directs disproportionately strong
-#'   ties to prominent nodes; a node with no neighbors, no prominent
-#'   neighbor, or zero mean tie weight scores 1.
+#'   (node label) and \code{score}. A node with no neighbors or no prominent
+#'   neighbor scores 1.
 #'
 #' @details
-#' For each node i: \eqn{r_i = \bar{w}_{i \to rich} / \bar{w}_i}
+#' For each node \eqn{i}, \eqn{r_i = \bar{w}_{i, rich} / \bar{w}_i}{r_i = bar{w}_{i, rich} / bar{w}_i}, where
+#' both means are taken over the ties of \eqn{i} with positive weight.
 #'
 #' @references
 #' Opsahl, T., Colizza, V., Panzarasa, P. & Ramasco, J.J. (2008).
@@ -279,9 +299,7 @@ rich_club <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0,5,3,1, 5,0,4,2, 3,4,0,1, 1,2,1,0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' cograph::rich_club_local(adj, prominence = c(1, 1, 0, 0))
+#' cograph::rich_club_local(regulation_net)
 rich_club_local <- function(x,
                             prominence = NULL,
                             rich = c("k", "s"),
@@ -385,28 +403,9 @@ print.cograph_rich_club <- function(x, ...) {
 }
 
 
-#' Plot Rich Club Results
-#'
-#' Two plot types: \code{"curve"} (default) shows the rich club coefficient
-#' across thresholds with null model bands. \code{"network"} highlights rich
-#' club members on the network at a given threshold.
-#'
-#' @param x A \code{cograph_rich_club} data frame.
-#' @param type Character. \code{"curve"} (default) or \code{"network"}.
-#' @param k Numeric. For \code{type = "network"}, the degree/strength
-#'   threshold to visualize. If NULL, uses the threshold with the highest
-#'   phi_norm (or phi if not normalized).
-#' @param col Line/node color for rich club. Default \code{"#E41A1C"}.
-#' @param ... Additional arguments passed to \code{\link[graphics]{plot}}
-#'   (curve) or \code{\link{splot}} (network).
-#'
-#' @return Invisible \code{x}.
+#' @rdname plot-results
 #' @method plot cograph_rich_club
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-#' rc <- cograph::rich_club(g)
-#' plot(rc)
 plot.cograph_rich_club <- function(x, type = c("curve", "network"),
                                    k = NULL, col = "#E41A1C", ...) {
   type <- match.arg(type)

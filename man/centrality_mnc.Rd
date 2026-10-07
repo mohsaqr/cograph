@@ -2,31 +2,42 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_mnc}
 \alias{centrality_mnc}
-\title{Maximum Neighborhood Component (MNC)}
+\title{Maximum Neighborhood Component}
 \usage{
 centrality_mnc(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named integer vector of MNC values.
+A named integer vector with one size per node, in input node
+order.
 }
 \description{
-Size of the largest connected component in the node's neighborhood subgraph.
+The maximum neighborhood component (Lin et al. 2008) is the number of
+nodes in the largest connected component of the subgraph induced by the
+neighbors of a node.
+}
+\details{
+Edge weights are ignored and the neighbor subgraph is read as undirected.
+\code{mode} selects the neighbors. An isolated node scores 0. On
+undirected networks the values equal \code{centiserve::mnc()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_mnc(adj)
+centrality_mnc(regulation_net)
+}
+\references{
+Lin, C.-Y., Chin, C.-H., Wu, H.-H., Chen, S.-H., Ho, C.-W., & Ko, M.-T.
+(2008). Hubba: hub objects analyzer, a framework of interactome hubs
+identification for network biology. Nucleic Acids Research, 36,
+W438-W443. \doi{10.1093/nar/gkn257}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_dmnc}} for the density variant.
+\code{\link{centrality_dmnc}}, \code{\link{centrality_lac}},
+\code{\link{centrality}}.
 }

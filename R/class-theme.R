@@ -6,12 +6,7 @@
 #' @return A \code{CographTheme} R6 object.
 #' @export
 #' @examples
-#' # Create a custom theme
-#' theme <- CographTheme$new(
-#'   background = "white",
-#'   node_fill = "steelblue",
-#'   edge_color = "gray60"
-#' )
+#' CographTheme$new(background = "white", node_fill = "steelblue")
 CographTheme <- R6::R6Class(
   "CographTheme",
   public = list(
@@ -68,7 +63,7 @@ CographTheme <- R6::R6Class(
 
     #' @description Get a theme parameter.
     #' @param name Parameter name.
-    #' @return Parameter value.
+    #' @return Parameter value, or \code{NULL} if the parameter is not set.
     get = function(name) {
       private$.params[[name]]
     },
@@ -88,9 +83,10 @@ CographTheme <- R6::R6Class(
       private$.params
     },
 
-    #' @description Merge with another theme.
+    #' @description Merge with another theme. Parameters in \code{other}
+    #'   replace the matching parameters of this theme.
     #' @param other Another CographTheme or list of parameters.
-    #' @return A new merged CographTheme.
+    #' @return A new CographTheme named \code{"merged"}.
     merge = function(other) {
       if (inherits(other, "CographTheme")) {
         other_params <- other$get_all()

@@ -10,58 +10,44 @@ centrality_access_information(x, ...)
 centrality_hide_information(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node, in bits.
+A named numeric vector with one score per node, in input node
+order, in bits.
 }
 \description{
-Search-information centralities of Rosvall, Trusina, Minnhagen and
-Sneppen (2005) and Sneppen, Trusina and Rosvall (2005). A walker who
-knows only the shortest paths from \eqn{i} to \eqn{j} but has no map
-must be told which link to take at each step; the number of bits needed
-is
-\deqn{S(i \to j) = -\log_2 \sum_{p \in \{p(i, j)\}} \frac{1}{k_i}
-  \prod_{l \in p,\, l \ne i, j} \frac{1}{k_l - 1},}
-summed over all shortest paths, with \eqn{k_i} the degree of the source
-and \eqn{k_l - 1} the choices left at each intermediate node (the link
-the walker arrived on is excluded). Then
-\deqn{A_i = \frac{1}{N} \sum_j S(i \to j), \qquad
-  H_i = \frac{1}{N} \sum_j S(j \to i),}
-with \eqn{S(i \to i) = 0}.
+Access and hide information (Rosvall et al. 2005; Sneppen, Trusina and
+Rosvall 2005) measure the number of bits a walker needs to follow a
+shortest path without a map. The search information from \eqn{i} to
+\eqn{j} sums over all shortest paths \eqn{p(i, j)}, with \eqn{k_i} the
+degree of the source and \eqn{k_l - 1} the choices left at each
+intermediate node:
+\deqn{S(i \to j) = -\log_2 \sum_{p(i, j)} \frac{1}{k_i}
+  \prod_{l \in p,\, l \ne i, j} \frac{1}{k_l - 1}.}{
+  S(i -> j) = -log2 sum_{p(i, j)} (1 / k_i)
+  prod_{l in p, l != i, j} 1 / (k_l - 1).}
+Access information \eqn{A_i}{A_i} averages \eqn{S(i \to j)}{S(i -> j)}
+over targets \eqn{j}, and hide information \eqn{H_i}{H_i} averages
+\eqn{S(j \to i)}{S(j -> i)} over sources.
 }
 \details{
-\strong{Access information} \eqn{A_i}: how many bits it costs, on average,
-to reach the rest of the network from \eqn{i}. A low value means the
-node reaches others with few decisions. Hubs score \emph{high}: a walker
-leaving a hub has many links to choose from (on a star with five leaves
-the hub scores 1.93 bits, a leaf 1.33). \strong{Hide information}
-\eqn{H_i}: how many bits it costs the rest of the network to find
-\eqn{i}. High values mark hidden, peripheral nodes; hubs score low (the
-star hub scores 0). The encyclopedia's prose states the star case the
-other way round; the formulas and the source papers give the values
-above.
-
-On a directed graph every step uses the out-degree, \eqn{1 / k^{out}}.
-On a disconnected graph the average runs over the nodes a walker can
-actually reach (or be reached from), so values stay finite; on a
-connected graph this is exactly the paper's \eqn{1 / N}. Distances are
-hop counts; edge weights are ignored. Cost is
-\eqn{O(N (N + M))} with an \eqn{N \times N} matrix in memory.
-
-Validated against an independent enumeration of all shortest paths and
-against the worked values in both papers (star and complete bipartite
-graphs).
+Distances are hop counts, so edge weights are ignored. On a directed
+network every step uses the out-degree. The average runs over the nodes
+a walker can reach, or be reached from, so values stay finite on a
+disconnected network and equal the source's \eqn{1/N}{1/N} average on a
+connected one. Hubs score high on access information and low on hide
+information. On a star with five leaves the hub has access information
+1.93 bits and hide information 0, and each leaf has access information
+1.33 bits. The Centrality Zoo states the star case in reverse, and the
+values above follow the formulas and the source papers.
 }
 \examples{
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_access_information(star5)
-centrality_hide_information(star5)
+centrality_access_information(regulation_net)
+centrality_hide_information(regulation_net)
 }
 \references{
 Rosvall, M., Trusina, A., Minnhagen, P., & Sneppen, K. (2005). Networks
@@ -72,5 +58,5 @@ Sneppen, K., Trusina, A., & Rosvall, M. (2005). Hide-and-seek on complex
 networks. Europhysics Letters, 69(5), 853-859.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

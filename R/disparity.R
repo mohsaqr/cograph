@@ -21,10 +21,13 @@ NULL
 #'   a sparser backbone (fewer edges retained).
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return For matrices: a binary matrix (0/1) indicating significant edges.
-#'   For tna, cograph_network, and igraph objects: a \code{tna_disparity} object
-#'   containing the significance matrix, original weights, filtered weights,
-#'   and summary statistics.
+#' @return For a matrix, an integer matrix of the same dimensions and
+#'   dimnames with 1 for significant edges and 0 otherwise. For tna,
+#'   cograph_network and igraph objects, a \code{tna_disparity} list with
+#'   elements \code{significant} (the 0/1 matrix), \code{weights_orig},
+#'   \code{weights_filtered} (original weights times the 0/1 matrix),
+#'   \code{level}, \code{n_edges_orig} and \code{n_edges_filtered}. Any other
+#'   input raises an error.
 #'
 #' @details
 #' For each node \eqn{i} with degree \eqn{k_i}, and each edge \eqn{(i,j)}
@@ -33,7 +36,12 @@ NULL
 #'
 #' \deqn{p = (1 - p_{ij})^{(k_i - 1)}}
 #'
-#' Edges are significant if \eqn{p < level} for either endpoint.
+#' The p-value is computed from the outgoing weights of the source node
+#' (row strength and out-degree) and from the incoming weights of the target
+#' node (column strength and in-degree). An edge is significant if the
+#' smaller of the two p-values is below \code{level}. Self-loops are never
+#' retained. For igraph input, unweighted edges get weight 1 and multiple
+#' edges are summed before filtering.
 #'
 #' @references
 #' Serrano, M. A., Boguna, M., & Vespignani, A. (2009).
@@ -45,21 +53,7 @@ NULL
 #' @export
 #'
 #' @examples
-#' # Create a weighted network
-#' mat <- matrix(c(
-#'   0.0, 0.5, 0.1, 0.0,
-#'   0.3, 0.0, 0.4, 0.1,
-#'   0.1, 0.2, 0.0, 0.5,
-#'   0.0, 0.1, 0.3, 0.0
-#' ), nrow = 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-#'
-#' # Extract backbone at 5% significance level
-#' backbone <- disparity_filter(mat, level = 0.05)
-#' backbone
-#'
-#' # More stringent filter (1% level)
-#' backbone_strict <- disparity_filter(mat, level = 0.01)
+#' disparity_filter(regulation_net, level = 0.3)
 disparity_filter <- function(x, level = 0.05, ...) {
   UseMethod("disparity_filter")
 }
@@ -224,27 +218,7 @@ print.tna_disparity <- function(x, ...) {
 # Plot Method
 # =============================================================================
 
-#' Plot Disparity Filter Result
-#'
-#' @param x A tna_disparity object.
-#' @param type Plot type: "backbone" (default) or "comparison".
-#' @param combined Logical: when \code{type = "comparison"}, controls whether
-#'   the original vs. backbone panels are arranged in an internal 1 x 2 grid
-#'   (TRUE, default) or drawn into a layout the caller has already
-#'   configured (FALSE — pair with \code{\link{panel_layout}()}). Ignored
-#'   for \code{type = "backbone"}.
-#' @param ... Additional arguments passed to splot.
-#'
-#' @return Invisibly returns the value from the underlying \code{\link{splot}}
-#'   call. Called primarily for the side effect of producing a plot.
-#'
-#' @examples
-#' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,
-#'                 0.1, 0.2, 0.0, 0.5, 0.0, 0.1, 0.3, 0.0), 4, 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-#' disp <- disparity_filter(cograph(mat), level = 0.05)
-#' plot(disp)
-#'
+#' @rdname plot-results
 #' @export
 plot.tna_disparity <- function(x, type = c("backbone", "comparison"),
                                combined = TRUE, ...) {
@@ -269,26 +243,7 @@ plot.tna_disparity <- function(x, type = c("backbone", "comparison"),
 # splot Method for tna_disparity
 # =============================================================================
 
-#' Plot Disparity Results with splot
-#'
-#' @param x A tna_disparity object.
-#' @param show What to display: "styled" (default), "backbone", "full".
-#' @param edge_style_sig Line style for backbone edges. Default 1 (solid).
-#' @param edge_style_nonsig Line style for non-backbone edges. Default 2 (dashed).
-#' @param alpha_nonsig Alpha for non-backbone edges. Default 0.3.
-#' @param ... Additional arguments passed to splot.
-#'
-#' @return Invisibly returns the value from the underlying \code{\link{splot}}
-#'   call. Called primarily for the side effect of producing a plot.
-#'
-#' @examples
-#' mat <- matrix(c(0.0, 0.5, 0.1, 0.0, 0.3, 0.0, 0.4, 0.1,
-#'                 0.1, 0.2, 0.0, 0.5, 0.0, 0.1, 0.3, 0.0), 4, 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-#' disp <- disparity_filter(cograph(mat), level = 0.05)
-#' splot(disp)
-#' splot(disp, show = "backbone")
-#'
+#' @rdname plot-results
 #' @export
 splot.tna_disparity <- function(x, show = c("styled", "backbone", "full"),
                                 edge_style_sig = 1, edge_style_nonsig = 2,

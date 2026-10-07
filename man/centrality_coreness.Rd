@@ -2,31 +2,44 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_coreness}
 \alias{centrality_coreness}
-\title{K-Core Decomposition (Coreness)}
+\title{Coreness}
 \usage{
 centrality_coreness(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{loops} and \code{normalized}.}
 }
 \value{
-Named numeric vector of coreness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Assigns each node to its maximum k-core. A k-core is a maximal subgraph
-where every node has at least k connections within the subgraph.
+Coreness (Seidman 1983) is the largest \eqn{k} for which a node belongs to
+the \eqn{k}-core, the maximal subnetwork in which every node has degree at
+least \eqn{k}. It is found by repeatedly removing the nodes of lowest
+degree.
+}
+\details{
+Edge weights are ignored. \code{mode = "in"} and \code{mode = "out"} peel
+by in-degree and out-degree, and \code{mode = "all"} by total degree, in
+which a reciprocated tie counts twice. A self-loop adds a fixed amount to
+the degree of its node throughout the peeling. The values match
+\code{igraph::coreness()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_coreness(adj)
+centrality_coreness(regulation_net)
+}
+\references{
+Seidman, S. B. (1983). Network structure and minimum degree. Social
+Networks, 5(3), 269-287. \doi{10.1016/0378-8733(83)90028-X}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_degree}},
+\code{\link{centrality_s_core}}, \code{\link{centrality}}.
 }

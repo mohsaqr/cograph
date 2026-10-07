@@ -1,11 +1,4 @@
 #' @title Forest Plot for Bootstrap Network Results
-#' @description
-#' A ggplot2-based forest plot for \code{net_bootstrap},
-#' \code{net_bootstrap_group}, \code{tna_bootstrap}, and \code{boot_glasso}
-#' objects. Each row is one network edge; horizontal bars span the confidence
-#' interval and a filled square marks the point estimate. A dashed reference
-#' line runs through zero.
-#'
 #' @name plot_bootstrap_forest
 #' @importFrom stats quantile
 #' @importFrom utils head
@@ -785,16 +778,25 @@ utils::globalVariables(c(
 
 #' Forest Plot for Bootstrap Network Results
 #'
-#' Produces a ggplot2 forest plot where each row is one network edge, the
-#' square marks the bootstrap mean estimate, and the horizontal bar spans the
-#' selected interval. A dashed reference line runs through zero. Significant
-#' edges are highlighted in color; non-significant ones appear in grey (only
-#' shown when \code{show_nonsig = TRUE}).
+#' Plots bootstrap results of \code{net_bootstrap},
+#' \code{net_bootstrap_group}, \code{tna_bootstrap} and \code{boot_glasso}
+#' objects as a ggplot2 forest plot. Each row is one non-zero network edge.
+#' A square marks the point estimate, a horizontal bar spans the selected
+#' interval, and a dashed reference line marks zero. Significant edges are
+#' plotted in \code{sig_color} and non-significant edges in a faded
+#' \code{nonsig_color}.
 #'
-#' For \code{net_bootstrap} objects from stability inference, both a bootstrap
-#' confidence interval (\code{ci_lower}/\code{ci_upper}) and a consistency
-#' range (\code{cr_lower}/\code{cr_upper}) are available. Use
-#' \code{interval = "both"} to overlay both on the same plot.
+#' Objects from stability inference (\code{net_bootstrap} and
+#' \code{tna_bootstrap}) carry both a bootstrap confidence interval and a
+#' consistency range, and \code{interval = "both"} overlays the two. When the
+#' consistency range is requested but absent, a message is issued and the
+#' confidence interval is shown. For \code{boot_glasso}, an edge is
+#' significant when its inclusion proportion is at least \code{1 - alpha}.
+#'
+#' The \code{net_bootstrap_group} method plots the groups side by side in
+#' the linear layout, with the edges ordered by their mean estimate across
+#' groups. Its \code{interval = "both"} shows the confidence interval only,
+#' and its circular layout shows the first group only.
 #'
 #' @param x A \code{tna_bootstrap} (from \code{tna::bootstrap}),
 #'   \code{net_bootstrap}, \code{net_bootstrap_group}, or
@@ -806,31 +808,44 @@ utils::globalVariables(c(
 #' @param interval Which interval to display: \code{"ci"} (bootstrap confidence
 #'   interval, default), \code{"cr"} (consistency range, stability inference
 #'   only), or \code{"both"} (CI as outer bar, CR as inner bar).
-#' @param layout \code{"linear"} (default) draws the classic tall forest plot;
+#' @param layout \code{"linear"} (default) gives the standard forest plot;
 #'   \code{"circular"} arranges each edge as a spoke around a circle, with the
-#'   inner ring at the data minimum and the outer ring at the data maximum;
-#'   \code{"grouped"} arranges edges in sectors by source node where supported.
-#' @param show_nonsig Logical: include non-significant edges (greyed out)?
+#'   inner ring at the smallest lower bound and the outer ring just beyond the
+#'   largest upper bound; \code{"grouped"} arranges edges in sectors by source
+#'   node. The \code{net_bootstrap_group} method supports \code{"linear"} and
+#'   \code{"circular"} only.
+#' @param show_nonsig Logical. Include non-significant edges.
 #'   Default \code{TRUE}.
-#' @param sort_by How to order edges on the y-axis (linear layout) or
-#'   clockwise from top (radial layout):
+#' @param sort_by Order of edges on the y-axis in the linear layout:
 #'   \code{"estimate"} (default, ascending), \code{"significance"} (most
-#'   significant at top), or \code{"name"} (alphabetical).
-#' @param n_top Integer: restrict to the \code{n_top} edges with the largest
-#'   absolute estimate. Applied after significance filtering. Default \code{NULL}.
-#' @param sig_color Color for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).
-#' @param node_colors Optional node-color vector for grouped radial layouts.
+#'   significant at top), or \code{"name"} (alphabetical). When \code{n_top}
+#'   is set, the retained edges are ordered by estimate. The circular layout
+#'   orders edges alphabetically, clockwise from the top.
+#' @param n_top Integer. Keeps only the \code{n_top} edges with the largest
+#'   absolute estimate. Applied after significance filtering. Default
+#'   \code{NULL}.
+#' @param sig_color Color for significant CI bars and points (linear and
+#'   circular layouts). Default \code{"#2C6E8A"} (teal-blue).
+#' @param node_colors Optional named vector of node colors for the grouped
+#'   layout. When NULL, node colors stored in the original network or tna
+#'   model are used if present.
 #' @param cr_color Color for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
 #'   Default \code{"#D4829A"}.
-#' @param nonsig_color Color for non-significant edges. Default \code{"#CCCCCC"}.
-#' @param ring_color Color for the reference rings (radial layout only). Default \code{"#C8C8C8"}.
-#' @param median_color Color for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.
-#' @param label_size Text size for edge labels (radial and grouped layouts).
-#'   Default \code{NULL} for automatic sizing in the main methods, or
-#'   \code{2.8} for \code{net_bootstrap_group}.
-#' @param label_color Fixed color for edge labels (radial layout only). \code{NULL} (default)
-#'   inherits the edge color (teal for significant, grey for non-significant).
-#' @param point_size Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).
+#' @param nonsig_color Color for non-significant edges (linear and circular
+#'   layouts). Default \code{"#CCCCCC"}.
+#' @param ring_color Color for the reference rings (circular and grouped
+#'   layouts). Default \code{"#C8C8C8"}.
+#' @param median_color Color for the dashed median ring (circular and grouped
+#'   layouts). Default \code{"#AAAAAA"}.
+#' @param label_size Text size for edge labels (circular and grouped layouts).
+#'   Default \code{NULL}, which gives \code{2.9} in the circular layout and
+#'   automatic sizing in the grouped layout. The \code{net_bootstrap_group}
+#'   method defaults to \code{2.8}.
+#' @param label_color Fixed color for edge labels (circular and grouped
+#'   layouts). \code{NULL} (default) uses the edge color.
+#' @param point_size Size of the estimate square. Default \code{NULL}, which
+#'   gives \code{3} (linear), \code{2} (circular), or automatic sizing
+#'   (grouped).
 #' @param r_inner Inner ring radius (grouped layout). Default \code{NULL} (auto).
 #' @param r_outer Outer ring radius (grouped layout). Default \code{NULL} (auto).
 #' @param gap_rad Gap in radians between sectors (grouped layout). Default \code{NULL} (auto).
@@ -850,10 +865,8 @@ utils::globalVariables(c(
 #'
 #' @return A \code{ggplot} object.
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' # Bootstrap a TNA built from sequence data (required by tna::bootstrap)
-#' Mod  <- tna::tna(head(tna::group_regulation, 100))
-#' boot <- tna::bootstrap(Mod, iter = 50)
-#' plot_bootstrap_forest(boot, n_top = 8)
+#' boot <- tna::bootstrap(tna::tna(coding), iter = 50)
+#' plot_bootstrap_forest(boot)
 #' @export
 plot_bootstrap_forest <- function(x, ...) UseMethod("plot_bootstrap_forest")
 
@@ -1639,47 +1652,60 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
 
 #' Forest Plot for Bootstrap Edge Differences
 #'
-#' Visualizes pairwise edge weight differences from a \code{boot_glasso} object.
-#' Each row (linear) or spoke (circular) is one edge pair; the CI bar spans the
-#' bootstrap CI of the difference; a dashed line/ring marks zero.
-#' Red = first edge larger; blue = second edge larger.
+#' Plots pairwise edge weight differences from a \code{boot_glasso} object.
+#' Each row (linear) or spoke (circular) is one edge pair. The square marks
+#' the mean bootstrap difference, the bar spans its bootstrap percentile
+#' interval at level \code{1 - alpha}, and a dashed line or ring marks zero.
+#' Significant pairs are plotted in \code{pos_color} when the first edge is
+#' larger and in \code{neg_color} when the second edge is larger.
 #'
 #' @param x A \code{boot_glasso} object with \code{$boot_edges} and
 #'   \code{$edge_diff_p}.
 #' @param alpha Significance threshold. Default \code{NULL}, which inherits
-#'   \code{x$alpha}, falling back to \code{0.05}.
+#'   \code{x$alpha}, falling back to \code{0.05}. The tile layout always
+#'   uses \code{x$alpha}.
 #' @param layout \code{"linear"} (default), \code{"circular"}, \code{"chord"},
 #'   or \code{"tile"}. The chord layout places all edge names on a unit circle
-#'   and connects significant pairs with bezier arcs; arc width and color
-#'   encode the mean bootstrap difference. The tile layout draws the
-#'   pairwise-difference matrix.
-#' @param show_nonsig Include non-significant pairs? Default \code{FALSE}.
+#'   and connects significant pairs with Bezier arcs whose width and color
+#'   encode the mean bootstrap difference. The tile layout plots the full
+#'   pairwise-difference matrix and ignores \code{show_nonsig},
+#'   \code{nonzero_only}, \code{sort_by}, \code{n_top} and the label and
+#'   point arguments.
+#' @param show_nonsig Logical. Include non-significant pairs. Default
+#'   \code{FALSE}.
 #' @param nonzero_only If \code{TRUE}, restrict to edges that are non-zero in
-#'   the original network (identified via \code{$original_pcor}). Useful for
-#'   EBICglasso results where many edges are regularized to exactly zero.
-#'   Default \code{FALSE}.
+#'   the original network (\code{$original_pcor}). Without
+#'   \code{$original_pcor}, edges whose absolute mean bootstrap weight is at
+#'   least 10 percent of the largest are kept. Default \code{FALSE}.
 #' @param sort_by \code{"estimate"} (default), \code{"significance"}, or
-#'   \code{"name"} (linear only).
+#'   \code{"name"} (linear layout only). When \code{n_top} is set, the
+#'   retained pairs are ordered by estimate.
 #' @param n_top Restrict to top N pairs by absolute difference.
-#' @param pos_color Color when edge1 > edge2. Default crimson.
-#' @param neg_color Color when edge1 < edge2. Default teal.
-#' @param nonsig_color Color for non-significant pairs.
-#' @param ring_color Ring color (circular/chord). Default light grey.
-#' @param label_size Text size. Default \code{2.3}.
-#' @param label_color Fixed label color (\code{NULL} = inherit).
-#' @param point_size Size of estimate square (linear/circular). Default
-#'   \code{2} for \code{layout = "circular"} and \code{3} otherwise.
+#' @param pos_color Color when edge1 > edge2. Default \code{"#C0392B"}
+#'   (crimson).
+#' @param neg_color Color when edge1 < edge2. Default \code{"#2C6E8A"}
+#'   (teal-blue).
+#' @param nonsig_color Color for non-significant pairs. Default
+#'   \code{"#AAAAAA"}.
+#' @param ring_color Ring color (circular and chord layouts). Default
+#'   \code{"#C8C8C8"}.
+#' @param label_size Text size of edge labels (circular and chord layouts).
+#'   Default \code{2.3}.
+#' @param label_color Fixed label color (circular and chord layouts).
+#'   \code{NULL} (default) uses the pair color in the circular layout and
+#'   dark grey in the chord layout.
+#' @param point_size Size of estimate square (linear and circular layouts).
+#'   Default \code{2} for \code{layout = "circular"} and \code{3} otherwise.
 #' @param r_inner Inner ring radius (circular). Default \code{0.38}.
 #' @param r_outer Outer ring radius (circular). Default \code{0.72}.
-#' @param title Plot title.
-#' @param subtitle Plot subtitle.
+#' @param title Plot title. Default \code{NULL}.
+#' @param subtitle Plot subtitle. Default \code{NULL}.
 #' @param ... Currently unused.
 #'
 #' @return A \code{ggplot} object.
 #' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
 #' set.seed(1)
 #' data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
-#' # cs_iter only drives case-dropping stability, which this plot does not use.
 #' bg <- Nestimate::boot_glasso(data1, iter = 50, cs_iter = 25,
 #'                              centrality = c("strength", "expected_influence"))
 #' plot_edge_diff_forest(bg)

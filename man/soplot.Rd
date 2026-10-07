@@ -180,8 +180,9 @@ sn_render(
 )
 }
 \arguments{
-\item{network}{A cograph_network object, matrix, data.frame, or igraph object.
-Matrices and other inputs are auto-converted.}
+\item{network}{A cograph_network object, matrix, data.frame, igraph or tna
+object. Other inputs are converted with \code{as_cograph()}; tna objects
+are converted with \code{from_tna()}.}
 
 \item{title}{Optional plot title.}
 
@@ -198,7 +199,9 @@ Matrices and other inputs are auto-converted.}
 \item{layout}{Layout algorithm. Built-in: "circle", "spring", "groups", "grid",
 "random", "star", "bipartite". igraph (2-letter): "kk" (Kamada-Kawai),
 "fr" (Fruchterman-Reingold), "drl", "mds", "ni" (nicely), "tr" (tree), etc.
-Can also pass a coordinate matrix or igraph layout function directly.}
+Can also pass a coordinate matrix or igraph layout function directly.
+NULL (default) keeps the layout stored in a cograph_network and uses
+"oval" for inputs without stored coordinates.}
 
 \item{theme}{Theme name: "classic", "dark", "minimal", etc.}
 
@@ -263,7 +266,8 @@ single color for fill, or c(fill, background) for both.}
 \item{donut_colors}{Deprecated. Use donut_color instead.}
 
 \item{donut_shape}{Base shape for donut: "circle", "square", "hexagon", "triangle",
-"diamond", "pentagon". Default inherits from node_shape.}
+"diamond", "pentagon". The default "circle" takes the base shape from
+\code{node_shape} when that is one of these shapes.}
 
 \item{donut_value_fontface}{Font face for donut center value: "plain", "bold",
 "italic", "bold.italic". Default "bold".}
@@ -284,8 +288,9 @@ single color for fill, or c(fill, background) for both.}
 
 \item{edge_width}{Edge width. If NULL, scales by weight using edge_size and edge_width_range.}
 
-\item{edge_size}{Base edge size for weight scaling. NULL (default) uses adaptive sizing
-based on network size: \code{15 * exp(-n_nodes/90) + 1}. Larger values = thicker edges.}
+\item{edge_size}{Maximum edge width for weight scaling. It replaces the upper
+bound of \code{edge_width_range}. NULL (default) uses
+\code{edge_width_range} unchanged.}
 
 \item{esize}{Deprecated. Use \code{edge_size} instead.}
 
@@ -296,8 +301,8 @@ Default c(0.5, 4). Edges are scaled to fit within this range.}
 "log" (for wide weight ranges), "sqrt" (moderate compression),
 or "rank" (equal visual spacing).}
 
-\item{edge_cutoff}{Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
-0 = disabled. Positive number = manual threshold.}
+\item{edge_cutoff}{Accepted for compatibility with \code{splot()}. The grid
+renderer keeps width scaling continuous and does not use the value.}
 
 \item{cut}{Deprecated. Use \code{edge_cutoff} instead.}
 
@@ -307,7 +312,8 @@ or "rank" (equal visual spacing).}
 
 \item{edge_alpha}{Edge transparency (0-1).}
 
-\item{edge_style}{Line style: "solid", "dashed", "dotted".}
+\item{edge_style}{Line style: "solid", "dashed", "dotted", "longdash",
+"twodash".}
 
 \item{curvature}{Edge curvature amount.}
 
@@ -355,8 +361,10 @@ NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
 
 \item{curve_pivot}{Pivot position along edge for curve control point (0-1, default: 0.5).}
 
-\item{curves}{Curve mode: TRUE (default) = single edges straight, reciprocal edges
-curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.}
+\item{curves}{Curve mode. NULL (default) or "mutual" keeps single edges
+straight and curves reciprocal edges as two opposing arcs; FALSE plots all
+edges straight; "force" curves all edges. \code{TRUE} is rejected with an
+error.}
 
 \item{node_names}{Alternative names for legend (separate from display labels).}
 
@@ -365,84 +373,60 @@ curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curv
 \item{legend_position}{Legend position: "topright", "topleft", "bottomright", "bottomleft".}
 
 \item{scaling}{Scaling mode: "default" for qgraph-matched scaling where node_size=6
-looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.}
+looks similar to qgraph vsize=6, or "legacy" for the
+earlier cograph scaling constants.}
 
-\item{weight_digits}{Number of decimal places to round edge weights to before
-plotting. Edges that round to zero are automatically removed. Default 2.
-Set NULL to disable rounding.}
+\item{weight_digits}{Number of decimal places to which a matrix input is
+rounded before conversion, so that entries rounding to zero are not
+plotted as edges. Other inputs are not rounded. Default 2. Set NULL to
+disable rounding.}
 }
 \value{
-The updated \code{cograph_network} object, invisibly. Called
-primarily for the side effect of drawing.
+The updated \code{cograph_network} object, invisibly. The function
+is called for the plot it produces.
 
-The updated \code{cograph_network} object, invisibly. Called
-primarily for the side effect of drawing.
+The updated \code{cograph_network} object, invisibly. The function
+is called for the plot it produces.
 }
 \description{
-Main plotting function for Cograph networks. Renders the network visualization
-using grid graphics. Accepts all node and edge aesthetic parameters.
+Plots a network with grid graphics. Node and edge aesthetics can be passed
+as arguments or set beforehand with \code{\link{sn_nodes}} and
+\code{\link{sn_edges}}.
 }
 \details{
-\subsection{soplot vs splot}{
+\subsection{soplot and splot}{
 
-\code{soplot()} uses grid graphics while \code{splot()} uses base R graphics.
-Both accept the same parameters and produce visually similar output. Choose based on:
-\itemize{
-\item \strong{soplot}: Better for integration with ggplot2, combining plots,
-and publication-quality vector graphics.
-\item \strong{splot}: Better for large networks (faster rendering), interactive
-exploration, and traditional R workflows.
-}
+\code{soplot()} uses grid graphics and \code{splot()} uses base R graphics.
+The two functions share argument names for the common aesthetics, and
+\code{splot()} has a larger set of arguments.
 }
 
 \subsection{Edge Curve Behavior}{
 
-Edge curving is controlled by the \code{curves} and \code{curvature} parameters:
-\describe{
-\item{\strong{curves = FALSE}}{All edges are straight lines.}
-\item{\strong{curves = TRUE}}{(Default) Reciprocal edge pairs (A\code{->}B and
-B\code{->}A) curve in opposite directions to form a visual ellipse. Single
-edges remain straight.}
-\item{\strong{curves = "force"}}{All edges curve inward toward the network center.}
-}
+With the default \code{curves}, reciprocal edge pairs (A\code{->}B and
+B\code{->}A) curve in opposite directions and single edges remain straight.
+\code{curves = FALSE} plots all edges as straight lines, and
+\code{curves = "force"} curves every edge.
 }
 
-\subsection{Weight Scaling Modes (edge_scale_mode)}{
+\subsection{Weight Scaling Modes}{
 
-Controls how edge weights map to visual widths:
-\describe{
-\item{\strong{linear}}{Width proportional to weight. Best for similar-magnitude weights.}
-\item{\strong{log}}{Logarithmic scaling. Best for weights spanning orders of magnitude.}
-\item{\strong{sqrt}}{Square root scaling. Moderate compression for skewed data.}
-\item{\strong{rank}}{Rank-based scaling. Equal visual spacing regardless of values.}
-}
+\code{edge_scale_mode} sets how edge weights map to widths. \code{"linear"}
+makes width proportional to weight, \code{"log"} compresses weights that
+span orders of magnitude, \code{"sqrt"} gives moderate compression, and
+\code{"rank"} spaces widths evenly by weight rank.
 }
 
 \subsection{Donut Visualization}{
 
-The donut system visualizes proportions (0-1) as filled rings around nodes:
-\describe{
-\item{\strong{donut_fill}}{Proportion filled (0-1). Can be scalar or per-node vector.}
-\item{\strong{donut_color}}{Fill color. Single color, c(fill, bg), or per-node vector.}
-\item{\strong{donut_shape}}{Base shape: "circle", "square", "hexagon", etc.}
-\item{\strong{donut_show_value}}{Show numeric value in center.}
-}
+Donuts show proportions (0-1) as filled rings around nodes.
+\code{donut_fill} sets the filled proportion per node, \code{donut_color}
+sets the fill color (or fill and background), \code{donut_shape} sets the
+base shape and \code{donut_show_value} prints the value in the center.
 }
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With cograph()
-cograph(adj) |> soplot()
-
-# Direct matrix input with all options
-adj |> soplot(
-  layout = "circle",
-  node_fill = "steelblue",
-  node_size = 0.08,
-  edge_width = 2
-)
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-sn_render(mat)
+soplot(regulation_net, layout = "circle")
 }
 \seealso{
 \code{\link{splot}} for base R graphics rendering (alternative engine),

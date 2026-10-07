@@ -4,7 +4,7 @@
 \alias{centrality_shapley_game1}
 \alias{centrality_shapley_game2}
 \alias{centrality_shapley_game3}
-\title{Shapley Value Centrality (Games 1, 2 and 3)}
+\title{Shapley Value Centrality}
 \usage{
 centrality_shapley_game1(x, ...)
 
@@ -13,60 +13,42 @@ centrality_shapley_game2(x, shapley_k = 2, ...)
 centrality_shapley_game3(x, shapley_cutoff = 2, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 
-\item{shapley_k}{Neighbor threshold \eqn{k} for game 2. Default 2.}
+\item{shapley_k}{Neighbor threshold \eqn{k} for game 2 (default 2).}
 
-\item{shapley_cutoff}{Hop cutoff for game 3. Default 2.}
+\item{shapley_cutoff}{Hop cutoff for game 3 (default 2).}
 }
 \value{
-Named numeric vector, one Shapley value per node.
+A named numeric vector with one Shapley value per node, in input
+node order.
 }
 \description{
-Game-theoretic centrality of Michalak, Aadithya, Szczepanski, Ravindran
-and Jennings (2013): the Shapley value of each node in a coalition game
-whose worth \eqn{v(C)} is the number of nodes a coalition \eqn{C}
-"covers". Each game has a closed form, so the values are exact and cost
-linear time.
+Shapley value centrality (Michalak et al. 2013) is the Shapley value of
+each node in a coalition game whose worth \eqn{v(C)} counts the nodes a
+coalition \eqn{C} covers. Each game has an exact closed form. In game 1 a
+coalition covers its members and their neighbors, and
+\deqn{SV(v) = \sum_{u \in \{v\} \cup N(v)} \frac{1}{1 + k_u}.}{
+  SV(v) = sum_{u in {v} + N(v)} 1 / (1 + k_u).}
+In game 2 a coalition covers its members and the nodes with at least
+\eqn{k} neighbors in it. In game 3 it covers the nodes within
+\code{shapley_cutoff} hops of it, and \eqn{N(v)} is replaced by the set
+of nodes within that distance.
 }
 \details{
-\describe{
-\item{Game 1 (\code{shapley_game1})}{\eqn{v(C)} = nodes in \eqn{C} or
-adjacent to it. \eqn{SV(v) = \sum_{u \in \{v\} \cup N(v)}
-    1 / (1 + k_u)}.}
-\item{Game 2 (\code{shapley_game2})}{\eqn{v(C)} = nodes in \eqn{C} or
-with at least \eqn{k} neighbors in \eqn{C}.
-\eqn{SV(v) = \min(1, k / (1 + k_v)) + \sum_{u \in N(v)}
-    \max(0, (k_u - k + 1) / (k_u (1 + k_u)))}. With \eqn{k = 1} this is
-game 1. Threshold via \code{shapley_k} (default 2).}
-\item{Game 3 (\code{shapley_game3})}{\eqn{v(C)} = nodes within
-\code{shapley_cutoff} hops of \eqn{C} (default 2).
-\eqn{SV(v) = \sum_{u \in \{v\} \cup N_d(v)} 1 / (1 + |N_d(u)|)},
-where \eqn{N_d(u)} is the set of nodes within \eqn{d} hops of
-\eqn{u}. With cutoff 1 this is game 1.}
-}
-
-Values in every game sum to the number of nodes (efficiency). Higher
-values mark nodes whose presence adds more coverage to a typical
-coalition. Degrees exclude self-loops, as in the paper. On a directed
-graph the coverage runs along out-edges and the denominators use
-in-degrees (the paper's stated extension); distances for game 3 are hop
-counts, so edge weights are ignored.
-
-Validated against exact Shapley values obtained by enumerating every
-coalition on random graphs of up to eight nodes, including graphs with
-isolates, self-loops and several components.
+The values of every game sum to the number of nodes. Game 2 with
+\eqn{k = 1} and game 3 with cutoff 1 equal game 1. Degrees exclude
+self-loops, and edge weights are ignored. On a directed network coverage
+runs along out-edges and the denominators use in-degrees, the extension
+the source states. Distances in game 3 are hop counts.
 }
 \examples{
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_shapley_game1(star5)
-centrality_shapley_game2(star5, shapley_k = 2)
-centrality_shapley_game3(star5, shapley_cutoff = 1)
+centrality_shapley_game1(regulation_net)
+centrality_shapley_game2(regulation_net)
+centrality_shapley_game3(regulation_net)
 }
 \references{
 Michalak, T. P., Aadithya, K. V., Szczepanski, P. L.,
@@ -75,5 +57,5 @@ Shapley value for game-theoretic network centrality. Journal of
 Artificial Intelligence Research, 46, 607-650.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

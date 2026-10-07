@@ -17,23 +17,18 @@ lsim_matrix(layers, method = c("jaccard", "overlap", "cosine", "pearson"))
 are required.}
 
 \item{method}{Comparison method: "jaccard" (default), "overlap", "cosine" or
-"pearson". Note that \code{"hamming"}, accepted by
-\code{\link{layer_similarity}}, is \emph{not} available here because it is
-a distance rather than a similarity.}
+"pearson". The \code{"hamming"} distance is not accepted.}
 }
 \value{
-A symmetric L x L matrix of pairwise similarities with the layer
-names as dimnames and 1 on the diagonal.
+A symmetric L x L matrix of pairwise similarities with 1 on the
+diagonal. The dimnames are the layer names, or \code{"Layer1"},
+\code{"Layer2"}, ... for an unnamed list.
 }
 \description{
-Computes similarity matrix for all pairs of layers.
+Computes the similarity of every pair of layers with
+\code{\link{layer_similarity}}.
 }
 \examples{
-nodes <- c("A", "B", "C")
-t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-layers <- list(T1 = t1, T2 = t2)
-
-layer_similarity_matrix(layers, "cosine")
-layer_similarity_matrix(layers, "jaccard")
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+layer_similarity_matrix(layers, method = "cosine")
 }

@@ -7,50 +7,40 @@
 subgraphs(...)
 }
 \arguments{
-\item{...}{Arguments forwarded to \code{\link{motifs}()}. See \code{?motifs}
-for the full parameter list (\code{x}, \code{actor}, \code{window},
-\code{window_type}, \code{pattern}, \code{include}, \code{exclude},
-\code{significance}, \code{n_perm}, \code{cores}, \code{min_count},
-\code{edge_method}, \code{edge_threshold}, \code{min_transitions},
-\code{top}, \code{seed}). \code{named_nodes} is fixed to \code{TRUE} and
-must not be supplied.}
+\item{...}{Arguments forwarded to \code{\link{motifs}()}, which documents
+them (\code{x}, \code{actor}, \code{window}, \code{window_type},
+\code{pattern}, \code{include}, \code{exclude}, \code{significance},
+\code{n_perm}, \code{cores}, \code{min_count}, \code{edge_method},
+\code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed}).
+\code{named_nodes} is fixed to \code{TRUE} and must not be supplied.}
 }
 \value{
-A \code{cograph_motif_result} object with \code{named_nodes = TRUE}.
-Contains \code{$results} (data frame with columns \code{triad},
-\code{node1}, \code{node2}, \code{node3}, \code{observed}, \code{type},
-and when \code{significance = TRUE} also \code{expected}, \code{z},
-\code{p}, \code{sig}),
-\code{$type_summary}, \code{$level}, \code{$n_units}, and \code{$params}.
-At individual level, each result row is a node-triple and MAN-type
-combination, and \code{observed} counts sessions/units exhibiting it.
-In instance mode, \code{$type_summary} is built via
-\code{table(results$type)} so it counts how many node-triples fall under
-each MAN type.
+A \code{cograph_motif_result} object with \code{named_nodes = TRUE},
+described in \code{\link{motifs}()}, or NULL with a message when no triple
+passes the filters. Its results table has the columns \code{triad},
+\code{node1}, \code{node2}, \code{node3}, \code{type} and
+\code{observed}, and with \code{significance = TRUE} also
+\code{expected}, \code{z}, \code{p} and \code{sig}. Its
+\code{type_summary} counts the node triples of each MAN type.
 }
 \description{
-Convenience wrapper for \code{motifs(x, named_nodes = TRUE, ...)}. Returns
-one row per concrete node-triple and MAN type. At individual level,
-\code{observed} counts sessions/units exhibiting that combination, so one
-triple can occupy multiple rows when its type differs across units. The same
-MAN type can also appear in many rows, each with its own \code{z} / \code{p}.
-For per-triple significance use
-\code{plot(., type = "significance")} or \code{plot(., type = "triads")};
-the per-type plots (\code{"types"}, \code{"patterns"}) deliberately drop
-the significance decoration here, because aggregating per type requires a
-rule (median? max-|z|?) that isn't pinned and would be misleading by
-default.
+Calls \code{motifs(x, named_nodes = TRUE, ...)}. The result has one row per
+node triple and MAN type. At individual level, \code{observed} counts the
+units in which the triple has that type, so one triple can occupy several
+rows. One MAN type can also appear in many rows, each with its own
+\code{z} and \code{p}. Per-triple significance is plotted by
+\code{plot(., type = "significance")} and \code{plot(., type = "triads")}.
+The per-type plots (\code{"types"}, \code{"patterns"}) omit significance
+for instance results.
 }
 \details{
-The \code{"triads"} diagram uses a canonical representative of the row's
-MAN isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles.
+The \code{"triads"} diagram shows a canonical representative of the MAN
+isomorphism class of each row. The labels name the participating nodes.
+Their positions in the diagram do not encode the observed source and sink
+roles of the nodes.
 }
 \examples{
-mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
-subgraphs(mat, significance = FALSE)
+subgraphs(regulation_net, significance = FALSE, min_count = 1)
 }
 \seealso{
 \code{\link[=motifs]{motifs()}}
@@ -61,8 +51,6 @@ Other motifs:
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
 \code{\link{motifs}()},
-\code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()},
 \code{\link{triad_census}()}
 }
 \concept{motifs}

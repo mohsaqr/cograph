@@ -7,22 +7,40 @@
 centrality_markov(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of Markov centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Inverse of column means of the mean first passage time matrix.
-Requires a connected graph.
+Markov centrality (White and Smyth 2003) is the inverse of the mean first
+passage time of a random walk into a node:
+\deqn{M(j) = \left(\frac{1}{n} \sum_{i} m_{ij}\right)^{-1},}{
+  M(j) = 1 / ((1 / n) sum_i m_ij),}
+where \eqn{m_{ij}}{m_ij} is the expected number of steps from \eqn{i} to
+the first visit of \eqn{j} and \eqn{m_{jj} = 0}{m_jj = 0}.
+}
+\details{
+The walk moves from a node to each of its out-neighbors with equal
+probability, so edge weights are ignored. A disconnected network gives
+\code{NA} for every node with a warning that carries no condition class.
+On a directed network that is connected but not strongly connected some
+scores are \code{NA} without a warning. The values equal
+\code{centiserve::markovcent()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_markov(adj)
+centrality_markov(regulation_net)
+}
+\references{
+White, S., & Smyth, P. (2003). Algorithms for estimating relative
+importance in networks. In Proceedings of the Ninth ACM SIGKDD
+International Conference on Knowledge Discovery and Data Mining
+(pp. 266-275). \doi{10.1145/956750.956782}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_random_walk}},
+\code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 }

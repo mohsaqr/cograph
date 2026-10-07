@@ -43,54 +43,46 @@ plot_simplicial(
 }
 \arguments{
 \item{x}{A network object: \code{tna}, \code{netobject}, matrix,
-\code{igraph}, \code{cograph_network}, \code{net_hon},
-\code{net_hypa}, or \code{simplicial_complex} (an unordered
-complex — see \code{ordered}). When \code{x} is a \code{tna} or
-\code{netobject} with sequence data and \code{pathways} is
-\code{NULL}, higher-order pathways are built automatically
-using the \code{method} parameter.}
+\code{igraph}, \code{cograph_network}, \code{net_hon}, \code{net_hypa},
+\code{net_association_rules}, \code{net_link_prediction} or
+\code{simplicial_complex}. A data frame with a \code{path} column is
+used as \code{pathways}, and the states are then taken from the path
+strings.}
 
-\item{pathways}{Character vector of pathway strings, a list of
-character vectors, a \code{net_hon} / \code{net_hypa} object, or
-any data.frame with a \code{path} column (e.g., the output of
-\code{Nestimate::mogen_transitions()}). If a data.frame with a
-\code{path} column is passed as \code{x} and \code{pathways} is
-\code{NULL}, it is auto-promoted to \code{pathways} and the state
-set is derived from the path strings — \code{plot_simplicial(mgt)}
-works directly. String separators:
+\item{pathways}{Character vector of pathway strings, a list of character
+vectors, a \code{net_hon}, \code{net_hypa}, \code{net_association_rules},
+\code{net_link_prediction} or \code{simplicial_complex} object, or a data
+frame with a \code{path} column, such as the output of
+\code{Nestimate::mogen_transitions()}. Accepted string forms are
 \code{"A B -> C"}, \code{"A -> B -> C"}, \code{"A, B, C"},
-\code{"A - B - C"}, \code{"A B C"}. Last state is the target.
-When a data.frame is passed and a \code{count} column is present,
-rows are sorted by count descending before \code{max_pathways} is
-applied. When \code{NULL} and \code{x} is a model with sequence
-data, pathways are built automatically.}
+\code{"A - B - C"} and \code{"A B C"}, and the last state is the target.
+The rows of a data frame with a \code{count} column are sorted by count in
+decreasing order before \code{max_pathways} is applied. When \code{NULL}
+and \code{x} is a model with sequence data, pathways are built with
+\code{method}.}
 
-\item{method}{Pathway source when auto-building from a
-\code{tna}/\code{netobject}: \code{"hon"} (default, higher-order
-network), \code{"hypa"} (anomalous paths via hypergeometric null),
-or \code{"rules"} (association-rule itemsets via
-\code{Nestimate::association_rules}; rules are rendered as
-single-colored blobs because itemsets are undirected).}
+\item{method}{Pathway source when building from a \code{tna} or
+\code{netobject}: \code{"hon"} (default) for a higher-order network,
+\code{"hypa"} for paths that are anomalous under a hypergeometric null
+model, or \code{"rules"} for association-rule itemsets from
+\code{Nestimate::association_rules()}, which are plotted as sets.}
 
-\item{max_pathways}{Maximum number of pathways to display. HON
-pathways are ranked by count, HYPA by anomaly ratio.
-\code{NULL} shows all. Default \code{10}.}
+\item{max_pathways}{Maximum number of pathways to display. HON pathways are
+ranked by count and HYPA pathways by anomaly ratio. \code{NULL} shows all.
+Default \code{10}.}
 
-\item{pathway_index}{Optional positive integer vector selecting
-ranked pathways after extraction and ranking, before
-\code{max_pathways} is applied. For example, \code{2} plots the
-second-ranked pathway and \code{2:4} plots pathways ranked second
-through fourth.}
+\item{pathway_index}{Optional positive integer vector selecting ranked
+pathways before \code{max_pathways} is applied. For example, \code{2}
+plots the second-ranked pathway and \code{2:4} plots the pathways ranked
+second through fourth.}
 
-\item{anomaly}{HYPA anomaly type to display when plotting a
-\code{net_hypa} object or auto-building HYPA pathways via
-\code{method = "hypa"}. One of \code{"all"}, \code{"over"}, or
-\code{"under"}. Default \code{"all"}. Ignored (with a warning) for
-non-HYPA inputs such as \code{net_hon}, \code{net_association_rules},
-\code{net_link_prediction}, character pathway vectors, or
-\code{method = "hon"} / \code{"rules"}, which have no anomaly concept.}
+\item{anomaly}{HYPA anomaly type to display, one of \code{"all"}
+(default), \code{"over"} or \code{"under"}. It applies to a
+\code{net_hypa} input and to \code{method = "hypa"}. For any other input
+an explicitly supplied value is ignored with a warning.}
 
-\item{layout}{\code{"circle"} (default) or a coordinate matrix.}
+\item{layout}{\code{"circle"} (default) or a coordinate matrix with one row
+per state.}
 
 \item{labels}{Display labels. \code{NULL} uses state names.}
 
@@ -104,34 +96,23 @@ non-HYPA inputs such as \code{net_hon}, \code{net_association_rules},
 
 \item{label_size}{Label text size.}
 
-\item{label_color}{Label text color (default \code{"#e8e8e8"},
-very light grey). Light grey reads on both white and dark fills
-when the auto-contrast halo is enabled (it is by default).
-Applied to both source and target labels unless
-\code{target_label_color} overrides for targets.}
+\item{label_color}{Label text color for source and target nodes. Default
+\code{"#e8e8e8"}, a very light grey.}
 
-\item{target_label_color}{Target-node label color. \code{NULL}
-(default) reuses \code{label_color}.}
+\item{target_label_color}{Target-node label color. \code{NULL} (default)
+uses \code{label_color}.}
 
-\item{label_halo}{Logical. Draw a contrasting halo behind each
-label so it stays readable on any fill — node disc, blob, or
-the white canvas. Default \code{TRUE}. The halo is the only
-reliable way to keep, e.g., white labels legible when
-\code{node_color} is also light.}
+\item{label_halo}{Logical. Place a contrasting halo behind each label so
+that it stays readable on node, blob and background fills. Default
+\code{TRUE}.}
 
-\item{label_halo_color}{Halo color. \code{NULL} (default)
-auto-picks black or white based on the luminance of
-\code{label_color}, so a white label gets a dark halo and vice
-versa.}
+\item{label_halo_color}{Halo color. \code{NULL} (default) chooses black or
+white from the luminance of \code{label_color}.}
 
 \item{label_halo_width}{Halo thickness in plot units. Default
-\code{0.035}; raise for chunkier outlines, lower for subtler
-ones, or set to \code{0} to disable without touching
-\code{label_halo}.}
+\code{0.035}. A value of \code{0} removes the halo.}
 
-\item{label_halo_alpha}{Halo opacity (0–1). Default \code{0.6}
-reads as a soft glow rather than a hard outline; raise toward
-\code{1} for sharper contrast on very busy backgrounds.}
+\item{label_halo_alpha}{Halo opacity, from 0 to 1. Default \code{0.6}.}
 
 \item{blob_alpha}{Blob fill transparency.}
 
@@ -143,78 +124,68 @@ reads as a soft glow rather than a hard outline; raise toward
 
 \item{blob_line_alpha}{Blob border line transparency.}
 
-\item{shadow}{Draw soft drop shadows?}
+\item{shadow}{Add soft drop shadows?}
 
-\item{title}{Plot title.}
+\item{title}{Plot title of the combined overlay.}
 
-\item{dismantled}{If \code{TRUE}, one panel per pathway arranged
-in a grid layout.}
+\item{dismantled}{If \code{TRUE}, one panel per pathway arranged in a grid.}
 
 \item{ncol}{Number of columns in the grid when \code{dismantled = TRUE}.
-Default \code{NULL} auto-selects based on the number of pathways.}
+\code{NULL} (default) uses the ceiling of the square root of the number
+of pathways.}
 
-\item{ordered}{Is each higher-order structure a PATH or a SET?
-\code{TRUE} treats the last state of every pathway as its target
-(HON / HYPA / MOGen). \code{FALSE} treats every member as co-equal:
-there is no target, so no node is painted with \code{target_color},
-no direction cue is drawn, and the panel title is a member list
-rather than an arrow. \code{NULL} (default) reads it off the input
-— \code{net_association_rules} and \code{simplicial_complex} are
-sets, everything else is a path.}
+\item{ordered}{Logical. \code{TRUE} treats each pathway as a path whose last
+state is the target. \code{FALSE} treats it as a set of equal members,
+so no node gets \code{target_color}, no direction cue is shown and the
+panel title lists the members. \code{NULL} (default) treats
+\code{net_association_rules}, \code{simplicial_complex} and
+\code{method = "rules"} pathways as sets and all other inputs as paths.}
 
-\item{direction}{Draw the traversal inside each per-pathway panel:
-a light-to-dark core ramp along the path, a ring whose gold peaks
-on the side facing the next state, and an arrowhead just outside
-each node aimed at its successor. \code{NULL} (default) enables
-them exactly when \code{dismantled = TRUE}. A simplex is a set of
-vertices, so the combined overlay — where blobs overlap and a state
-can sit in several pathways at once — cannot express direction;
-\code{direction = TRUE} with \code{dismantled = FALSE} is an
-error rather than a silent no-op. Also forced off when the caller
-has collapsed the source/target two-tone (undirected input such as
-\code{net_association_rules}).}
+\item{direction}{Logical. Show the order of traversal in each per-pathway
+panel by a light-to-dark shading of the node cores along the path, a ring
+whose \code{ring_color} is strongest on the side facing the next state,
+and an arrowhead pointing to the successor. \code{NULL} (default) enables it when
+\code{dismantled = TRUE}. \code{direction = TRUE} with
+\code{dismantled = FALSE} raises a \code{cograph_direction_needs_panels}
+error, because a state shared by several pathways in the overlay has no
+single successor. Direction is turned off for sets and when
+\code{target_color} equals \code{node_color}.}
 
-\item{direction_cues}{Which cues to draw, any of \code{"shade"},
-\code{"ring"}, \code{"arrows"}. Default all three.}
+\item{direction_cues}{Which direction cues to show, any of \code{"shade"},
+\code{"ring"} and \code{"arrows"}. Default all three.}
 
-\item{node_radius}{Node core radius in data units, used only on the
-directed path (rings and cores become polygons there so the ring
-gradient and the arrow offset are expressible; \code{geom_point()}
-sizes are device millimeters and cannot answer either).
-\code{NULL} (default) scales it to the panel extent so the nodes
-keep the size they have today.}
+\item{node_radius}{Node core radius in data units, used in panels that show
+direction. \code{NULL} (default) scales it to the panel extent.}
 
-\item{legend}{Draw the in-figure legend strip beneath a dismantled
-grid. Default \code{TRUE} when \code{direction} is on.}
+\item{legend}{Add a legend strip beneath a dismantled grid. \code{NULL}
+(default) adds it when \code{direction} is on.}
 
-\item{...}{Additional arguments passed to
-\code{Nestimate::build_hon()} or \code{Nestimate::build_hypa()}
-when auto-building.}
+\item{...}{Additional arguments passed to \code{Nestimate::build_hon()},
+\code{Nestimate::build_hypa()} or \code{Nestimate::association_rules()}
+when pathways are built from a model.}
 }
 \value{
 Invisibly, a \code{ggplot} object for the combined overlay. With
-\code{dismantled = TRUE} the arranged grid is returned instead: a
-\code{gtable} when \pkg{gridExtra} is available, otherwise a plain list
-of the per-pathway \code{ggplot} objects. \code{NULL} is returned when
-there is nothing to draw (no pathways could be extracted). Called for the
-side effect of drawing.
+\code{dismantled = TRUE} the arranged grid is returned instead, as a
+\code{gtable} when \pkg{gridExtra} is available and otherwise as a list of
+the per-pathway \code{ggplot} objects. \code{NULL} is returned, with a
+message, when no pathways could be extracted. The figure is printed as a
+side effect.
 }
 \description{
-Visualize higher-order pathways as smooth blobs overlaid on a
-network layout. Source nodes are blue, target nodes are red.
+Visualizes higher-order pathways as smooth blobs overlaid on a network
+layout. Source nodes are filled with \code{node_color} (blue by default)
+and target nodes with \code{target_color} (orange by default).
 }
 \details{
-Supports direct use with \code{tna} and \code{netobject} models:
-when \code{x} has sequence data, HON or HYPA pathways are built
-automatically (requires the \pkg{Nestimate} package). Pathways can
-also be passed as \code{net_hon} or \code{net_hypa} objects, with
-labels auto-translated when \code{x} is a \code{tna}/\code{netobject}.
+When \code{x} is a \code{tna} or \code{netobject} model with sequence data
+and \code{pathways} is \code{NULL}, the pathways are built from the
+sequences with the \pkg{Nestimate} package. Pathways passed as
+\code{net_hon} or \code{net_hypa} objects have their numeric state
+identifiers translated to labels when \code{x} is a \code{tna} or
+\code{netobject}.
 }
 \examples{
-set.seed(1)
-mat <- matrix(runif(16), 4, 4,
-              dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-diag(mat) <- 0
-plot_simplicial(mat, c("A B -> C", "B C -> D"))
+plot_simplicial(regulation_net, c("Plan Monitor -> Adapt", "Explore Reflect -> Plan"))
 
 }

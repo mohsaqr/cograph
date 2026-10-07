@@ -2,6 +2,7 @@
 #' @description The primary function for creating network visualizations.
 #' @name cograph-main
 #' @keywords internal
+#' @noRd
 NULL
 
 # Unwrap a saved layout list (from splot's $meta$layout) back to its coord
@@ -156,20 +157,23 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #'   - A qgraph object
 #'   - A tna object
 #' @param layout Layout algorithm name such as "circle", "oval", "spring",
-#'   "groups", "grid", "random", "star", "bipartite", "gephi", or "custom";
-#'   a coordinate matrix/data frame; a CographLayout; or an igraph layout
-#'   function/name. Default NULL (no layout computed). Set to a layout to
-#'   compute immediately, or use sn_layout() later.
+#'   "groups", "grid", "random", "star", "bipartite" or "gephi" (see
+#'   \code{\link{list_layouts}}); a coordinate matrix or data frame; or an
+#'   igraph layout function, name or two-letter code. Default NULL computes no
+#'   layout. A layout can also be set later with \code{\link{sn_layout}}.
 #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
 #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
 #'   If data frame has a `label` or `labels` column, those are used for display.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
-#' @param simplify Logical or character. If FALSE (default), every transition
-#'   from tna sequence data is a separate edge. If TRUE or a string
-#'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
+#' @param simplify Logical or character. Used for tna input only. If FALSE
+#'   (default), every transition from tna sequence data is a separate edge.
+#'   If TRUE or a string ("sum", "mean", "max", "min"), duplicate edges are
+#'   aggregated, and TRUE uses "sum".
 #' @param ... Additional arguments passed to the layout function.
 #'
-#' @return A cograph_network object that can be further customized and rendered.
+#' @return A \code{cograph_network} object. It is a list with the elements
+#'   \code{nodes}, \code{edges}, \code{directed}, \code{weights},
+#'   \code{data}, \code{meta} and \code{node_groups}.
 #'
 #' @seealso
 #' \code{\link{splot}} for base R graphics rendering,
@@ -184,19 +188,7 @@ compute_layout_for_cograph <- function(net, layout = "spring", seed = 42, ...) {
 #' @export
 #'
 #' @examples
-#' # From adjacency matrix (layout computed lazily on first plot)
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj) |> splot()
-#'
-#' # From edge list
-#' edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
-#' cograph(edges) |> splot(layout = "circle")
-#'
-#' # Pipe-friendly customization
-#' cograph(adj) |>
-#'   sn_nodes(fill = "steelblue") |>
-#'   sn_edges(color = "gray50") |>
-#'   splot(layout = "circle")
+#' cograph(regulation_net) |> splot(layout = "circle")
 cograph <- function(input, layout = NULL, directed = NULL,
                    nodes = NULL, seed = 42, simplify = FALSE, ...) {
 
@@ -336,27 +328,26 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #' @details
 #' ## Built-in Layouts
 #' \describe{
-#'   \item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
-#'     Good general-purpose layout. Default.}
-#'   \item{\strong{oval}/\strong{ellipse}}{Nodes arranged around an ellipse.}
-#'   \item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
-#'     or when structure is less important.}
-#'   \item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
-#'   \item{\strong{grid}}{Nodes in a regular grid.}
-#'   \item{\strong{random}}{Random positions. Useful as starting point.}
-#'   \item{\strong{star}}{Central node with others arranged around it.}
-#'   \item{\strong{bipartite}}{Two-column layout for bipartite networks.}
-#'   \item{\strong{gephi}/\strong{gephi_fr}}{Gephi-style force-directed layout.}
+#'   \item{\code{"spring"}}{Force-directed layout (Fruchterman-Reingold).}
+#'   \item{\code{"oval"}/\code{"ellipse"}}{Nodes arranged around an ellipse.}
+#'   \item{\code{"circle"}}{Nodes arranged in a circle.}
+#'   \item{\code{"groups"}}{Circular layout with grouped nodes clustered together.}
+#'   \item{\code{"grid"}}{Nodes in a regular grid.}
+#'   \item{\code{"random"}}{Random positions.}
+#'   \item{\code{"star"}}{Central node with others arranged around it.}
+#'   \item{\code{"bipartite"}}{Two-column layout for bipartite networks.}
+#'   \item{\code{"gephi"}/\code{"gephi_fr"}}{Gephi-style force-directed layout.}
 #' }
 #'
 #' ## igraph Layouts
 #' Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr" (Fruchterman-Reingold),
 #' "drl", "mds", "ni" (nicely), "tr" (tree), "ci" (circle), etc.
 #'
-#' You can also pass igraph layout functions directly or use full names like
-#' "layout_with_kk".
+#' igraph layout functions and full igraph layout names such as
+#' \code{"layout_with_kk"} are also accepted.
 #'
-#' @return Modified cograph_network object.
+#' @return The \code{cograph_network} with node coordinates in the \code{x}
+#'   and \code{y} columns of its node table.
 #'
 #' @seealso
 #' \code{\link{cograph}} for network creation,
@@ -368,12 +359,7 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj) |> sn_layout("circle") |> splot()
-#'
-#' # Custom coordinates
-#' coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
-#' cograph(adj) |> sn_layout(coords) |> splot()
+#' cograph(regulation_net) |> sn_layout("circle") |> splot()
 sn_layout <- function(network, layout, seed = 42, ...) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network, layout = layout, seed = seed, ...)
@@ -438,23 +424,26 @@ sn_layout <- function(network, layout, seed = 42, ...) {
 #' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
 #' @param theme Theme name (string) or CographTheme object.
-#' @param ... Additional theme parameters to override.
+#' @param ... Theme parameters to override, such as \code{background},
+#'   \code{node_fill} or \code{edge_color}. An unknown parameter name raises
+#'   an error.
 #'
 #' @details
 #' ## Available Themes
 #' \describe{
-#'   \item{\strong{classic}}{Default theme with white background, blue nodes, gray edges.}
-#'   \item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
-#'   \item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
-#'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
-#'   \item{\strong{gray}/\strong{grey}}{Black and white theme suitable for print.}
-#'   \item{\strong{viridis}}{Perceptually uniform colors.}
-#'   \item{\strong{nature}}{Nature-inspired colors.}
+#'   \item{\code{"classic"}}{White background, blue nodes and gray edges.}
+#'   \item{\code{"dark"}}{Dark background with bright nodes, for presentations.}
+#'   \item{\code{"minimal"}}{Subtle styling with thin edges and muted colors.}
+#'   \item{\code{"colorblind"}}{Optimized for color vision deficiency.}
+#'   \item{\code{"gray"}/\code{"grey"}}{Black and white theme suitable for print.}
+#'   \item{\code{"viridis"}}{Perceptually uniform colors.}
+#'   \item{\code{"nature"}}{Nature-inspired colors.}
 #' }
 #'
 #' Use \code{list_themes()} to see all available themes.
 #'
-#' @return Modified cograph_network object.
+#' @return The \code{cograph_network} with the theme stored in its
+#'   \code{theme} element.
 #'
 #' @seealso
 #' \code{\link{cograph}} for network creation,
@@ -467,11 +456,7 @@ sn_layout <- function(network, layout, seed = 42, ...) {
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj) |> sn_theme("dark") |> splot()
-#'
-#' # Override a theme property
-#' cograph(adj) |> sn_theme("classic", background = "lightgray") |> splot()
+#' cograph(regulation_net) |> sn_theme("dark") |> splot()
 sn_theme <- function(network, theme, ...) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)
@@ -507,26 +492,29 @@ sn_theme <- function(network, theme, ...) {
 #'
 #' @param network A cograph_network object, matrix, data.frame, or igraph object.
 #'   Matrices and other inputs are auto-converted.
-#' @param palette Palette name or function.
-#' @param target What to apply the palette to: "nodes", "edges", or "both".
-#' @param by Variable to map colors to (for nodes: column name or "group").
+#' @param palette Palette name (see \code{\link{list_palettes}}) or a function
+#'   that takes \code{n} and returns \code{n} colors.
+#' @param target What to apply the palette to: "nodes" (default), "edges", or
+#'   "both". For edges, the first two palette colors become the colors of
+#'   positive and negative edges.
+#' @param by Name of a node-table column whose values are mapped to palette
+#'   colors. When \code{by} is NULL or not a column of the node table, every
+#'   node gets the first palette color.
 #'
 #' @details
 #' ## Available Palettes
 #' Use \code{list_palettes()} to see all available palettes. Common options:
 #' \describe{
-#'   \item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
-#'   \item{\strong{colorblind}}{Optimized for color vision deficiency.}
-#'   \item{\strong{pastel}}{Soft, muted colors.}
-#'   \item{\strong{blues}}{Blue sequential palette.}
-#'   \item{\strong{reds}}{Red sequential palette.}
-#'   \item{\strong{diverging}}{Blue-white-red diverging palette.}
+#'   \item{\code{"viridis"}}{Perceptually uniform, colorblind-friendly.}
+#'   \item{\code{"colorblind"}}{Optimized for color vision deficiency.}
+#'   \item{\code{"pastel"}}{Soft, muted colors.}
+#'   \item{\code{"blues"}}{Blue sequential palette.}
+#'   \item{\code{"reds"}}{Red sequential palette.}
+#'   \item{\code{"diverging"}}{Blue-white-red diverging palette.}
 #' }
 #'
-#' You can also pass a custom palette function that takes \code{n} and returns
-#' \code{n} colors.
-#'
-#' @return Modified cograph_network object.
+#' @return The \code{cograph_network} with the node fill colors and edge colors
+#'   stored in its \code{node_aes} and \code{edge_aes} elements.
 #'
 #' @seealso
 #' \code{\link{cograph}} for network creation,
@@ -538,11 +526,7 @@ sn_theme <- function(network, theme, ...) {
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj) |> sn_palette("viridis") |> splot()
-#'
-#' # Apply to edges
-#' cograph(adj) |> sn_palette("colorblind", target = "edges") |> splot()
+#' cograph(regulation_net) |> sn_palette("viridis") |> splot()
 sn_palette <- function(network, palette, target = "nodes", by = NULL) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)

@@ -2,31 +2,42 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_lobby}
 \alias{centrality_lobby}
-\title{Lobby Index (H-Index of Neighborhood)}
+\title{Lobby Index}
 \usage{
 centrality_lobby(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named integer vector of lobby index values.
+A named integer vector with one index per node, in input node
+order.
 }
 \description{
-Largest k such that the node's closed neighborhood contains at least k
-nodes with degree >= k. Network analogue of the h-index.
+The lobby index (Korn et al. 2009) is the h-index of the degrees in the
+closed neighborhood of a node. It is the largest \eqn{k} such that the
+node and its neighbors include at least \eqn{k} nodes of degree \eqn{k}
+or more.
+}
+\details{
+Edge weights are ignored. \code{mode} selects both the degree and the
+neighbors, and with \code{mode = "all"} on a directed network the degree
+is in plus out. An isolated node scores 0. On undirected networks the
+values equal \code{centiserve::lobby()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lobby(adj)
+centrality_lobby(regulation_net)
+}
+\references{
+Korn, A., Schubert, A., & Telcs, A. (2009). Lobby index in networks.
+Physica A, 388(11), 2221-2226. \doi{10.1016/j.physa.2009.02.013}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_degree}},
+\code{\link{centrality_coreness}}, \code{\link{centrality}}.
 }

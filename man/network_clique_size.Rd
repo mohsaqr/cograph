@@ -13,11 +13,11 @@ network_clique_size(x, ...)
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Integer: size of the largest clique
+Numeric scalar: the size of the largest clique.
 }
 \description{
-Finds the size of the largest clique (complete subgraph) in the network.
-Also known as the clique number or omega of the graph.
+Computes the size of the largest clique (complete subgraph) in the
+network, also called the clique number or omega of the graph.
 }
 \details{
 A clique is defined on undirected ties, so a directed network is read with
@@ -26,8 +26,6 @@ repeated edges are dropped before counting.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Triangle embedded in larger graph
-adj <- matrix(c(0,1,1,1, 1,0,1,0, 1,1,0,0, 1,0,0,0), 4, 4)
-network_clique_size(adj)  # 3
+network_clique_size(regulation_net)
 \dontshow{\}) # examplesIf}
 }

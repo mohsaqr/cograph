@@ -2,7 +2,7 @@
 % Please edit documentation in R/network-utils.R
 \name{select_nodes}
 \alias{select_nodes}
-\title{Select Nodes with Lazy Centrality Computation}
+\title{Select Nodes}
 \usage{
 select_nodes(
   x,
@@ -27,8 +27,8 @@ select_nodes(
 global context variables. Centrality measures are computed lazily (only
 those actually referenced). Available variables:
 \describe{
-\item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
-\code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+\item{Node columns}{All columns of the node table, such as \code{id},
+\code{label}, \code{name}, \code{x}, \code{y} and any custom columns.}
 \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
@@ -70,7 +70,7 @@ of neighbors, etc.). Default 1.}
 \item{\code{"none"}}{Remove all edges}
 }}
 
-\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+\item{keep_format}{Logical. If TRUE, matrix, igraph, statnet network and tna
 inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
@@ -79,38 +79,31 @@ inputs are returned in that format. Default FALSE returns cograph_network.}
 }
 \value{
 A cograph_network object with selected nodes. If \code{keep_format = TRUE},
-matrix, igraph, and statnet network inputs are converted back to that type.
+matrix, igraph, statnet network and tna inputs are converted back to that type.
 }
 \description{
-A more nuanced node selection function that improves upon \code{filter_nodes()}
-with lazy centrality computation (only computes measures actually referenced),
-multiple selection modes, and global context variables for structural awareness.
+Selects nodes by name, index, rank on a centrality measure, neighborhood,
+connected component, or filter expressions on node columns, centrality
+measures and structural variables.
 }
 \details{
-Selection modes are combined with AND logic (like tidygraph/dplyr):
-\itemize{
-\item \code{select_nodes(x, top = 10, component = "largest")} selects
-top 10 nodes \strong{within} the largest component
-\item All criteria must be satisfied for a node to be selected
-}
+Selection criteria are combined with AND logic, so a node is selected only
+when it satisfies all of them. The \code{top} ranking is applied to the
+nodes that pass \code{name}, \code{index}, \code{component} and
+\code{neighbors_of}, and the filter expressions in \code{...} are applied
+afterwards. For example,
+\code{select_nodes(x, top = 10, component = "largest")} selects the 10
+highest-degree nodes within the largest component.
 
-Centrality measures are computed lazily - only measures actually referenced
-in expressions or the \code{by} parameter are computed. This makes
-\code{select_nodes()} faster than \code{filter_nodes()} for large networks.
+Only the centrality measures referenced in expressions or in \code{by} are
+computed.
 
 For networks with negative edge weights, \code{betweenness},
 \code{closeness} and \code{pagerank} are undefined and return \code{NA},
 with a \code{cograph_negative_weights} warning.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_nodes(adj, degree >= 3)
-select_nodes(adj, top = 2, by = "pagerank")
-select_nodes(adj, neighbors_of = "A", order = 2)
-select_nodes(adj, component = "largest")
+select_nodes(regulation_net, top = 3, by = "pagerank")
 }
 \seealso{
 \code{\link{filter_nodes}}, \code{\link{select_neighbors}},

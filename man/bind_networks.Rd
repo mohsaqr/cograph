@@ -44,13 +44,7 @@ first, then any node only \code{y} has.
 Aligns two networks on node labels and combines their edges.
 }
 \examples{
-a <- matrix(0, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-a["A", "B"] <- a["B", "A"] <- 1
-b <- matrix(0, 3, 3, dimnames = list(c("B", "C", "D"), c("B", "C", "D")))
-b["B", "C"] <- b["C", "B"] <- 2
-
-bind_networks(a, b)
-bind_networks(a, b, method = "difference")
+bind_networks(regulation_net, t(regulation_net))
 }
 \seealso{
 \code{\link{add_edges}}, \code{\link{plot_difference}}

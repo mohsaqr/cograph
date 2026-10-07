@@ -13,69 +13,76 @@
 #' Community Detection
 #'
 #' @description
-#' Detects communities/clusters in networks using various algorithms.
-#' Provides a unified interface to igraph's community detection functions.
+#' Detects communities in a network with one of the community detection
+#' algorithms of igraph. Each method calls the matching
+#' \code{community_*()} function.
 #'
 #' @param x Network input: matrix, igraph, network, CographNetwork,
-#'   cograph_network, or tna object
-#' @param method Community detection algorithm. One of:
-#'   \itemize{
-#'     \item \code{"louvain"} - Louvain modularity optimization (default, fast)
-#'     \item \code{"leiden"} - Leiden algorithm (improved Louvain)
-#'     \item \code{"fast_greedy"} - Fast greedy modularity optimization
-#'     \item \code{"walktrap"} - Random walk-based detection
-#'     \item \code{"infomap"} - Information theoretic approach
-#'     \item \code{"label_propagation"} - Label propagation (very fast)
-#'     \item \code{"edge_betweenness"} - Girvan-Newman algorithm
-#'     \item \code{"leading_eigenvector"} - Leading eigenvector method
-#'     \item \code{"spinglass"} - Spinglass simulation
-#'     \item \code{"optimal"} - Exact modularity optimization (slow)
-#'     \item \code{"fluid"} - Fluid communities algorithm
-#'   }
+#'   cograph_network, or tna object.
+#' @param method Community detection algorithm. One of \code{"louvain"}
+#'   (default; Louvain modularity optimization), \code{"leiden"} (Leiden
+#'   algorithm), \code{"fast_greedy"} (greedy modularity optimization),
+#'   \code{"walktrap"} (random walks), \code{"infomap"} (map equation),
+#'   \code{"label_propagation"} (label propagation),
+#'   \code{"edge_betweenness"} (Girvan-Newman), \code{"leading_eigenvector"}
+#'   (leading eigenvector of the modularity matrix), \code{"spinglass"}
+#'   (spinglass model), \code{"optimal"} (exact modularity maximization) or
+#'   \code{"fluid"} (fluid communities).
 #' @param community Optional integer or character vector. If supplied, the
 #'   returned data frame is filtered to rows whose `community` column
 #'   matches one of the given values. Default `NULL` (keep all communities).
-#' @param weights Edge weights. If NULL, uses edge weights from the network
-#'   if available, otherwise unweighted. Set to NA for explicitly unweighted.
-#' @param resolution Resolution parameter for modularity-based methods
-#'   (louvain, leiden). Higher values yield more communities. Default 1.
-#' @param directed Logical; whether edge-betweenness should treat the network
-#'   as directed. Default NULL (auto-detect for edge-betweenness). Other methods
-#'   use their own directed/undirected handling.
-#' @param seed Random seed for reproducibility. Only applies to stochastic
-#'   algorithms (louvain, leiden, infomap, label_propagation, spinglass).
-#' @param ... Additional parameters passed to the specific algorithm.
-#'   See individual functions for details.
+#' @param weights Edge weights. \code{NULL} (default) uses the edge weights
+#'   of the network when present and otherwise runs unweighted. \code{NA}
+#'   runs unweighted.
+#' @param resolution Resolution parameter of the louvain and leiden methods.
+#'   For louvain, higher values yield more communities. Default 1.
+#' @param directed Logical. Whether the edge betweenness method treats the
+#'   network as directed. \code{NULL} (default) uses the direction of the
+#'   network. The other methods ignore it.
+#' @param seed Random seed for reproducibility. It applies to the stochastic
+#'   methods (louvain, leiden, infomap, label_propagation, spinglass).
+#' @param ... Additional arguments passed to the \code{community_*()}
+#'   function of the chosen method, for example \code{no.of.communities} for
+#'   \code{"fluid"}.
 #'
-#' @return A tidy \code{cograph_communities} data frame with columns:
+#' @return A \code{cograph_communities} data frame with one row per node and
+#'   the columns
 #'   \describe{
-#'     \item{node}{Node label (character)}
-#'     \item{community}{Community assignment (integer)}
+#'     \item{node}{Node label (character).}
+#'     \item{community}{Community number (numeric).}
 #'   }
-#'   Metadata stored as attributes: \code{"algorithm"}, \code{"modularity"},
-#'   \code{"network"} (original input), \code{"igraph_result"}.
+#'   The attributes \code{"algorithm"} (method name), \code{"modularity"}
+#'   (modularity of the partition, \code{NA} when igraph does not compute
+#'   it), \code{"network"} (the input \code{x}) and \code{"igraph_result"}
+#'   (the igraph \code{communities} object) hold the metadata. When
+#'   \code{community} is supplied, only the matching rows are kept.
 #'
 #' @details
-#' When called through this wrapper, methods that require undirected graphs
-#' (\code{"louvain"}, \code{"leiden"}, \code{"fast_greedy"},
-#' \code{"leading_eigenvector"}, and \code{"fluid"}) fall back to
-#' \code{"walktrap"} if the input graph is directed.
+#' The louvain, leiden, fast_greedy, leading_eigenvector and fluid methods
+#' require an undirected graph. For a directed input this function prints a
+#' message and runs \code{"walktrap"} instead. Called directly,
+#' \code{community_louvain()} and \code{community_leiden()} raise an igraph
+#' error on a directed graph, while \code{community_fast_greedy()},
+#' \code{community_leading_eigenvector()} and \code{community_fluid()}
+#' collapse it to an undirected graph with summed weights.
 #'
-#' \strong{Algorithm Selection Guide:}
+#' Negative edge weights are replaced by their absolute values for all
+#' methods except spinglass and optimal, which receive the weights as they
+#' are.
 #'
-#' \tabular{lll}{
-#'   Algorithm \tab Best For \tab Time Complexity \cr
-#'   louvain \tab Large networks, general use \tab O(n log n) \cr
-#'   leiden \tab Large networks, better quality than louvain \tab O(n log n) \cr
-#'   fast_greedy \tab Medium networks \tab O(n² log n) \cr
-#'   walktrap \tab Networks with clear community structure \tab O(n² log n) \cr
-#'   infomap \tab Directed networks, flow-based \tab O(E) \cr
-#'   label_propagation \tab Very large networks, speed critical \tab O(E) \cr
-#'   edge_betweenness \tab Small networks, hierarchical \tab O(E² n) \cr
-#'   leading_eigenvector \tab Networks with dominant structure \tab O(n²) \cr
-#'   spinglass \tab Small networks, allows negative weights \tab O(n³) \cr
-#'   optimal \tab Tiny networks only (<50 nodes) \tab NP-hard \cr
-#'   fluid \tab When k is known \tab O(E k) \cr
+#' \tabular{ll}{
+#'   Method \tab Typical use \cr
+#'   louvain \tab Large undirected networks \cr
+#'   leiden \tab Large undirected networks, well-connected communities \cr
+#'   fast_greedy \tab Medium-sized networks, hierarchical merges \cr
+#'   walktrap \tab Directed or undirected networks, hierarchical merges \cr
+#'   infomap \tab Directed networks with flow structure \cr
+#'   label_propagation \tab Very large networks \cr
+#'   edge_betweenness \tab Small networks, hierarchical splits \cr
+#'   leading_eigenvector \tab Undirected networks, hierarchical splits \cr
+#'   spinglass \tab Small connected networks, negative weights \cr
+#'   optimal \tab Networks of at most about 50 nodes \cr
+#'   fluid \tab Connected networks with a known number of communities \cr
 #' }
 #'
 #' @export
@@ -87,19 +94,14 @@
 #' \code{\link{community_spinglass}}, \code{\link{community_optimal}},
 #' \code{\link{community_fluid}}
 #'
-#' @examples
-#' # Create a network with community structure
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
+#' @section Printing and plotting:
+#' Printing the result shows the algorithm, the number of nodes and
+#' communities, the modularity, the community sizes and the node table. The
+#' result is itself a data frame.
+#' \code{plot()} on the result is documented in \code{\link{plot-results}}.
 #'
-#'   # Default (Louvain)
-#'   comm <- cograph::communities(g)
-#'   print(comm)
-#'
-#'   # Walktrap
-#'   comm2 <- cograph::communities(g, method = "walktrap")
-#'   print(comm2)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' communities(regulation_net, method = "walktrap")
 communities <- function(x,
                         method = c("louvain", "leiden", "fast_greedy",
                                    "walktrap", "infomap", "label_propagation",
@@ -158,18 +160,23 @@ communities <- function(x,
 
 #' Louvain Community Detection
 #'
-#' Multi-level modularity optimization using the Louvain algorithm.
-#' Fast and widely used for large networks.
+#' Multi-level modularity optimization with the Louvain algorithm. The graph
+#' must be undirected; a directed graph raises an igraph error, so a directed
+#' network is converted first, for example with \code{\link{to_undirected}()}.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param resolution Resolution parameter. Higher values = more communities.
-#'   Default 1 (standard modularity).
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param resolution Resolution parameter. Higher values yield more
+#'   communities. Default 1 (standard modularity).
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Blondel, V.D., Guillaume, J.L., Lambiotte, R., & Lefebvre, E. (2008).
@@ -177,17 +184,8 @@ communities <- function(x,
 #' \emph{Journal of Statistical Mechanics}, P10008.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   comm <- community_louvain(g)
-#'   membership(comm)
-#'
-#'   # Reproducible result with seed
-#'   comm1 <- community_louvain(g, seed = 42)
-#'   comm2 <- community_louvain(g, seed = 42)
-#'   identical(membership(comm1), membership(comm2))
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_louvain(to_undirected(regulation_net), seed = 1)
 community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ...) {
   if (!is.null(seed)) {
     saved_rng <- .save_rng()
@@ -204,23 +202,32 @@ community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ..
 
 #' Leiden Community Detection
 #'
-#' Leiden algorithm - an improved version of Louvain that guarantees
-#' well-connected communities. Supports CPM and modularity objectives.
+#' The Leiden algorithm, a refinement of the Louvain algorithm that
+#' guarantees well-connected communities. It optimizes the Constant Potts
+#' Model (CPM) or modularity. The graph must be undirected; a directed graph
+#' raises an igraph error.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param resolution Resolution parameter. Default 1.
-#' @param objective_function Optimization objective: "CPM" (Constant Potts Model)
-#'   or "modularity". Default "CPM".
-#' @param beta Parameter for randomness in refinement step. Default 0.01.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param resolution Resolution parameter. Default 1. With the default CPM
+#'   objective and resolution 1, a network with weights below 1 is typically
+#'   split into single-node communities.
+#' @param objective_function Optimization objective, \code{"CPM"} (default)
+#'   or \code{"modularity"}.
+#' @param beta Randomness parameter of the refinement step. Default 0.01.
 #' @param initial_membership Initial community assignments (optional).
-#' @param n_iterations Number of iterations. Default 2. Use -1 for convergence.
-#' @param vertex_weights Vertex weights for CPM objective.
+#' @param n_iterations Number of iterations. Default 2. A negative value
+#'   iterates until the partition no longer changes.
+#' @param vertex_weights Vertex weights for the CPM objective.
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Traag, V.A., Waltman, L., & van Eck, N.J. (2019).
@@ -228,19 +235,9 @@ community_louvain <- function(x, weights = NULL, resolution = 1, seed = NULL, ..
 #' \emph{Scientific Reports}, 9, 5233.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'
-#'   # Standard Leiden
-#'   comm <- community_leiden(g)
-#'
-#'   # Higher resolution for more communities
-#'   comm2 <- community_leiden(g, resolution = 1.5)
-#'
-#'   # Modularity objective
-#'   comm3 <- community_leiden(g, objective_function = "modularity")
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_leiden(to_undirected(regulation_net), objective_function = "modularity",
+#'                  seed = 1)
 community_leiden <- function(x,
                              weights = NULL,
                              resolution = 1,
@@ -277,20 +274,27 @@ community_leiden <- function(x,
 
 #' Fast Greedy Community Detection
 #'
-#' Hierarchical agglomeration using greedy modularity optimization.
-#' Produces a dendrogram of community merges.
+#' Hierarchical agglomeration by greedy modularity optimization, which
+#' produces a dendrogram of community merges. A directed graph is collapsed
+#' to an undirected graph with summed edge weights.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param merges Logical; return merge matrix? Default TRUE.
-#' @param modularity Logical; return modularity scores? Default TRUE.
-#' @param membership Logical; return membership vector? Default TRUE.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param merges Logical. Whether igraph stores the merge matrix. Default
+#'   \code{TRUE}.
+#' @param modularity Logical. Whether igraph stores the modularity scores.
+#'   Default \code{TRUE}.
+#' @param membership Logical. Whether igraph computes the membership vector.
+#'   Default \code{TRUE}.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object. The full igraph
-#'   \code{communities} result, including the merge dendrogram when
-#'   \code{merges = TRUE}, is kept in the \code{"igraph_result"} attribute.
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. The igraph \code{communities} result,
+#'   including the merge dendrogram when \code{merges = TRUE}, is kept in the
+#'   \code{"igraph_result"} attribute.
 #'
 #' @references
 #' Clauset, A., Newman, M.E.J., & Moore, C. (2004).
@@ -299,9 +303,7 @@ community_leiden <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_fast_greedy(g)
-#' membership(comm)
+#' community_fast_greedy(regulation_net)
 community_fast_greedy <- function(x,
                                   weights = NULL,
                                   merges = TRUE,
@@ -333,19 +335,26 @@ community_fast_greedy <- function(x,
 
 #' Walktrap Community Detection
 #'
-#' Detects communities via random walks. Nodes within the same community
-#' tend to have short random walk distances.
+#' Detects communities from short random walks. Nodes in the same community
+#' have short random walk distances.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param steps Number of random walk steps. Default 4.
-#' @param merges Logical; return merge matrix? Default TRUE.
-#' @param modularity Logical; return modularity scores? Default TRUE.
-#' @param membership Logical; return membership vector? Default TRUE.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param steps Length of the random walks. Default 4.
+#' @param merges Logical. Whether igraph stores the merge matrix. Default
+#'   \code{TRUE}.
+#' @param modularity Logical. Whether igraph stores the modularity scores.
+#'   Default \code{TRUE}.
+#' @param membership Logical. Whether igraph computes the membership vector.
+#'   Default \code{TRUE}.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Pons, P., & Latapy, M. (2006).
@@ -353,16 +362,8 @@ community_fast_greedy <- function(x,
 #' \emph{Journal of Graph Algorithms and Applications}, 10(2), 191-218.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'
-#'   # Default 4 steps
-#'   comm <- community_walktrap(g)
-#'
-#'   # More steps for larger communities
-#'   comm2 <- community_walktrap(g, steps = 8)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_walktrap(regulation_net, steps = 4)
 community_walktrap <- function(x,
                                weights = NULL,
                                steps = 4,
@@ -388,20 +389,25 @@ community_walktrap <- function(x,
 
 #' Infomap Community Detection
 #'
-#' Information-theoretic community detection based on random walk dynamics.
-#' Minimizes the map equation (description length of random walks).
+#' Information-theoretic community detection based on random walks. The
+#' partition minimizes the map equation, the description length of a random
+#' walk on the network.
 #'
-#' @param x Network input
-#' @param weights Edge weights for transitions. NULL uses network weights,
-#'   NA for unweighted.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
 #' @param v.weights Vertex weights (teleportation weights).
 #' @param nb.trials Number of optimization trials. Default 10.
-#' @param modularity Logical; calculate modularity? Default TRUE.
+#' @param modularity Logical. Whether modularity is computed. Default
+#'   \code{TRUE}.
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Rosvall, M., & Bergstrom, C.T. (2008).
@@ -409,11 +415,8 @@ community_walktrap <- function(x,
 #' \emph{PNAS}, 105(4), 1118-1123.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   comm <- community_infomap(g, nb.trials = 20)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_infomap(regulation_net, nb.trials = 10, seed = 1)
 community_infomap <- function(x,
                               weights = NULL,
                               v.weights = NULL,
@@ -443,19 +446,25 @@ community_infomap <- function(x,
 
 #' Label Propagation Community Detection
 #'
-#' Fast semi-synchronous label propagation algorithm.
-#' Each node adopts the most frequent label among its neighbors.
+#' Label propagation community detection. Each node repeatedly adopts the
+#' most frequent label among its neighbors.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param mode For directed graphs: "out" (default), "in", or "all".
-#' @param initial Initial labels (integer vector or NULL for unique labels).
-#' @param fixed Logical vector indicating which labels are fixed.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param mode Direction of label propagation in directed graphs, one of
+#'   \code{"out"} (default), \code{"in"} or \code{"all"}.
+#' @param initial Initial labels, an integer vector, or \code{NULL} for a
+#'   unique label per node.
+#' @param fixed Logical vector marking the nodes whose labels are fixed.
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Raghavan, U.N., Albert, R., & Kumara, S. (2007).
@@ -463,21 +472,8 @@ community_infomap <- function(x,
 #' \emph{Physical Review E}, 76, 036106.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'
-#'   # Basic label propagation
-#'   comm <- community_label_propagation(g)
-#'
-#'   # With some nodes fixed to specific communities
-#'   initial <- rep(NA, igraph::vcount(g))
-#'   initial[1] <- 1  # Node 1 in community 1
-#'   initial[34] <- 2 # Node 34 in community 2
-#'   fixed <- !is.na(initial)
-#'   initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
-#'   comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_label_propagation(regulation_net, seed = 1)
 community_label_propagation <- function(x,
                                  weights = NULL,
                                  mode = c("out", "in", "all"),
@@ -508,21 +504,34 @@ community_label_propagation <- function(x,
 
 #' Edge Betweenness Community Detection
 #'
-#' Girvan-Newman algorithm. Iteratively removes edges with highest
-#' betweenness centrality to reveal community structure.
+#' The Girvan-Newman algorithm. It repeatedly removes the edge with the
+#' highest edge betweenness and keeps the partition with the highest
+#' modularity. On a weighted graph igraph warns that the membership is
+#' selected by modularity.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param directed Logical; treat graph as directed? Default TRUE.
-#' @param edge.betweenness Logical; return edge betweenness values? Default TRUE.
-#' @param merges Logical; return merge matrix? Default TRUE.
-#' @param bridges Logical; return bridge edges? Default TRUE.
-#' @param modularity Logical; return modularity scores? Default TRUE.
-#' @param membership Logical; return membership vector? Default TRUE.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param directed Logical. Whether edge directions are used. Default
+#'   \code{TRUE}. \code{NULL} uses the direction of the network.
+#' @param edge.betweenness Logical. Whether igraph stores the edge
+#'   betweenness values. Default \code{TRUE}.
+#' @param merges Logical. Whether igraph stores the merge matrix. Default
+#'   \code{TRUE}.
+#' @param bridges Logical. Whether igraph stores the bridge edges. Default
+#'   \code{TRUE}.
+#' @param modularity Logical. Whether igraph stores the modularity scores.
+#'   Default \code{TRUE}.
+#' @param membership Logical. Whether igraph computes the membership vector.
+#'   Default \code{TRUE}.
+#' @param ... Passed to \code{\link{to_igraph}}. Its only other argument,
+#'   \code{directed}, is already taken by this function, so any further
+#'   argument raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Girvan, M., & Newman, M.E.J. (2002).
@@ -531,9 +540,7 @@ community_label_propagation <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_edge_betweenness(g)
-#' membership(comm)
+#' community_edge_betweenness(igraph::make_graph("Zachary"))
 community_edge_betweenness <- function(x,
                                        weights = NULL,
                                        directed = TRUE,
@@ -567,21 +574,27 @@ community_edge_betweenness <- function(x,
 
 #' Leading Eigenvector Community Detection
 #'
-#' Detects communities using the leading eigenvector of the modularity matrix.
-#' Hierarchical divisive algorithm.
+#' Detects communities with the leading eigenvector of the modularity
+#' matrix, splitting the network divisively. A directed graph is collapsed to
+#' an undirected graph with summed edge weights.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param steps Maximum number of splits. Default -1 (until modularity decreases).
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Negative weights are replaced by their
+#'   absolute values.
+#' @param steps Maximum number of split attempts. Default -1 (no limit).
 #' @param start Starting community structure (membership vector).
-#' @param options ARPACK options list. Default uses igraph::arpack_defaults().
-#' @param callback Optional callback function called after each split.
-#' @param extra Extra argument passed to callback.
-#' @param env Environment for callback evaluation.
+#' @param options ARPACK options list. Default
+#'   \code{igraph::arpack_defaults()}.
+#' @param callback Optional function called after each split.
+#' @param extra Extra argument passed to \code{callback}.
+#' @param env Environment in which \code{callback} is evaluated.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Newman, M.E.J. (2006).
@@ -590,9 +603,7 @@ community_edge_betweenness <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_leading_eigenvector(g)
-#' membership(comm)
+#' community_leading_eigenvector(regulation_net)
 community_leading_eigenvector <- function(x,
                                     weights = NULL,
                                     steps = -1,
@@ -629,27 +640,38 @@ community_leading_eigenvector <- function(x,
 
 #' Spinglass Community Detection
 #'
-#' Statistical mechanics approach using simulated annealing.
-#' Can handle negative edge weights.
+#' Community detection based on the spinglass model of statistical
+#' mechanics, optimized by simulated annealing. Negative edge weights are
+#' supported with \code{implementation = "neg"}. A disconnected graph raises
+#' a warning and only its largest component is partitioned, so the result
+#' has one row per node of that component.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
-#' @param vertex Vertex to find community for (single community mode).
-#'   NULL for full partitioning.
-#' @param spins Number of spins (maximum communities). Default 25.
-#' @param parupdate Parallel update mode. Default FALSE.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Weights are passed unchanged.
+#' @param vertex Vertex whose community is searched (single community mode).
+#'   \code{NULL} (default) partitions the whole network.
+#' @param spins Number of spins, the upper limit on the number of
+#'   communities. Default 25.
+#' @param parupdate Logical. Whether spins are updated in parallel. Default
+#'   \code{FALSE}.
 #' @param start.temp Starting temperature. Default 1.
 #' @param stop.temp Stopping temperature. Default 0.01.
 #' @param cool.fact Cooling factor. Default 0.99.
-#' @param update.rule Update rule: "config" (default), "random", or "simple".
-#' @param gamma Gamma parameter for modularity. Default 1.
-#' @param implementation "orig" (default) or "neg" (for negative weights).
-#' @param gamma.minus Gamma for negative weights in "neg" implementation.
+#' @param update.rule Null model of the update rule, one of \code{"config"}
+#'   (default), \code{"random"} or \code{"simple"}.
+#' @param gamma Weight of the null model term. Default 1.
+#' @param implementation \code{"orig"} (default) or \code{"neg"}, the
+#'   implementation that supports negative weights.
+#' @param gamma.minus Weight of the null model term for negative edges in
+#'   the \code{"neg"} implementation. Default 1.
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Reichardt, J., & Bornholdt, S. (2006).
@@ -658,9 +680,7 @@ community_leading_eigenvector <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_spinglass(g)
-#' membership(comm)
+#' community_spinglass(regulation_net, seed = 1)
 community_spinglass <- function(x,
                                 weights = NULL,
                                 vertex = NULL,
@@ -716,17 +736,20 @@ community_spinglass <- function(x,
 
 #' Optimal Community Detection
 #'
-#' Finds the optimal community structure by maximizing modularity exactly.
-#' Very slow - only use for small networks (<50 nodes).
+#' Finds the partition with maximum modularity by exact optimization.
+#' Exact modularity maximization is NP-hard, so the computation is feasible
+#' only for small networks. A network with more than 50 nodes raises a
+#' warning.
 #'
-#' @param x Network input
-#' @param weights Edge weights. NULL uses network weights, NA for unweighted.
+#' @param x Network input.
+#' @param weights Edge weights. \code{NULL} uses the network weights and
+#'   \code{NA} runs unweighted. Weights are passed unchanged.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
-#'
-#' @note This is an NP-hard problem. Use only for tiny networks.
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Brandes, U., Delling, D., Gaertler, M., Gorke, R., Hoefer, M.,
@@ -736,9 +759,7 @@ community_spinglass <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_ring(10)
-#' comm <- community_optimal(g)
-#' membership(comm)
+#' community_optimal(regulation_net)
 community_optimal <- function(x, weights = NULL, ...) {
 
   g <- to_igraph(x, ...)
@@ -757,15 +778,21 @@ community_optimal <- function(x, weights = NULL, ...) {
 
 #' Fluid Communities Detection
 #'
-#' Simulates fluid dynamics where communities compete for nodes.
-#' Requires specifying the number of communities.
+#' Fluid communities algorithm, in which a fixed number of communities
+#' expand and compete for nodes. A directed graph is collapsed to an
+#' undirected graph. A disconnected graph raises a warning and only its
+#' largest component is partitioned, so the result has one row per node of
+#' that component. Edge weights are not used.
 #'
-#' @param x Network input
-#' @param no.of.communities Number of communities to detect. Required.
+#' @param x Network input.
+#' @param no.of.communities Number of communities to detect. Required; a
+#'   missing value raises an error.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
 #'
-#' @return A \code{cograph_communities} object
+#' @return A \code{cograph_communities} data frame with columns
+#'   \code{node} and \code{community}. See \code{\link{communities}} for its
+#'   attributes.
 #'
 #' @references
 #' Pares, F., Gasulla, D.G., Vilalta, A., Moreno, J., Ayguade, E.,
@@ -774,13 +801,8 @@ community_optimal <- function(x, weights = NULL, ...) {
 #' \emph{Studies in Computational Intelligence}, 689, 229-240.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'
-#'   # Detect exactly 2 communities
-#'   comm <- community_fluid(g, no.of.communities = 2)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_fluid(regulation_net, no.of.communities = 2)
 community_fluid <- function(x, no.of.communities, ...) {
 
   if (missing(no.of.communities)) {
@@ -812,41 +834,38 @@ community_fluid <- function(x, no.of.communities, ...) {
 
 #' Consensus Community Detection
 #'
-#' Runs a stochastic community detection algorithm multiple times and finds
-#' consensus communities via co-occurrence matrix thresholding. This approach
-#' produces more robust and stable community assignments than single runs.
+#' Runs a stochastic community detection algorithm repeatedly and derives
+#' consensus communities by thresholding the co-occurrence matrix of the
+#' runs.
 #'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna object
-#' @param method Community detection algorithm to use. Default "louvain".
-#'   Must be a stochastic method (louvain, leiden, infomap, label_propagation,
-#'   spinglass).
-#' @param n_runs Number of times to run the algorithm. Default 100.
-#' @param threshold Co-occurrence threshold for consensus. Default 0.5.
-#'   Nodes that appear together in >= threshold proportion of runs are
-#'   placed in the same community.
+#' @param x Network input: matrix, igraph, network, cograph_network, or tna
+#'   object. The louvain and leiden methods require an undirected network.
+#' @param method Community detection algorithm, one of \code{"louvain"}
+#'   (default), \code{"leiden"}, \code{"infomap"},
+#'   \code{"label_propagation"} or \code{"spinglass"}. The current code runs
+#'   louvain for \code{"spinglass"}.
+#' @param n_runs Number of runs. Default 100.
+#' @param threshold Co-occurrence threshold. Default 0.5. Pairs of nodes that
+#'   share a community in at least this proportion of runs are linked in the
+#'   consensus graph.
 #' @param seed Optional seed for reproducibility. If provided, the RNG state is
 #'   initialized once before repeated runs and restored on exit.
-#' @param ... Currently ignored. Each run calls the underlying
-#'   \code{igraph::cluster_*()} function with its own defaults; no extra
-#'   arguments are forwarded.
+#' @param ... Ignored. Each run calls the igraph function with its own
+#'   defaults and without weights or resolution settings. For leiden this is
+#'   the CPM objective with resolution 1.
 #'
 #' @return A \code{cograph_communities} data frame (columns \code{node} and
 #'   \code{community}) holding the consensus membership. Its
 #'   \code{"algorithm"} attribute is \code{"consensus_<method>"} and its
-#'   \code{"modularity"} attribute is that of the final walktrap partition of
-#'   the consensus graph, not of the original network.
+#'   \code{"modularity"} attribute is the modularity of the final walktrap
+#'   partition computed on the consensus graph.
 #'
 #' @details
-#' The algorithm works as follows:
-#' \enumerate{
-#'   \item Run the specified algorithm \code{n_runs} times using the current RNG
-#'     stream
-#'   \item Build a co-occurrence matrix counting how often each pair of nodes
-#'     appears in the same community
-#'   \item Normalize to proportions (0-1)
-#'   \item Threshold to create a consensus graph (edge if co-occurrence >= threshold)
-#'   \item Run walktrap on the consensus graph to get final communities
-#' }
+#' The algorithm is run \code{n_runs} times on the current random number
+#' stream. The proportion of runs in which each pair of nodes shares a
+#' community forms the co-occurrence matrix. Pairs with a proportion of at
+#' least \code{threshold} are linked in an unweighted consensus graph, and
+#' walktrap on that graph gives the final communities.
 #'
 #' @references
 #' Lancichinetti, A., & Fortunato, S. (2012).
@@ -856,17 +875,9 @@ community_fluid <- function(x, no.of.communities, ...) {
 #' @export
 #' @seealso \code{\link{communities}}, \code{\link{community_louvain}}
 #'
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'
-#'   # Consensus from 50 Louvain runs
-#'   cc <- community_consensus(g, method = "louvain", n_runs = 50)
-#'   print(cc)
-#'
-#'   # Stricter threshold for more robust communities
-#'   cc2 <- community_consensus(g, threshold = 0.7, n_runs = 100)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' community_consensus(to_undirected(regulation_net), method = "louvain",
+#'                     n_runs = 10, seed = 1)
 community_consensus <- function(x,
                                  method = c("louvain", "leiden", "infomap",
                                             "label_propagation", "spinglass"),
@@ -950,76 +961,46 @@ com_consensus <- community_consensus
 # ==============================================================================
 
 #' @rdname community_louvain
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_lv <- community_louvain
 
 #' @rdname community_leiden
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_ld <- community_leiden
 
 #' @rdname community_fast_greedy
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_fg <- community_fast_greedy
 
 #' @rdname community_walktrap
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_wt <- community_walktrap
 
 #' @rdname community_infomap
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
 #' @export
 com_im <- community_infomap
 
 #' @rdname community_label_propagation
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_lp(net)
 #' @export
 com_lp <- community_label_propagation
 
 #' @rdname community_edge_betweenness
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_eb(net)
 #' @export
 com_eb <- community_edge_betweenness
 
 #' @rdname community_leading_eigenvector
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_le(net)
 #' @export
 com_le <- community_leading_eigenvector
 
 #' @rdname community_spinglass
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_sg(net)
 #' @export
 com_sg <- community_spinglass
 
 #' @rdname community_optimal
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' net <- as_cograph(matrix(runif(25), 5, 5))
-#' com_op(net)
 #' @export
 com_op <- community_optimal
 
 #' @rdname community_fluid
-#' @return A \code{cograph_communities} object. See \code{\link{detect_communities}}.
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' m <- matrix(runif(25), 5, 5); diag(m) <- 0
-#' net <- as_cograph(m)
-#' com_fl(net, no.of.communities = 2)
 #' @export
 com_fl <- community_fluid
 
@@ -1095,16 +1076,8 @@ com_fl <- community_fluid
 # Methods
 # ==============================================================================
 
-#' Print Community Structure
-#'
-#' @param x A cograph_communities object.
-#' @param ... Ignored.
-#' @return Invisibly returns the original object.
+#' @noRd
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
-#' print(comm)
 print.cograph_communities <- function(x, ...) {
   alg <- attr(x, "algorithm") %||% "unknown"
   mod <- attr(x, "modularity") %||% NA
@@ -1121,16 +1094,16 @@ print.cograph_communities <- function(x, ...) {
 
 #' Get Community Membership
 #'
-#' Extracts a named membership vector from a communities result.
-#' Works with both \code{cograph_communities} data frames and
-#' igraph communities objects.
+#' Extracts a named membership vector from a \code{cograph_communities}
+#' data frame or an igraph \code{communities} object.
 #'
-#' @param x A cograph_communities or igraph communities object.
-#' @return Named integer vector of community assignments.
+#' @param x A \code{cograph_communities} or igraph \code{communities}
+#'   object.
+#' @return A numeric vector of community numbers named by node. For an igraph
+#'   object it is the igraph \code{membership} vector.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
+#' comm <- community_walktrap(regulation_net)
 #' membership(comm)
 membership <- function(x) {
   if (inherits(x, "cograph_communities")) {
@@ -1147,12 +1120,11 @@ membership <- function(x) {
 
 #' Get Number of Communities
 #'
-#' @param x A cograph_communities object
-#' @return Integer count of communities
+#' @param x A \code{cograph_communities} object.
+#' @return A single integer, the number of distinct communities.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
+#' comm <- community_walktrap(regulation_net)
 #' n_communities(comm)
 n_communities <- function(x) {
   length(unique(x$community))
@@ -1161,12 +1133,12 @@ n_communities <- function(x) {
 
 #' Get Community Sizes
 #'
-#' @param x A cograph_communities object
-#' @return Integer vector of community sizes
+#' @param x A \code{cograph_communities} object.
+#' @return An unnamed integer vector of community sizes, ordered by
+#'   community number.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
+#' comm <- community_walktrap(regulation_net)
 #' community_sizes(comm)
 community_sizes <- function(x) {
   as.integer(table(x$community))
@@ -1200,22 +1172,24 @@ modularity.cograph_communities <- function(x, graph = NULL, ...) {
 
 #' Compare Community Structures
 #'
-#' Compares two community structures using various similarity measures.
+#' Compares two partitions of the same nodes with igraph's partition
+#' comparison measures.
 #'
-#' @param comm1 First community structure (communities object or membership vector)
-#' @param comm2 Second community structure (communities object or membership vector)
-#' @param method Comparison method: "vi" (variation of information),
-#'   "nmi" (normalized mutual information), "split.join",
-#'   "rand" (Rand index), "adjusted.rand"
-#' @return Numeric similarity/distance value
+#' @param comm1,comm2 Partitions to compare. Each is a
+#'   \code{cograph_communities} data frame, an igraph \code{communities}
+#'   object or a membership vector.
+#' @param method Comparison measure, one of \code{"vi"} (default; variation
+#'   of information), \code{"nmi"} (normalized mutual information),
+#'   \code{"split.join"} (split-join distance), \code{"rand"} (Rand index) or
+#'   \code{"adjusted.rand"} (adjusted Rand index).
+#' @return A single numeric value. \code{"vi"} and \code{"split.join"} are
+#'   distances (0 for identical partitions); \code{"nmi"}, \code{"rand"} and
+#'   \code{"adjusted.rand"} are similarities (1 for identical partitions).
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   c1 <- community_louvain(g)
-#'   c2 <- community_leiden(g)
-#'   compare_communities(c1, c2, "nmi")
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' walktrap <- community_walktrap(regulation_net)
+#' fast_greedy <- community_fast_greedy(regulation_net)
+#' compare_communities(walktrap, fast_greedy, method = "nmi")
 compare_communities <- function(comm1, comm2,
                                 method = c("vi", "nmi", "split.join",
                                            "rand", "adjusted.rand")) {
@@ -1242,21 +1216,298 @@ compare_communities <- function(comm1, comm2,
 }
 
 
-#' Plot Community Structure
+#' Plot Analysis Results
 #'
-#' Visualizes network with community coloring using splot.
+#' @description
+#' Plot methods and plotting functions for the result objects returned by the
+#' analysis functions of cograph and by the tna and Nestimate packages. Each
+#' function accepts one class of result.
+#' \describe{
+#'   \item{\code{plot()} or \code{plot_motifs()} on a \code{cograph_motif_result}}{From
+#'     \code{\link{motifs}()} or \code{\link{subgraphs}()}. Plots triad
+#'     diagrams, MAN type frequencies, z-scores or MAN pattern diagrams.}
+#'   \item{\code{plot()} on a \code{cograph_motif_analysis}}{From
+#'     \code{\link{extract_motifs}()}. Plots the same four views as above.}
+#'   \item{\code{plot()} on a \code{cograph_motifs}}{From
+#'     \code{\link{motif_census}()}. Plots motif z-scores colored by
+#'     significance direction, a z-score heatmap or diagrams of the selected
+#'     motifs.}
+#'   \item{\code{plot()} on a \code{cograph_communities}}{From
+#'     \code{\link{communities}()}. Plots the network with nodes grouped by
+#'     community through \code{\link{splot}()}.}
+#'   \item{\code{plot()} on a \code{cograph_core_periphery}}{From
+#'     \code{\link{core_periphery}()}. Plots the network with core nodes
+#'     enlarged and periphery nodes reduced.}
+#'   \item{\code{plot()} on a \code{cograph_rich_club}}{From
+#'     \code{\link{rich_club}()}. Plots the rich club curve with the null
+#'     model band, or the club members on the network.}
+#'   \item{\code{plot()} on a \code{cograph_degree_fit}}{From
+#'     \code{\link{fit_degree_distribution}()}. Plots a histogram of the
+#'     observed degrees with the fitted distribution curves overlaid.}
+#'   \item{\code{plot()} on a \code{cograph_vulnerability}}{From
+#'     \code{\link{vulnerability}()}. Plots the node vulnerability scores as a
+#'     bar chart.}
+#'   \item{\code{plot()} and \code{splot()} on a \code{tna_disparity}}{From
+#'     \code{\link{disparity_filter}()}. \code{plot()} plots the backbone or
+#'     the original and backbone networks side by side. \code{splot()} plots
+#'     the full network with backbone edges solid and the remaining edges
+#'     dashed and faded.}
+#'   \item{\code{splot()} on a \code{tna_bootstrap}}{From
+#'     \code{tna::bootstrap()}. Plots the network with significant and
+#'     non-significant edges styled differently.}
+#'   \item{\code{plot_permutation()} or \code{splot()} on a
+#'     \code{tna_permutation}}{From \code{tna::permutation_test()}. Plots the
+#'     edge differences between two networks, colored by sign and styled by
+#'     significance.}
+#'   \item{\code{plot_group_permutation()} or \code{splot()} on a
+#'     \code{group_tna_permutation}}{From \code{tna::permutation_test()} on a
+#'     \code{group_tna} model. Plots one panel per pairwise comparison.}
+#'   \item{\code{plot_netobject_group()} or \code{plot()} on a
+#'     \code{netobject_group}}{A named list of Nestimate networks. Plots one
+#'     panel per group.}
+#'   \item{\code{plot_net_bootstrap_group()} or \code{plot()} on a
+#'     \code{net_bootstrap_group}}{A list of Nestimate \code{net_bootstrap}
+#'     results. Plots one panel per group with significance styling.}
+#'   \item{\code{plot_netobject_ml()} or \code{plot()} on a
+#'     \code{netobject_ml}}{A multilevel Nestimate network. Plots the
+#'     between-person and within-person networks side by side.}
+#'   \item{\code{plot_net_stability()} on a \code{net_stability}}{From
+#'     \code{Nestimate::centrality_stability()}. Plots the mean correlation of
+#'     each centrality measure with the original against the proportion of
+#'     cases dropped.}
+#' }
 #'
-#' @param x A cograph_communities object
-#' @param network The original network (required if not stored)
-#' @param ... Additional arguments passed to splot
-#' @return The value returned by \code{\link{splot}} (invisibly). Called for
-#'   the side effect of drawing the network with nodes grouped by community.
+#' @param x The result object. The Description lists the class each function
+#'   accepts.
+#' @param type Plot type. The values for each class are listed in Details.
+#' @param n Maximum number of triads, patterns or z-score bars plotted. For
+#'   \code{cograph_motif_analysis} with \code{type = "significance"}, the
+#'   \code{n} lowest and \code{n} highest z-scores are plotted.
+#' @param ncol,nrow Number of columns and rows of the panel grid. A
+#'   \code{NULL} value is computed from the number of panels.
+#' @param colors Colors of the significance scale in motif plots. For
+#'   \code{cograph_motif_result} and \code{cograph_motif_analysis}, a vector
+#'   of two colors. The first fills items that are significantly
+#'   under-represented (\code{p < .05} and \code{z < 0}) and the second fills
+#'   items that are significantly over-represented (\code{p < .05} and
+#'   \code{z > 0}). All other items are filled neutral grey
+#'   (\code{"#9E9E9E"}). When no per-type significance is available, the
+#'   first color is used as a single fill. For \code{cograph_motifs}, a vector of three
+#'   colors for under-represented, neutral and over-represented motifs.
+#' @param node_size Relative size of the nodes in triad diagrams.
+#' @param label_size Font size of the node labels in triad diagrams.
+#' @param title_size Font size of the panel titles in triad diagrams.
+#' @param stats_size Font size of the statistics caption of each triad panel
+#'   (for example \code{n=34 z=-55.3 p<.001}).
+#' @param legend_size Font size of the legend below the triad grid.
+#' @param legend Logical. Whether to show the legend of node-label
+#'   abbreviations below the triad grid.
+#' @param motif_color,color Color of the nodes, edges and labels in triad
+#'   diagrams. \code{motif_color} applies to \code{cograph_motif_result} and
+#'   \code{color} to \code{cograph_motif_analysis}.
+#' @param spacing Spacing multiplier for triad diagrams. Values above 1 pull
+#'   the three nodes of each panel inward and values below 1 push them
+#'   apart.
+#' @param base_size Base font size of the ggplot2 theme used by
+#'   \code{type = "types"} and \code{type = "significance"}.
+#' @param res Unused. It is kept for backward compatibility.
+#' @param combined Logical. When \code{TRUE} (default), a multi-panel plot is
+#'   arranged in an internal grid through \code{graphics::par(mfrow = ...)}.
+#'   When \code{FALSE}, the panels are plotted into a layout the caller has
+#'   already set up, for example with \code{\link{panel_layout}()}. It applies
+#'   to \code{type = "network"} for \code{cograph_motifs}, to
+#'   \code{type = "patterns"} (and \code{type = "triads"} on census results)
+#'   for the other motif results, to \code{type = "comparison"} for
+#'   \code{tna_disparity}, to \code{plot_group_permutation()} when \code{i} is
+#'   \code{NULL}, and to the group and multilevel panel functions.
+#' @param show_nonsig Logical. Whether non-significant items are shown. For
+#'   \code{cograph_motifs} these are motifs; for \code{plot_permutation()}
+#'   they are edges, plotted dashed and grey. Default \code{FALSE}.
+#' @param top_n Number of motifs with the largest absolute z-scores to plot.
+#'   \code{NULL} (default) plots all.
+#' @param k Prominence threshold whose club members are highlighted with
+#'   \code{type = "network"} for \code{cograph_rich_club}. \code{NULL} uses
+#'   the threshold with the highest \code{phi_norm} (or \code{phi} when the
+#'   result is not normalized).
+#' @param col Color of the rich club curve and club members, or of the
+#'   vulnerability bars.
+#' @param core_color,periphery_color Node colors of core and periphery nodes.
+#' @param core_size,periphery_size Node sizes of core and periphery nodes.
+#' @param which Character vector of fitted distributions to show. \code{NULL}
+#'   (default) shows all fitted distributions.
+#' @param log Log-scale axes for the degree fit, one of \code{""} (default),
+#'   \code{"x"}, \code{"y"} or \code{"xy"}. Only \code{"y"} and \code{"xy"}
+#'   set a logarithmic histogram axis. The values containing \code{"x"} only
+#'   remove non-positive fitted curve values.
+#' @param cols Colors of the fitted distribution curves, named or unnamed.
+#'   \code{NULL} uses a built-in palette.
+#' @param lwd Line width of the fitted distribution curves.
+#' @param main Title of the degree-fit plot.
+#' @param top Number of most vulnerable nodes to plot. \code{NULL} (default)
+#'   plots all.
+#' @param network The network the communities were detected on. It is
+#'   required only when the result does not store the network.
+#' @param show Network shown by \code{splot()} on a \code{tna_disparity}.
+#'   \code{"styled"} (default) shows the full network with backbone styling,
+#'   \code{"backbone"} the backbone only and \code{"full"} the full network
+#'   without styling.
+#' @param display Display mode of \code{splot()} on a \code{tna_bootstrap}.
+#'   \code{"styled"} (default) shows all edges with significance styling,
+#'   \code{"significant"} the significant edges only, \code{"full"} all
+#'   edges without significance styling and \code{"ci"} all edges with
+#'   confidence interval bounds in the labels and an underlay whose width
+#'   reflects the interval width relative to the edge weight.
+#' @param edge_style_sig Line type of significant (or backbone) edges.
+#'   Default 1 (solid).
+#' @param edge_style_nonsig Line type of non-significant (or non-backbone)
+#'   edges. Default 2 (dashed).
+#' @param alpha_nonsig Transparency of non-backbone edges. Default 0.3.
+#' @param color_nonsig Accepted for compatibility. The styled bootstrap plot
+#'   uses a fixed pink color for non-significant edges.
+#' @param show_ci Logical. Whether confidence interval bounds are added to the
+#'   edge labels. \code{display = "ci"} adds them as well.
+#' @param show_stars Logical. Whether significance stars (\code{*},
+#'   \code{**}, \code{***}) are added to the edge labels.
+#' @param width_by Set to \code{"cr_lower"} to plot the lower bounds of the
+#'   consistency range as the edge weights, with widths scaled by these
+#'   bounds and the significance styling removed. \code{NULL} (default)
+#'   leaves the edges unchanged.
+#' @param inherit_style Logical. Whether the labels, node colors and
+#'   initial-state donuts of the original TNA model are reused, with the
+#'   oval layout as the default layout.
+#' @param edge_positive_color,edge_negative_color Colors of significant
+#'   positive (\code{x > y}) and negative (\code{x < y}) edge differences.
+#' @param edge_nonsig_color,edge_nonsig_style,edge_nonsig_alpha Color, line
+#'   type and transparency of non-significant edge differences.
+#' @param show_effect Logical. Whether the absolute effect size is added in
+#'   parentheses to the labels of significant edges.
+#' @param i Index or name of a single comparison to plot. \code{NULL}
+#'   (default) plots all comparisons.
+#' @param common_scale Logical. Whether all panels share the same maximum
+#'   edge weight. Default \code{TRUE}.
+#' @param title_prefix Optional text placed before each group name in the
+#'   panel titles.
+#' @param layout Layout algorithm of the multilevel panels. \code{NULL}
+#'   (default) uses \code{"oval"}.
+#' @param titles Character vector of length 2 with the titles of the
+#'   between-person and within-person panels.
+#' @param ... Additional arguments passed to the underlying plotting call.
+#'   Network plots pass them to \code{\link{splot}()};
+#'   \code{plot_group_permutation()} passes them to \code{plot_permutation()}
+#'   and \code{plot_net_bootstrap_group()} to the \code{splot()} method for
+#'   \code{net_bootstrap} (for example \code{display = "significant"}). The
+#'   rich club curve passes them to \code{\link[graphics]{plot}}, the degree
+#'   fit to \code{\link[graphics]{hist}}, the vulnerability plot to
+#'   \code{\link[graphics]{barplot}}, \code{plot_net_stability()} to
+#'   \code{\link[graphics]{plot}}, and \code{cograph_motifs} with
+#'   \code{type = "network"} to the per-motif igraph plot calls. The ggplot2
+#'   motif views do not use them.
+#'
+#' @details
+#' \subsection{Plot types}{
+#' For \code{cograph_motif_result} and \code{cograph_motif_analysis},
+#' \code{type} is one of the following values.
+#' \describe{
+#'   \item{\code{"triads"}}{(default) Network diagrams of node triples
+#'     arranged in a grid. A census result without named nodes falls back to
+#'     \code{"patterns"}. Each diagram shows a canonical representative of the
+#'     MAN class, so the node labels identify the participating nodes and
+#'     their positions do not encode observed source or sink roles. Panel
+#'     titles read \code{"<MAN code>: <description>"}, and the caption gives
+#'     the count and, when significance was tested, the z-score and
+#'     p-value.}
+#'   \item{\code{"types"}}{Bar chart of MAN type frequencies. For a census
+#'     tested for significance the bars are colored by significance
+#'     direction. Instance results and \code{cograph_motif_analysis} use a
+#'     single fill, because per-type significance would require aggregating
+#'     several node-triple rows of the same type.}
+#'   \item{\code{"significance"}}{Z-score bars, one per MAN type for a census
+#'     and one per node triple for instance results. It requires the analysis
+#'     to have been run with \code{significance = TRUE}.}
+#'   \item{\code{"patterns"}}{Abstract MAN pattern diagrams of each triad
+#'     type. For a census tested for significance the nodes are filled by
+#'     significance direction, and the panel titles add the z-score and a
+#'     significance star (\code{*} p<.05, \code{**} p<.01, \code{***}
+#'     p<.001). Instance results use a single fill.}
+#' }
+#' For \code{cograph_motifs}, \code{type} is \code{"bar"} (default; motif
+#' z-scores colored by over- or under-representation), \code{"heatmap"}
+#' (z-scores across motif types, labelled with the observed and expected
+#' counts) or \code{"network"} (one diagram per motif that passes the
+#' \code{show_nonsig} and \code{top_n} filters). The network view requires
+#' a directed 3-node census and otherwise falls back to the bar chart with a
+#' message. For \code{cograph_rich_club}, \code{type} is
+#' \code{"curve"} (default; the coefficient across thresholds with null model
+#' bands) or \code{"network"} (club members at threshold \code{k}). For
+#' \code{tna_disparity}, \code{type} is \code{"backbone"} (default) or
+#' \code{"comparison"} (original and backbone side by side).
+#' }
+#'
+#' \subsection{Bootstrap and permutation input}{
+#' \code{splot()} on a \code{tna_bootstrap} reads the original weights from
+#' \code{weights} (or \code{weights_orig}), the significant weights from
+#' \code{weights_sig} or the \code{p_values} matrix, the confidence bounds
+#' from \code{ci_lower} and \code{ci_upper}, the significance level from
+#' a \code{level} element and the styling from \code{model}. Results of
+#' \code{tna::bootstrap()} store no \code{level} element, so their edges
+#' are styled at a level of 0.05. In styled
+#' mode significant edges are solid dark blue with bold starred labels and
+#' are plotted on top, and non-significant edges are dashed pink with plain
+#' labels.
+#'
+#' \code{plot_permutation()} reads the edge differences (\code{x - y}) from
+#' \code{edges$diffs_true}, the significant differences from
+#' \code{edges$diffs_sig} and the edge statistics from \code{edges$stats}.
+#' Significant positive differences are solid green and significant negative
+#' differences solid red, both with bold starred labels.
+#'
+#' \code{plot_net_bootstrap_group()} plots each group through the
+#' \code{splot()} method for \code{net_bootstrap}, so every panel keeps the
+#' solid and dashed significance styling.
+#' }
+#'
+#' @return Each function is called for its plot. The returned value depends
+#'   on the class.
+#'   \describe{
+#'     \item{Motif results}{A ggplot2 object, printed and returned
+#'       invisibly, for \code{type = "types"}, \code{"significance"},
+#'       \code{"bar"} and \code{"heatmap"}. \code{type = "triads"} and
+#'       \code{"patterns"} return the input invisibly for
+#'       \code{cograph_motif_result} and \code{NULL} invisibly for
+#'       \code{cograph_motif_analysis}. \code{cograph_motifs} with
+#'       \code{type = "network"} returns \code{NULL} invisibly. Any
+#'       \code{cograph_motifs} plot returns \code{NULL} invisibly with a
+#'       message when no motif passes the \code{show_nonsig} and
+#'       \code{top_n} filters.}
+#'     \item{Network plots}{The \code{cograph_network} built by
+#'       \code{\link{splot}()}, invisibly, for \code{cograph_communities},
+#'       \code{tna_disparity}, \code{tna_bootstrap} and
+#'       \code{tna_permutation}. \code{plot_permutation()} returns
+#'       \code{NULL} invisibly with a message when no edge remains to plot.
+#'       \code{plot_group_permutation()} returns the selected panel's
+#'       network when \code{i} is given and \code{NULL} invisibly
+#'       otherwise.}
+#'     \item{Group panels}{The input invisibly for \code{netobject_group} and
+#'       \code{net_bootstrap_group}. With a single group the network of that
+#'       panel is returned, and with no groups \code{NULL}.}
+#'     \item{Other results}{The input invisibly for
+#'       \code{cograph_core_periphery}, \code{cograph_rich_club},
+#'       \code{cograph_vulnerability}, \code{netobject_ml} and
+#'       \code{net_stability}, and \code{NULL} invisibly for
+#'       \code{cograph_degree_fit}.}
+#'   }
+#'
+#' @seealso \code{\link{splot}()} for the network plots of single networks.
+#'
+#' @examples
+#' census <- motifs(regulation_net, significance = FALSE)
+#' plot(census, type = "types")
+#'
+#' @name plot-results
+NULL
+
+#' @rdname plot-results
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
-#' mat <- igraph::as_adjacency_matrix(g, sparse = FALSE)
-#' plot(comm, network = mat)
 plot.cograph_communities <- function(x, network = NULL, ...) {
   network <- network %||% attr(x, "network")
   if (is.null(network)) {

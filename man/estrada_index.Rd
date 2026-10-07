@@ -10,26 +10,23 @@ estrada_index(x)
 \item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
 }
 \value{
-A single numeric value — the Estrada index of the graph.
+Numeric scalar: the Estrada index of the graph, or 0 for a graph
+with no nodes.
 }
 \description{
-A graph-level spectral invariant derived from subgraph centrality:
-\deqn{EE(G) = \sum_{i=1}^{n} e^{\lambda_i}}
-where \eqn{\lambda_i} are the eigenvalues of the adjacency matrix. The
-Estrada index equals the total number of closed walks in the graph,
-weighted by walk length: \eqn{EE(G) = \sum_k M_k / k!} where \eqn{M_k} is
-the number of closed walks of length \eqn{k}. It is the sum of subgraph
-centralities across all nodes.
-}
-\details{
-Matches \code{networkx.estrada_index} at machine epsilon (max relative
-difference ~5e-15 across random test graphs).
+Computes the Estrada index, a graph-level spectral invariant
+\deqn{EE(G) = \sum_{i=1}^{n} e^{\lambda_i}}{EE(G) = sum_{i=1}^{n} e^{lambda_i}}
+where \eqn{\lambda_i}{lambda_i} are the eigenvalues of the binary adjacency matrix.
+Edge weights are ignored. For an undirected network the index equals
+\eqn{\sum_k M_k / k!}{sum_k M_k / k!}, where \eqn{M_k} is the number of closed walks of
+length \eqn{k}, and it is the sum of the subgraph centralities of all
+nodes. For a directed network the function sums \eqn{e^{Re(\lambda_i)}}{e^{Re(lambda_i)}}
+over the real parts of the eigenvalues, which differs from the closed-walk
+sum when the adjacency matrix has complex eigenvalues.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Karate club
-g <- igraph::make_graph("Zachary")
-estrada_index(g)
+estrada_index(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{
@@ -37,6 +34,6 @@ Estrada, E. (2000). Characterization of 3D molecular structure.
 \emph{Chemical Physics Letters}, 319(5-6), 713-718.
 }
 \seealso{
-\code{\link{centrality_subgraph}} for the per-node equivalent
-(sum of \code{subgraph_centrality(x)} equals \code{estrada_index(x)}).
+\code{\link{centrality_subgraph}} for the per-node measure. On an
+undirected network its values sum to \code{estrada_index(x)}.
 }

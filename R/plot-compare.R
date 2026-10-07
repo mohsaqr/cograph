@@ -7,81 +7,77 @@ NULL
 
 #' Plot Network Difference
 #'
-#' Plots the difference between two networks (x - y) using splot.
-#' Positive differences (x > y) are shown in green, negative (x < y) in red.
-#' Optionally displays node-level differences (e.g., initial probabilities)
-#' as donut charts.
+#' Plots the difference between two networks (x - y) with \code{\link{splot}}.
+#' Positive differences (x > y) are shown in \code{pos_color} and negative
+#' differences (x < y) in \code{neg_color}. Node-level differences, such as
+#' initial probabilities, can be shown as donut charts.
 #'
-#' @param x First network: matrix, \code{cograph_network},
-#'   \code{CographNetwork}, \code{tna}, \code{igraph}, list-like object with
-#'   \code{$weights}, plain list of networks, or \code{group_tna}. For
-#'   \code{group_tna} with 2 groups, compares them directly. For more groups,
-#'   plots all pairwise comparisons (or specify i, j).
-#' @param y Second network: same type as x. Ignored if x is a list or
-#'   \code{group_tna}.
-#' @param i Index/name of first group when x is group_tna or a plain list.
-#'   NULL plots all pairs for a \code{group_tna} of more than two groups, and
-#'   selects the first element otherwise.
-#' @param j Index/name of second group when x is group_tna or a plain list.
-#'   NULL plots all pairs for a \code{group_tna} of more than two groups, and
-#'   selects the second element otherwise.
-#' @param pos_color Color for positive differences (x > y). Default "#009900" (green).
-#' @param neg_color Color for negative differences (x < y). Default "#C62828" (red).
-#' @param labels Node labels. NULL uses rownames or defaults.
-#' @param title Plot title. NULL for auto-generated title.
-#' @param inits_x Node values for x (e.g., initial probabilities). NULL to auto-extract from tna.
-#' @param inits_y Node values for y. NULL to auto-extract from tna.
-#' @param show_inits Logical: show node differences as donuts? Default
-#'   \code{NULL}, which shows them when inits are available for both networks.
-#' @param donut_inner_ratio Inner radius ratio for donut (0-1). Default 0.8.
+#' @param x First network: matrix, \code{cograph_network}, \code{tna},
+#'   \code{igraph}, list with a matrix \code{weights} component, plain list of
+#'   networks, or \code{group_tna}. For a \code{group_tna} with two groups,
+#'   the groups are compared directly. With more groups and \code{i} and
+#'   \code{j} both \code{NULL}, all pairwise comparisons are plotted.
+#' @param y Second network, of the same type as \code{x}. Ignored when \code{x}
+#'   is a list or \code{group_tna}.
+#' @param i Index or name of the first group when \code{x} is a
+#'   \code{group_tna} or a plain list. \code{NULL} selects the first element,
+#'   except that all pairs are plotted for a \code{group_tna} of more than two
+#'   groups when \code{j} is also \code{NULL}.
+#' @param j Index or name of the second group, with the same rules as
+#'   \code{i}. \code{NULL} selects the second element.
+#' @param pos_color Color for positive differences (x > y).
+#' @param neg_color Color for negative differences (x < y).
+#' @param labels Node labels. \code{NULL} uses the row names of the weight
+#'   matrix, or node indices when there are none.
+#' @param title Plot title. \code{NULL} uses \code{"Network Difference (x - y)"},
+#'   or the two group names when they are available.
+#' @param inits_x Node values for x (e.g., initial probabilities). \code{NULL}
+#'   extracts them from a tna object.
+#' @param inits_y Node values for y. \code{NULL} extracts them from a tna
+#'   object.
+#' @param show_inits Logical. Show node differences as donuts? \code{NULL}
+#'   (default) shows them when node values are available for both networks.
+#' @param donut_inner_ratio Inner radius ratio for donut (0-1).
 #' @param difference Logical. If \code{TRUE}, \code{x} is treated as an
-#'   already-subtracted difference network (no \code{y} needed). A
-#'   \code{tna_comparison} object (from \code{tna::compare()}) is detected
-#'   automatically and its \code{$difference_matrix} is used.
-#' @param force Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.
-#' @param combined Logical: when TRUE (default) and \code{x} is a multi-group
-#'   input that triggers all-pairs plotting, lay panels out in an internal
-#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+#'   already-subtracted difference network and \code{y} is ignored with a
+#'   warning. A \code{tna_comparison} object (from \code{tna::compare()}) or
+#'   a \code{netdifference} object is detected automatically and its
+#'   difference matrix is used.
+#' @param force Logical. Plot all pairs for a \code{group_tna} with more than
+#'   four groups. Without it, such input stops with an error.
+#' @param combined Logical. When \code{TRUE} (default) and \code{x} is a
+#'   multi-group input that triggers all-pairs plotting, panels are arranged in
+#'   a grid via \code{graphics::par(mfrow = ...)}. \code{FALSE} plots into a
 #'   layout the caller has already configured (e.g. via
-#'   \code{\link{panel_layout}()}). Has no effect for the single-pair path.
-#' @param ... Additional arguments passed to splot().
+#'   \code{\link{panel_layout}()}). It has no effect for a single pair.
+#' @param ... Additional arguments passed to \code{\link{splot}}. They
+#'   override the defaults set here (\code{layout = "oval"},
+#'   \code{minimum = 0} and the TNA or psychometric styling preset).
 #'
-#' @return Invisibly returns a list with elements \code{weights} (the
-#'   element-wise difference matrix \code{x - y}) and \code{inits} (the
-#'   node-value difference, or \code{NULL} when no inits were available).
-#'   For the \code{group_tna} all-pairs path, a named list of such lists —
-#'   one element per pair, named \code{"<group_i>_vs_<group_j>"}.
+#' @return Invisibly, a list with elements \code{weights} (the element-wise
+#'   difference matrix \code{x - y}) and \code{inits} (the node-value
+#'   difference, or \code{NULL} when no node values were available). For the
+#'   \code{group_tna} all-pairs path, a named list of such lists with one
+#'   element per pair, named \code{"<group_i>_vs_<group_j>"}.
 #'
 #' @details
-#' The function computes element-wise subtraction of the weight matrices.
-#' Edge colors indicate direction of difference:
-#' - Green edges: x has higher weight than y
-#' - Red edges: y has higher weight than x
+#' The weight matrices are subtracted element-wise. Both networks must have
+#' the same dimensions and, when present, the same node labels; otherwise the
+#' function stops with an error. A directed difference (or tna input) is
+#' styled with the TNA preset and an undirected difference with the
+#' psychometric preset.
 #'
-#' When initial probabilities (inits) are provided or extracted from tna objects,
-#' nodes display donut charts showing the absolute difference, colored by direction:
-#' - Green donut: x has higher initial probability
-#' - Red donut: y has higher initial probability
+#' When node values (inits) are given or extracted from tna objects, each node
+#' is shown as a donut whose filled fraction is the absolute difference,
+#' capped at 1, colored \code{pos_color} when x is higher and
+#' \code{neg_color} when y is higher.
 #'
-#' For lists of networks (e.g., group_tna), specify which elements to compare
-#' using i and j parameters.
+#' \code{plot_compare()} is an alias of \code{plot_difference()}.
 #'
 #' @examples
-#' set.seed(42)
-#' m1 <- matrix(runif(25), 5, 5)
-#' m2 <- matrix(runif(25), 5, 5)
-#' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-#' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' plot_difference(m1, m2)
+#' plot_difference(regulation_net, t(regulation_net))
 #'
-#' # With node-level differences
-#' plot_difference(m1, m2,
-#'                 inits_x = c(.3, .2, .2, .15, .15),
-#'                 inits_y = c(.1, .4, .2, .2, .1))
-#'
-#' @seealso \code{\link{plot_compare}}, a first-class alias of this function
-#'   kept for the \code{tna} integration. \code{plot_difference()} is the
-#'   preferred name.
+#' @seealso \code{\link{plot_compare}}, \code{\link{plot_comparison_heatmap}}
 #' @export
 plot_difference <- function(x, y = NULL,
                          i = NULL,
@@ -391,22 +387,16 @@ plot_difference <- function(x, y = NULL,
 
 #' Plot Network Difference (alias of plot_difference)
 #'
-#' \code{plot_compare()} is an alias of \code{\link{plot_difference}()}. It is
-#' \strong{not deprecated}: \code{tna::plot_compare()} delegates to it by name
-#' (\code{cograph::plot_compare(x, y, ...)}), so the alias is part of the
-#' tna integration and must keep working. New cograph code may prefer the
-#' \code{plot_difference()} name; both call the same implementation.
+#' \code{plot_compare()} is an alias of \code{\link{plot_difference}()} and
+#' calls the same implementation. \code{tna::plot_compare()} calls it by name.
+#' \code{plot_difference()} is the preferred name.
 #'
 #' @param x First network (see \code{\link{plot_difference}}).
 #' @param ... Arguments passed to \code{\link{plot_difference}}.
 #' @return Invisibly, the value of \code{\link{plot_difference}}.
 #' @seealso \code{\link{plot_difference}}
 #' @examples
-#' m1 <- matrix(stats::runif(25), 5, 5)
-#' m2 <- matrix(stats::runif(25), 5, 5)
-#' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-#' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' plot_compare(m1, m2)
+#' plot_compare(regulation_net, t(regulation_net))
 #' @export
 plot_compare <- function(x, ...) {
   plot_difference(x, ...)
@@ -415,36 +405,36 @@ plot_compare <- function(x, ...) {
 
 #' Plot Comparison Heatmap
 #'
-#' Creates a heatmap visualization comparing two networks.
+#' Plots a heatmap of the difference between two weight matrices, or of
+#' either matrix alone. Rows are source nodes and columns are target nodes.
 #'
-#' @param x First network: matrix, \code{cograph_network},
-#'   \code{CographNetwork}, \code{tna}, \code{igraph}, or list-like object
-#'   with \code{$weights}.
-#' @param y Second network: same type as x. NULL to plot just x.
-#' @param type What to display: "difference" (x - y), "x", or "y".
-#' @param name_x Label for first network in title. Default "x".
-#' @param name_y Label for second network in title. Default "y".
-#' @param low_color Color for low/negative values. Default "blue".
-#' @param mid_color Color for zero/middle values. Default "white".
-#' @param high_color Color for high/positive values. Default "red".
-#' @param limits Color scale limits. NULL for auto. Use c(-1, 1) for normalized.
-#' @param show_values Logical: display values in cells? Default FALSE.
-#' @param value_size Text size for cell values. Default 3.
-#' @param digits Decimal places for cell values. Default 2.
-#' @param title Plot title. NULL for auto-generated.
-#' @param xlab X-axis label. Default "Target".
-#' @param ylab Y-axis label. Default "Source".
+#' @param x First network: matrix, \code{cograph_network}, \code{tna},
+#'   \code{igraph}, or list with a matrix \code{weights} component.
+#' @param y Second network, of the same type and dimensions as \code{x}.
+#'   Required for \code{type = "difference"} and \code{type = "y"}; it may
+#'   be \code{NULL} for \code{type = "x"}.
+#' @param type What to display: \code{"difference"} (x - y), \code{"x"}, or
+#'   \code{"y"}.
+#' @param name_x Label for the first network in the default title.
+#' @param name_y Label for the second network in the default title.
+#' @param low_color Color for low (negative) values.
+#' @param mid_color Color for zero.
+#' @param high_color Color for high (positive) values.
+#' @param limits Color scale limits. \code{NULL} uses the data range. Use
+#'   \code{c(-1, 1)} for normalized values.
+#' @param show_values Logical. Display values in cells?
+#' @param value_size Text size for cell values.
+#' @param digits Decimal places for cell values.
+#' @param title Plot title. \code{NULL} builds one from \code{type},
+#'   \code{name_x} and \code{name_y}.
+#' @param xlab X-axis label.
+#' @param ylab Y-axis label.
 #'
-#' @return A ggplot2 object.
+#' @return A ggplot object. The color scale is a diverging gradient with its
+#'   midpoint at 0.
 #'
 #' @examples
-#' set.seed(42)
-#' m1 <- matrix(runif(25), 5, 5)
-#' m2 <- matrix(runif(25), 5, 5)
-#' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-#' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' plot_comparison_heatmap(m1, m2)
-#' plot_comparison_heatmap(m1, type = "x")
+#' plot_comparison_heatmap(regulation_net, t(regulation_net))
 #'
 #' @export
 plot_comparison_heatmap <- function(x, y = NULL,

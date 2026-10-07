@@ -7,47 +7,42 @@
 centrality_modularity_vitality(x, membership = NULL, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Community labels, one per node (integer, factor, or
-character). Required; without it the function warns and returns
-\code{NA}. Obtain one from \code{\link{detect_communities}}.}
+\item{membership}{Community labels, one per node (integer, factor or
+character), for example from \code{\link{detect_communities}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure
+uses \code{weighted} (use edge weights, default \code{TRUE}) and
+\code{loops} (keep self-loops, default \code{TRUE}).}
 }
 \value{
-Named numeric vector, one value per node. \code{NaN} where
-deleting the node leaves a graph with no edges.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Contribution of a node to the modularity of a fixed partition
-(Magelinski, Bartulovic & Carley 2021):
-\deqn{V_Q(i) = Q(G, C) - Q(G - i,\; C \setminus \{i\}),}
-the drop in Newman modularity when node \eqn{i} is deleted and the
-remaining nodes keep their communities. Positive values mark community
-hubs (removing them weakens the modular structure); negative values mark
-bridges (removing them sharpens it). Weighted graphs use edge weights;
-directed graphs use the Leicht-Newman directed modularity, as igraph
-does.
+Modularity vitality (Magelinski, Bartulovic and Carley 2021) is the drop
+in Newman modularity of a fixed partition \eqn{C} when a node is deleted
+and the remaining nodes keep their communities:
+\deqn{V_Q(i) = Q(G, C) - Q(G - i, C \setminus \{i\}).}{
+  V_Q(i) = Q(G, C) - Q(G - i, C without i).}
+Positive values mark community hubs and negative values mark bridges
+between communities.
 }
 \details{
-All \eqn{n} vitalities are computed in closed form from one matrix
-product, without recomputing modularity \eqn{n} times.
+Edge weights are used. A directed network uses the Leicht-Newman
+directed modularity, and the values equal those obtained by deleting
+each node and recomputing \code{igraph::modularity()}. Self-loops enter
+the modularity, and \code{loops = FALSE} drops them. A node whose deletion
+leaves a graph with no edges returns \code{NaN}. Without
+\code{membership} the function raises an unclassed warning and returns
+\code{NA} for every node. A \code{membership} that is not one
+non-missing label per node raises an error of class
+\code{cograph_bad_membership}.
 }
-\section{Conditions}{
-
-Raises an error of class \code{cograph_bad_membership} when
-\code{membership} is not one non-missing label per node.
-}
-
 \examples{
-# Two triangles joined by one bridge edge (C -- D)
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_modularity_vitality(adj, membership = c(1, 1, 1, 2, 2, 2))
+centrality_modularity_vitality(regulation_net,
+                               membership = rep(1:2, each = 5))
 }
 \references{
 Magelinski, T., Bartulovic, M., & Carley, K. M. (2021).
@@ -57,6 +52,5 @@ vitality. IEEE Transactions on Network Science and Engineering, 8(1),
 }
 \seealso{
 \code{\link{centrality_participation}},
-\code{\link{centrality_within_module_z}},
-\code{\link{detect_communities}}.
+\code{\link{centrality_within_module_z}}, \code{\link{centrality}}.
 }

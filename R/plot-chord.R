@@ -1,40 +1,42 @@
 #' Chord Diagram
 #'
-#' Draw a chord diagram where nodes are arcs on the outer ring and edges are
-#' curved ribbons (chords) connecting them. Arc size is proportional to total
-#' flow through each node and chord width is proportional to edge weight.
+#' Plots a chord diagram in which nodes are arcs on the outer ring and edges
+#' are curved ribbons (chords) connecting them. Arc length is proportional to
+#' the total absolute weight of each node's edges, and chord width is
+#' proportional to the absolute edge weight.
 #'
-#' @param x A weight matrix, \code{cograph_network}, \code{CographNetwork},
-#'   \code{tna}, \code{igraph}, or list-like object with a matrix
-#'   \code{weights} component.
+#' @param x A weight matrix, \code{cograph_network}, \code{tna},
+#'   \code{igraph}, or list with a matrix \code{weights} component.
 #' @param directed Logical. If \code{NULL} (default), auto-detected from
 #'   matrix symmetry.
-#' @param segment_colors Colors for the outer ring segments. \code{NULL} uses
-#'   a built-in vibrant palette.
+#' @param segment_colors Colors for the outer ring segments, recycled to the
+#'   number of nodes. \code{NULL} uses a built-in palette of 12 colors,
+#'   interpolated when there are more nodes.
 #' @param segment_border_color Border color for segments.
 #' @param segment_border_width Border width for segments.
 #' @param segment_pad Gap between segments in radians.
 #' @param segment_width Radial thickness of the outer ring as a fraction of
 #'   the radius.
-#' @param chord_color_by How to color chords: \code{"source"} (default),
-#'   \code{"target"}, or a color vector of length matching the number of
-#'   non-zero edges.
+#' @param chord_color_by How to color chords. \code{"target"} uses the target
+#'   segment color, and any other single string (default \code{"source"}) uses
+#'   the source segment color. A vector of colors is recycled to the number of
+#'   chords, which are ordered by source node and then target node.
 #' @param chord_alpha Alpha transparency for chords.
 #' @param chord_border Border color for chords. \code{NA} for no border.
-#' @param self_loop Logical. Currently accepted for API compatibility; the
-#'   current matrix preparation preserves self-loop chords.
+#' @param self_loop Logical. Ignored. Self-loop chords are always shown.
 #' @param labels Node labels. \code{NULL} uses row names, \code{FALSE}
 #'   suppresses labels.
 #' @param label_size Text size multiplier for labels.
 #' @param label_color Color for labels.
 #' @param label_offset Radial offset of labels beyond the outer ring.
-#' @param label_threshold Hide labels for nodes whose flow fraction is below
-#'   this value.
+#' @param label_threshold Hide labels for nodes whose share of the total flow
+#'   is below this value.
 #' @param threshold Minimum absolute weight to show a chord.
-#' @param ticks Logical. Draw tick marks along the outer ring to indicate
+#' @param ticks Logical. Add tick marks along the outer ring to indicate
 #'   magnitude?
-#' @param tick_interval Spacing between ticks in the same units as the weight
-#'   matrix. \code{NULL} (default) auto-selects a nice interval.
+#' @param tick_interval Spacing between major ticks in the same units as the
+#'   weight matrix. Minor ticks are placed at half this spacing. \code{NULL}
+#'   (default) selects an interval from the scale of the weights.
 #' @param tick_labels Logical. Show numeric labels at major ticks?
 #' @param tick_size Text size multiplier for tick labels.
 #' @param tick_color Color for tick marks and labels.
@@ -44,35 +46,28 @@
 #' @param title_size Text size multiplier for the title.
 #' @param background Background color for the plot. \code{NULL} (default) uses
 #'   the current device background.
-#' @param ... Additional arguments (currently ignored).
+#' @param ... Ignored.
 #'
-#' @return Invisibly returns a list with components \code{segments} (data frame
-#'   of segment angles and flows) and \code{chords} (data frame of chord
-#'   endpoints and weights).
+#' @return Invisibly, a list with two data frames. \code{segments} has one row
+#'   per node with columns \code{node}, \code{start}, \code{end}, \code{mid}
+#'   (angles in radians) and \code{flow}. \code{chords} has one row per chord
+#'   with columns \code{from}, \code{to} (node indices), \code{from_start},
+#'   \code{from_end}, \code{to_start}, \code{to_end} (attachment angles) and
+#'   \code{weight} (absolute edge weight).
 #'
 #' @details
-#' The diagram is drawn entirely with base R graphics using \code{polygon()}
-#' for segments and chords, and \code{bezier_points()} for the curved ribbons.
+#' The diagram is plotted with base R graphics. Segments and chords are
+#' polygons, and each ribbon follows quadratic Bezier curves through the
+#' center.
 #'
 #' For directed networks, each segment is split into an outgoing half and an
-#' incoming half so that chords attach to the correct side. For undirected
-#' networks each edge is drawn once and the full segment arc is shared.
+#' incoming half, and chords attach to the matching half. For undirected
+#' networks each edge forms one chord and the full segment arc is shared.
+#' Nodes without edges receive a small minimum arc so that they remain
+#' visible.
 #'
 #' @examples
-#' # Weighted directed matrix
-#' mat <- matrix(c(
-#'    0, 25,  5, 15,
-#'   10,  0, 20,  8,
-#'    3, 18,  0, 30,
-#'   20,  5, 10,  0
-#' ), 4, 4, byrow = TRUE,
-#' dimnames = list(c("A", "B", "C", "D"), c("A", "B", "C", "D")))
-#'
-#' plot_chord(mat)
-#' plot_chord(mat, chord_alpha = 0.6, ticks = TRUE)
-#'
-#' # A transition network
-#' plot_chord(regulation_net, ticks = TRUE, segment_width = 0.10)
+#' plot_chord(regulation_net)
 #'
 #' @export
 plot_chord <- function(

@@ -9,86 +9,79 @@ calculate_extended_core <- function(cg, measure, radius = 3) {
   .cg_extended_gravity(b, core, radius)
 }
 
-#' Extended neighborhood coreness
+#' Extended Neighborhood Coreness
 #'
-#' Bae and Kim's extended neighborhood coreness sums the neighborhood
-#' coreness of every immediate neighbor:
-#' \eqn{C_{nc+}(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}k_s(l)}.
-#' Equivalently, the score is \eqn{A^2 k_s}. Here k_s is the core-number
-#' vector of the original simple undirected graph. Core numbers are not
-#' recomputed inside each neighborhood.
+#' Extended neighborhood coreness (Bae and Kim 2014) sums the neighborhood
+#' coreness of every neighbor of a node:
+#' \deqn{C_{nc+}(i) = \sum_{j \in N(i)} \sum_{l \in N(j)} k_s(l),}{
+#'   C_nc+(i) = sum_{j in N(i)} sum_{l in N(j)} k_s(l),}
+#' where \eqn{k_s}{k_s} is the core number in the whole network. The score
+#' equals \eqn{A^2 k_s}{A^2 k_s}.
 #'
-#' Every length-two walk contributes its endpoint's core number, including
-#' returns to the focal node and repeated endpoints reached via different
-#' neighbors. This is not a sum over distinct nodes at distance two. Isolates
-#' score zero. On a tree, it equals the sum of neighboring degrees; on a
-#' d-regular graph it equals d cubed. A larger score means more access to
-#' core-rich neighborhoods; numerical equivalence does not imply superior
-#' spreading prediction for every network.
-#'
-#' Uses the simple undirected unweighted skeleton: either direction creates
-#' an edge, parallel edges count once and loops are removed. This projection
-#' is a cograph convention for inputs outside the published domain. Weights,
-#' \code{mode} and shortest-path weight inversion do not affect the score.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored. Every walk of length two adds the
+#' core number of its endpoint, including walks that return to the focal
+#' node. Isolated nodes score 0. On a tree the score equals the sum of the
+#' neighbors' degrees, and on a \eqn{d}-regular network it equals
+#' \eqn{d^3}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}. With
-#'   \code{normalized = TRUE}, positive scores are divided by their maximum.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Bae, J., & Kim, S. (2014). Identifying and ranking influential spreaders
 #'   in complex networks by neighborhood coreness. Physica A, 395, 549-559.
 #'   \doi{10.1016/j.physa.2013.10.047}.
+#' @seealso \code{\link{centrality_coreness}},
+#'   \code{\link{centrality_extended_gravity}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_extended_coreness(igraph::make_ring(6))
+#' @examples
+#' centrality_extended_coreness(regulation_net)
 centrality_extended_coreness <- function(x, ...) {
   df <- centrality(x, measures = "extended_coreness", ...)
   stats::setNames(df$extended_coreness, df$node)
 }
 
-#' Extended gravity centrality
+#' Extended Gravity Centrality
 #'
-#' Ma et al.'s extended gravity score is the sum of the immediate neighbors'
-#' raw gravity scores:
-#' \eqn{G^+(i)=\sum_{j\in N(i)}G(j)}, where
-#' \eqn{G(j)=\sum_{l:0<d(j,l)\le r}k_s(j)k_s(l)/d(j,l)^2}.
-#' Core numbers and hop distances are calculated on the original simple
-#' undirected graph. The radius applies around each neighbor j; it is not
-#' a radius around the focal node i. A contribution can therefore reach
-#' r+1 hops from i, and paths from a neighbor back to i also contribute.
+#' Extended gravity centrality (Ma et al. 2016) is the sum of the gravity
+#' scores of a node's neighbors,
+#' \deqn{G^+(i) = \sum_{j \in N(i)} G(j), \qquad
+#'   G(j) = \sum_{l:\, 0 < d_{jl} \le r} \frac{k_s(j)\, k_s(l)}{d_{jl}^2},}{
+#'   G+(i) = sum_{j in N(i)} G(j),
+#'   G(j) = sum_{l: 0 < d_jl <= r} k_s(j) k_s(l) / d_jl^2,}
+#' where \eqn{k_s}{k_s} is the k-shell index and \eqn{d} the hop distance.
 #'
-#' Default radius three is the setting used in the original paper. NULL
-#' or infinity includes every reachable partner, excluding the gravity
-#' source itself. Radius zero and isolates score zero. The outer neighbor
-#' sum has no distance penalty. All inner scores remain raw until the
-#' final optional max normalization.
-#'
-#' Uses the simple undirected unweighted skeleton, with either direction
-#' creating an edge, parallel edges counted once and loops removed. This
-#' projection is a cograph convention for other inputs. Edge weights,
-#' \code{mode}, \code{gravity_mass} and path-weight inversion do not affect
-#' this measure: its masses are always k-shell indices. Computation includes
-#' all-pairs hop distances, so it can be expensive for large graphs.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored, and the masses are always k-shell
+#' indices. The radius applies around each neighbor \eqn{j}, so a
+#' contribution can come from \eqn{r+1} hops away from \eqn{i}, including
+#' paths back to \eqn{i}. Radius 0 and isolated nodes give 0. The
+#' \code{"auto"} radius is half the mean finite positive hop distance,
+#' rounded to the nearest integer with a minimum of 1. This rule is a
+#' package choice. A negative radius raises an error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param gravity_radius Nonnegative hop-distance cutoff, default 3. NULL
-#'   or infinity includes the entire reachable component. The optional
-#'   \code{"auto"} setting is a cograph extension: round half the mean
-#'   finite positive hop distance to the nearest integer (ties to even),
-#'   with minimum one. It is not a parameter rule from Ma et al.
-#' @param ... Additional arguments to \code{\link{centrality}}. With
-#'   \code{normalized = TRUE}, positive final scores are divided by their
-#'   maximum.
-#' @return Named numeric vector in input node order.
+#' @param gravity_radius Hop radius \eqn{r}: a nonnegative number (default
+#'   3, the value of Ma et al. 2016), \code{"auto"}, or \code{NULL} or
+#'   \code{Inf} for the whole component.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying
 #'   influential spreaders in complex networks based on gravity formula.
 #'   Physica A, 451, 205-212. \doi{10.1016/j.physa.2015.12.162}.
-#' @seealso \code{\link{centrality_gravity}}.
+#' @seealso \code{\link{centrality_gravity}},
+#'   \code{\link{centrality_extended_coreness}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
+#' @examples
+#' centrality_extended_gravity(regulation_net)
 centrality_extended_gravity <- function(x, gravity_radius = 3, ...) {
   df <- centrality(x, measures = "extended_gravity",
                    gravity_radius = gravity_radius, ...)

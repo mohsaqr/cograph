@@ -24,25 +24,32 @@ plot_centrality_heatmap(
 \item{x}{Centrality data frame (from \code{\link{centrality}}) or a
 network input.}
 
-\item{measures}{Character vector of measure names.}
+\item{measures}{Character vector of measure names. When \code{x} is a
+network and \code{measures} is NULL (default), degree, strength,
+betweenness, closeness and eigenvector are computed. When \code{x} is a
+centrality data frame, NULL keeps all its measure columns.}
 
-\item{cluster_rows}{Logical. Hierarchically cluster rows so nodes with
-similar profiles are adjacent. Default TRUE.}
+\item{cluster_rows}{Logical. Order rows by hierarchical clustering
+(Euclidean distance, average linkage) of the z-scored profiles.
+Applied when there are more than two nodes. Default TRUE.}
 
-\item{order_by}{If \code{cluster_rows = FALSE}, optionally the name of
-a measure to sort rows by (descending). Default: first measure.}
+\item{order_by}{Used when rows are not clustered. Name of the measure
+that sorts rows in descending order. NULL (default) or an unknown name
+uses the first measure.}
 
-\item{show_values}{Logical. Print z-scores in cells. Default FALSE.}
+\item{show_values}{Logical. Print the raw centrality values in the cells.
+Default FALSE.}
 
 \item{value_digits}{Decimal places for cell values. Default 1.}
 
 \item{low, mid, high}{Color stops for the diverging scale. Defaults to
-blue -> white -> red.}
+blue, white and red.}
 
 \item{limits}{Numeric c(min, max) z-score range. Values outside are
 squished to the endpoints. Default c(-2.5, 2.5).}
 
-\item{title, subtitle}{Plot title and subtitle.}
+\item{title, subtitle}{Plot title and subtitle. The default subtitle is
+"z-scored within measure".}
 
 \item{...}{Passed to \code{\link{centrality}} when \code{x} is a
 network.}
@@ -51,13 +58,11 @@ network.}
 A ggplot object.
 }
 \description{
-Heatmap of nodes (rows) by centrality measures (columns), z-standardized
-within measure so the diverging palette is meaningful. Optional row
-clustering groups nodes with similar centrality profiles.
+Plots a heatmap of nodes (rows) by centrality measures (columns). Cell
+fill is the z-score of each value within its measure, mapped to a
+diverging color scale. Optional row clustering places nodes with similar
+centrality profiles next to each other.
 }
 \examples{
-adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-              5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-plot_centrality_heatmap(adj)
+plot_centrality_heatmap(regulation_net)
 }

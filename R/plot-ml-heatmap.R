@@ -1,19 +1,22 @@
 #' Multilayer Network Heatmap
 #'
-#' Visualizes multiple network layers as heatmaps on tilted 3D-perspective planes,
-#' similar to the plot_mlna network visualization style.
+#' Visualizes multiple network layers as heatmaps on tilted 3D-perspective
+#' planes, in the style of \code{\link{plot_mlna}}.
 #'
-#' @param x A list of matrices (one per layer), a group_tna object,
-#'   cograph_network, or a single matrix with layer_list specified.
-#' @param layer_list Optional list defining layers, column name string,
-#'   or NULL for auto-detection from cograph_network nodes.
+#' @param x A list of matrices (one per layer), a group_tna object, a
+#'   cograph_network, or a single matrix with \code{layer_list} specified.
+#' @param layer_list Named list of node vectors, one per layer. For a matrix
+#'   \code{x} each layer is the submatrix of its nodes. For a cograph_network
+#'   it can also be the name of a node column, and when \code{NULL} a node
+#'   column named \code{layers}, \code{layer}, \code{level} or
+#'   \code{levels} is used.
 #' @param colors Color palette: "viridis", "heat", "blues", "reds", "inferno",
-#'   "plasma", or a vector of colors. Default "viridis".
-#' @param layer_spacing Vertical spacing between layers, in data units. A
-#'   plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
-#'   suits a small network makes a larger one overlap itself. \code{NULL}
-#'   (the default) scales the spacing to the plane so planes never collide;
-#'   pass a number for the older absolute behavior.
+#'   "plasma", or a vector of colors. Any other single name gives the viridis
+#'   colors. Default "viridis".
+#' @param layer_spacing Vertical spacing between layers, in data units.
+#'   \code{NULL} (the default) uses 1.1 times the plane height, which is the
+#'   number of rows of a layer times \code{compress}, with a minimum of 1, so
+#'   the planes do not overlap. A positive number sets the spacing directly.
 #' @param skew Horizontal skew for perspective effect (0-1). Default 0.4.
 #' @param compress Vertical compression for perspective (0-1). Default 0.6.
 #' @param show_connections Show inter-layer connection lines? Default FALSE.
@@ -25,11 +28,10 @@
 #' @param cell_border_color Color for cell borders. Default "white".
 #' @param cell_border_width Width of cell borders. Default 0.2.
 #' @param show_labels Show layer name labels? Default TRUE.
-#' @param show_node_labels Show the row and column names of the matrix?
-#'   Default TRUE. Without them a plane is an anonymous grid and a reader
-#'   cannot tell which cell is which pair. Every plane shares one node
-#'   ordering, so the names are drawn once, against the front plane: rows down
-#'   its left edge, columns along its lower edge.
+#' @param show_node_labels Show the row and column names? Default TRUE. The
+#'   names of the first layer are shown once, along the left and lower edges
+#'   of the front plane, so they identify the cells of every plane only when
+#'   all layers share one node ordering.
 #' @param node_label_size Size of the row and column names. Default 3.
 #' @param label_size Size of layer labels. Default 5.
 #' @param show_legend Show color legend? Default TRUE.
@@ -38,19 +40,16 @@
 #' @param limits Color scale limits c(min, max). NULL for auto.
 #' @param na_color Color for NA values. Default "grey90".
 #' @param threshold Minimum absolute value to display. Cells with
-#'   \code{abs(value) < threshold} are set to NA (rendered as background).
+#'   \code{abs(value) < threshold} are set to NA and shown in
+#'   \code{na_color}.
 #'   Default 0.
 #'
 #' @return A ggplot2 object.
 #'
 #' @examples
-#' set.seed(1)
-#' layers <- list(
-#'   L1 = matrix(runif(16), 4, 4),
-#'   L2 = matrix(runif(16), 4, 4),
-#'   L3 = matrix(runif(16), 4, 4))
-#' plot_ml_heatmap(layers)
-#' plot_ml_heatmap(layers, show_connections = TRUE, colors = "plasma")
+#' clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+#'                  Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+#' plot_ml_heatmap(regulation_net, layer_list = clusters)
 #'
 #' @export
 plot_ml_heatmap <- function(

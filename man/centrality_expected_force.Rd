@@ -2,68 +2,48 @@
 % Please edit documentation in R/centrality-batch31.R
 \name{centrality_expected_force}
 \alias{centrality_expected_force}
-\title{Expected Force centrality}
+\title{Expected Force Centrality}
 \usage{
 centrality_expected_force(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.
-\code{normalized = TRUE} divides by the maximum score; all-zero
-results remain zero.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Computes Lawyer's Expected Force after exactly two transmission events
-without recovery. For each seed, enumerate ordered sequences of two
-infected-to-susceptible edge transmissions. Each sequence produces a
-three-node infected cluster with D outgoing edges to susceptible nodes.
-Normalize these D values across all sequences and take their Shannon
-entropy using natural logarithms (Lawyer 2015, equation 1).
+The Expected Force (Lawyer 2015, equation 1) is the entropy of the
+onward spreading potential after two transmission events from a seed
+node. Each ordered sequence of two transmissions gives an infected
+cluster of three nodes with \eqn{D_k}{D_k} edges to susceptible nodes,
+and with natural logarithms
+\deqn{ExF_i = -\sum_k \frac{D_k}{\sum_l D_l}
+  \log \frac{D_k}{\sum_l D_l}.}{
+  ExF_i = -sum_k (D_k / sum_l D_l) log(D_k / sum_l D_l).}
 }
 \details{
-Different event orders or transmitting parents remain distinct even
-when they infect the same three nodes. A seed and two adjacent neighbors
-of an undirected triangle form four sequences, not one. Boundary edges
-are counted individually even when they reach the same susceptible node.
-This is not entropy over distinct infected sets or over boundary-degree
-categories, and is not a probability-weighted epidemic simulation.
-
-Uses the simple unweighted graph, retaining direction. In directed
-graphs, only outgoing infected-to-susceptible arcs transmit or contribute
-boundary degree, following the paper's directed extension. Loops and
-duplicate arcs are removed after generic processing. Weights, mode,
-inversion and cutoff do not affect the result. The weighted extension
-and horizons other than two events are outside this implementation.
-
-Zero-degree outcomes use the zero-log-zero entropy limit. If no sequence
-can perform two transmissions, or every resulting cluster has zero
-onward force, cograph returns zero. The latter is an explicit extension
-of the paper's undefined all-zero normalization, not author-code parity.
-Isolates and components of at most three nodes therefore score zero.
-A single positive-force outcome also has entropy zero. Empty input
-returns no scores. The measure is local and does not establish epidemic
-probability, outbreak size or predictive accuracy on the supplied graph.
-
-Native computation groups three-node clusters by boundary degree while
-preserving their event multiplicities. Worst-case time is O(n cubed),
-memory O(n squared), including dense graph preparation. Scores remain
-independent between components before maximum normalization.
+The measure is computed on the simple unweighted network with direction
+kept, so weights, loops and parallel edges are ignored. In a directed
+network only outgoing arcs transmit and count toward \eqn{D_k}{D_k}.
+Different orders of the same two infections count as distinct
+sequences. A node that cannot start two transmissions scores zero, so
+isolated nodes and nodes of components with at most three nodes score
+zero. When every cluster has no edge to a susceptible node the entropy
+is undefined, and the score is set to zero.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_expected_force(igraph::make_graph("Zachary"))
-\dontshow{\}) # examplesIf}
+centrality_expected_force(regulation_net)
 }
 \references{
 Lawyer, G. (2015). Understanding the influence of all nodes in a network.
 Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
 }
 \seealso{
-\code{\link{centrality_modified_expected_force}} for degree
-adjustment. \code{\link{centrality_expected}} computes a different
-quantity, the sum of neighbor degrees.
+\code{\link{centrality_modified_expected_force}},
+\code{\link{centrality_expected}}, \code{\link{centrality}}.
 }

@@ -7,25 +7,32 @@
 centrality_local_bridging(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of local bridging values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-(1/degree) times bridging coefficient. Local measure of inter-community
-connectivity.
-This legacy score differs from Nanda and Kotz's ego-betweenness product;
-use \code{\link{centrality_localized_bridging}} for their LBC definition.
+Local bridging centrality multiplies the bridging coefficient of a node by
+its inverse degree:
+\deqn{LB(v) = \frac{1}{k_v} \cdot \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u}.}{
+  LB(v) = (1 / k_v) * (1 / k_v) / sum_{u in N(v)} (1 / k_u).}
+A node of low degree whose neighbors have high degree scores high.
+}
+\details{
+Edge weights are ignored. On a directed network \eqn{k} is the total
+degree, in plus out, and a reciprocated tie counts twice. An isolated node
+scores 0. The local bridging centrality of Nanda and Kotz, the product of
+ego betweenness and the bridging coefficient, is
+\code{\link{centrality_localized_bridging}}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_local_bridging(adj)
+centrality_local_bridging(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_bridging}} for the betweenness-weighted variant.
+\code{\link{centrality_bridging}},
+\code{\link{centrality_localized_bridging}}, \code{\link{centrality}}.
 }

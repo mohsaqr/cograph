@@ -19,7 +19,8 @@ normalize_weights(
 \item{\code{"row"}}{(default) each row sums to 1}
 \item{\code{"column"}}{each column sums to 1}
 \item{\code{"max"}}{divide by the largest absolute weight}
-\item{\code{"sum"}}{divide by the total of all weights}
+\item{\code{"sum"}}{divide by the sum of the weight matrix, in which
+each undirected edge appears twice}
 \item{\code{"minmax"}}{rescale the non-zero weights to [0, 1]}
 }}
 
@@ -32,36 +33,26 @@ A \code{cograph_network} with rescaled weights, or the input format
 when \code{keep_format = TRUE}.
 }
 \description{
-Rescales the weight matrix. Row normalization is what turns a transition
-count matrix into the transition probabilities that TNA models use.
+Rescales the edge weights. Row normalization turns a transition count
+matrix into the transition probabilities used by TNA models.
 }
 \details{
-A row (or column, or the whole matrix) whose total is zero is left at zero
-rather than producing \code{NaN}: there is nothing to distribute. Rows with
-a zero total are reported in a \code{cograph_zero_norm} warning so that the
-zeros are a stated result rather than a silent one.
+A row or column whose total is zero is left at zero. Zero totals, and a zero
+denominator for \code{"max"} or \code{"sum"}, raise a
+\code{cograph_zero_norm} warning.
 
-\code{"minmax"} maps the weakest edge to \code{.Machine$double.eps} rather
-than to exactly 0, because 0 is how this representation stores "no edge":
-mapping to it would delete the weakest edge instead of rescaling it.
+\code{"minmax"} maps the weakest edge to \code{.Machine$double.eps}. A
+weight of exactly 0 would remove the edge, because 0 stores "no edge". When
+all weights are equal they all become 1.
 
 \code{"max"}, \code{"sum"} and \code{"minmax"} rescale each edge
-independently and therefore keep any extra edge columns. \code{"row"} and
-\code{"column"} scale an edge by a total that differs at its two endpoints,
-so they break symmetry and return a directed network.
-
-Row and column normalization are meaningful on directed networks. On an
-undirected network they still work but break symmetry, so the result is
-returned as directed.
+independently and keep any extra edge columns. \code{"row"} and
+\code{"column"} scale an edge by a total that differs at its two endpoints.
+They break symmetry, so an undirected input is returned as a directed
+network.
 }
 \examples{
-counts <- matrix(c(0, 3, 1,
-                   2, 0, 4,
-                   5, 1, 0), 3, 3, byrow = TRUE)
-rownames(counts) <- colnames(counts) <- c("A", "B", "C")
-
-normalize_weights(counts, method = "row")
-normalize_weights(counts, method = "max")
+normalize_weights(regulation_net, method = "row")
 }
 \seealso{
 \code{\link{binarize}}, \code{\link{invert_weights}},

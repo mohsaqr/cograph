@@ -66,76 +66,75 @@ calculate_localized_bridging <- function(cg, radius = 1L) {
   result
 }
 
-#' Localized bridging centrality from ego betweenness
+#' Localized Bridging Centrality
 #'
-#' Nanda and Kotz's localized bridging centrality is the product of a node's
-#' unnormalized betweenness in its induced one-hop ego network and its
-#' bridging coefficient. The coefficient is reciprocal focal degree divided
-#' by the sum of reciprocal neighbor degrees, all measured in the original
-#' graph. It is not computed from degrees truncated to the ego network.
+#' Localized bridging centrality (Nanda and Kotz 2012) is the product of a
+#' node's betweenness \eqn{B^{ego}_i}{B_ego(i)} in its one-hop ego network
+#' and its bridging coefficient, the reciprocal of its degree divided by
+#' the sum of the reciprocal degrees of its neighbors:
+#' \deqn{LBC_i = B^{ego}_i \, \frac{1/d_i}{\sum_{j \in N(i)} 1/d_j}.}{
+#'   LBC_i = B_ego(i) (1/d_i) / sum_{j in N(i)} (1/d_j).}
 #'
-#' Each unordered pair of other ego-network vertices contributes the fraction
-#' of its shortest paths that pass through the focal vertex. Endpoints are
-#' excluded. Uses a simple unweighted undirected skeleton: either arc direction
-#' creates an edge, loops are removed and parallel edges count once. Weights,
-#' mode, inversion and cutoff are ignored. This projection is an explicit
-#' cograph convention, not a directed or weighted generalization of LBC.
-#'
-#' Isolates and leaves score zero; the isolate value extends the undefined
-#' bridging coefficient by zero. Complete graphs score zero. Disconnected
-#' components are evaluated independently before optional maximum scaling.
-#' Empty graphs return no scores. The one-hop calculation uses the
-#' Everett-Borgatti common-neighbor shortcut in each ego network, with
-#' worst-case O(n to the fourth power) time and O(n squared) memory for
-#' dense matrix multiplication across all nodes.
+#' @details
+#' The measure is computed on the simple undirected skeleton of the
+#' network, so direction, weights, loops and parallel edges are ignored.
+#' Degrees are taken from the whole network. Ego betweenness counts
+#' unordered pairs of the other ego-network nodes, excludes endpoints and
+#' is not normalized. Isolated nodes, leaves and every node of a complete
+#' graph score zero.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides final scores by their maximum;
-#'   all-zero scores remain zero. Ego betweenness is never scaled by ego size.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Nanda, S. and Kotz, D. (2012). Localized Bridging Centrality. In Handbook
 #'   of Optimization in Complex Networks, pp. 197-224.
 #'   \doi{10.1007/978-1-4614-0857-4_7}.
-#' @seealso \code{\link{centrality_extended_local_bridging}} for two-hop
-#'   ego networks. \code{\link{centrality_local_bridging}} retains the
-#'   distinct legacy score, inverse degree times bridging coefficient.
+#' @seealso \code{\link{centrality_extended_local_bridging}},
+#'   \code{\link{centrality_local_bridging}},
+#'   \code{\link{centrality_ego_betweenness}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_localized_bridging(igraph::make_graph("Zachary"))
+#' @examples
+#' centrality_localized_bridging(regulation_net)
 centrality_localized_bridging <- function(x, ...) {
   df <- centrality(x, measures = "localized_bridging", ...)
   stats::setNames(df$localized_bridging, df$node)
 }
 
-#' Extended local bridging centrality
+#' Extended Local Bridging Centrality
 #'
-#' Macker's two-hop localized bridging centrality multiplies betweenness of
-#' the focal node in its induced closed two-hop neighborhood by its bridging
-#' coefficient. Degrees for that coefficient come from the original graph.
-#' The ego network includes every edge between the selected vertices.
-#' Its shortest paths can be up to four edges long; this is not global
-#' betweenness with a path-length cutoff of two. Betweenness uses unordered
-#' pairs, excludes endpoints, and is not normalized by ego-network size.
+#' Extended local bridging centrality (Macker 2016) multiplies a node's
+#' betweenness in its two-hop ego network by its bridging coefficient, the
+#' reciprocal of its degree divided by the sum of the reciprocal degrees of
+#' its neighbors. The two-hop ego network contains every node within two
+#' hops and every edge among them, so its shortest paths can have up to
+#' four edges.
 #'
-#' Uses the same simple undirected unweighted projection and zero conventions
-#' as \code{\link{centrality_localized_bridging}}. Macker's separate weighted
-#' model uses link quality for degree and costs for paths; that model is
-#' outside this implementation. Native breadth-first path counts cost
-#' O(sum over ego networks of n_ego times (n_ego + m_ego)), at worst
-#' O(n to the fourth power), with O(n squared) memory. This measure is
-#' marked costly and must be selected explicitly or through \code{include}.
+#' @details
+#' The measure is computed on the simple undirected skeleton of the
+#' network, so direction, weights, loops and parallel edges are ignored.
+#' Degrees are taken from the whole network. Ego betweenness counts
+#' unordered pairs, excludes endpoints and is not normalized. Isolated
+#' nodes, leaves and every node of a complete graph score zero. The
+#' weighted model of Macker (2016), with link quality and path costs, is
+#' not implemented.
 #'
-#' @inheritParams centrality_localized_bridging
-#' @return Named numeric vector in input node order.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Macker, J. P. (2016). An improved local bridging centrality model for
 #'   distributed network analytics. MILCOM, pp. 600-605.
 #'   \doi{10.1109/MILCOM.2016.7795393}.
+#' @seealso \code{\link{centrality_localized_bridging}},
+#'   \code{\link{centrality_bridging}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_extended_local_bridging(igraph::make_graph("Zachary"))
+#' @examples
+#' centrality_extended_local_bridging(regulation_net)
 centrality_extended_local_bridging <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "extended_local_bridging", ...)
   stats::setNames(df$extended_local_bridging, df$node)

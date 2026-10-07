@@ -19,44 +19,57 @@ plot_network_evolution(
 )
 }
 \arguments{
-\item{x}{An edge list data frame with columns \code{from}, \code{to}, and
-a time column, OR a list of network objects (matrices, igraph, etc.).}
+\item{x}{An edge list data frame with columns \code{from}, \code{to},
+optionally \code{weight}, and a time column; a \code{cograph_network}
+with stored edge data; or a list of network objects (matrices, igraph,
+etc.).}
 
-\item{time}{Character. Name of the time/group column in \code{x}. Ignored
-if \code{x} is a list.}
+\item{time}{Character. Name of the time column in \code{x}. Required for
+data frame input and ignored if \code{x} is a list.}
 
-\item{slices}{Integer or NULL. Number of equal-width time bins. Default
-NULL uses unique values of the time column.}
+\item{slices}{Integer or NULL. Number of equal-width bins of the numeric
+time column. Default NULL uses the unique time values.}
 
 \item{cumulative}{Logical. If TRUE, each panel shows all edges up to that
 time point (growing network). If FALSE (default), each panel shows only
 edges from that period.}
 
-\item{labels}{Character vector of panel labels. Default NULL (auto from
-time values).}
+\item{labels}{Character vector of panel labels, one per period. The
+default NULL uses the time values, or \code{"T1"}, \code{"T2"}, ...
+for list input.}
 
-\item{layout}{Layout specification. Default \code{"spring"}.}
+\item{layout}{Character. Any character value computes one
+Fruchterman-Reingold layout from the union of all edges and uses it for
+every panel. Default \code{"spring"}.}
 
-\item{ncol}{Integer. Grid columns. Default auto.}
+\item{ncol}{Integer. Number of grid columns. The default NULL uses
+\code{min(number of periods, 4)}.}
 
-\item{node_size}{Numeric. Default 5.}
+\item{node_size}{Numeric. Node size passed to \code{\link{splot}}.
+Default 5.}
 
-\item{seed}{Integer or NULL. Default 42.}
+\item{seed}{Integer or NULL. Random seed for the shared layout. The
+caller's random number state is restored on exit. NULL sets no seed.
+Default 42.}
 
-\item{combined}{Logical: when TRUE (default), arrange period panels in an
-internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
-into a layout the caller has already configured (e.g. via
-\code{\link{panel_layout}()}).}
+\item{combined}{Logical. When TRUE (default), the period panels are
+arranged in an internal grid via \code{graphics::par(mfrow = ...)}.
+When FALSE, the panels are plotted into a layout the caller has already
+configured, for example with \code{\link{panel_layout}()}.}
 
 \item{...}{Additional arguments passed to \code{\link{splot}}.}
 }
 \value{
-Invisible list of per-panel networks or edge-list data frames.
+Invisibly, a list with one element per period. For data frame
+input each element is the edge-list data frame of that period (all
+earlier periods included when \code{cumulative = TRUE}). For list input
+it is the input list.
 }
 \description{
-Displays a network at different time points side by side. Accepts an edge
-list data frame with a time column, or a pre-built list of networks.
-All panels share the same node layout for visual comparison.
+Plots a network at different time points side by side. The input is an
+edge list data frame with a time column, a \code{cograph_network} whose
+stored edge data contain such a column, or a list of networks. All panels
+share one node layout. At least two periods are required.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
@@ -66,6 +79,5 @@ edges <- data.frame(
   to   = sample(LETTERS[1:5], 30, replace = TRUE),
   week = sample(1:4, 30, replace = TRUE))
 cograph::plot_network_evolution(edges, time = "week")
-cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
 \dontshow{\}) # examplesIf}
 }

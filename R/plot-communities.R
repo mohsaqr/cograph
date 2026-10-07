@@ -1,16 +1,22 @@
 #' Overlay Community Blobs on a Network Plot
 #'
-#' Render a network with \code{\link{splot}} and overlay smooth blob
-#' shapes highlighting node communities.
+#' Plots a network with \code{\link{splot}} and overlays smooth blob
+#' shapes that mark node communities.
 #'
 #' @param x A network object passed to \code{\link{splot}}: \code{tna},
 #'   matrix, \code{igraph}, or \code{cograph_network}.
-#' @param communities Community assignments in any format:
-#'   a method name (e.g., \code{"walktrap"}, \code{"louvain"}),
-#'   a numeric or factor membership vector (e.g., \code{c(1, 1, 2, 2, 3)}),
-#'   a named list of character vectors,
-#'   a \code{cograph_communities} object, or
-#'   a \code{tna_communities} object.
+#' @param communities Community assignments in any of these formats:
+#'   \itemize{
+#'     \item the name of an igraph \code{cluster_*} algorithm (e.g.,
+#'       \code{"walktrap"}, \code{"louvain"}, \code{"leiden"},
+#'       \code{"edge_betweenness"}), matched partially; directed networks are
+#'       collapsed to undirected before detection;
+#'     \item a numeric or factor membership vector in node order (e.g.,
+#'       \code{c(1, 1, 2, 2, 3)}), or named by node;
+#'     \item a named list of character vectors of node names;
+#'     \item a \code{cograph_communities}, igraph \code{communities} or
+#'       \code{tna_communities} object.
+#'   }
 #' @param blob_colors Character vector of fill colors for blobs.
 #'   Recycled if shorter than the number of communities. Default
 #'   \code{NULL} uses the built-in blob palette.
@@ -19,20 +25,12 @@
 #' @param blob_line_alpha Numeric. Border line transparency (0-1). Default \code{0.8}.
 #' @param ... Additional arguments passed to \code{\link{splot}}.
 #'
-#' @return The \code{\link{splot}} result — a \code{cograph_network}
-#'   object — invisibly. Called for the side effect of drawing.
+#' @return Invisibly, the \code{cograph_network} object returned by
+#'   \code{\link{splot}}. Called for the side effect of plotting.
 #'
-#' @examples
-#' set.seed(1)
-#' mat <- matrix(runif(25), 5, 5,
-#'               dimnames = list(LETTERS[1:5], LETTERS[1:5]))
-#' diag(mat) <- 0
-#' overlay_communities(mat, list(g1 = c("A","B"), g2 = c("C","D","E")))
-#'
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   comm <- cograph::communities(regulation_net, method = "infomap")
-#'   overlay_communities(regulation_net, comm)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' comm <- cograph::communities(regulation_net, method = "walktrap")
+#' overlay_communities(regulation_net, comm)
 #'
 #' @export
 overlay_communities <- function(x,
@@ -143,18 +141,12 @@ overlay_communities <- function(x,
 }
 
 
-#' Plot a tna_communities object
+#' @details
+#' \code{splot.tna_communities()} plots the tna model stored in
+#' \code{attr(x, "tna")} by \code{tna::communities()}, with nodes colored by
+#' community. The \code{walktrap} assignment is used when present, and the
+#' first algorithm column of \code{x$assignments} otherwise.
 #'
-#' Plots the original tna model with nodes colored by community membership.
-#' The original model is retrieved from \code{attr(x, "tna")}, which
-#' \code{tna::communities()} sets automatically. Uses \code{walktrap} if
-#' present in \code{x$assignments}; otherwise falls back to the first
-#' available algorithm column.
-#'
-#' @param x A \code{tna_communities} object from \code{tna::communities()}.
-#' @param ... Additional arguments forwarded to \code{\link{splot}}.
-#'
-#' @return Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 #' @rdname splot
 #' @export
 splot.tna_communities <- function(x, ...) {
@@ -169,18 +161,11 @@ splot.tna_communities <- function(x, ...) {
 }
 
 
-#' Plot a cograph_communities object
+#' @details
+#' \code{splot.cograph_communities()} plots the network stored in
+#' \code{attr(x, "network")} by \code{\link{detect_communities}()}, with
+#' nodes colored by community.
 #'
-#' Plots the original network with nodes colored by community membership.
-#' The network is retrieved from \code{attr(x, "network")}, which
-#' \code{detect_communities()} / \code{.wrap_communities()} sets automatically.
-#'
-#' @param x A \code{cograph_communities} object from
-#'   \code{detect_communities()} or one of the
-#'   \code{community_<algorithm>()} helpers.
-#' @param ... Additional arguments forwarded to \code{\link{splot}}.
-#'
-#' @return Invisibly, the \code{\link{splot}} result: a \code{cograph_network} object.
 #' @rdname splot
 #' @export
 splot.cograph_communities <- function(x, ...) {

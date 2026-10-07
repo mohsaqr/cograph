@@ -10,22 +10,15 @@ is_tna_network(x)
 \item{x}{A CographNetwork or cograph_network object.}
 }
 \value{
-Logical: TRUE if the network was created from a TNA object, FALSE otherwise.
+Logical. \code{TRUE} if the network was created from a tna object,
+\code{FALSE} otherwise, including for any input that is not a network.
 }
 \description{
-Checks whether a cograph_network was created from a tna or group_tna object.
+Checks whether a cograph_network was created from a tna object, such as
+one model of a group_tna object.
 }
 \examples{
-# Non-TNA network
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_cograph(mat)
-is_tna_network(net)  # FALSE
-
-\dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-model <- tna::tna(regulation_net)
-net_tna <- as_cograph(model)
-is_tna_network(net_tna)  # TRUE
-\dontshow{\}) # examplesIf}
+is_tna_network(as_cograph(regulation_net))
 }
 \seealso{
 \code{\link{as_cograph}}

@@ -56,22 +56,7 @@ focal type (\code{d_k = 1}) are skipped, since \code{1 / (d_k - 1)} is
 undefined. This follows the convention in Newman (2001).
 }
 \examples{
-# Incidence matrix: 4 students x 3 courses
-inc <- matrix(c(1, 1, 0,
-                1, 0, 1,
-                0, 1, 1,
-                1, 1, 1), 4, 3, byrow = TRUE)
-rownames(inc) <- paste0("S", 1:4)
-colnames(inc) <- paste0("C", 1:3)
-
-# Student co-enrollment (weighted)
-cograph::project_bipartite(inc, mode = "rows", method = "sum")
-
-# Course overlap (Jaccard similarity)
-cograph::project_bipartite(inc, mode = "columns", method = "jaccard")
-
-# Newman's weighted projection
-cograph::project_bipartite(inc, mode = "rows", method = "newman")
+cograph::project_bipartite(regulation_net, mode = "rows", method = "jaccard")
 }
 \references{
 Newman, M. E. J. (2001). Scientific collaboration networks. II. Shortest

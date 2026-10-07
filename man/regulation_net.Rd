@@ -8,7 +8,7 @@
 A 10 x 10 numeric matrix with row and column names \code{Explore},
 \code{Plan}, \code{Monitor}, \code{Adapt}, \code{Reflect}, \code{Discuss},
 \code{Synthesize}, \code{Evaluate}, \code{Create} and \code{Share}. Thirty
-of the 90 off-diagonal cells carry weights between 0.05 and 0.49; the
+of the 90 off-diagonal cells carry weights between 0.05 and 0.49. The
 remaining cells, including the diagonal, are zero.
 }
 \source{
@@ -29,9 +29,9 @@ state.
 }
 \details{
 The network is synthetic and represents no observed data. It was
-generated with \code{set.seed(42)}: 30 off-diagonal cells were drawn at
-random and given weights drawn uniformly between 0.05 and 0.5, rounded to
-two decimals. Rows are not normalized.
+generated with \code{set.seed(42)}. Thirty off-diagonal cells were drawn
+at random and given weights drawn uniformly between 0.05 and 0.5, rounded
+to two decimals. Rows are not normalized.
 }
 \examples{
 regulation_net

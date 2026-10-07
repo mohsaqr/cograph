@@ -7,28 +7,46 @@
 centrality_participation(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer vector of community assignments (one per node).}
+\item{membership}{Community of each node, a vector with one entry per
+node in input node order (default \code{NULL}).}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of participation coefficient values (0-1).
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Measures diversity of inter-community connections. Nodes connecting to
-many communities have high participation. Requires community membership.
+The participation coefficient (Guimera and Nunes Amaral 2005) measures
+how evenly the ties of a node spread over communities:
+\deqn{P_i = 1 - \sum_{s} \left(\frac{k_{is}}{k_i}\right)^2,}{
+  P_i = 1 - sum_s (k_is / k_i)^2,}
+where \eqn{k_{is}}{k_is} counts the ties of node \eqn{i} to community
+\eqn{s} and \eqn{k_i} is its degree.
+}
+\details{
+Edge weights are ignored. \code{mode} selects the ties counted, and with
+\code{mode = "all"} on a directed network a reciprocated tie counts twice.
+A node whose ties all stay in one community scores 0, as does an isolated
+node, and the score is below 1. Without \code{membership} every score is
+\code{NA} with a warning that carries no condition class, and a
+\code{membership} of the wrong length raises an error. On undirected
+networks the values equal \code{brainGraph::part_coeff()}.
 }
 \examples{
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-centrality_participation(adj, membership = c(1, 1, 1, 2, 2))
+centrality_participation(regulation_net, membership = rep(1:2, each = 5))
+}
+\references{
+Guimera, R., & Nunes Amaral, L. A. (2005). Functional cartography of
+complex metabolic networks. Nature, 433(7028), 895-900.
+\doi{10.1038/nature03288}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_within_module_z}} for within-community connectivity.
+\code{\link{centrality_within_module_z}},
+\code{\link{centrality_gateway}}, \code{\link{centrality}}.
 }

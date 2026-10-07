@@ -7,37 +7,30 @@
 triad_census(x)
 }
 \arguments{
-\item{x}{A matrix, igraph object, or cograph_network}
+\item{x}{A matrix, igraph object, or cograph_network.}
 }
 \value{
 A named numeric vector of length 16 giving the count of each MAN
 triad type, in the order listed under Details.
 }
 \description{
-Count the 16 types of triads in a directed network using MAN notation.
+Counts the 16 types of triads in a directed network using MAN notation.
+Edge weights are ignored.
 }
 \details{
-Triad census is defined only for directed networks. Matrix input is built
-as directed; existing igraph and cograph inputs must already be directed.
+The triad census is defined only for directed networks. Matrix input is
+read as directed. An undirected igraph or cograph_network input raises an
+error.
 
-MAN notation describes triads by:
-\itemize{
-\item M: number of Mutual (reciprocal) edges
-\item A: number of Asymmetric edges
-\item N: number of Null (absent) edges
-}
-
-The 16 triad types are:
-003, 012, 102, 021D, 021U, 021C, 111D, 111U,
-030T, 030C, 201, 120D, 120U, 120C, 210, 300
+A MAN code gives the number of mutual (reciprocated) dyads, the number of
+asymmetric dyads and the number of null (absent) dyads of a triad, followed
+by a letter that separates types with the same counts. The 16 triad types,
+in the order of the result, are 003, 012, 102, 021D, 021U, 021C, 111D,
+111U, 030T, 030C, 201, 120D, 120U, 120C, 210 and 300.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-set.seed(1)
-mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
-diag(mat) <- 0
-# igraph and sna also export triad_census(); qualify the call.
-cograph::triad_census(mat)
+cograph::triad_census(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -49,8 +42,6 @@ Other motifs:
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
 \code{\link{motifs}()},
-\code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()},
 \code{\link{subgraphs}()}
 }
 \concept{motifs}

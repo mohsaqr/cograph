@@ -4,7 +4,7 @@
 \alias{centrality_community_based}
 \alias{centrality_comm_centrality}
 \alias{centrality_community_mediator}
-\title{Community-Based Centrality, Comm Centrality and Community-Based Mediator}
+\title{Community-Based Centralities}
 \usage{
 centrality_community_based(x, membership = NULL, mode = "all", ...)
 
@@ -19,68 +19,63 @@ centrality_comm_centrality(
 centrality_community_mediator(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Community labels, one per node. Required; without it
-the function warns and returns \code{NA}.}
+\item{membership}{Community labels, one per node, for example from
+\code{\link{detect_communities}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"out"},
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
 or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 
 \item{comm_r}{Scale \eqn{R} of Comm centrality: \code{"max_intra"}
-(default) or a single positive number. Anything else raises a
-\code{cograph_bad_parameter} error.}
+(default) or a single positive number applied to every community.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Three community-aware measures that need a partition (\code{membership}).
+Three measures that score a node from a partition \code{membership}.
+Community-based centrality (Zhao et al. 2015) is
+\eqn{CbC(i) = \sum_w d_{iw} S_w / N}{CbC(i) = sum_w d_iw S_w / N}, where
+\eqn{d_{iw}}{d_iw} counts the links of \eqn{i} into community \eqn{w} of
+size \eqn{S_w}{S_w}. Comm centrality (Gupta, Singh and Cherifi 2016)
+combines intra-community degree \eqn{k^{in}}{k_in} and inter-community
+degree \eqn{k^{out}}{k_out}:
+\deqn{CC(i) = (1 + \mu_C) \frac{k^{in}_i}{\max_{j \in C} k^{in}_j} R
+  + (1 - \mu_C)
+  \left(\frac{k^{out}_i}{\max_{j \in C} k^{out}_j} R\right)^2,}{
+  CC(i) = (1 + mu_C) (k_in(i) / max_{j in C} k_in(j)) R
+  + (1 - mu_C) ((k_out(i) / max_{j in C} k_out(j)) R)^2,}
+with \eqn{\mu_C}{mu_C} the mean inter-link fraction in the community of
+\eqn{i}. Community-based mediator centrality (Tulu, Hou and Younas 2018)
+is \eqn{CbM(i) = H_i\, d_i / \sum_j d_j}{CbM(i) = H_i d_i / sum_j d_j},
+with \eqn{H_i}{H_i} the base-2 entropy of the links of \eqn{i} over the
+communities.
 }
 \details{
-\describe{
-\item{\code{community_based} (Zhao, Wang, Zhang & Zhu 2015)}{
-\eqn{CbC(i) = \sum_w d_{iw} S_w / N}: every link of \eqn{i} counts
-the size \eqn{S_w} of the community it lands in. No parameters.
-Reproduces Table 1 of the paper and Table 1 of Tulu et al. (2018).}
-\item{\code{comm_centrality} (Gupta, Singh & Cherifi 2016)}{
-\deqn{CC(i) = (1 + \mu_C)\, \frac{k^{in}_i}{\max_{j \in C} k^{in}_j} R
-      + (1 - \mu_C) \left(\frac{k^{out}_i}{\max_{j \in C} k^{out}_j}
-      R\right)^2,}
-where \eqn{k^{in}, k^{out}} are the intra- and inter-community
-degrees, \eqn{\mu_C} the mean inter-link fraction in \eqn{i}'s
-community, and \eqn{R} a scale. The default \code{comm_r =
-    "max_intra"} is the paper's recommended \eqn{R = \max_{j \in C}
-    k^{in}_j} per community; a number applies one global \eqn{R}. The
-equation uses \eqn{1 + \mu_C} although the paper's prose says
-\eqn{\mu_C}; the equation is implemented. A community without intra
-(inter) links contributes 0 through that term.}
-\item{\code{community_mediator} (Tulu, Hou & Younas 2018)}{
-\eqn{CbM(i) = H_i \, d_i / \sum_j d_j}, with \eqn{H_i} the base-2
-Shannon entropy of \eqn{i}'s link distribution over the communities.
-Nodes linked to one community only score 0. Base 2 is what
-reproduces the paper's Table 1.}
+Edge weights and self-loops are ignored. Under \code{mode = "out"} or
+\code{mode = "in"} only out-links or in-links count, and the default
+ignores direction. Higher values mark more central nodes in all three.
+The default \code{comm_r = "max_intra"} sets \eqn{R} to the largest
+intra-community degree of each community, the choice the source
+recommends. The prose of Gupta et al. writes \eqn{\mu_C}{mu_C} where their
+equation has \eqn{1 + \mu_C}{1 + mu_C}, and the equation is implemented.
+Nodes
+linked to one community only score 0 on the mediator measure. Without
+\code{membership} each function raises an unclassed warning and returns
+\code{NA}. A \code{membership} that is not one non-missing label per node
+raises an error of class \code{cograph_bad_membership}, and an invalid
+\code{comm_r} raises \code{cograph_bad_parameter}.
 }
-Higher = more central in all three. Under \code{mode = "out"} or
-\code{"in"} only out- or in-links count; edge weights are ignored.
-}
-\section{Conditions}{
-
-Raises an error of class \code{cograph_bad_membership} when
-\code{membership} is not one non-missing label per node.
-}
-
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_community_based(adj, membership = c(1, 1, 1, 2, 2, 2))
-centrality_comm_centrality(adj, membership = c(1, 1, 1, 2, 2, 2))
-centrality_community_mediator(adj, membership = c(1, 1, 1, 2, 2, 2))
+centrality_community_based(regulation_net, membership = rep(1:2, each = 5))
+centrality_comm_centrality(regulation_net, membership = rep(1:2, each = 5))
+centrality_community_mediator(regulation_net,
+                              membership = rep(1:2, each = 5))
 }
 \references{
 Zhao, Z., Wang, X., Zhang, W., & Zhu, Z. (2015). A community-based
@@ -96,5 +91,5 @@ information in complex network. IEEE Access, 6, 7390-7401.
 }
 \seealso{
 \code{\link{centrality_community_hub_bridge}},
-\code{\link{centrality_participation}}.
+\code{\link{centrality_participation}}, \code{\link{centrality}}.
 }

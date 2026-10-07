@@ -2,6 +2,7 @@
 #' @description Functions for parsing igraph objects.
 #' @name input-igraph
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Parse igraph Object

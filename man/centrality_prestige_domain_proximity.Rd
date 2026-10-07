@@ -7,51 +7,38 @@
 centrality_prestige_domain_proximity(x, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of domain proximity prestige values in
-\eqn{[0, 1]}.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Distance-weighted variant of domain prestige. For each directed node
-\eqn{v}:
-\deqn{PD(v) = R_v^2 / (D_v \cdot (n - 1))}
-where \eqn{R_v} is the number of other nodes that reach \eqn{v}, and
-\eqn{D_v} is the sum of geodesic distances from those reachers to
-\eqn{v}. A node that is reachable quickly from many others scores high;
-unreachable nodes score 0.
+Domain proximity prestige (Wasserman and Faust 1994) combines the number
+of nodes that reach a node with their distance to it:
+\deqn{PD(v) = \frac{R_v^2}{(n - 1)\,D_v},}{PD(v) = R_v^2 / ((n - 1) D_v),}
+where \eqn{R_v} is the number of other nodes with a directed path to
+\eqn{v} and \eqn{D_v} the sum of their hop distances to \eqn{v}.
 }
 \details{
-Bit-exact match against \code{sna::prestige(cmode = "domain.proximity")}
-on strongly connected directed graphs. Directed-only; returns \code{NA}
-with a warning on undirected input.
+The measure needs a directed network. On undirected input every score is
+\code{NA} with a warning that carries no condition class. Edge weights are
+ignored. A node that no other node reaches scores 0, and the score lies
+between 0 and 1. On strongly connected networks the values equal
+\code{sna::prestige(cmode = "domain.proximity")}. On other networks sna
+sets some scores to 0, because its sum multiplies an infinite distance by
+zero; cograph sums the finite distances only.
 }
-\section{Divergence from sna on disconnected graphs}{
-
-sna's formula computes \code{(counts > 0) * gdist} element-wise and then
-sums to get the denominator. For any pair where \code{gdist = Inf}
-(unreachable), R evaluates \code{FALSE * Inf = NaN}, so the entire
-denominator becomes \code{NaN} and sna zeros every node via
-\code{p[is.nan(p)] <- 0}. cograph masks with \code{is.finite()} before
-summing, producing mathematically correct values on any directed graph,
-including those with disconnected components.
-}
-
 \examples{
-# Directed 3-cycle: each node is reached by both others at distance 1 and 2
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_prestige_domain_proximity(adj)
+centrality_prestige_domain_proximity(regulation_net)
 }
 \references{
 Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
 and Applications}. Cambridge University Press.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_prestige_domain}}
-for the unweighted count, \code{\link{centrality_reaching_local}}
-for the dual out-reachability measure.
+\code{\link{centrality_prestige_domain}},
+\code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 }

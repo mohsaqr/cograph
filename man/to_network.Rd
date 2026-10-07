@@ -18,11 +18,9 @@ A network object from the network package.
 Converts any supported network format to a statnet network object.
 }
 \examples{
-if (requireNamespace("network", quietly = TRUE)) {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-  rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-  net <- to_network(adj)
-}
+\dontshow{if (requireNamespace("network", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+to_network(regulation_net)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{to_igraph}}, \code{\link{to_matrix}}, \code{\link{to_df}},

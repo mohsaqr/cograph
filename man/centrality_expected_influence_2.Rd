@@ -2,41 +2,48 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_expected_influence_2}
 \alias{centrality_expected_influence_2}
-\title{Expected Influence (two-step)}
+\title{Two-Step Expected Influence}
 \usage{
 centrality_expected_influence_2(x, mode = "out", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{One of "all", "in", "out" for directed graphs. Default "out".}
+\item{mode}{For directed networks: \code{"out"} (default), \code{"in"} or
+\code{"all"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} and \code{psych_network}.}
 }
 \value{
-Named numeric vector of two-step expected-influence values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Two-step signed-weight sum: a node's own expected influence (EI1) plus
-the weighted sum of its neighbors' EI1 (Robinaugh, Millner & McNally
-2016). Captures both the node's direct influence and the influence it
-exerts indirectly via highly-connected neighbors.
+Two-step expected influence (Robinaugh, Millner and McNally 2016) adds to
+the one-step expected influence of a node the one-step expected influence
+of its neighbors, each weighted by the signed edge between them:
+\deqn{EI_2(i) = EI_1(i) + \sum_{j} w_{ij} EI_1(j).}{
+  EI2(i) = EI1(i) + sum_j w_ij EI1(j).}
+}
+\details{
+\code{mode = "out"} (the default here) follows outgoing edges at both
+steps, \code{mode = "in"} incoming edges and \code{mode = "all"} both, with
+a self-loop counted once. On an undirected network \code{"out"} and
+\code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
+are always used, and \code{weighted = FALSE} has no effect. When the
+network has a negative edge, \code{normalized = TRUE} divides by the
+largest absolute score and keeps the sign.
 }
 \examples{
-W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-               0.5,  0.0,  0.4, -0.1,
-              -0.3,  0.4,  0.0,  0.6,
-               0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-centrality_expected_influence_2(W)
+centrality_expected_influence_2(regulation_net)
 }
 \references{
-Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
-highly influential nodes in the complicated grief network.
-\emph{Journal of Abnormal Psychology}, 125(6), 747-757.
+Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+highly influential nodes in the complicated grief network. Journal of
+Abnormal Psychology, 125(6), 747-757. \doi{10.1037/abn0000181}.
 }
 \seealso{
-\code{\link{centrality_expected_influence_1}} for the one-step
-variant.
+\code{\link{centrality_expected_influence_1}},
+\code{\link{centrality_strength}}, \code{\link{centrality}}.
 }

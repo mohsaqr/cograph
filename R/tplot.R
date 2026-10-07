@@ -1,45 +1,45 @@
 #' TNA-Style Network Plot (qgraph Compatible)
 #'
-#' A drop-in replacement for qgraph::qgraph() that uses cograph's splot engine.
-#' Accepts qgraph parameter names for seamless migration from qgraph to cograph.
+#' Plots a network with \code{splot()} and TNA styling, using qgraph argument
+#' names such as \code{vsize}, \code{edge.color} and \code{pie}.
+#' \code{tplot()} is an alias.
 #'
 #' @param x A weight matrix (adjacency matrix) or tna object
 #' @param color Node fill colors
 #' @param labels Node labels
-#' @param layout Layout: "circle", "spring", "oval", or a coordinate matrix
-#' @param theme Plot theme ("colorblind", "gray", etc.)
+#' @param layout Layout: "oval" (default), "circle", "spring", or a coordinate
+#'   matrix.
+#' @param theme Plot theme. Default "colorblind".
 #' @param mar Plot margins (numeric vector of length 4)
-#' @param cut Edge emphasis threshold
+#' @param cut Edge emphasis threshold, passed to \code{edge_cutoff} of
+#'   \code{splot()}.
 #' @param edge.label.position Position of edge labels along edge (0-1)
 #' @param edge.label.cex Edge label size multiplier
 #' @param edge.color Edge colors
 #' @param vsize Node size
-#' @param pie Pie/donut fill values (e.g., initial probabilities)
-#' @param pieColor Pie/donut segment colors
-#' @param lty Line type for edges (1=solid, 2=dashed, 3=dotted)
-#' @param directed Logical, is the graph directed?
-#' @param minimum Minimum edge weight to display
+#' @param pie Donut fill values in 0-1 (for example, initial probabilities).
+#' @param pieColor Donut fill colors.
+#' @param lty Line type for edges: 1 solid, 2 dashed, 3 dotted, 4 dotdash,
+#'   5 longdash, 6 twodash, or a line-type name.
+#' @param directed Logical, is the graph directed? NULL (default) treats a
+#'   symmetric weight matrix as undirected and any other input as directed.
+#' @param minimum Minimum absolute edge weight to display, passed to
+#'   \code{threshold} of \code{splot()}.
 #' @param posCol Color for positive edges
 #' @param negCol Color for negative edges
 #' @param arrowAngle Arrow head angle in radians. Default NULL, which leaves
 #'   \code{splot()}'s own \code{arrow_angle} default of pi/6 (30 degrees) in place.
 #' @param title Plot title
-#' @param ... Additional arguments passed to splot()
+#' @param ... Additional arguments passed to \code{splot()}. They take
+#'   precedence over the translated qgraph arguments.
 #'
-#' @return Invisibly returns the cograph_network object from splot().
+#' @return The \code{cograph_network} object returned by \code{splot()},
+#'   invisibly.
 #'
 #' @export
 #'
 #' @examples
-#' # Simple usage
-#' m <- matrix(runif(25), 5, 5)
-#' plot_tna(m)
-#'
-#' # With qgraph-style parameters
-#' plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
-#'
-#' # With custom colors
-#' plot_tna(m, color = palette_colorblind(5), vsize = 10)
+#' plot_tna(regulation_net)
 #'
 plot_tna <- function(
     x,
@@ -134,7 +134,4 @@ plot_tna <- function(
 
 #' @rdname plot_tna
 #' @export
-#' @examples
-#' m <- matrix(runif(25), 5, 5)
-#' tplot(m)
 tplot <- plot_tna

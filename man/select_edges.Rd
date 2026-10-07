@@ -2,7 +2,7 @@
 % Please edit documentation in R/network-utils.R
 \name{select_edges}
 \alias{select_edges}
-\title{Select Edges with Lazy Computation}
+\title{Select Edges}
 \usage{
 select_edges(
   x,
@@ -65,7 +65,7 @@ Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
 filtering edges does not remove nodes. Set FALSE to drop them, or call
 \code{\link{remove_isolates}()} afterwards.}
 
-\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+\item{keep_format}{Logical. If TRUE, matrix, igraph, statnet network and tna
 inputs are returned in that format. Default FALSE returns cograph_network.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
@@ -74,36 +74,28 @@ inputs are returned in that format. Default FALSE returns cograph_network.}
 }
 \value{
 A cograph_network object with selected edges. If \code{keep_format = TRUE},
-matrix, igraph, and statnet network inputs are converted back to that type.
+matrix, igraph, statnet network and tna inputs are converted back to that type.
 Nodes left without edges are kept and reported in a
 \code{cograph_isolates_created} warning, unless
 \code{keep_isolates = FALSE}.
 }
 \description{
-A powerful edge selection function with lazy computation (only computes
-metrics actually referenced), multiple selection modes, and structural
-awareness (bridges, communities, reciprocity).
+Selects edges by filter expressions, by node sets, by rank on a metric, or
+by structural properties such as bridges, communities and reciprocity.
 }
 \details{
-Selection modes are combined with AND logic:
-\itemize{
-\item \code{select_edges(x, top = 10, involving = "A")} selects
-top 10 edges \strong{among those involving node A}
-\item All criteria must be satisfied for an edge to be selected
-}
+Selection criteria are combined with AND logic, so an edge is selected only
+when it satisfies all of them. The \code{top} ranking is applied to the
+edges that pass \code{involving}, \code{between}, \code{bridges_only} and
+\code{mutual_only}, and the filter expressions in \code{...} are applied
+afterwards. For example, \code{select_edges(x, top = 10, involving = "A")}
+selects the 10 strongest edges among those involving node A.
 
-Edge metrics are computed lazily - only those actually referenced in
-expressions or required by selection modes are computed.
+Only the edge metrics referenced in expressions or required by a selection
+criterion are computed.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_edges(adj, weight > 0.5)
-select_edges(adj, top = 3)
-select_edges(adj, involving = "A")
-select_edges(adj, between = list(c("A", "B"), c("C", "D")))
+select_edges(regulation_net, top = 5, keep_isolates = FALSE)
 }
 \seealso{
 \code{\link{filter_edges}}, \code{\link{select_nodes}},

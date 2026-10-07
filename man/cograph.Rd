@@ -26,10 +26,10 @@ cograph(
 }}
 
 \item{layout}{Layout algorithm name such as "circle", "oval", "spring",
-"groups", "grid", "random", "star", "bipartite", "gephi", or "custom";
-a coordinate matrix/data frame; a CographLayout; or an igraph layout
-function/name. Default NULL (no layout computed). Set to a layout to
-compute immediately, or use sn_layout() later.}
+"groups", "grid", "random", "star", "bipartite" or "gephi" (see
+\code{\link{list_layouts}}); a coordinate matrix or data frame; or an
+igraph layout function, name or two-letter code. Default NULL computes no
+layout. A layout can also be set later with \code{\link{sn_layout}}.}
 
 \item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
 
@@ -38,14 +38,17 @@ If data frame has a \code{label} or \code{labels} column, those are used for dis
 
 \item{seed}{Random seed for deterministic layouts. Default 42. Set NULL for random.}
 
-\item{simplify}{Logical or character. If FALSE (default), every transition
-from tna sequence data is a separate edge. If TRUE or a string
-("sum", "mean", "max", "min"), duplicate edges are aggregated.}
+\item{simplify}{Logical or character. Used for tna input only. If FALSE
+(default), every transition from tna sequence data is a separate edge.
+If TRUE or a string ("sum", "mean", "max", "min"), duplicate edges are
+aggregated, and TRUE uses "sum".}
 
 \item{...}{Additional arguments passed to the layout function.}
 }
 \value{
-A cograph_network object that can be further customized and rendered.
+A \code{cograph_network} object. It is a list with the elements
+\code{nodes}, \code{edges}, \code{directed}, \code{weights},
+\code{data}, \code{meta} and \code{node_groups}.
 }
 \description{
 The main entry point for cograph. Accepts adjacency matrices, edge lists,
@@ -53,19 +56,7 @@ igraph, statnet network, qgraph, or tna objects and creates a visualization-read
 network object.
 }
 \examples{
-# From adjacency matrix (layout computed lazily on first plot)
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> splot()
-
-# From edge list
-edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
-cograph(edges) |> splot(layout = "circle")
-
-# Pipe-friendly customization
-cograph(adj) |>
-  sn_nodes(fill = "steelblue") |>
-  sn_edges(color = "gray50") |>
-  splot(layout = "circle")
+cograph(regulation_net) |> splot(layout = "circle")
 }
 \seealso{
 \code{\link{splot}} for base R graphics rendering,

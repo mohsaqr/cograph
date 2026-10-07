@@ -3,91 +3,110 @@
 \name{as_cograph}
 \alias{as_cograph}
 \alias{to_cograph}
+\alias{as.data.frame.cograph_network}
 \title{Convert to Cograph Network}
 \usage{
 as_cograph(x, directed = NULL, simplify = FALSE, ...)
 
 to_cograph(x, directed = NULL, ...)
+
+\method{as.data.frame}{cograph_network}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  what = c("edges", "nodes")
+)
 }
 \arguments{
-\item{x}{Network input. Can be:
-\itemize{
-\item A square numeric matrix (adjacency/weight matrix)
-\item A data frame with edge list (from, to, optional weight columns)
-\item An igraph object
-\item A statnet network object
-\item A qgraph object
-\item A tna object
-\item An existing cograph_network object (returned as-is)
-}}
+\item{x}{Network input. One of a square numeric weight matrix, a data frame
+edge list, an igraph object, a statnet network object, a qgraph object, a
+tna object, or an existing \code{cograph_network}, which is returned as
+it is. In an edge list the endpoint columns are found by name, ignoring
+case (\code{from}, \code{source}, \code{src}, \code{v1}, \code{node1}
+or \code{i}, and \code{to}, \code{target}, \code{tgt}, \code{v2},
+\code{node2} or \code{j}), and otherwise the first two columns are
+used. An optional weight column is found by the names \code{weight},
+\code{w}, \code{value} or \code{strength}. For \code{as.data.frame()},
+a \code{cograph_network}.}
 
-\item{directed}{Logical. Force directed interpretation. NULL for auto-detect.}
+\item{directed}{Logical. Forces a directed or undirected interpretation.
+\code{NULL} (default) detects it from the input.}
 
-\item{simplify}{Logical or character. If FALSE (default), every transition
-from tna sequence data is a separate edge. If TRUE or a string
-("sum", "mean", "max", "min"), duplicate edges are aggregated.}
+\item{simplify}{Logical or character. If \code{FALSE} (default), every
+transition from tna sequence data is a separate edge. If \code{TRUE}
+(equivalent to \code{"sum"}) or one of \code{"sum"}, \code{"mean"},
+\code{"max"}, \code{"min"}, duplicate transitions are aggregated with that
+function. Other inputs are not affected.}
 
-\item{...}{Additional arguments (currently unused).}
+\item{...}{Passed from \code{to_cograph()} to \code{as_cograph()};
+otherwise unused.}
+
+\item{row.names}{\code{NULL} or a character vector of row names, as for
+\code{\link[base]{as.data.frame}}.}
+
+\item{optional}{Logical, as for \code{\link[base]{as.data.frame}}. It is
+ignored, and the column names are always the documented ones.}
+
+\item{what}{Which table \code{as.data.frame()} returns, \code{"edges"}
+(default) or \code{"nodes"}.}
 }
 \value{
-A cograph_network object: a named list with components:
+\code{as_cograph()} and \code{to_cograph()} return a
+\code{cograph_network} object, a named list with components:
 \describe{
-\item{\code{nodes}}{Data frame with id, label, and optional layout or metadata columns}
-\item{\code{edges}}{Data frame with from, to, weight columns}
-\item{\code{directed}}{Logical indicating if network is directed}
-\item{\code{weights}}{Full n×n weight matrix when available for matrix/TNA round-trips, or NULL}
-\item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
-\item{\code{meta}}{Consolidated metadata list with sub-fields:
-\code{source} (input type string),
-\code{layout} (layout info list or NULL),
-\code{tna} (TNA metadata or NULL), and optionally
-\code{splot} (producer-supplied rendering hints read by
-\code{\link{splot}})}
-\item{\code{node_groups}}{Optional node groupings data frame}
+\item{\code{nodes}}{Data frame with \code{id}, \code{label}, and optional
+layout or metadata columns.}
+\item{\code{edges}}{Data frame with integer \code{from} and \code{to}
+columns (row numbers into \code{nodes}), \code{weight}, and extra
+columns such as \code{session} and \code{time} for tna input. Repeated
+rows of an edge list are kept as separate edges.}
+\item{\code{directed}}{Logical. Whether the network is directed.}
+\item{\code{weights}}{The n x n weight matrix for matrix and tna input,
+or \code{NULL} (for example for an edge list).}
+\item{\code{data}}{The original estimation data (sequence data, edge
+list), or \code{NULL}.}
+\item{\code{meta}}{Metadata list with \code{source} (input type), a
+\code{tna} entry for tna input (type, group name and group index)
+and, optionally, \code{splot} (rendering hints read by
+\code{\link{splot}}).}
+\item{\code{node_groups}}{Optional data frame of node groupings.}
 }
 
-A \code{cograph_network} object. See \code{\link{as_cograph}}.
+\code{as.data.frame()} returns a base data frame. For
+\code{what = "edges"} it has one row per edge with columns \code{from} and
+\code{to} (node labels), \code{weight}, and any extra edge columns the
+network carries, such as \code{session} or columns computed by
+\code{\link{mutate_edges}}. For \code{what = "nodes"} it has one row per
+node with the node table columns (\code{id}, \code{label}, layout
+coordinates and any custom columns). \code{\link{to_df}} returns only
+\code{from}, \code{to} and \code{weight}.
 }
 \description{
-Creates a lightweight cograph_network object from various network inputs.
-The resulting object is a named list with all data accessible via \code{$}.
+\code{as_cograph()} creates a \code{cograph_network} object from a matrix,
+an edge list, or a network object of another package. \code{to_cograph()}
+is an alias. The object is a named list that every cograph function
+accepts.
 }
 \details{
-The cograph_network format is designed to be:
-\itemize{
-\item Lean: Only essential data stored, computed values derived on demand
-\item Modern: Uses named list elements instead of attributes for clean \code{$} access
-\item Compatible: Works seamlessly with splot() and other cograph functions
-}
+A \code{cograph_network} prints a short description of its nodes, edges and
+source, \code{summary()} reports counts and edge weight statistics,
+\code{plot()} plots it with \code{\link{sn_render}}, and
+\code{as.data.frame()} returns its edge or node table.
+The accessor and setter functions are documented in \code{\link{get_nodes}}.
 
-Producer packages may attach optional plotting hints under
-\code{meta$splot}. The recognized fields are \code{renderer} (which cograph
-renderer to use), \code{weight} (the edge column or matrix to render as
-\code{weight}), and \code{defaults} (a named list of renderer arguments).
-Entries in \code{defaults} are defaults only — user-supplied arguments to
-\code{\link{splot}} always override them. \code{renderer} and \code{weight}
-define which view is rendered and are not overridden by plot arguments.
-
-Use getter functions for programmatic access:
-\code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}},
-\code{\link{n_nodes}}, \code{\link{n_edges}}
-
-Use setter functions to modify:
-\code{\link{set_nodes}}, \code{\link{set_edges}}, \code{\link{set_layout}}
+Producer packages may attach plotting hints under \code{meta$splot}. The
+recognized fields are \code{renderer} (the cograph renderer to use),
+\code{weight} (the edge column or matrix plotted as \code{weight}), and
+\code{defaults} (a named list of renderer arguments). Entries in
+\code{defaults} are defaults only, and arguments passed to \code{\link{splot}}
+override them. \code{renderer} and \code{weight} define which view is plotted
+and are not overridden by plot arguments.
 }
 \examples{
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_cograph(mat)
-get_nodes(net)
-get_edges(net)
-splot(net)
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- to_cograph(mat)
+net <- as_cograph(regulation_net)
+as.data.frame(net, what = "edges")
 }
 \seealso{
-\code{\link{get_nodes}} to extract the nodes data frame,
-\code{\link{get_edges}} to extract edges as a data frame,
-\code{\link{n_nodes}} and \code{\link{n_edges}} for counts,
-\code{\link{is_directed}} to check directedness,
-\code{\link{splot}} for plotting
+\code{\link{get_nodes}}, \code{\link{splot}}, \code{\link{to_df}}
 }

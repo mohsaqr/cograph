@@ -7,7 +7,8 @@
 reaching_global(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input (matrix, edge-list data frame, igraph, network,
+cograph_network, tna object).}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
 \code{"out"}.}
@@ -15,24 +16,23 @@ reaching_global(x, mode = "all", ...)
 \item{...}{Additional arguments passed to \code{\link{centrality_reaching_local}}.}
 }
 \value{
-A single numeric value in \eqn{[0, 1]}.
+A single numeric value. On an unweighted graph it lies in
+\eqn{[0, 1]}. On a weighted graph the local reaching centralities scale
+with the edge weights, so the value is unbounded. A graph with at most
+one node returns 0.
 }
 \description{
 A graph-level hierarchy measure computed from per-node local reaching
 centralities:
-\deqn{GRC(G) = \frac{1}{N - 1} \sum_v \left( \max_u LRC(u) - LRC(v) \right)}
+\deqn{GRC(G) = \frac{1}{N - 1} \sum_v \left( \max_u LRC(u) - LRC(v) \right)}{GRC(G) = 1/(N - 1) sum_v ( max_u LRC(u) - LRC(v) )}
 }
 \details{
-Values close to 0 indicate a flat network (all nodes reach equal
-proportions of the graph); values close to 1 indicate strong hierarchical
-structure. Matches \code{networkx.global_reaching_centrality} exactly.
+Values close to 0 indicate a flat network in which all nodes reach equal
+proportions of the graph. Larger values indicate a more hierarchical
+structure. The result matches \code{networkx.global_reaching_centrality}.
 }
 \examples{
-# Star graph: highly hierarchical (directed out from center)
-adj <- matrix(0, 5, 5)
-adj[1, 2:5] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-reaching_global(adj, mode = "out")
+reaching_global(regulation_net, mode = "out")
 }
 \references{
 Mones, E., Vicsek, L., & Vicsek, T. (2012). Hierarchy measure for complex

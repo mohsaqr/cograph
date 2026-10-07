@@ -28,90 +28,66 @@ Default \code{NULL}, which picks the number of digits from the matrix:
 Edges whose weight rounds to zero at this precision are dropped unless
 \code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{Logical. Zero is how this representation stores
-"no edge", so an edge whose weight rounds to zero at
-\code{weight_digits} is dropped. With \code{TRUE} such an edge is
-instead drawn at the smallest magnitude \code{weight_digits} can
-express, carrying its sign; every other weight is unchanged. Default:
-FALSE.}
+\item{show_zero_edges}{Logical. A zero weight means that the edge is
+absent, so an edge whose weight rounds to zero at \code{weight_digits}
+is dropped. With \code{TRUE} each such edge is plotted at the smallest
+magnitude that \code{weight_digits} can express, with its original
+sign. Other weights are unchanged. Default: \code{FALSE}.}
 
 \item{...}{Additional parameters passed to the plotting engine (e.g., \code{layout},
 \code{node_fill}, \code{donut_color}).}
 }
 \value{
-Invisibly, a named list of cograph parameters that can be passed to
-\code{splot()} or \code{soplot()}.
+Invisibly, a named list of plotting parameters (the weight matrix
+\code{x}, \code{labels}, \code{directed}, the donut settings and the
+visual defaults above, after the overrides in \code{...}). It can be
+passed to \code{splot()} with \code{do.call()}. An input that is not a
+\code{tna} object raises an error.
 }
 \description{
 Extracts the transition matrix, labels, and initial state probabilities
-from a \code{tna} object and plots with cograph. Initial probabilities
-are mapped to donut fills.
+from a \code{tna} object and plots the network with a cograph engine.
+Initial probabilities are mapped to donut fills.
 }
 \details{
 \subsection{Conversion Process}{
 
-The tna object's transition matrix becomes edge weights, labels become
-node labels, and initial state probabilities (\code{inits}) are mapped to
-\code{donut_fill} values to visualize starting state distributions.
+The transition matrix (\code{weights}) supplies the edge weights, the state
+labels (\code{labels}) supply the node labels, and the initial state
+probabilities (\code{inits}) supply the \code{donut_fill} values. The
+donuts are plotted with \code{donut_inner_ratio = 0.8}.
 
-Directedness is read from the tna object when available; otherwise it is
-inferred from matrix symmetry. Transition matrices are usually directed,
-while symmetric co-occurrence matrices are treated as undirected.
-
-The default \code{donut_inner_ratio} of 0.8 creates thin rings that
-effectively visualize probability values without obscuring node labels.
-}
-
-\subsection{Parameter Mapping}{
-
-The following tna properties are automatically extracted:
-\itemize{
-\item \strong{weights}: Transition matrix \code{->} edge weights
-\item \strong{labels}: State labels \code{->} node labels
-\item \strong{inits}: Initial probabilities \code{->} donut_fill (0-1 scale)
-}
+Directedness is read from the tna object when it is recorded there.
+Otherwise a symmetric matrix is treated as undirected and an asymmetric
+matrix as directed.
 }
 
 \subsection{TNA Visual Defaults}{
 
-The following visual defaults are applied for TNA plots (all can be overridden via \code{...}):
+The following defaults are applied. Each can be overridden through
+\code{...}.
 \itemize{
-\item \code{layout = "oval"}: Oval/elliptical node arrangement
-\item \code{node_fill}: Colors from TNA palette (Accent/Set3 based on state count)
-\item \code{node_size = 7}: Larger nodes for readability
-\item \code{arrow_size = 0.61}: Prominent directional arrows for directed
-networks
-\item \code{edge_color = "#003355"}: Dark blue edges
-\item \code{edge_labels = TRUE}: Show transition weights on edges
-\item \code{edge_label_size = 0.4}: Readable edge labels
-\item \code{edge_label_position = 0.7}: Labels positioned toward target
-\item \code{edge_start_style = "dotted"}: Dotted line at edge source for
-directed networks
-\item \code{edge_start_length = 0.2}: 20\% of directed edges are dotted
+\item \code{layout = "oval"}.
+\item \code{node_fill}: the RColorBrewer Accent palette for up to 8
+states, Set3 for 9 to 12 states, and a qualitative HCL palette for more.
+\item \code{node_size = 7}.
+\item \code{edge_color = "#003355"}.
+\item \code{edge_labels = TRUE}, with \code{edge_label_size = 0.4} and
+\code{edge_label_position = 0.7}.
 \item \code{edge_label_style = "estimate"} and
-\code{edge_label_leading_zero = FALSE}: labels show the weight alone,
-written without a leading zero (\code{.42}, not \code{0.42})
-\item \code{minimum = 0.01}: transitions weaker than 0.01 are not drawn
+\code{edge_label_leading_zero = FALSE}, so a label shows the weight
+alone without a leading zero (for example \code{.42}).
+\item \code{minimum = 0.01}, so transitions weaker than 0.01 are not
+plotted.
+\item For directed networks, \code{arrow_size = 0.61},
+\code{edge_start_style = "dotted"} and \code{edge_start_length = 0.2}
+(the first 20 percent of each edge is dotted).
 }
 }
 }
 \examples{
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Convert and plot a tna object
-model <- tna::tna(regulation_net)
-from_tna(model)  # Plots with donut rings showing initial probabilities
-
-# Use soplot engine instead
-from_tna(model, engine = "soplot")
-
-# Customize the visualization
-from_tna(model, layout = "circle", donut_color = c("steelblue", "gray90"))
-
-# Extract parameters without plotting
-params <- from_tna(model, plot = FALSE)
-# Modify and plot manually
-params$node_fill <- "coral"
-do.call(splot, params)
+from_tna(tna::tna(regulation_net))
 \dontshow{\}) # examplesIf}
 }
 \seealso{

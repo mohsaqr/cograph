@@ -3,35 +3,35 @@
 #'   weights: directedness, node contraction, components, cores.
 #' @name wrangle-structure
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Remove Isolated Nodes
 #'
-#' Drops every node with no edges. Filtering edges deliberately keeps nodes
-#' (see \code{\link{filter_edges}}), so this is the explicit way to prune the
-#' isolates a filter left behind.
+#' Removes every node with no edges. Edge filters such as
+#' \code{\link{filter_edges}} keep all nodes, and this function removes the
+#' isolates that such a filter leaves behind.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, tna, or
 #'   an edge-list data frame.
-#' @param keep_format Logical. If TRUE, matrix, igraph, statnet network and tna
-#'   inputs are returned in that format. Default FALSE returns a
-#'   cograph_network.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} with the isolated nodes removed (or the
-#'   input format when \code{keep_format = TRUE}). Node order is otherwise
-#'   preserved and edge indices are remapped to the new node numbering.
+#'   input format when \code{keep_format = TRUE}). The remaining nodes keep
+#'   their order, and edge indices are remapped to the new node numbering.
 #'
 #' @seealso \code{\link{filter_edges}}, \code{\link{split_components}},
 #'   \code{\link{filter_nodes}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-#' adj["A", "B"] <- adj["B", "A"] <- 1
-#'
-#' # C and D have no edges
-#' remove_isolates(adj)
+#' remove_isolates(threshold_edges(regulation_net, minimum = 0.3))
 remove_isolates <- function(x, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
@@ -52,35 +52,36 @@ remove_isolates <- function(x, keep_format = FALSE, directed = NULL) {
 
 #' Convert a Directed Network to Undirected
 #'
-#' Collapses each pair of opposite arcs into one undirected edge. The
-#' counterpart of \code{igraph::as_undirected()} and tidygraph's
-#' \code{to_undirected()}.
+#' Collapses each pair of opposite arcs into one undirected edge, as
+#' \code{igraph::as_undirected()} and tidygraph's \code{to_undirected()} do.
 #'
 #' @param x Network input.
-#' @param method How to combine \code{w[i, j]} and \code{w[j, i]}:
-#'   \code{"max"} (default), \code{"sum"}, \code{"mean"}, \code{"min"}, or
-#'   \code{"mutual"} (keep only reciprocated pairs, taking the minimum weight).
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. Directedness to read the input with.
+#' @param method How to combine \code{w[i, j]} and \code{w[j, i]}. One of
+#'   \code{"max"} (default), \code{"sum"}, \code{"mean"}, \code{"min"} or
+#'   \code{"mutual"}. The first four combine the two weights when both arcs
+#'   exist, and an arc without a reverse arc keeps its own weight.
+#'   \code{"mutual"} keeps only reciprocated pairs, at the smaller of the two
+#'   weights.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return An undirected \code{cograph_network}, or the input format when
-#'   \code{keep_format = TRUE}. Zero is how this representation stores "no
-#'   edge", so any pair whose combined weight is exactly zero disappears: every
-#'   unreciprocated arc under \code{method = "mutual"}, and a cancelling pair
-#'   under \code{"sum"}. A \code{cograph_edges_dropped} warning says how
-#'   many.
+#'   \code{keep_format = TRUE}. Self-loops keep their weight. A weight of zero
+#'   means no edge, so a pair whose combined weight is exactly zero is dropped.
+#'   Under \code{method = "mutual"} this applies to every unreciprocated arc,
+#'   and under \code{"sum"} to a pair of opposite weights that cancel. Dropped
+#'   edges raise a \code{cograph_edges_dropped} warning.
 #'
 #' @seealso \code{\link{to_directed}}, \code{\link{symmetrize}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, 0,
-#'                 .2, 0, .7,
-#'                 0, 0, 0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'
-#' to_undirected(adj, method = "sum")
-#' to_undirected(adj, method = "mutual")
+#' to_undirected(regulation_net, method = "sum")
 to_undirected <- function(x, method = c("max", "sum", "mean", "min", "mutual"),
                           keep_format = FALSE, directed = NULL) {
   method <- match.arg(method)
@@ -109,10 +110,17 @@ to_undirected <- function(x, method = c("max", "sum", "mean", "min", "mutual"),
 #'
 #' @param x Network input.
 #' @param mode \code{"mutual"} (default) creates an arc in both directions for
-#'   every undirected edge; \code{"arbitrary"} keeps one arc per edge, running
-#'   from the lower node index to the higher.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. Directedness to read the input with.
+#'   every undirected edge. \code{"arbitrary"} keeps one arc per edge, running
+#'   from the lower node index to the higher. For a directed input,
+#'   \code{"mutual"} gives both arcs of a pair the larger of the two weights,
+#'   and \code{"arbitrary"} drops every arc from a higher to a lower index.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A directed \code{cograph_network}, or the input format when
 #'   \code{keep_format = TRUE}.
@@ -121,13 +129,7 @@ to_undirected <- function(x, method = c("max", "sum", "mean", "min", "mutual"),
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0,
-#'                 1, 0, 1,
-#'                 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'
-#' to_directed(adj)
-#' to_directed(adj, mode = "arbitrary")
+#' to_directed(to_undirected(regulation_net))
 to_directed <- function(x, mode = c("mutual", "arbitrary"),
                         keep_format = FALSE, directed = NULL) {
   mode <- match.arg(mode)
@@ -150,13 +152,18 @@ to_directed <- function(x, mode = c("mutual", "arbitrary"),
 
 #' Reverse Edge Direction
 #'
-#' Transposes the weight matrix, so every arc runs the other way. TNA users
-#' reach for this to look at where transitions came from rather than where they
-#' went.
+#' Swaps the endpoints of every edge, which transposes the weight matrix. In a
+#' transition network the reversed arcs show where each transition came from.
+#' Additional edge columns are kept.
 #'
 #' @param x Network input.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} with every edge reversed, or the input
 #'   format when \code{keep_format = TRUE}. An undirected network is returned
@@ -166,12 +173,7 @@ to_directed <- function(x, mode = c("mutual", "arbitrary"),
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, 0,
-#'                 0, 0, .7,
-#'                 0, 0, 0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'
-#' reverse_edges(adj)
+#' reverse_edges(regulation_net)
 reverse_edges <- function(x, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
@@ -201,26 +203,26 @@ reverse_edges <- function(x, keep_format = FALSE, directed = NULL) {
 #' Split a Network into Its Connected Components
 #'
 #' @param x Network input.
-#' @param min_size Integer. Drop components smaller than this. Default 1
-#'   (keep all, including isolated nodes).
-#' @param keep_format Logical. Return each component in the input format.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param min_size Integer. Components with fewer nodes are dropped. Default 1
+#'   keeps every component, including isolated nodes.
+#' @param keep_format Logical. If TRUE, each component of a matrix, igraph,
+#'   statnet network or tna input is returned in that format. An edge-list
+#'   data frame or a qgraph object gives \code{cograph_network} components
+#'   with a \code{cograph_no_format_roundtrip} warning. Default FALSE.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A list of \code{cograph_network} objects, one per component, ordered
 #'   from largest to smallest and named \code{"component_1"},
 #'   \code{"component_2"}, and so on. Components are weakly connected, matching
-#'   \code{igraph::components(mode = "weak")}.
+#'   \code{igraph::components(mode = "weak")}. A network with no nodes gives an
+#'   empty list and a warning.
 #'
 #' @seealso \code{\link{select_component}}, \code{\link{remove_isolates}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(0, 5, 5, dimnames = list(LETTERS[1:5], LETTERS[1:5]))
-#' adj["A", "B"] <- adj["B", "A"] <- 1
-#' adj["C", "D"] <- adj["D", "C"] <- 1
-#'
-#' parts <- split_components(adj)
-#' length(parts)
+#' split_components(threshold_edges(regulation_net, minimum = 0.3))
 split_components <- function(x, min_size = 1L, keep_format = FALSE,
                              directed = NULL) {
   .check_count(min_size, "min_size", min = 0)
@@ -250,15 +252,22 @@ split_components <- function(x, min_size = 1L, keep_format = FALSE,
 #'
 #' The k-core is the maximal subgraph in which every node has degree at least
 #' \code{k}, found by repeatedly removing nodes of degree below \code{k}.
+#' Degree is the total degree, which is in-degree plus out-degree in a
+#' directed network. A self-loop adds 2 to the degree of its node.
 #'
 #' @param x Network input.
-#' @param k Integer. The core number.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param k A single non-negative whole number. The core number.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} holding the k-core, or the input format
-#'   when \code{keep_format = TRUE}. An empty network when no node reaches
-#'   coreness \code{k}.
+#'   when \code{keep_format = TRUE}. When no node reaches coreness \code{k},
+#'   the result is an empty network and a warning is raised.
 #'
 #' @seealso \code{\link{select_nodes}}, \code{\link{centrality}}
 #'
@@ -268,13 +277,7 @@ split_components <- function(x, min_size = 1L, keep_format = FALSE,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1,
-#'                 1, 0, 1, 0,
-#'                 1, 1, 0, 0,
-#'                 1, 0, 0, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' select_k_core(adj, k = 2)
+#' select_k_core(regulation_net, k = 2)
 select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
   .check_count(k, "k", min = 0)
 
@@ -296,17 +299,24 @@ select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
 
 #' Minimum or Maximum Spanning Tree
 #'
-#' Prim's algorithm on each connected component, so a disconnected network
-#' yields a spanning forest.
+#' Computes a spanning tree with Prim's algorithm on each connected component,
+#' so a disconnected network yields a spanning forest. A directed network is
+#' symmetrized first, each pair taking the larger of its two arc weights.
+#' Self-loops are ignored. Missing or infinite weights raise a
+#' \code{cograph_bad_selection} error.
 #'
 #' @param x Network input.
 #' @param weights \code{"weight"} (default) uses the edge weights as costs;
 #'   \code{"none"} treats every edge as cost 1.
 #' @param maximum Logical. Find the maximum spanning tree instead of the
 #'   minimum. Default FALSE. Set TRUE when the weights are similarities.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. Directedness to read the input with; the
-#'   tree itself is undirected.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input. The tree itself is undirected.
 #'
 #' @return An undirected \code{cograph_network} holding the spanning tree (or
 #'   forest), or the input format when \code{keep_format = TRUE}. Every node is
@@ -320,14 +330,7 @@ select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' spanning_tree(adj)
-#' spanning_tree(adj, maximum = TRUE)
+#' spanning_tree(regulation_net, maximum = TRUE)
 spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
                           keep_format = FALSE, directed = NULL) {
   weights <- match.arg(weights)
@@ -402,15 +405,20 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
 #' Complement of a Network
 #'
 #' Every pair of distinct nodes that is not joined in \code{x} is joined in the
-#' complement, and vice versa.
+#' complement, and every joined pair is absent from it.
 #'
 #' @param x Network input.
-#' @param weight Numeric. Weight to give the new edges. Default 1. Zero is how
-#'   this representation stores "no edge", so \code{weight = 0} raises a
-#'   \code{cograph_bad_selection} error rather than returning an empty network.
+#' @param weight Numeric. Weight of every edge in the complement. Default 1. A
+#'   weight of zero means no edge, so \code{weight = 0} raises a
+#'   \code{cograph_bad_selection} error.
 #' @param loops Logical. Include self-loops in the complement. Default FALSE.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} holding the complement, or the input format
 #'   when \code{keep_format = TRUE}. Directedness is preserved.
@@ -419,12 +427,7 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0,
-#'                 1, 0, 0,
-#'                 0, 0, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'
-#' complement_network(adj)
+#' complement_network(threshold_edges(regulation_net, minimum = 0.2))
 complement_network <- function(x, weight = 1, loops = FALSE,
                                keep_format = FALSE, directed = NULL) {
   .check_scalar_number(weight, "weight")
@@ -453,36 +456,40 @@ complement_network <- function(x, weight = 1, loops = FALSE,
 #' Contract Nodes into Groups
 #'
 #' Replaces each group of nodes with a single node whose edges aggregate the
-#' edges of its members. The counterpart of \code{igraph::contract()} and
-#' tidygraph's \code{to_contracted()}, and the network form of what
-#' \code{\link{summarize_clusters}()} computes inside an analysis object.
+#' edges of its members. The operation corresponds to \code{igraph::contract()}
+#' and tidygraph's \code{to_contracted()}, and it is the network form of the
+#' aggregation computed by \code{\link{summarize_clusters}()}.
 #'
 #' @param x Network input.
-#' @param groups Group assignment. Either a vector with one entry per node (in
-#'   node order), or a named list mapping group name to node labels.
+#' @param groups Group assignment. Either a vector with one entry per node, in
+#'   node order, or a named list mapping each group name to node labels. A list
+#'   must assign every node. Malformed input raises a
+#'   \code{cograph_bad_selection} error.
 #' @param weight How to aggregate the weights of the edges that fall between
-#'   two groups: \code{"sum"} (default), \code{"mean"}, \code{"max"} or
-#'   \code{"min"}.
+#'   two groups. One of \code{"sum"} (default), \code{"mean"}, \code{"max"}
+#'   or \code{"min"}. Within-group edges are aggregated the same way when
+#'   \code{loops = TRUE}.
 #' @param loops Logical. Keep the within-group edges as self-loops on the
 #'   contracted node. Default FALSE.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} with one node per group, labeled by group
-#'   name, or the input format when \code{keep_format = TRUE}.
+#'   name, or the input format when \code{keep_format = TRUE}. The groups
+#'   follow the factor levels of a vector (sorted for a character vector) or
+#'   the order of a list.
 #'
 #' @seealso \code{\link{summarize_clusters}}, \code{\link{detect_communities}},
 #'   \code{\link{split_components}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 0,
-#'                 1, 0, 0, 1,
-#'                 1, 0, 0, 1,
-#'                 0, 1, 1, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' contract_nodes(adj, groups = c("left", "left", "right", "right"))
+#' contract_nodes(regulation_net, groups = rep(c("Plan", "Act"), each = 5))
 contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
                            loops = FALSE, keep_format = FALSE, directed = NULL) {
   weight <- match.arg(weight)
@@ -613,15 +620,22 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
 
 #' Reorder the Nodes of a Network
 #'
-#' Changes the order the nodes are stored in, which is the order plotting
-#' functions lay them out in. The network itself is unchanged.
+#' Changes the order in which the nodes are stored, which is the order in which
+#' plotting functions place them. The edges and their weights are unchanged.
 #'
 #' @param x Network input.
 #' @param order Node labels or indices, in the wanted order, or one of
-#'   \code{"label"}, \code{"degree"}, \code{"strength"} to sort by. Sorting by
-#'   a measure is descending.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#'   \code{"label"}, \code{"degree"} or \code{"strength"}. \code{"label"}
+#'   sorts alphabetically, and the two measures sort in decreasing order. A
+#'   vector that does not name every node exactly once raises a
+#'   \code{cograph_bad_selection} error.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} with the nodes in the requested order and
 #'   edge indices remapped, or the input format when \code{keep_format = TRUE}.
@@ -630,14 +644,7 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1,
-#'                 1, 0, 1, 0,
-#'                 1, 1, 0, 0,
-#'                 1, 0, 0, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' get_labels(reorder_nodes(adj, order = "degree"))
-#' get_labels(reorder_nodes(adj, order = c("D", "C", "B", "A")))
+#' reorder_nodes(regulation_net, order = "degree")
 reorder_nodes <- function(x, order, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
   net <- as_cograph(x, directed = directed)
@@ -719,22 +726,25 @@ reorder_nodes <- function(x, order, keep_format = FALSE, directed = NULL) {
 #' @param from Character vector of current labels, or a named character vector
 #'   mapping old label to new (in which case \code{to} is not used).
 #' @param to Character vector of new labels, the same length as \code{from}.
-#' @param keep_format Logical. Return the input format when TRUE.
-#' @param directed Logical or NULL. If NULL (default), auto-detect.
+#' @param keep_format Logical. If TRUE, a matrix, igraph, statnet network or
+#'   tna input is returned in its own format. An edge-list data frame or a
+#'   qgraph object is returned as a \code{cograph_network} with a
+#'   \code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+#'   \code{cograph_network}.
+#' @param directed Logical or NULL. Directedness used to read the input. NULL
+#'   (default) detects it from the input.
 #'
 #' @return A \code{cograph_network} with the renamed nodes, or the input format
-#'   when \code{keep_format = TRUE}. Labels not named in \code{from} are left
-#'   alone.
+#'   when \code{keep_format = TRUE}. Labels not named in \code{from} are
+#'   unchanged. A \code{cograph_bad_selection} error is raised when
+#'   \code{from} names a node that is not in the network or when the renaming
+#'   would give two nodes the same label.
 #'
 #' @seealso \code{\link{reorder_nodes}}, \code{\link{set_nodes}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 0), 2, 2)
-#' rownames(adj) <- colnames(adj) <- c("A", "B")
-#'
-#' get_labels(rename_nodes(adj, from = "A", to = "Alpha"))
-#' get_labels(rename_nodes(adj, from = c(A = "Alpha", B = "Beta")))
+#' rename_nodes(regulation_net, from = "Plan", to = "Planning")
 rename_nodes <- function(x, from, to = NULL, keep_format = FALSE,
                          directed = NULL) {
   if (is.null(to)) {

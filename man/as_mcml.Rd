@@ -19,7 +19,9 @@ as_mcml(x, ...)
 \method{as_mcml}{default}(x, ...)
 }
 \arguments{
-\item{x}{Object to convert.}
+\item{x}{A \code{cluster_summary}, \code{group_tna} or \code{mcml} object.
+Any other input is an error; \code{\link{summarize_clusters}} builds an
+\code{mcml} object from raw data.}
 
 \item{...}{Additional arguments passed to methods.}
 
@@ -41,25 +43,19 @@ An \code{mcml} object.
 
 An \code{mcml} object. When \code{clusters} is provided,
 \code{macro$data} contains the cluster assignments and \code{macro$weights}
-is \code{NULL} (the macro is the sequence of clusters, not a summary).
+is \code{NULL}.
 
 The input \code{mcml} object unchanged.
 }
 \description{
-Convert various objects to the \code{mcml} class -- a clean, tna-independent
-representation of a multilayer cluster network.
+Converts an object to the \code{mcml} class, a representation of a
+multi-cluster network that does not depend on the tna package.
 }
 \examples{
-# From cluster_summary
-mat <- matrix(c(0.5, 0.2, 0.3,
-                0.1, 0.6, 0.3,
-                0.4, 0.1, 0.5), 3, 3, byrow = TRUE,
-              dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-clusters <- list(G1 = c("A", "B"), G2 = c("C"))
-cs <- csum(mat, clusters, type = "tna")
-m <- as_mcml(cs)
-m$macro$weights
-
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+as_mcml(csum(regulation_net, clusters = clusters, type = "tna"))
 }
 \seealso{
 \code{\link{summarize_clusters}}, \code{\link{as_tna}}

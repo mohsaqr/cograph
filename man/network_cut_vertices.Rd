@@ -15,8 +15,9 @@ network_cut_vertices(x, count_only = FALSE, ...)
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-If count_only = FALSE, vector of node indices (or names if graph is named).
-If count_only = TRUE, integer count.
+If \code{count_only = FALSE}, a character vector of node names, or
+an integer vector of node indices when the graph has no names. If
+\code{count_only = TRUE}, an integer count.
 }
 \description{
 Finds nodes whose removal would disconnect the network.
@@ -24,9 +25,7 @@ These are critical nodes for network connectivity.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Bridge node connecting two components
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-network_cut_vertices(adj)  # Node 3 is cut vertex
-network_cut_vertices(adj, count_only = TRUE)  # 1
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+network_cut_vertices(strong)
 \dontshow{\}) # examplesIf}
 }

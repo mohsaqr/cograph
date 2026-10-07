@@ -23,51 +23,51 @@ plot_comparison_heatmap(
 )
 }
 \arguments{
-\item{x}{First network: matrix, \code{cograph_network},
-\code{CographNetwork}, \code{tna}, \code{igraph}, or list-like object
-with \code{$weights}.}
+\item{x}{First network: matrix, \code{cograph_network}, \code{tna},
+\code{igraph}, or list with a matrix \code{weights} component.}
 
-\item{y}{Second network: same type as x. NULL to plot just x.}
+\item{y}{Second network, of the same type and dimensions as \code{x}.
+Required for \code{type = "difference"} and \code{type = "y"}; it may
+be \code{NULL} for \code{type = "x"}.}
 
-\item{type}{What to display: "difference" (x - y), "x", or "y".}
+\item{type}{What to display: \code{"difference"} (x - y), \code{"x"}, or
+\code{"y"}.}
 
-\item{name_x}{Label for first network in title. Default "x".}
+\item{name_x}{Label for the first network in the default title.}
 
-\item{name_y}{Label for second network in title. Default "y".}
+\item{name_y}{Label for the second network in the default title.}
 
-\item{low_color}{Color for low/negative values. Default "blue".}
+\item{low_color}{Color for low (negative) values.}
 
-\item{mid_color}{Color for zero/middle values. Default "white".}
+\item{mid_color}{Color for zero.}
 
-\item{high_color}{Color for high/positive values. Default "red".}
+\item{high_color}{Color for high (positive) values.}
 
-\item{limits}{Color scale limits. NULL for auto. Use c(-1, 1) for normalized.}
+\item{limits}{Color scale limits. \code{NULL} uses the data range. Use
+\code{c(-1, 1)} for normalized values.}
 
-\item{show_values}{Logical: display values in cells? Default FALSE.}
+\item{show_values}{Logical. Display values in cells?}
 
-\item{value_size}{Text size for cell values. Default 3.}
+\item{value_size}{Text size for cell values.}
 
-\item{digits}{Decimal places for cell values. Default 2.}
+\item{digits}{Decimal places for cell values.}
 
-\item{title}{Plot title. NULL for auto-generated.}
+\item{title}{Plot title. \code{NULL} builds one from \code{type},
+\code{name_x} and \code{name_y}.}
 
-\item{xlab}{X-axis label. Default "Target".}
+\item{xlab}{X-axis label.}
 
-\item{ylab}{Y-axis label. Default "Source".}
+\item{ylab}{Y-axis label.}
 }
 \value{
-A ggplot2 object.
+A ggplot object. The color scale is a diverging gradient with its
+midpoint at 0.
 }
 \description{
-Creates a heatmap visualization comparing two networks.
+Plots a heatmap of the difference between two weight matrices, or of
+either matrix alone. Rows are source nodes and columns are target nodes.
 }
 \examples{
-set.seed(42)
-m1 <- matrix(runif(25), 5, 5)
-m2 <- matrix(runif(25), 5, 5)
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_comparison_heatmap(m1, m2)
-plot_comparison_heatmap(m1, type = "x")
+plot_comparison_heatmap(regulation_net, t(regulation_net))
 
 }

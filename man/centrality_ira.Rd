@@ -2,7 +2,7 @@
 % Please edit documentation in R/centrality-batch43.R
 \name{centrality_ira}
 \alias{centrality_ira}
-\title{Iterative resource allocation (IRA)}
+\title{Iterative Resource Allocation}
 \usage{
 centrality_ira(
   x,
@@ -16,98 +16,51 @@ centrality_ira(
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{ira_mass}{Node centrality \eqn{\theta}: \code{"coreness"}
-(default, the k-shell index the source's worked example uses) or
-\code{"degree"}. The source also mentions closeness and betweenness.}
+\item{ira_mass}{Node centrality \eqn{\theta}{theta}: \code{"coreness"}
+(default) or \code{"degree"}.}
 
-\item{ira_alpha}{Exponent \eqn{\alpha} on the mass, a single finite
-number; default one, the only value the source uses.}
+\item{ira_alpha}{Exponent \eqn{\alpha}{alpha} on the mass, a finite
+number (default 1).}
 
-\item{ira_tol}{Stopping tolerance \eqn{\varepsilon} on the largest
-absolute change between successive iterates; default \code{1e-6}, the
-source's own value.}
+\item{ira_tol}{Positive stopping tolerance on the largest absolute change
+between iterates (default \code{1e-6}).}
 
-\item{ira_max_iter}{Iteration bound, a single whole number of at least
-one; default 1000. Reaching it raises \code{cograph_no_converge}.}
+\item{ira_max_iter}{Maximum number of iterations, a whole number of at
+least one (default 1000).}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Every node starts with one unit of resource and hands it to its
-neighbors in proportion to the \emph{receiver's} centrality, repeatedly,
-until the amounts stop moving. The share node \eqn{j} sends to a
-neighbor \eqn{i} is
-\eqn{a_{ij}=\theta_i^{\alpha}/\sum_{u\in\Gamma(j)}\theta_u^{\alpha}},
-the recursion is \eqn{I(t+1)=AI(t)} from \eqn{I(0)=(1,\dots,1)}, and the
-steady state \eqn{I} ranks the spreaders. Because every non-isolate
-column of \eqn{A} sums to one, the total resource is conserved:
-\eqn{\sum_i I_i(t)=n} at every step on a graph with no isolates, and
-each connected component keeps its own vertex count.
+Iterative resource allocation (Ren et al. 2014) starts every node with one
+unit of resource and repeatedly passes it to the neighbors in proportion to
+the receiver's centrality \eqn{\theta}{theta}. The steady state ranks the
+spreaders.
+\deqn{I(t+1) = A\,I(t), \qquad
+  a_{ij} = \frac{\theta_i^{\alpha}}{\sum_{u \in \Gamma(j)}
+  \theta_u^{\alpha}}, \qquad I(0) = (1, \dots, 1)}{
+  I(t+1) = A I(t), a_ij = theta_i^alpha / sum_{u in N(j)} theta_u^alpha,
+  I(0) = (1, ..., 1)}
 }
 \details{
-The equilibrium has a closed form. Writing \eqn{s_i=\sum_{u\in\Gamma(i)}
-\theta_u^{\alpha}}, the limit is \eqn{I_i\propto\theta_i^{\alpha}s_i}
-within each component, scaled so the component's scores sum to its size.
-On the source's own figure 1(a) that reproduces the printed
-\eqn{[15/8, 5/4, 5/4, 5/16, 5/16]} exactly. cograph nevertheless
-iterates, because the iteration is what the source defines and what its
-table reports, and because the closed form is a limit that need not
-exist; see the next paragraph.
-
-\strong{The iteration does not always converge, and cograph says so.}
-\eqn{A} is the transition matrix of a reversible walk, so on a bipartite
-component it has an eigenvalue of exactly \eqn{-1}. The coefficient of
-that eigenvector in \eqn{I(0)=(1,\dots,1)} is the difference in size
-between the component's two vertex classes, so the iteration settles into
-a period-two cycle, never meets \code{ira_tol}, and returns a value that
-depends on the parity of the last step. The three-star alternates for
-ever between \eqn{(3,1/3,1/3,1/3)} and \eqn{(1,1,1,1)}, while the
-four-path, whose classes are equal, converges to
-\eqn{(2/3,4/3,4/3,2/3)}. Neither the source nor the Centrality Zoo
-mentions this. cograph runs the source's own rule, stops at
-\code{ira_max_iter}, raises a \code{cograph_no_converge} warning naming
-the largest remaining change, and returns \eqn{I}{I} at \code{ira_max_iter}.
-It does not silently report that iterate as an equilibrium, and it does
-not substitute the average of the two alternating iterates, which would
-converge but is not the source's rule. Every graph in the source's own
-figure 1 carries a triangle and converges.
-
-The Centrality Zoo (section 2.204) states the transpose,
-\eqn{p_{ij}=a_{ij}c_j^{\alpha}/\sum_k a_{ik}c_k^{\alpha}}, and asks for
-the principal left eigenvector of \eqn{P}. That is the same object up to
-scale on a graph where the limit exists, but it is not the source's
-finite iteration: it sidesteps the parity problem instead of reporting
-it, and it carries no \eqn{\sum_i I_i=n} scale.
-
-Uses the simple undirected unweighted skeleton, which is the source
-domain: either arc creates one edge, parallel edges count once and loops
-are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate is in nobody's neighborhood, so it receives nothing
-and its own unit is not passed on: it scores zero from the first step,
-which is the value of the source's empty sum and not an accidental zero,
-and it is the reason \eqn{\sum_i I_i=n} is stated only for graphs with no
-isolates. Empty graphs return no scores. Cost is one dense \eqn{n^2}
-matrix plus one matrix-vector product per iteration.
-
-Numerical verification establishes agreement with the source equations
-and with every value printed in the source's table 1, not parity with
-author software, which does not exist, and not any claim about spreading
-performance.
+The measure is computed on the simple undirected skeleton of the network,
+so direction, weights, loops and parallel edges are ignored. The total
+resource is conserved, so on a graph without isolates the scores sum to
+the number of nodes. An isolate receives nothing and scores zero. The
+iteration stops when the largest absolute change falls below
+\code{ira_tol}. On a bipartite component whose two vertex classes differ
+in size, such as a star, the iteration has a period-two cycle. It then
+reaches \code{ira_max_iter}, raises a \code{cograph_no_converge} warning
+and returns the last iterate. The Centrality Zoo states the measure as the
+left eigenvector of the transposed matrix, which agrees up to scale where
+the limit exists. The implementation follows the source's iteration.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# The source's figure 1(a): a triangle with two pendants on one corner.
-# The printed steady state is 15/8, 5/4, 5/4, 5/16, 5/16.
-fig1a <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),
-                            directed = FALSE)
-centrality_ira(fig1a)
-
-# The source's other mass, and a nonlinear exponent
-centrality_ira(fig1a, ira_mass = "degree", ira_alpha = 2)
-\dontshow{\}) # examplesIf}
+centrality_ira(regulation_net)
 }
 \references{
 Ren, Z.-M., Zeng, A., Chen, D.-B., Liao, H. and Liu, J.-G. (2014).
@@ -116,6 +69,5 @@ EPL (Europhysics Letters), 106(4), 48005.
 \doi{10.1209/0295-5075/106/48005}.
 }
 \seealso{
-\code{\link{centrality_iira}} for the improved variant, and
-\code{\link{list_centralities}} for the catalogue.
+\code{\link{centrality_iira}}, \code{\link{centrality}}.
 }

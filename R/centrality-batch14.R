@@ -29,46 +29,35 @@ calculate_dynamical_importance <- function(cg, weights = NULL) {
   .cg_dynamical_importance(a)
 }
 
-#' Finite-horizon diffusion centrality
+#' Diffusion Centrality
 #'
-#' Banerjee et al.'s diffusion centrality is
-#' \eqn{DC(A;q,T) = \sum_{t=1}^{T}(qA)^t\mathbf{1}}.
-#' It sums weighted walks starting at each node, allowing revisits and
-#' returns to the source. Directed edges carry information from their source
-#' to their target: the result uses row sums, regardless of \code{mode}.
-#' Transpose the input adjacency matrix to measure incoming walks.
+#' Diffusion centrality (Banerjee et al. 2013) counts the walks of length
+#' 1 to \eqn{T} that start at a node, each discounted by \eqn{q} per step:
+#' \deqn{DC(A; q, T) = \sum_{t=1}^{T} (qA)^t \mathbf{1}.}{
+#'   DC(A; q, T) = sum_{t=1}^{T} (qA)^t 1.}
+#' Walks may revisit nodes and return to the source, so the score counts
+#' repeated hearings of a message.
 #'
-#' A is the adjacency matrix with the original edge weights when
-#' \code{weighted = TRUE}, or unit edge weights otherwise. Self-loops follow
-#' \code{loops}; an undirected self-loop contributes its weight once on the
-#' diagonal. The \code{simplify} argument combines parallel edges first;
-#' any remaining parallel edges contribute additively to A. Weight inversion
-#' for shortest paths does not affect this measure.
-#'
-#' When every entry of qA is between zero and one, scores have the paper's
-#' interpretation as expected total hearings of information. Larger weights
-#' are accepted as a mathematical weighted-walk extension of that polynomial,
-#' without a probability interpretation. Scores count repeated hearings,
-#' not distinct recipients. They need not be bounded by the number of nodes.
-#'
-#' Default q = 1 and T = 3 are explicit cograph choices, not estimates of
-#' a diffusion process or the parameters used by the Zoo. T = 0 returns zero;
-#' T = 1 gives q times outgoing strength (degree for a binary graph).
-#' A finite horizon requires no spectral convergence condition. Numerical
-#' overflow raises an error, including when normalization is requested.
-#'
-#' This is distinct from \code{\link{centrality_diffusion}}: its default
-#' is diffusion degree, and its TNA variant fixes q = 1 and T = n.
-#' The existing \code{lambda} and \code{diffusion_method} arguments do not
-#' affect this measure. Computation uses T matrix-vector products.
+#' @details
+#' \eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}.
+#' Directed edges carry information from source to target, so the score
+#' uses row sums and \code{mode} has no effect. Transposing the input
+#' gives incoming walks. Self-loops follow \code{loops}. Negative or non-finite
+#' weights raise an error. \eqn{T = 0} gives 0 and \eqn{T = 1} gives
+#' \eqn{q} times the out-strength. When every entry of \eqn{qA} lies
+#' between 0 and 1 the score is the expected number of times the
+#' information is heard (Banerjee et al. 2013), and it can exceed the
+#' number of nodes. The defaults \eqn{q = 1} and \eqn{T = 3} are package
+#' choices. This measure differs from \code{\link{centrality_diffusion}}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param diffusion_q Finite multiplier between 0 and 1, default 1.
-#' @param diffusion_steps Nonnegative integer horizon, default 3. Must be
-#'   no larger than \code{.Machine$integer.max}.
-#' @param ... Additional arguments to \code{\link{centrality}}. With
-#'   \code{normalized = TRUE}, positive scores are divided by their maximum.
-#' @return Named numeric vector in input node order.
+#' @param diffusion_q Discount \eqn{q}, between 0 and 1. Default 1.
+#' @param diffusion_steps Horizon \eqn{T}, a nonnegative integer. Default 3.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure
+#'   uses \code{weighted} (default \code{TRUE}), \code{loops} (default
+#'   \code{TRUE}) and \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2013).
 #'   The Diffusion of Microfinance. Science, 341, 1236498.
@@ -78,10 +67,11 @@ calculate_dynamical_importance <- function(cg, weights = NULL) {
 #'   Using Gossips to Spread Information: Theory and Evidence from Two
 #'   Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490.
 #'   \doi{10.1093/restud/rdz008}.
+#' @seealso \code{\link{centrality_dynamics_sensitive}},
+#'   \code{\link{centrality_diffusion}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)
-#' centrality_diffusion_centrality(g, diffusion_q = 0.5, diffusion_steps = 2)
+#' @examples
+#' centrality_diffusion_centrality(regulation_net)
 # nolint start: object_length_linter.
 centrality_diffusion_centrality <- function(x, diffusion_q = 1,
                                             diffusion_steps = 3, ...) {
@@ -92,45 +82,40 @@ centrality_diffusion_centrality <- function(x, diffusion_q = 1,
 }
 # nolint end: object_length_linter.
 
-#' Dynamical importance by exact vertex deletion
+#' Dynamical Importance
 #'
-#' Restrepo, Ott & Hunt's node dynamical importance is the relative drop
-#' in adjacency spectral radius on removing that node:
-#' \eqn{I_i = (\rho(A)-\rho(A_{-i}))/\rho(A)} (equation 2).
-#' This function recomputes the spectral radius after every deletion. The
-#' paper's left/right eigenvector product (equation 5) is an approximation
-#' and can differ substantially on small networks; it is not used here.
+#' Dynamical importance (Restrepo et al. 2006) is the relative drop in the
+#' spectral radius \eqn{\rho}{rho} of the adjacency matrix when the node is
+#' removed:
+#' \deqn{I_i = \frac{\rho(A) - \rho(A_{-i})}{\rho(A)}.}{
+#'   I_i = (rho(A) - rho(A_-i)) / rho(A).}
+#' The spectral radius is recomputed after each deletion, in place of the
+#' eigenvector approximation of the paper (eq. 5).
 #'
-#' Supports directed or undirected nonnegative weighted networks. Self-loops
-#' are always removed, as in the paper's zero-diagonal definition. Edge
-#' weights, \code{weighted} and \code{simplify} follow the same adjacency
-#' conventions as \code{\link{centrality_diffusion_centrality}}. The measure
-#' is invariant to reversing all arcs and ignores \code{mode} and path-weight
-#' inversion. Disconnected graphs use the spectral radius of the whole graph.
-#'
-#' When the original spectral radius is zero (including any directed acyclic
-#' graph), the ratio is undefined and all vertices receive \code{NaN}.
-#' Isolates in a graph with positive spectral radius receive zero. The empty
-#' graph returns an empty vector. Strong components are evaluated separately
-#' so acyclic parts contribute exactly zero, avoiding numerical eigenvalues
-#' of nilpotent blocks. Roundoff in the final ratio is clipped to zero or one.
-#'
-#' Repeated eigendecomposition is costly. Select this measure explicitly or
-#' use \code{include = "dynamical_importance"}; it is held back from the
-#' default \code{type = "all"} tier.
+#' @details
+#' \eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}, and
+#' self-loops are removed. Negative or non-finite weights raise an error.
+#' The scores lie between 0 and 1 and are unchanged when every arc is
+#' reversed, so \code{mode} has no effect. A network with spectral radius
+#' 0, such as any directed acyclic network, gives \code{NaN} for every
+#' node without a warning. An isolated node in a network with positive
+#' spectral radius scores 0.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}. The default
-#'   \code{normalized = FALSE} preserves the published relative loss;
-#'   \code{TRUE} additionally divides positive scores by their maximum.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure
+#'   uses \code{weighted} (default \code{TRUE}) and \code{normalized}
+#'   (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Restrepo, J. G., Ott, E., & Hunt, B. R. (2006). Characterizing the
 #' Dynamical Importance of Network Nodes and Links. Physical Review Letters,
 #' 97, 094102. \doi{10.1103/PhysRevLett.97.094102}.
+#' @seealso \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_resistance_curvature}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_dynamical_importance(igraph::make_full_graph(4))
+#' @examples
+#' centrality_dynamical_importance(regulation_net)
 # nolint start: object_length_linter.
 centrality_dynamical_importance <- function(x, ...) {
   df <- centrality(x, measures = "dynamical_importance", ...)

@@ -7,35 +7,34 @@
 centrality_prestige_domain(x, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of domain prestige values in
-\eqn{\{0, 1, \ldots, N - 1\}}.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Directed-graph prestige measure: for each node \eqn{v}, the number of
-other nodes that can reach \eqn{v} via a directed path.
-\deqn{\mathrm{domain}(v) = |\{u \ne v : u \to^* v\}|}
+Domain prestige (Wasserman and Faust 1994) counts the other nodes that
+reach a node through a directed path:
+\deqn{D(v) = |\{u \ne v : u \to^{*} v\}|.}{
+  D(v) = number of nodes u != v with a directed path to v.}
 }
 \details{
-Bit-exact match against \code{sna::prestige(cmode = "domain")}.
-Directed-only; returns \code{NA} with a warning on undirected input.
+The measure needs a directed network. On undirected input every score is
+\code{NA} with a warning that carries no condition class. Edge weights are
+ignored. The score is a whole number between 0 and \eqn{n - 1}. The values
+equal \code{sna::prestige(cmode = "domain")}.
 }
 \examples{
-# Directed 3-cycle: every node reaches every other node
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_prestige_domain(adj)
+centrality_prestige_domain(regulation_net)
 }
 \references{
 Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
 and Applications}. Cambridge University Press.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_reaching_local}}
-for the dual "out-reachability" measure, \code{\link{centrality_pairwisedis}}
-for a related reachability-based directed measure.
+\code{\link{centrality_prestige_domain_proximity}},
+\code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 }

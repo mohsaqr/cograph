@@ -24,102 +24,94 @@ plot_difference(
 )
 }
 \arguments{
-\item{x}{First network: matrix, \code{cograph_network},
-\code{CographNetwork}, \code{tna}, \code{igraph}, list-like object with
-\code{$weights}, plain list of networks, or \code{group_tna}. For
-\code{group_tna} with 2 groups, compares them directly. For more groups,
-plots all pairwise comparisons (or specify i, j).}
+\item{x}{First network: matrix, \code{cograph_network}, \code{tna},
+\code{igraph}, list with a matrix \code{weights} component, plain list of
+networks, or \code{group_tna}. For a \code{group_tna} with two groups,
+the groups are compared directly. With more groups and \code{i} and
+\code{j} both \code{NULL}, all pairwise comparisons are plotted.}
 
-\item{y}{Second network: same type as x. Ignored if x is a list or
-\code{group_tna}.}
+\item{y}{Second network, of the same type as \code{x}. Ignored when \code{x}
+is a list or \code{group_tna}.}
 
-\item{i}{Index/name of first group when x is group_tna or a plain list.
-NULL plots all pairs for a \code{group_tna} of more than two groups, and
-selects the first element otherwise.}
+\item{i}{Index or name of the first group when \code{x} is a
+\code{group_tna} or a plain list. \code{NULL} selects the first element,
+except that all pairs are plotted for a \code{group_tna} of more than two
+groups when \code{j} is also \code{NULL}.}
 
-\item{j}{Index/name of second group when x is group_tna or a plain list.
-NULL plots all pairs for a \code{group_tna} of more than two groups, and
-selects the second element otherwise.}
+\item{j}{Index or name of the second group, with the same rules as
+\code{i}. \code{NULL} selects the second element.}
 
-\item{pos_color}{Color for positive differences (x > y). Default "#009900" (green).}
+\item{pos_color}{Color for positive differences (x > y).}
 
-\item{neg_color}{Color for negative differences (x < y). Default "#C62828" (red).}
+\item{neg_color}{Color for negative differences (x < y).}
 
-\item{labels}{Node labels. NULL uses rownames or defaults.}
+\item{labels}{Node labels. \code{NULL} uses the row names of the weight
+matrix, or node indices when there are none.}
 
-\item{title}{Plot title. NULL for auto-generated title.}
+\item{title}{Plot title. \code{NULL} uses \code{"Network Difference (x - y)"},
+or the two group names when they are available.}
 
-\item{inits_x}{Node values for x (e.g., initial probabilities). NULL to auto-extract from tna.}
+\item{inits_x}{Node values for x (e.g., initial probabilities). \code{NULL}
+extracts them from a tna object.}
 
-\item{inits_y}{Node values for y. NULL to auto-extract from tna.}
+\item{inits_y}{Node values for y. \code{NULL} extracts them from a tna
+object.}
 
-\item{show_inits}{Logical: show node differences as donuts? Default
-\code{NULL}, which shows them when inits are available for both networks.}
+\item{show_inits}{Logical. Show node differences as donuts? \code{NULL}
+(default) shows them when node values are available for both networks.}
 
-\item{donut_inner_ratio}{Inner radius ratio for donut (0-1). Default 0.8.}
+\item{donut_inner_ratio}{Inner radius ratio for donut (0-1).}
 
-\item{force}{Logical: force plotting when more than 4 groups (many comparisons). Default FALSE.}
+\item{force}{Logical. Plot all pairs for a \code{group_tna} with more than
+four groups. Without it, such input stops with an error.}
 
-\item{combined}{Logical: when TRUE (default) and \code{x} is a multi-group
-input that triggers all-pairs plotting, lay panels out in an internal
-grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
+\item{combined}{Logical. When \code{TRUE} (default) and \code{x} is a
+multi-group input that triggers all-pairs plotting, panels are arranged in
+a grid via \code{graphics::par(mfrow = ...)}. \code{FALSE} plots into a
 layout the caller has already configured (e.g. via
-\code{\link{panel_layout}()}). Has no effect for the single-pair path.}
+\code{\link{panel_layout}()}). It has no effect for a single pair.}
 
 \item{difference}{Logical. If \code{TRUE}, \code{x} is treated as an
-already-subtracted difference network (no \code{y} needed). A
-\code{tna_comparison} object (from \code{tna::compare()}) is detected
-automatically and its \code{$difference_matrix} is used.}
+already-subtracted difference network and \code{y} is ignored with a
+warning. A \code{tna_comparison} object (from \code{tna::compare()}) or
+a \code{netdifference} object is detected automatically and its
+difference matrix is used.}
 
-\item{...}{Additional arguments passed to splot().}
+\item{...}{Additional arguments passed to \code{\link{splot}}. They
+override the defaults set here (\code{layout = "oval"},
+\code{minimum = 0} and the TNA or psychometric styling preset).}
 }
 \value{
-Invisibly returns a list with elements \code{weights} (the
-element-wise difference matrix \code{x - y}) and \code{inits} (the
-node-value difference, or \code{NULL} when no inits were available).
-For the \code{group_tna} all-pairs path, a named list of such lists —
-one element per pair, named \code{"<group_i>_vs_<group_j>"}.
+Invisibly, a list with elements \code{weights} (the element-wise
+difference matrix \code{x - y}) and \code{inits} (the node-value
+difference, or \code{NULL} when no node values were available). For the
+\code{group_tna} all-pairs path, a named list of such lists with one
+element per pair, named \code{"<group_i>_vs_<group_j>"}.
 }
 \description{
-Plots the difference between two networks (x - y) using splot.
-Positive differences (x > y) are shown in green, negative (x < y) in red.
-Optionally displays node-level differences (e.g., initial probabilities)
-as donut charts.
+Plots the difference between two networks (x - y) with \code{\link{splot}}.
+Positive differences (x > y) are shown in \code{pos_color} and negative
+differences (x < y) in \code{neg_color}. Node-level differences, such as
+initial probabilities, can be shown as donut charts.
 }
 \details{
-The function computes element-wise subtraction of the weight matrices.
-Edge colors indicate direction of difference:
-\itemize{
-\item Green edges: x has higher weight than y
-\item Red edges: y has higher weight than x
-}
+The weight matrices are subtracted element-wise. Both networks must have
+the same dimensions and, when present, the same node labels; otherwise the
+function stops with an error. A directed difference (or tna input) is
+styled with the TNA preset and an undirected difference with the
+psychometric preset.
 
-When initial probabilities (inits) are provided or extracted from tna objects,
-nodes display donut charts showing the absolute difference, colored by direction:
-\itemize{
-\item Green donut: x has higher initial probability
-\item Red donut: y has higher initial probability
-}
+When node values (inits) are given or extracted from tna objects, each node
+is shown as a donut whose filled fraction is the absolute difference,
+capped at 1, colored \code{pos_color} when x is higher and
+\code{neg_color} when y is higher.
 
-For lists of networks (e.g., group_tna), specify which elements to compare
-using i and j parameters.
+\code{plot_compare()} is an alias of \code{plot_difference()}.
 }
 \examples{
-set.seed(42)
-m1 <- matrix(runif(25), 5, 5)
-m2 <- matrix(runif(25), 5, 5)
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_difference(m1, m2)
-
-# With node-level differences
-plot_difference(m1, m2,
-                inits_x = c(.3, .2, .2, .15, .15),
-                inits_y = c(.1, .4, .2, .2, .1))
+plot_difference(regulation_net, t(regulation_net))
 
 }
 \seealso{
-\code{\link{plot_compare}}, a first-class alias of this function
-kept for the \code{tna} integration. \code{plot_difference()} is the
-preferred name.
+\code{\link{plot_compare}}, \code{\link{plot_comparison_heatmap}}
 }

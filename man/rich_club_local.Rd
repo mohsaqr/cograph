@@ -18,9 +18,11 @@ rich_club_local(
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna
 object.}
 
-\item{prominence}{Integer or logical vector indicating which nodes are
-prominent (1/TRUE = prominent), OR a numeric threshold. If NULL, nodes
-above median degree (or strength) are prominent.}
+\item{prominence}{Which nodes are prominent. Either a logical or 0/1
+vector with one element per node (TRUE or 1 marks a prominent node), or
+a single number used as a threshold, in which case nodes with degree or
+strength strictly greater than it are prominent. If NULL (default), nodes
+with degree or strength strictly above the median are prominent.}
 
 \item{rich}{Character. \code{"k"} (degree, default) or \code{"s"}
 (strength). Used when \code{prominence} is NULL or a threshold.}
@@ -29,33 +31,33 @@ above median degree (or strength) are prominent.}
 
 \item{digits}{Integer or NULL. Round scores. Default NULL.}
 
-\item{sort_by}{Character or NULL. Column to sort by (descending). Default
-\code{"score"}.}
+\item{sort_by}{Character or NULL. Column to sort by in descending order,
+\code{"score"} (default) or \code{"node"}. Any other value, and NULL,
+keep the node order.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which takes no further
+arguments, so any argument supplied here raises an error.}
 }
 \value{
 A plain data frame with one row per node and columns \code{node}
-(node label) and \code{score}, sorted by \code{sort_by} descending
-(\code{"score"} by default; pass \code{sort_by = NULL} to keep node
-order). Values > 1 indicate the node directs disproportionately strong
-ties to prominent nodes; a node with no neighbors, no prominent
-neighbor, or zero mean tie weight scores 1.
+(node label) and \code{score}. A node with no neighbors or no prominent
+neighbor scores 1.
 }
 \description{
-For each node, measures whether it preferentially directs its strongest
-ties toward prominent nodes. A score > 1 means the node's ties to
-prominent nodes are stronger than average.
+Computes, for each node, whether its strongest ties go to prominent nodes.
+The score is the mean weight of the node's ties to prominent neighbors
+divided by the mean weight of all its ties. A score above 1 means that the
+node's ties to prominent nodes are stronger than its average tie. A
+directed network is converted to an undirected one before the computation,
+with the weights of reciprocal edges summed, and self-loops are removed.
 }
 \details{
-For each node i: \eqn{r_i = \bar{w}_{i \to rich} / \bar{w}_i}
+For each node \eqn{i}, \eqn{r_i = \bar{w}_{i, rich} / \bar{w}_i}{r_i = bar{w}_{i, rich} / bar{w}_i}, where
+both means are taken over the ties of \eqn{i} with positive weight.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0,5,3,1, 5,0,4,2, 3,4,0,1, 1,2,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-cograph::rich_club_local(adj, prominence = c(1, 1, 0, 0))
+cograph::rich_club_local(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

@@ -36,17 +36,7 @@ A cograph_network with nodes in the neighborhood.
 Select nodes within a specified distance from focal nodes.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Direct neighbors of A
-select_neighbors(adj, of = "A")
-
-# Neighbors up to 2 hops
-select_neighbors(adj, of = "A", order = 2)
+select_neighbors(regulation_net, of = "Plan")
 }
 \seealso{
 \code{\link{select_nodes}}, \code{\link{select_component}}

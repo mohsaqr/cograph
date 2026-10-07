@@ -70,17 +70,20 @@ mtna(
 \arguments{
 \item{x}{A tna object, weight matrix, or cograph_network.}
 
-\item{cluster_list}{Clusters can be specified as:
+\item{cluster_list}{Cluster assignment of the nodes. One of
 \itemize{
-\item A list of character vectors (node names per cluster)
-\item A string column name from nodes data (e.g., "groups")
-\item NULL with \code{community} specified for auto-detection
-\item NULL with a cograph_network that has a common cluster/group column
+\item a named list of character vectors with the node names of each
+cluster; at least two non-overlapping clusters are required;
+\item a single string naming a column of the node data (e.g.,
+"groups");
+\item NULL, in which case the first node-data column found among
+"clusters", "cluster", "groups", "group", "community" and "module"
+is used.
 }}
 
-\item{community}{Community detection method to use for auto-clustering.
-If specified, overrides \code{cluster_list}. See \code{\link{detect_communities}}
-for available methods.}
+\item{community}{Community detection method used to form the clusters.
+When given, it overrides \code{cluster_list}. See
+\code{\link{detect_communities}} for available methods.}
 
 \item{layout}{How to arrange the clusters: "circle" (default),
 "grid", "horizontal", "vertical".}
@@ -89,24 +92,31 @@ for available methods.}
 
 \item{shape_size}{Size of each cluster shape (shell radius). Default 1.8.}
 
-\item{node_spacing}{Radius for node placement within shapes (0-1 relative
-to shape_size). Default 0.5.}
+\item{node_spacing}{Radius for node placement within shapes in summary
+mode, as a proportion (0-1) of \code{shape_size}. Default 0.5. When
+\code{summary_edges = FALSE}, nodes are placed at radius
+\code{shape_size}.}
 
-\item{colors}{Vector of colors for each cluster. Default auto-generated.}
+\item{colors}{Vector of colors for each cluster. NULL (default) uses a
+built-in palette.}
 
 \item{shapes}{Vector of shapes for each cluster. Defaults cycle through
 "circle", "square", "diamond", "triangle", "pentagon", "hexagon",
-"star", and "cross"; summary shells draw non-shell shapes with the
-circular fallback.}
+"star", and "cross". In summary mode, shells other than circle,
+square, diamond and triangle are plotted as circles.}
 
-\item{edge_colors}{Vector of edge colors by source cluster. Default auto-generated.}
+\item{edge_colors}{Vector of edge colors by source cluster. NULL
+(default) uses a built-in palette.}
 
-\item{bundle_edges}{Logical. Bundle inter-cluster edges through channels. Default TRUE.}
+\item{bundle_edges}{Logical. Order the nodes around each shell by the
+direction of the clusters they connect to, so that edges toward the
+same cluster leave from neighbouring nodes. Used when
+\code{summary_edges = FALSE}. Default TRUE.}
 
-\item{bundle_strength}{How tightly to bundle edges (0-1). Default 0.8.}
+\item{bundle_strength}{Currently unused.}
 
-\item{summary_edges}{Logical. Show aggregated summary edges between clusters instead
-of individual node edges. Default TRUE.}
+\item{summary_edges}{Logical. Show aggregated summary edges between
+clusters instead of individual node edges. Default TRUE.}
 
 \item{aggregation}{Method for aggregating edge weights between clusters:
 "sum" (total flow), "mean" (average strength), "max" (strongest link),
@@ -116,7 +126,8 @@ Default "sum". Only used when summary_edges = TRUE.}
 \item{within_edges}{Logical. When summary_edges is TRUE, also show individual
 edges within each cluster. Default TRUE.}
 
-\item{show_border}{Logical. Draw a border around each cluster. Default TRUE.}
+\item{show_border}{Logical. When \code{summary_edges = FALSE}, plot a
+dashed circle around each cluster. Default TRUE.}
 
 \item{legend}{Logical. Whether to show legend. Default TRUE.}
 
@@ -124,33 +135,37 @@ edges within each cluster. Default TRUE.}
 
 \item{curvature}{Edge curvature. Default 0.3.}
 
-\item{node_size}{Size of nodes inside shapes. Default 3.}
+\item{node_size}{Size of nodes inside shapes (summary mode). Default 3.}
 
-\item{layout_margin}{Margin around the layout as fraction of range. Default 0.15.}
+\item{layout_margin}{Margin around the layout as fraction of range
+(summary mode). Default 0.15.}
 
 \item{scale}{Scaling factor for high-resolution output. Values greater than
 1 reduce node, edge, label, and legend sizes by \code{sqrt(scale)} while
 leaving cluster spacing and shape_size unchanged. Default 1.}
 
-\item{show_labels}{Logical. Show node labels inside clusters. Default FALSE.}
+\item{show_labels}{Logical. Show node labels inside clusters (summary
+mode). Default FALSE.}
 
-\item{nodes}{Node metadata. Can be:
-\itemize{
-\item NULL (default): Use existing nodes data from cograph_network
-\item Data frame: Must have \code{label} column for matching; if \code{labels}
-column exists, uses it for display text
-}
-Display priority: \code{labels} column > \code{label} column (identifiers).}
+\item{nodes}{Node metadata. NULL (default) uses the node data of a
+cograph_network. A data frame replaces it and must have one row per node
+in the node order of \code{x}. In summary mode, display text is taken
+from its \code{labels} column if present, otherwise from its
+\code{label} column.}
 
-\item{label_size}{Label text size. Default NULL (auto-scaled).}
+\item{label_size}{Label text size (summary mode). Default NULL
+(auto-scaled).}
 
-\item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
-or "auto" (adaptive based on node count).}
+\item{label_abbrev}{Label abbreviation in summary mode: NULL (none),
+integer (max chars), or "auto" (adaptive based on node count).}
 
 \item{cluster_shape}{Accepted for compatibility; currently unused. Use
 \code{shapes} to control cluster shell shapes.}
 
-\item{...}{Additional parameters passed to plot_tna().}
+\item{...}{When \code{summary_edges = FALSE}, additional parameters
+passed to \code{\link{plot_tna}()}. In summary mode, only
+\code{edge.lwd}, \code{edge.labels}, \code{edge.label.cex} and
+\code{minimum} are read.}
 }
 \value{
 Invisibly returns a \code{cluster_summary} object when
@@ -160,24 +175,15 @@ Invisibly returns a \code{cluster_summary} object when
 See \code{\link{plot_mtna}}.
 }
 \description{
-Visualizes multiple network clusters with summary edges between clusters
-and individual edges within clusters. Each cluster is displayed as a
-shell shape containing its nodes.
+Plots a network whose nodes are grouped into clusters. Each cluster is
+plotted as a shell shape containing its nodes. By default, edges between
+clusters are aggregated into summary edges and edges within clusters are
+plotted individually.
 }
 \examples{
-set.seed(42)
-nodes <- paste0("N", 1:20)
-m <- matrix(runif(400, 0, 0.3), 20, 20); diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
-clusters <- list(N = nodes[1:5], E = nodes[6:10],
-                 S = nodes[11:15], W = nodes[16:20])
-plot_mtna(m, clusters, summary_edges = TRUE)
-set.seed(1)
-nodes <- paste0("N", 1:12)
-m <- matrix(runif(144, 0, 0.3), 12, 12); diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
-clusters <- list(C1 = nodes[1:4], C2 = nodes[5:8], C3 = nodes[9:12])
-mtna(m, clusters)
+clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+plot_mtna(regulation_net, cluster_list = clusters)
 }
 \seealso{
 \code{\link{csum}}, \code{\link{plot_mcml}}

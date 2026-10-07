@@ -10,13 +10,8 @@ A \code{CographLayout} R6 object.
 Class for managing layout algorithms and computing node positions.
 }
 \examples{
-# Create a circular layout
 layout <- CographLayout$new("circle")
-
-# Apply to network
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-coords <- layout$compute(net)
+layout$compute(CographNetwork$new(regulation_net))
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -42,9 +37,10 @@ Create a new CographLayout object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{type}}{Layout type (e.g., "circle", "spring", "groups").}
+\item{\code{type}}{Layout name. One of the names returned by
+\code{\link[=list_layouts]{list_layouts()}}, or \code{"custom"} together with a \code{coords} argument.}
 
-\item{\code{...}}{Additional parameters for the layout algorithm.}
+\item{\code{...}}{Additional parameters stored and passed to the layout function.}
 }
 \if{html}{\out{</div>}}
 }
@@ -66,19 +62,23 @@ Compute layout coordinates for a network.
 \describe{
 \item{\code{network}}{A CographNetwork or cograph_network object.}
 
-\item{\code{...}}{Additional parameters passed to the layout function.}
+\item{\code{...}}{Additional parameters passed to the layout function. They
+override parameters given to \verb{$new()}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Data frame with x, y coordinates.
+A data frame with columns \code{x} and \code{y}, one row per node, rescaled
+by \verb{$normalize_coords()}.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CographLayout-normalize_coords"></a>}}
 \if{latex}{\out{\hypertarget{method-CographLayout-normalize_coords}{}}}
 \subsection{Method \code{normalize_coords()}}{
-Normalize coordinates to 0-1 range with padding.
+Rescale coordinates into the unit square. Both axes are
+scaled by the same factor, so the larger spread spans
+\verb{[padding, 1 - padding]} and the layout is centered at 0.5.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographLayout$normalize_coords(coords, padding = 0.1)}\if{html}{\out{</div>}}
 }
@@ -86,14 +86,15 @@ Normalize coordinates to 0-1 range with padding.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{coords}}{Matrix or data frame with x, y columns.}
+\item{\code{coords}}{Matrix or data frame. Columns \code{x} and \code{y} are used, or the
+first two columns when these names are absent.}
 
-\item{\code{padding}}{Numeric. Padding around edges (default 0.1).}
+\item{\code{padding}}{Numeric. Margin left on each side of the larger spread.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Normalized coordinates.
+A data frame with rescaled \code{x} and \code{y} columns.
 }
 }
 \if{html}{\out{<hr>}}
@@ -106,7 +107,7 @@ Get layout type.
 }
 
 \subsection{Returns}{
-Character string.
+A character string.
 }
 }
 \if{html}{\out{<hr>}}
@@ -119,7 +120,7 @@ Get layout parameters.
 }
 
 \subsection{Returns}{
-List of parameters.
+A list of the parameters given to \verb{$new()}.
 }
 }
 \if{html}{\out{<hr>}}

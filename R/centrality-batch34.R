@@ -51,56 +51,47 @@ calculate_ninl <- function(cg, ninl_order = 3, ninl_radius = NULL,
   value
 }
 
-#' Node and Neighbor Layer Information centrality
+#' Node and Neighbor Layer Information Centrality
 #'
-#' Zhu and Wang's NINL initializes each node with the sum of original-graph
-#' degrees in its closed radius-r neighborhood. The paper sets r to the
-#' ceiling of the graph's average shortest-path length. Each iteration then
-#' replaces every node's score by the sum of its neighbors' previous scores:
-#' NINL-p = A^p NINL-0. The paper uses p = 3; zero iterations returns the
-#' initial degree volume. Repeated vertices and edges in these walks count.
+#' NINL (Zhu and Wang 2021) starts each node with the sum of the degrees
+#' \eqn{k_j}{k_j} in its closed neighborhood of radius \eqn{r}{r} and then,
+#' for \eqn{p}{p} iterations, replaces every score by the sum of the
+#' previous scores of its neighbors:
+#' \deqn{NINL^{(p)} = A^p \, NINL^{(0)}, \qquad
+#'   NINL^{(0)}_i = \sum_{j : d(i,j) \le r} k_j.}{
+#'   NINL(p) = A^p NINL(0), NINL(0)_i = sum_{j: d(i,j) <= r} k_j.}
 #'
-#' Uses simple undirected unweighted topology: either arc creates an edge;
-#' loops and parallel edges are removed. Weights, mode, inversion and cutoff
-#' are ignored. This does not claim a directed or weighted NINL definition.
-#'
-#' The mean path length includes all distinct vertex pairs. For disconnected
-#' graphs it is infinite, so the automatic radius includes every reachable
-#' node in each component. This is an explicit cograph extension of the
-#' paper's connected example; unreachable nodes never enter the degree sum.
-#' Isolates score zero and empty graphs return no scores. A supplied radius
-#' is an explicit generalization of the paper's automatic-radius rule.
-#'
-#' Stepwise propagation evaluates the requested finite iteration count,
-#' without assuming convergence to eigenvector centrality. Exact repeated
-#' floating-point states of period one or two allow the remaining iterations
-#' to be skipped while preserving parity. No tolerance-based convergence
-#' cutoff is used. Normalized scores can alternate on bipartite graphs.
-#' Dense distance calculation and propagation take O(n cubed + p n squared)
-#' time and O(n squared) memory; very large orders can be slow if no exact
-#' repeated state occurs. Raw overflow raises an error. With maximum
-#' normalization, global rescaling after every step avoids overflow;
-#' extremely small relative scores can still underflow in double precision.
+#' @details
+#' The measure is computed on the simple undirected skeleton of the
+#' network, so direction, weights, loops and parallel edges are ignored.
+#' The default radius is the ceiling of the average shortest-path length,
+#' as in the paper. On a disconnected network that average is infinite, so
+#' the default radius covers the whole component of each node. Isolated
+#' nodes score zero, and \code{ninl_order = 0} returns the initial degree
+#' sums. With \code{normalized = TRUE} the scores are rescaled at every
+#' iteration, and on a bipartite network they can alternate between
+#' iterations. An invalid \code{ninl_order} or \code{ninl_radius}, and raw
+#' scores that overflow, raise an error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ninl_order Nonnegative integer iteration count, default 3.
-#'   At most \code{2^53 - 1}, the consecutive-integer precision of doubles.
-#' @param ninl_radius \code{NULL} for the source-defined automatic radius,
-#'   or a nonnegative integer hop radius, or \code{Inf} for all reachable
-#'   nodes. Radius zero uses the focal node's degree alone.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides by the maximum score; all-zero scores
-#'   remain zero. Normalization is optional and is not part of the raw
-#'   definition in the original paper.
-#' @return Named numeric vector in input node order.
+#' @param ninl_order Number of iterations \eqn{p}{p}, a nonnegative
+#'   integer. Default 3, as in the paper.
+#' @param ninl_radius Radius \eqn{r}{r}. \code{NULL} (default) uses the
+#'   automatic radius of the paper, a nonnegative integer fixes the hop
+#'   radius, and \code{Inf} includes every reachable node.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Zhu, J. and Wang, L. (2021). Identifying Influential Nodes in Complex
 #'   Networks Based on Node Itself and Neighbor Layer Information. Symmetry,
 #'   13, 1570. \doi{10.3390/sym13091570}.
+#' @seealso \code{\link{centrality_semilocal}},
+#'   \code{\link{centrality_eigenvector}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_ninl(igraph::make_graph("Zachary"))
-#' centrality_ninl(igraph::make_star(5, mode = "undirected"), ninl_order = 2)
+#' @examples
+#' centrality_ninl(regulation_net)
 centrality_ninl <- function(x, ninl_order = 3, ninl_radius = NULL, ...) {
   df <- centrality(x, measures = "ninl", ninl_order = ninl_order,
                    ninl_radius = ninl_radius, ...)

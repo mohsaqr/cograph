@@ -36,63 +36,76 @@ plot_edge_diff_forest(x, ...)
 \item{...}{Currently unused.}
 
 \item{alpha}{Significance threshold. Default \code{NULL}, which inherits
-\code{x$alpha}, falling back to \code{0.05}.}
+\code{x$alpha}, falling back to \code{0.05}. The tile layout always
+uses \code{x$alpha}.}
 
 \item{layout}{\code{"linear"} (default), \code{"circular"}, \code{"chord"},
 or \code{"tile"}. The chord layout places all edge names on a unit circle
-and connects significant pairs with bezier arcs; arc width and color
-encode the mean bootstrap difference. The tile layout draws the
-pairwise-difference matrix.}
+and connects significant pairs with Bezier arcs whose width and color
+encode the mean bootstrap difference. The tile layout plots the full
+pairwise-difference matrix and ignores \code{show_nonsig},
+\code{nonzero_only}, \code{sort_by}, \code{n_top} and the label and
+point arguments.}
 
-\item{show_nonsig}{Include non-significant pairs? Default \code{FALSE}.}
+\item{show_nonsig}{Logical. Include non-significant pairs. Default
+\code{FALSE}.}
 
 \item{nonzero_only}{If \code{TRUE}, restrict to edges that are non-zero in
-the original network (identified via \code{$original_pcor}). Useful for
-EBICglasso results where many edges are regularized to exactly zero.
-Default \code{FALSE}.}
+the original network (\code{$original_pcor}). Without
+\code{$original_pcor}, edges whose absolute mean bootstrap weight is at
+least 10 percent of the largest are kept. Default \code{FALSE}.}
 
 \item{sort_by}{\code{"estimate"} (default), \code{"significance"}, or
-\code{"name"} (linear only).}
+\code{"name"} (linear layout only). When \code{n_top} is set, the
+retained pairs are ordered by estimate.}
 
 \item{n_top}{Restrict to top N pairs by absolute difference.}
 
-\item{pos_color}{Color when edge1 > edge2. Default crimson.}
+\item{pos_color}{Color when edge1 > edge2. Default \code{"#C0392B"}
+(crimson).}
 
-\item{neg_color}{Color when edge1 < edge2. Default teal.}
+\item{neg_color}{Color when edge1 < edge2. Default \code{"#2C6E8A"}
+(teal-blue).}
 
-\item{nonsig_color}{Color for non-significant pairs.}
+\item{nonsig_color}{Color for non-significant pairs. Default
+\code{"#AAAAAA"}.}
 
-\item{ring_color}{Ring color (circular/chord). Default light grey.}
+\item{ring_color}{Ring color (circular and chord layouts). Default
+\code{"#C8C8C8"}.}
 
-\item{label_size}{Text size. Default \code{2.3}.}
+\item{label_size}{Text size of edge labels (circular and chord layouts).
+Default \code{2.3}.}
 
-\item{label_color}{Fixed label color (\code{NULL} = inherit).}
+\item{label_color}{Fixed label color (circular and chord layouts).
+\code{NULL} (default) uses the pair color in the circular layout and
+dark grey in the chord layout.}
 
-\item{point_size}{Size of estimate square (linear/circular). Default
-\code{2} for \code{layout = "circular"} and \code{3} otherwise.}
+\item{point_size}{Size of estimate square (linear and circular layouts).
+Default \code{2} for \code{layout = "circular"} and \code{3} otherwise.}
 
 \item{r_inner}{Inner ring radius (circular). Default \code{0.38}.}
 
 \item{r_outer}{Outer ring radius (circular). Default \code{0.72}.}
 
-\item{title}{Plot title.}
+\item{title}{Plot title. Default \code{NULL}.}
 
-\item{subtitle}{Plot subtitle.}
+\item{subtitle}{Plot subtitle. Default \code{NULL}.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Visualizes pairwise edge weight differences from a \code{boot_glasso} object.
-Each row (linear) or spoke (circular) is one edge pair; the CI bar spans the
-bootstrap CI of the difference; a dashed line/ring marks zero.
-Red = first edge larger; blue = second edge larger.
+Plots pairwise edge weight differences from a \code{boot_glasso} object.
+Each row (linear) or spoke (circular) is one edge pair. The square marks
+the mean bootstrap difference, the bar spans its bootstrap percentile
+interval at level \code{1 - alpha}, and a dashed line or ring marks zero.
+Significant pairs are plotted in \code{pos_color} when the first edge is
+larger and in \code{neg_color} when the second edge is larger.
 }
 \examples{
 \dontshow{if (requireNamespace("Nestimate", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 set.seed(1)
 data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
-# cs_iter only drives case-dropping stability, which this plot does not use.
 bg <- Nestimate::boot_glasso(data1, iter = 50, cs_iter = 25,
                              centrality = c("strength", "expected_influence"))
 plot_edge_diff_forest(bg)

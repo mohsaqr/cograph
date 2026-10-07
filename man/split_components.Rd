@@ -9,29 +9,29 @@ split_components(x, min_size = 1L, keep_format = FALSE, directed = NULL)
 \arguments{
 \item{x}{Network input.}
 
-\item{min_size}{Integer. Drop components smaller than this. Default 1
-(keep all, including isolated nodes).}
+\item{min_size}{Integer. Components with fewer nodes are dropped. Default 1
+keeps every component, including isolated nodes.}
 
-\item{keep_format}{Logical. Return each component in the input format.}
+\item{keep_format}{Logical. If TRUE, each component of a matrix, igraph,
+statnet network or tna input is returned in that format. An edge-list
+data frame or a qgraph object gives \code{cograph_network} components
+with a \code{cograph_no_format_roundtrip} warning. Default FALSE.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A list of \code{cograph_network} objects, one per component, ordered
 from largest to smallest and named \code{"component_1"},
 \code{"component_2"}, and so on. Components are weakly connected, matching
-\code{igraph::components(mode = "weak")}.
+\code{igraph::components(mode = "weak")}. A network with no nodes gives an
+empty list and a warning.
 }
 \description{
 Split a Network into Its Connected Components
 }
 \examples{
-adj <- matrix(0, 5, 5, dimnames = list(LETTERS[1:5], LETTERS[1:5]))
-adj["A", "B"] <- adj["B", "A"] <- 1
-adj["C", "D"] <- adj["D", "C"] <- 1
-
-parts <- split_components(adj)
-length(parts)
+split_components(threshold_edges(regulation_net, minimum = 0.3))
 }
 \seealso{
 \code{\link{select_component}}, \code{\link{remove_isolates}}

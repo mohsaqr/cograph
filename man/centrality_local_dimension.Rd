@@ -7,41 +7,39 @@
 centrality_local_dimension(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node. \code{NaN} for a node
-that reaches no other node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Growth exponent of the ball around a node (Silva & Costa 2013; Pu et al.
-2014). Let \eqn{B_i(r)} be the number of nodes within \eqn{r} hops of
-\eqn{i}, the node itself included. The local dimension is the slope of
-\eqn{\ln B_i(r)} on \eqn{\ln r} over \eqn{r = 1, \ldots, d_{\max}(i)}:
-\deqn{D_i = \frac{d \ln B_i(r)}{d \ln r}.}
-A node that reaches most of the network in a few hops has a small
-exponent, so \strong{lower values mark more influential nodes}. When a node
-has a single radius (it reaches every other node in one hop) the
-regression is undefined and the discretized derivative
-\eqn{r\, n_i(r) / B_i(r)} at \eqn{r = 1} is reported, where
-\eqn{n_i(r)} counts the nodes at distance exactly \eqn{r}.
+The local dimension (Silva and Costa 2013; Pu et al. 2014) is the growth
+exponent of the ball around a node. With \eqn{B_i(r)}{B_i(r)} the number
+of nodes within \eqn{r} hops of \eqn{i}, the node itself included, it is
+the least-squares slope of \eqn{\ln B_i(r)}{ln B_i(r)} on
+\eqn{\ln r}{ln r} over
+\eqn{r = 1, \ldots, d_{\max}(i)}{r = 1, ..., d_max(i)}:
+\deqn{D_i = \frac{d \ln B_i(r)}{d \ln r}.}{D_i = d ln B_i(r) / d ln r.}
 }
 \details{
-The implementation reproduces the worked example in Wen & Jiang (2019),
-which reports 0.9231 for ring sizes 4, 5, 4, 4. Distances are hop counts;
-edge weights are ignored.
+Distances are hop counts, so edge weights are ignored. On a directed
+network \code{mode} sets the direction of the paths. A node that reaches
+most of the network in a few hops has a small exponent, so lower values
+mark more influential nodes. A node with a single radius returns the
+discretized derivative
+\eqn{r\, n_i(r) / B_i(r)}{r n_i(r) / B_i(r)} at \eqn{r = 1}, where
+\eqn{n_i(r)}{n_i(r)} counts the nodes at distance exactly \eqn{r}. A node
+that reaches no other node returns \code{NaN}.
 }
 \examples{
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_local_dimension(star5)
+centrality_local_dimension(regulation_net)
 }
 \references{
 Silva, F. N., & Costa, L. da F. (2013). Local dimension of complex
@@ -55,6 +53,7 @@ local dimension in complex networks. Chaos, Solitons & Fractals, 119,
 332-342.
 }
 \seealso{
-\code{\link{centrality_local_information_dimension}} for the
-entropy-weighted variant, \code{\link{centrality_distance_entropy}}.
+\code{\link{centrality_local_information_dimension}},
+\code{\link{centrality_local_dimension_fixed}},
+\code{\link{centrality}}.
 }

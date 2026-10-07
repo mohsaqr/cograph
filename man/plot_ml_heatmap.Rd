@@ -32,20 +32,23 @@ plot_ml_heatmap(
 )
 }
 \arguments{
-\item{x}{A list of matrices (one per layer), a group_tna object,
-cograph_network, or a single matrix with layer_list specified.}
+\item{x}{A list of matrices (one per layer), a group_tna object, a
+cograph_network, or a single matrix with \code{layer_list} specified.}
 
-\item{layer_list}{Optional list defining layers, column name string,
-or NULL for auto-detection from cograph_network nodes.}
+\item{layer_list}{Named list of node vectors, one per layer. For a matrix
+\code{x} each layer is the submatrix of its nodes. For a cograph_network
+it can also be the name of a node column, and when \code{NULL} a node
+column named \code{layers}, \code{layer}, \code{level} or
+\code{levels} is used.}
 
 \item{colors}{Color palette: "viridis", "heat", "blues", "reds", "inferno",
-"plasma", or a vector of colors. Default "viridis".}
+"plasma", or a vector of colors. Any other single name gives the viridis
+colors. Default "viridis".}
 
-\item{layer_spacing}{Vertical spacing between layers, in data units. A
-plane is \code{nrow(x) * compress} units tall, so a fixed spacing that
-suits a small network makes a larger one overlap itself. \code{NULL}
-(the default) scales the spacing to the plane so planes never collide;
-pass a number for the older absolute behavior.}
+\item{layer_spacing}{Vertical spacing between layers, in data units.
+\code{NULL} (the default) uses 1.1 times the plane height, which is the
+number of rows of a layer times \code{compress}, with a minimum of 1, so
+the planes do not overlap. A positive number sets the spacing directly.}
 
 \item{skew}{Horizontal skew for perspective effect (0-1). Default 0.4.}
 
@@ -69,11 +72,10 @@ pass a number for the older absolute behavior.}
 
 \item{show_labels}{Show layer name labels? Default TRUE.}
 
-\item{show_node_labels}{Show the row and column names of the matrix?
-Default TRUE. Without them a plane is an anonymous grid and a reader
-cannot tell which cell is which pair. Every plane shares one node
-ordering, so the names are drawn once, against the front plane: rows down
-its left edge, columns along its lower edge.}
+\item{show_node_labels}{Show the row and column names? Default TRUE. The
+names of the first layer are shown once, along the left and lower edges
+of the front plane, so they identify the cells of every plane only when
+all layers share one node ordering.}
 
 \item{node_label_size}{Size of the row and column names. Default 3.}
 
@@ -90,23 +92,20 @@ its left edge, columns along its lower edge.}
 \item{na_color}{Color for NA values. Default "grey90".}
 
 \item{threshold}{Minimum absolute value to display. Cells with
-\code{abs(value) < threshold} are set to NA (rendered as background).
+\code{abs(value) < threshold} are set to NA and shown in
+\code{na_color}.
 Default 0.}
 }
 \value{
 A ggplot2 object.
 }
 \description{
-Visualizes multiple network layers as heatmaps on tilted 3D-perspective planes,
-similar to the plot_mlna network visualization style.
+Visualizes multiple network layers as heatmaps on tilted 3D-perspective
+planes, in the style of \code{\link{plot_mlna}}.
 }
 \examples{
-set.seed(1)
-layers <- list(
-  L1 = matrix(runif(16), 4, 4),
-  L2 = matrix(runif(16), 4, 4),
-  L3 = matrix(runif(16), 4, 4))
-plot_ml_heatmap(layers)
-plot_ml_heatmap(layers, show_connections = TRUE, colors = "plasma")
+clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+plot_ml_heatmap(regulation_net, layer_list = clusters)
 
 }

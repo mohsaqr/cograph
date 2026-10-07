@@ -13,29 +13,47 @@ centrality_incloseness(x, ...)
 centrality_outcloseness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{invert_weights} (default \code{NULL}, which is \code{TRUE} for tna
+input), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+(largest path length considered, default -1 for no limit) and
+\code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of closeness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Inverse of the average shortest path distance from a node to all others.
-For directed networks, \code{centrality_incloseness} and
-\code{centrality_outcloseness} measure incoming and outgoing closeness.
+Closeness centrality (Sabidussi 1966) is the reciprocal of the total
+shortest-path distance from a node to the nodes it reaches:
+\deqn{C(v) = \frac{1}{\sum_{w \ne v} d(v, w)}.}{
+  C(v) = 1 / sum_{w != v} d(v, w).}
+Unreachable nodes are left out of the sum, as in
+\code{igraph::closeness()}.
+}
+\details{
+Edge weights are read as path lengths, and \code{invert_weights = TRUE}
+uses \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
+\code{weighted = FALSE} has no effect. \code{mode = "out"} follows paths
+leaving the node and \code{mode = "in"} paths arriving at it.
+\code{centrality_outcloseness()} and \code{centrality_incloseness()} are
+these two forms. A node that reaches no other node returns \code{NaN}.
+\code{normalized = TRUE} multiplies each score by the number of other
+nodes the node reaches, as igraph does.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_closeness(adj)
+centrality_closeness(regulation_net)
+}
+\references{
+Sabidussi, G. (1966). The centrality index of a graph. Psychometrika,
+31(4), 581-603. \doi{10.1007/BF02289527}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_harmonic}} for a variant that handles disconnected
-graphs.
+\code{\link{centrality_harmonic}},
+\code{\link{centrality_barycenter}}, \code{\link{centrality}}.
 }

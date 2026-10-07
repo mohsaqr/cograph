@@ -7,24 +7,35 @@
 centrality_constraint(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of constraint values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Network constraint measuring the extent to which a node's connections are
-redundant. Low constraint indicates access to structural holes (brokerage
-opportunities).
+Burt's constraint measures how much a node's ties are concentrated in
+contacts that are themselves tied to each other. With \eqn{p_{ij}}{p_ij}
+the proportion of the tie strength of \eqn{i} invested in \eqn{j},
+\deqn{C_i = \sum_{j \ne i} \Big( p_{ij} + \sum_{q \ne i, j} p_{iq}
+  p_{qj} \Big)^2.}{
+  C_i = sum_{j != i} (p_ij + sum_{q != i, j} p_iq p_qj)^2.}
+Low constraint marks access to structural holes.
+}
+\details{
+Ties are symmetrized as \eqn{w_{ij} + w_{ji}}{w_ij + w_ji} before the
+proportions are formed, so edge direction is ignored. Edge weights are
+always used, and \code{weighted = FALSE} has no effect. The values match
+\code{igraph::constraint()}. An isolated node returns \code{NaN}, and a
+node whose only tie is a self-loop scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_constraint(adj)
+centrality_constraint(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_effective_size}},
+\code{\link{centrality_bridging}}, \code{\link{centrality}}.
 }

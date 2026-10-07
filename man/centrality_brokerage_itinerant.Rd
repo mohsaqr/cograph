@@ -2,41 +2,46 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_brokerage_itinerant}
 \alias{centrality_brokerage_itinerant}
-\title{Gould-Fernandez Brokerage — Itinerant (Consultant) Role}
+\title{Itinerant Brokerage}
 \usage{
 centrality_brokerage_itinerant(x, membership = NULL, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer or character vector of group assignments, length
-equal to the number of nodes. Required.}
+\item{membership}{Group labels, one per node.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named integer vector of itinerant role counts.
+A named integer vector with one count per node, in input node
+order. \code{normalized = TRUE} returns a numeric vector.
 }
 \description{
-Itinerant brokerage (w_O): count of open directed 2-paths
-\eqn{A \to V \to A} where the two endpoints are in the same group but
-the broker \eqn{V} is in a different group. The broker mediates within
-another group as an outsider.
+Itinerant brokerage (Gould and Fernandez 1989), also called the consultant
+role, counts the open two-paths \eqn{a \to v \to c}{a -> v -> c} through
+node \eqn{v} in which \eqn{a} and \eqn{c} belong to the same group and
+\eqn{v} to another group. A two-path is open when the network has no edge
+from \eqn{a} to \eqn{c}. This role is \eqn{w_O}{w_O} in the notation of
+the source.
 }
 \details{
-Bit-exact match against \code{sna::brokerage$raw.nli[, "w_O"]}.
-Directed-only.
+The measure is defined for directed networks. On an undirected network it
+raises an unclassed warning and returns \code{NA}, and the same happens when
+\code{membership} is missing. A \code{membership} whose length differs from
+the number of nodes raises an unclassed error. Group labels may be numbers
+or strings. Edge weights and self-loops are ignored.
 }
 \examples{
-adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_brokerage_itinerant(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_itinerant(regulation_net, membership = rep(1:2, each = 5))
 }
 \references{
 Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-approach to brokerage in transaction networks. \emph{Sociological
-Methodology}, 19, 89-126. \doi{10.2307/270949}.
+approach to brokerage in transaction networks. Sociological Methodology,
+19, 89-126. \doi{10.2307/270949}.
 }
 \seealso{
-\code{\link{centrality_brokerage_coordinator}}.
+\code{\link{centrality_brokerage_coordinator}},
+\code{\link{centrality_brokerage_liaison}}, \code{\link{centrality}}.
 }

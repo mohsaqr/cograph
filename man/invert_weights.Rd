@@ -16,14 +16,13 @@ invert_weights(
 
 \item{method}{How to invert:
 \describe{
-\item{\code{"reciprocal"}}{(default) \code{1 / w}. The standard
-similarity-to-distance map; requires non-zero weights, which every
-stored edge has.}
+\item{\code{"reciprocal"}}{(default) \code{1 / w}, the standard
+similarity-to-distance map.}
 \item{\code{"max_minus"}}{\code{max(w) - w}. The strongest edge becomes
 zero and is therefore dropped; a \code{cograph_edges_dropped} warning
 says how many.}
 \item{\code{"reflect"}}{\code{max(w) + min(w) - w}. Reverses the order
-of the weights while keeping every edge, so no edge is lost.}
+of the weights and keeps every edge when all weights are positive.}
 }}
 
 \item{keep_format}{Logical. Return the input format when TRUE.}
@@ -35,18 +34,12 @@ A \code{cograph_network} with inverted weights, or the input format
 when \code{keep_format = TRUE}.
 }
 \description{
-Turns strong ties into short distances, which is what path-based measures
-need when the weights are similarities rather than costs.
+Turns strong ties into short distances. Path-based measures treat weights
+as costs, so similarity weights are inverted before such measures are
+computed.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-invert_weights(adj)
-invert_weights(adj, method = "reflect")
+invert_weights(regulation_net, method = "reciprocal")
 }
 \seealso{
 \code{\link{normalize_weights}}, \code{\link{shortest_paths}}

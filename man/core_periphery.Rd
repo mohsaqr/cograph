@@ -22,69 +22,73 @@ model) or "discrete" (binary core/periphery assignment).}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{iter}{Integer; maximum number of iterations for the continuous algorithm.
-Default 100.}
+\item{iter}{Integer; maximum number of power iterations. Must be at least
+\enumerate{
+\item Default 100.
+}}
 
-\item{digits}{Integer or NULL. Round numeric outputs to this many decimal
-places. Default NULL (no rounding).}
+\item{digits}{Integer or NULL. Number of decimal places for the coreness
+scores, the fitness and the densities. Default NULL (no rounding).}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which accepts no further
+arguments. Any argument supplied here raises an error.}
 }
 \value{
 A data frame with class \code{"cograph_core_periphery"}, one row per
 node, and columns:
 \describe{
 \item{node}{Node label.}
-\item{role}{Character: \code{"core"} or \code{"periphery"}.}
+\item{role}{Character: \code{"core"} or \code{"periphery"}. For the
+continuous method a node is core when its coreness is at or above the
+median coreness.}
 \item{coreness}{Numeric continuous coreness score, rescaled to
 \eqn{[0, 1]}. Reported for both methods.}
 }
-The attributes \code{"fitness"}, \code{"core_density"},
-\code{"periphery_density"} and \code{"network"} (the original input) carry
-the remaining results.
+The attributes \code{"fitness"}, \code{"core_density"} and
+\code{"periphery_density"} hold the fit and the block densities, and
+\code{"network"} holds the original input.
 }
 \description{
-Identifies core-periphery structure in a network using either continuous
-(Borgatti-Everett) or discrete methods. Core nodes are densely interconnected,
-while periphery nodes connect primarily to the core.
+Identifies core-periphery structure in a network with a continuous
+(Borgatti-Everett) or a discrete method. Core nodes are densely
+interconnected, and periphery nodes connect mainly to the core. Edge
+weights are ignored; the analysis uses the binary adjacency matrix.
 }
 \details{
-\strong{Continuous method (Borgatti-Everett):}
-Seeks a coreness vector \code{c} (rescaled to the 0-1 range) whose ideal
-rank-1 pattern matrix (the outer product of the vector with itself)
-correlates as highly as possible with the adjacency matrix. The vector is
-approximated by initializing from the dominant eigenvector of the adjacency
-matrix and refining it by power iteration until convergence or \code{iter}
-steps; the achieved correlation is reported as the \code{"fitness"}
-attribute rather than being optimized directly.
+\subsection{Continuous method}{
 
-\strong{Discrete method:}
-Produces a binary core / periphery assignment. Starts from the continuous
-solution thresholded at the median, then greedily flips the single node
-assignment that most improves fitness until no flip improves it. The
-discrete fitness being maximized is
-\code{density(core) - density(periphery)}; the \code{"fitness"} attribute
-reported for \code{method = "discrete"} is the correlation between the
-adjacency matrix and the ideal block pattern of that assignment.
+The Borgatti-Everett model compares the adjacency matrix with the rank-1
+pattern matrix \code{outer(c, c)} of a coreness vector \code{c}. Here
+\code{c} is estimated from the dominant eigenvector of the adjacency
+matrix, refined by power iteration with rescaling to \eqn{[0, 1]}. The
+iteration stops when the largest change falls below \eqn{10^{-6}} or after
+\code{iter} steps. The vector is not optimized for the correlation. The
+\code{"fitness"} attribute is the correlation between the off-diagonal
+entries of the adjacency matrix and those of the pattern matrix (the lower
+triangle for a symmetric matrix), and it is 0 when the correlation is
+undefined.
 }
+
+\subsection{Discrete method}{
+
+The discrete method starts from the continuous solution split at the median
+and repeatedly flips the single node assignment that most increases
+\code{density(core) - density(periphery)}. It stops when no flip increases
+this quantity. The \code{"fitness"} attribute is the correlation between the
+adjacency matrix and the ideal block pattern of the final assignment.
+}
+}
+\section{Printing and plotting}{
+
+Printing the result shows the core and periphery sizes, the fitness and the
+two block densities, followed by the node table. The result is a data frame
+and serves as the tidy table directly. \code{plot()} on the result is
+documented in \code{\link{plot-results}}.
+}
+
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Core-periphery in a simple network
-adj <- matrix(c(
-  0, 1, 1, 1, 0,
-  1, 0, 1, 1, 0,
-  1, 1, 0, 1, 1,
-  1, 1, 1, 0, 1,
-  0, 0, 1, 1, 0
-), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-cp <- cograph::core_periphery(adj)
-cp
-
-# Discrete assignment
-cp_disc <- cograph::core_periphery(adj, method = "discrete")
-cp_disc
+core_periphery(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

@@ -110,9 +110,6 @@ reference:
     - sn_ggplot
     - sn_nodes
     - sn_save
-    - aes-nodes
-    - aes-edges
-    - output-save
     - from_qgraph
   - title: Palettes
     contents:
@@ -128,6 +125,7 @@ reference:
     - palettes
   - title: Shapes
     contents:
+    - shapes
     - get_shape
     - list_shapes
     - list_svg_shapes
@@ -136,6 +134,7 @@ reference:
     - unregister_svg_shape
   - title: Themes
     contents:
+    - themes
     - get_theme
     - list_themes
     - sn_theme
@@ -149,22 +148,23 @@ reference:
     - theme_cograph_viridis
   - title: Layouts
     contents:
+    - layout_registry
     - get_layout
     - set_layout
     - sn_layout
-    - layout-circle
-    - layout-groups
-    - layout-oval
-    - layout-spring
     - layout_circle
     - layout_groups
     - layout_oval
     - layout_spring
     - list_layouts
     - register_layout
+  - title: Plotting analysis results
+    contents:
+    - plot-results
   - title: Motif Analysis
     contents:
     - motif_census
+    - motifs
     - extract_motifs
     - extract_triads
     - triad_census
@@ -186,7 +186,6 @@ reference:
     - cluster_quality
     - csum
     - summarize_clusters
-    - cograph-main
     - cograph-package
     - color_communities
     - communities
@@ -222,12 +221,7 @@ reference:
     - verify_with_igraph
     - wagg
     - starts_with("layer_")
-    - starts_with("input-")
-    - starts_with("methods-")
-    - starts_with("themes-")
-    - starts_with("print.")
     - starts_with("plot.")
-    - starts_with("summary.")
     - starts_with("splot.")
     - matches(".*")
 articles:

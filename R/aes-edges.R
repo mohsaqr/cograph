@@ -2,18 +2,21 @@
 #' @description Functions for setting edge aesthetic properties.
 #' @name aes-edges
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Set Edge Aesthetics
 #'
-#' Customize the visual appearance of edges in a network plot.
+#' Stores edge aesthetics in a network object for plotting with
+#' \code{\link{soplot}}. \code{\link{splot}} does not read these settings and
+#' takes its edge arguments directly.
 #'
 #' @param network A CographNetwork, cograph_network object, matrix,
 #'   data.frame, or igraph object. Matrices and other inputs are auto-converted.
 #' @param width Edge width. Can be a single value, vector (per-edge), or "weight".
 #' @param edge_size Maximum edge size for renderer weight scaling. NULL
-#'   (default) uses the renderer's edge-width range. Larger values = thicker
-#'   edges overall.
+#'   (default) uses the renderer's edge-width range. Larger values give
+#'   thicker edges overall.
 #' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
 #'   If NULL (default), the plotting renderer's default range is used.
@@ -21,9 +24,9 @@ NULL
 #'   "log" (for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing).
 #' @param edge_cutoff Optional cutoff for edge emphasis. NULL (default) or 0
-#'   disables cutoff handling. Positive values are passed to renderers; in
-#'   \code{splot()}, edges below the cutoff are faded while width scaling remains
-#'   continuous.
+#'   disables cutoff handling. The value is stored in the network; the
+#'   \code{soplot()} renderer keeps width scaling continuous and does not
+#'   change the plot for it.
 #' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param color Edge color. Can be a single color, vector, or "weight" for
 #'   automatic coloring based on edge weights.
@@ -61,7 +64,8 @@ NULL
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
 #' @param curves Curve mode: FALSE (straight edges), "mutual" (only curve reciprocal pairs),
 #'   or "force" (curve all edges). If NULL, the plotting renderer's default is used.
-#' @param ci Numeric vector of CI widths (0-1 scale). Larger values = more uncertainty.
+#' @param ci Numeric vector of CI widths (0-1 scale). Larger values indicate
+#'   more uncertainty.
 #' @param ci_scale Width multiplier for CI underlay thickness. Default 2.
 #' @param ci_alpha Transparency for CI underlay (0-1). Default 0.15.
 #' @param ci_color CI underlay color. NA (default) uses main edge color.
@@ -83,10 +87,12 @@ NULL
 #' ## Vectorization
 #' Most aesthetic parameters can be specified as:
 #' \itemize{
-#'   \item \strong{Single value}: Applied to all edges
-#'   \item \strong{Vector}: Per-edge values (must match edge count)
-#'   \item \strong{"weight"}: Special value for \code{width} and \code{color} that
-#'     auto-maps from edge weights
+#'   \item A single value is applied to all edges.
+#'   \item A vector gives per-edge values and is recycled to the edge count.
+#'   \item \code{"weight"} maps \code{width} and \code{color} from the edge
+#'     weights.
+#'   \item A single string naming an edge column takes the values of that
+#'     column.
 #' }
 #'
 #' ## Weight-Based Styling
@@ -96,8 +102,10 @@ NULL
 #'   \item Negative weights use \code{edge_negative_color} (default: red)
 #' }
 #'
-#' When \code{width = "weight"}, edge widths scale with absolute weight values,
-#' respecting the \code{maximum} parameter if set.
+#' When \code{width = "weight"}, edge widths scale linearly with absolute weight
+#' values to the range 0.5 to 3, capped at \code{maximum} if set. Explicit
+#' widths take precedence over \code{edge_size}, \code{edge_width_range} and
+#' \code{edge_scale_mode}.
 #'
 #' ## Edge Label Templates
 #' For statistical output (e.g., regression coefficients with CIs), use templates:
@@ -116,38 +124,31 @@ NULL
 #' }
 #'
 #' ## CI Underlays
-#' Visualize uncertainty by drawing a wider, semi-transparent edge behind:
+#' Uncertainty is visualized as a wider, semi-transparent edge plotted behind
+#' the main edge.
 #' \itemize{
 #'   \item \code{ci}: Vector of CI widths (0-1 scale)
 #'   \item \code{ci_scale}: Width multiplier (default 2)
 #'   \item \code{ci_alpha}: Transparency (default 0.15)
 #' }
 #'
-#' @return Modified cograph_network object that can be piped to further customization
-#'   functions or plotting functions.
+#' @return The input as a \code{cograph_network} object with the edge
+#'   aesthetics merged into its stored settings, ready to pipe into further
+#'   \code{sn_*} functions or \code{soplot()}.
 #'
 #' @seealso
 #' \code{\link{sn_nodes}} for node customization,
 #' \code{\link{cograph}} for network creation,
-#' \code{\link{splot}} and \code{\link{soplot}} for plotting,
+#' \code{\link{soplot}} for plotting,
 #' \code{\link{sn_layout}} for layout algorithms,
 #' \code{\link{sn_theme}} for visual themes
 #'
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
-#' cograph(adj) |>
+#' cograph(regulation_net) |>
 #'   sn_edges(width = "weight", color = "weight") |>
-#'   splot()
-#'
-#' # Custom positive/negative colors with labels
-#' cograph(adj) |>
-#'   sn_edges(color = "weight",
-#'            edge_positive_color = "darkblue",
-#'            edge_negative_color = "darkred",
-#'            labels = TRUE) |>
-#'   splot()
+#'   soplot()
 sn_edges <- function(network,
                      width = NULL,
                      edge_size = NULL,

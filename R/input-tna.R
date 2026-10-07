@@ -2,6 +2,7 @@
 #' @description Functions for parsing tna objects.
 #' @name input-tna
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Parse tna Object
@@ -257,26 +258,19 @@ parse_group_tna <- function(group_tna_obj, i = 1, directed = NULL,
 
 #' Check if Network is TNA-based
 #'
-#' Checks whether a cograph_network was created from a tna or group_tna object.
+#' Checks whether a cograph_network was created from a tna object, such as
+#' one model of a group_tna object.
 #'
 #' @param x A CographNetwork or cograph_network object.
-#' @return Logical: TRUE if the network was created from a TNA object, FALSE otherwise.
+#' @return Logical. \code{TRUE} if the network was created from a tna object,
+#'   \code{FALSE} otherwise, including for any input that is not a network.
 #'
 #' @seealso \code{\link{as_cograph}}
 #'
 #' @export
 #'
 #' @examples
-#' # Non-TNA network
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' is_tna_network(net)  # FALSE
-#'
-#' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' model <- tna::tna(regulation_net)
-#' net_tna <- as_cograph(model)
-#' is_tna_network(net_tna)  # TRUE
-#'
+#' is_tna_network(as_cograph(regulation_net))
 is_tna_network <- function(x) {
   (inherits(x, "cograph_network") || inherits(x, "CographNetwork")) &&
     !is.null(x$meta$tna) &&

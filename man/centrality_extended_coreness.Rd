@@ -2,48 +2,45 @@
 % Please edit documentation in R/centrality-batch17.R
 \name{centrality_extended_coreness}
 \alias{centrality_extended_coreness}
-\title{Extended neighborhood coreness}
+\title{Extended Neighborhood Coreness}
 \usage{
 centrality_extended_coreness(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Bae and Kim's extended neighborhood coreness sums the neighborhood
-coreness of every immediate neighbor:
-\eqn{C_{nc+}(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}k_s(l)}.
-Equivalently, the score is \eqn{A^2 k_s}. Here k_s is the core-number
-vector of the original simple undirected graph. Core numbers are not
-recomputed inside each neighborhood.
+Extended neighborhood coreness (Bae and Kim 2014) sums the neighborhood
+coreness of every neighbor of a node:
+\deqn{C_{nc+}(i) = \sum_{j \in N(i)} \sum_{l \in N(j)} k_s(l),}{
+  C_nc+(i) = sum_{j in N(i)} sum_{l in N(j)} k_s(l),}
+where \eqn{k_s}{k_s} is the core number in the whole network. The score
+equals \eqn{A^2 k_s}{A^2 k_s}.
 }
 \details{
-Every length-two walk contributes its endpoint's core number, including
-returns to the focal node and repeated endpoints reached via different
-neighbors. This is not a sum over distinct nodes at distance two. Isolates
-score zero. On a tree, it equals the sum of neighboring degrees; on a
-d-regular graph it equals d cubed. A larger score means more access to
-core-rich neighborhoods; numerical equivalence does not imply superior
-spreading prediction for every network.
-
-Uses the simple undirected unweighted skeleton: either direction creates
-an edge, parallel edges count once and loops are removed. This projection
-is a cograph convention for inputs outside the published domain. Weights,
-\code{mode} and shortest-path weight inversion do not affect the score.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Every walk of length two adds the
+core number of its endpoint, including walks that return to the focal
+node. Isolated nodes score 0. On a tree the score equals the sum of the
+neighbors' degrees, and on a \eqn{d}-regular network it equals
+\eqn{d^3}.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_extended_coreness(igraph::make_ring(6))
-\dontshow{\}) # examplesIf}
+centrality_extended_coreness(regulation_net)
 }
 \references{
 Bae, J., & Kim, S. (2014). Identifying and ranking influential spreaders
 in complex networks by neighborhood coreness. Physica A, 395, 549-559.
 \doi{10.1016/j.physa.2013.10.047}.
+}
+\seealso{
+\code{\link{centrality_coreness}},
+\code{\link{centrality_extended_gravity}}, \code{\link{centrality}}.
 }

@@ -5,7 +5,7 @@
 \alias{centrality_delta_betweenness}
 \alias{centrality_ego_betweenness}
 \alias{centrality_delta_closeness}
-\title{Betweenness and closeness variants that carry a tuning parameter}
+\title{Length-Scaled, Delta and Ego Betweenness, and Delta Closeness}
 \usage{
 centrality_length_scaled_betweenness(x, ...)
 
@@ -16,66 +16,63 @@ centrality_ego_betweenness(x, ...)
 centrality_delta_closeness(x, mode = "all", closeness_delta = 1, ...)
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna
-object.}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The weighted
+measures use \code{weighted} (default \code{TRUE}),
+\code{invert_weights} (default \code{NULL}, which inverts for tna input
+only) and \code{alpha} (inversion exponent, default 1). Delta
+closeness also uses \code{cutoff} (default -1, no limit).}
 
-\item{betweenness_delta}{Decay exponent for
-\code{centrality_delta_betweenness}. Default 1.}
+\item{betweenness_delta}{Decay exponent \eqn{\delta}{delta} of delta
+betweenness. Default 1.}
 
-\item{mode}{Direction: \code{"all"}, \code{"out"} or \code{"in"}.}
+\item{mode}{Direction for delta closeness: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{closeness_delta}{Distance exponent for
-\code{centrality_delta_closeness}. Default 1.}
+\item{closeness_delta}{Distance exponent \eqn{\delta}{delta} of delta
+closeness. Default 1.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Four measures that reweight, rescope or re-tune a measure
-\code{\link{centrality}} already computes. Each is a thin wrapper on
-\code{centrality()}.
+Length-scaled betweenness (Borgatti and Everett 2006; Brandes 2008)
+weights each pair \eqn{s,t} in the betweenness sum by \eqn{1/d(s,t)}.
+Delta betweenness (Agneessens et al. 2017) uses the pair weight
+\eqn{(d(s,t)-1)^{-\delta}}{(d(s,t) - 1)^(-delta)}, so \eqn{\delta = 0}{delta = 0}
+gives ordinary betweenness. Ego betweenness (Everett and Borgatti 2005)
+is the betweenness of a node inside its own ego network. Delta closeness
+(Agneessens et al. 2017, eq. 2) is
+\deqn{C_\delta(i) = \frac{1}{n-1} \sum_{j \ne i} d_{ij}^{-\delta}.}{
+  C_delta(i) = sum_{j != i} d_ij^(-delta) / (n - 1).}
 }
 \details{
-\describe{
-\item{\code{length_scaled_betweenness} (Borgatti & Everett 2006;
-Brandes 2008, Algorithm 5)}{Betweenness with each separated pair
-weighted by \eqn{1 / d(s,t)}, so brokering between nearby nodes
-counts for more than brokering across the graph.}
-\item{\code{delta_betweenness} (Agneessens, Borgatti & Everett
-2017)}{Betweenness with the pair weight \eqn{(d(s,t) - 1)^{-\delta}}
-(\code{betweenness_delta}, default 1). At \eqn{\delta = 0} it is
-ordinary betweenness; raising it concentrates the score on locally
-brokered pairs.}
-\item{\code{ego_betweenness} (Everett & Borgatti 2005)}{Betweenness
-computed inside the node's own ego network rather than the whole
-graph. A node with fewer than two neighbors scores 0. It is close
-to, but not a function of, \code{effective_size}.}
-\item{\code{delta_closeness} (Agneessens, Borgatti & Everett 2017,
-eq. 2)}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
-(\code{closeness_delta}, default 1). One exponent spans the
-closeness family: \eqn{\delta = 1} is \code{harmonic} over
-\eqn{n-1}, \eqn{\delta = 2} is \code{harary} over \eqn{n-1}, a large
-\eqn{\delta} approaches degree, and \eqn{\delta = 0} counts the
-reachable set.}
-}
-
-Bounded-distance betweenness, which the Centrality Zoo lists as
-"k-betweenness", needs no separate measure: it is
-\code{centrality(x, measures = "betweenness", cutoff = k)}.
+On a directed network the three betweenness measures count directed
+paths. Length-scaled and delta betweenness and delta closeness read edge
+weights as distances, and \code{invert_weights = TRUE} converts weights
+to distances \eqn{1/w^\alpha}{1/w^alpha}. Delta betweenness counts only
+pairs at distance greater than one, so on a network whose weighted
+distances are all below one every score is 0. \code{weighted = FALSE}
+uses hop counts. Ego betweenness ignores weights, and a node with fewer
+than two neighbors scores 0. Delta closeness follows \code{mode} and
+\code{cutoff}. On hop distances \eqn{\delta = 1}{delta = 1} gives harmonic
+closeness divided by \eqn{n-1} and \eqn{\delta = 0}{delta = 0} gives the share of
+nodes reached. Bounded-distance betweenness, listed in the Centrality
+Zoo as k-betweenness, is \code{centrality_betweenness(x, cutoff = k)}.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_length_scaled_betweenness(adj)
-centrality_delta_betweenness(adj, betweenness_delta = 2)
-centrality_ego_betweenness(adj)
-centrality_delta_closeness(adj, closeness_delta = 2)
+centrality_length_scaled_betweenness(regulation_net)
+centrality_delta_betweenness(regulation_net, weighted = FALSE)
+centrality_ego_betweenness(regulation_net)
+centrality_delta_closeness(regulation_net, closeness_delta = 2)
 }
 \references{
+Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective
+on centrality. Social Networks, 28(4), 466-484.
+\doi{10.1016/j.socnet.2005.11.005}.
+
 Agneessens, F., Borgatti, S. P., & Everett, M. G. (2017). Geodesic based
 centrality: Unifying the local and the global. Social Networks, 49,
 12-26.
@@ -88,5 +85,5 @@ Networks, 27(1), 31-38.
 }
 \seealso{
 \code{\link{centrality_betweenness}},
-\code{\link{centrality_harmonic}}, \code{\link{centrality_gravity}}.
+\code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 }

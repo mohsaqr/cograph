@@ -2,54 +2,49 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_reaching_local}
 \alias{centrality_reaching_local}
-\title{Local Reaching Centrality (Mones, Vicsek & Vicsek 2012)}
+\title{Local Reaching Centrality}
 \usage{
 centrality_reaching_local(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of local reaching centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Local reaching centrality measures how much of the network is reachable
-from a node.
+Local reaching centrality (Mones et al. 2012) measures how much of the
+network a node reaches. On an unweighted directed network it is the share
+of the other nodes reachable from the node. On an unweighted undirected
+network it is the mean inverse distance to the other nodes, harmonic
+centrality divided by \eqn{n - 1}.
 }
 \details{
-\itemize{
-\item Directed unweighted: \eqn{LRC(v) = |\{u : u \ne v, v \to u\}| / (N - 1)}.
-\item Undirected unweighted: average of \eqn{1/d(v, u)} over all
-\eqn{u \ne v}, divided by \eqn{N - 1}. Numerically equal to
-\code{igraph::harmonic_centrality(normalized = TRUE)}.
-\item Weighted: NetworkX convention, where edge weights are interpreted
-as strengths and path length is \eqn{\sum_e (\mathrm{total\_weight} / w_e)}.
-Per-path score is the mean of original edge weights along the shortest
-path.
-}
-
-Bit-exact match against \code{networkx.local_reaching_centrality} across
-all three branches. Bit-exact match against
-\code{igraph::harmonic_centrality(normalized = TRUE)} for the undirected
-unweighted branch. See \code{\link{reaching_global}} for the graph-level
-hierarchy measure derived from per-node LRC.
+A network counts as weighted unless every weight is 1, and
+\code{weighted = FALSE} has no effect. In the weighted form a shortest
+path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
+edge weight, and each reached node contributes the mean edge weight along
+its path; the sum is divided by \eqn{n - 1}. With \code{mode = "out"} the
+weighted values equal \code{networkx.local_reaching_centrality()} with
+\code{normalized = False}. \code{mode = "all"} treats edges as undirected,
+and \code{"in"} counts the nodes that reach the node. A negative weight
+raises an error. \code{\link{reaching_global}} is the network-level
+hierarchy measure built from these scores.
 }
 \examples{
-# Directed path A -> B -> C
-adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_reaching_local(adj, mode = "out")
+centrality_reaching_local(regulation_net)
 }
 \references{
 Mones, E., Vicsek, L., & Vicsek, T. (2012). Hierarchy measure for complex
 networks. \emph{PLoS ONE}, 7(3), e33799.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_harmonic}},
-\code{\link{reaching_global}}.
+\code{\link{reaching_global}}, \code{\link{centrality_harmonic}},
+\code{\link{centrality}}.
 }

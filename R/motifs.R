@@ -1,54 +1,56 @@
 #' Network Motif Analysis
 #'
-#' Analyze recurring subgraph patterns (motifs) in networks and test their
-#' statistical significance against null models.
+#' Counts the subgraph classes (motifs) of size 3 or 4 in a network and tests
+#' their frequencies against random networks from a null model. Edge weights
+#' are ignored, and self-loops and multiple edges are removed before counting.
 #'
-#' @param x A matrix, igraph object, or cograph_network
+#' @param x A matrix, igraph object, or cograph_network.
 #' @param size Motif size: 3 (triads) or 4 (tetrads). Default 3.
 #' @param n_random Number of random networks for the null model. Must be a
 #'   whole number of at least 2. Default 100.
-#' @param method Null model method: "configuration" (preserves degree) or
-#'   "gnm" (preserves edge count). Default "configuration".
-#' @param directed Logical. Treat as directed? Default auto-detected.
+#' @param method Null model method. \code{"configuration"} (default) rewires
+#'   the graph with degree-preserving edge swaps. \code{"gnm"} draws random
+#'   graphs with the same numbers of nodes and edges.
+#' @param directed Logical or NULL. Whether the network is treated as
+#'   directed. NULL (default) treats a matrix as directed when it is not
+#'   symmetric and takes the directedness of an igraph or cograph_network
+#'   input. A value that conflicts with an igraph or cograph_network input
+#'   raises an error.
 #' @param seed Random seed for reproducibility. Default NULL. When supplied,
 #'   the caller's RNG state is saved and restored.
 #'
 #' @return A `cograph_motifs` data frame with one row per motif class and
 #'   columns:
 #'   \describe{
-#'     \item{motif}{Motif class name (the 16 MAN codes for directed triads, the
-#'       four undirected triad classes, or \code{motif_<i>} labels for size 4).}
+#'     \item{motif}{Motif class name. Directed triads use the 16 MAN codes,
+#'       undirected triads the classes \code{empty}, \code{edge},
+#'       \code{wedge} and \code{triangle}, and size 4 the igraph isomorphism
+#'       class labels \code{M1} to \code{M218} (directed) or \code{M1} to
+#'       \code{M11} (undirected).}
 #'     \item{count}{Observed number of that motif in the network.}
 #'     \item{null_mean, null_sd}{Mean and standard deviation of the count
 #'       across the \code{n_random} null graphs.}
-#'     \item{z_score}{\code{(count - null_mean) / null_sd}; \code{NA} when the
-#'       null is degenerate (\code{null_sd = 0}) and the observation differs
-#'       from it.}
-#'     \item{p_value}{Two-sided empirical (add-one corrected) permutation
-#'       p-value, not a Gaussian approximation.}
+#'     \item{z_score}{\code{(count - null_mean) / null_sd}. When
+#'       \code{null_sd = 0}, it is 0 if the count equals the null mean and
+#'       \code{NA} otherwise.}
+#'     \item{p_value}{Two-sided empirical permutation p-value with add-one
+#'       correction, based on the absolute deviation from the null mean.}
 #'     \item{significant}{Logical, \code{p_value < 0.05}.}
 #'   }
 #'   The motif size (\code{"size"}), directed flag (\code{"directed"}),
 #'   null-model method (\code{"method"}), and number of random networks
-#'   (\code{"n_random"}) are stored as attributes. Self-loops and multiple
-#'   edges are removed before counting.
+#'   (\code{"n_random"}) are stored as attributes.
+#'
+#' @details Printing the result shows the motif table with the null-model
+#' settings and the number of over- and under-represented motifs. The result
+#' is a data frame and serves as the tidy table directly. \code{plot()} on the
+#' result is documented in \code{\link{plot-results}}.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Create a directed network
-#' mat <- matrix(c(
-#'   0, 1, 1, 0,
-#'   0, 0, 1, 1,
-#'   0, 0, 0, 1,
-#'   1, 0, 0, 0
-#' ), 4, 4, byrow = TRUE)
-#'
-#' # Analyze triadic motifs
-#' m <- motif_census(mat)
-#' print(m)
-#' plot(m)
+#' motif_census(regulation_net, n_random = 20, seed = 1)
 #'
 #' @seealso [motifs()] for the unified API, [extract_motifs()] for detailed
-#'   triad extraction, [plot.cograph_motifs()] for plotting
+#'   triad extraction, \code{\link{plot-results}} for plotting
 #' @family motifs
 #' @export
 motif_census <- function(x, size = 3, n_random = 100,
@@ -365,8 +367,7 @@ motif_census <- function(x, size = 3, n_random = 100,
   df[!na_rows, , drop = FALSE]
 }
 
-#' @rdname motif_census
-#' @param ... Passed to methods; currently unused.
+#' @noRd
 #' @method print cograph_motifs
 #' @export
 print.cograph_motifs <- function(x, ...) {
@@ -384,47 +385,7 @@ print.cograph_motifs <- function(x, ...) {
   invisible(x)
 }
 
-#' Plot Network Motifs
-#'
-#' Visualize motif frequencies and their statistical significance.
-#'
-#' @param x A `cograph_motifs` object from [motif_census()]
-#' @param type Plot type:
-#'   \describe{
-#'     \item{\code{"bar"}}{(default) Bar chart of motif frequencies, colored by
-#'       significance direction (over/under-represented).}
-#'     \item{\code{"heatmap"}}{Heatmap of z-scores across motif types.}
-#'     \item{\code{"network"}}{Network diagrams of the top motifs by |z-score|.}
-#'   }
-#' @param show_nonsig Show non-significant motifs? Default FALSE.
-#' @param top_n Show only top N motifs by |z-score|. Default NULL (all).
-#' @param colors Three-element color vector for under-represented, neutral, and
-#'   over-represented motifs. Default \code{c("#2166AC", "#F7F7F7", "#B2182B")}
-#'   (blue/near-white/red).
-#' @param combined Logical: when TRUE (default) and \code{type = "network"},
-#'   arrange the per-motif panels in an internal grid via
-#'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
-#'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
-#'   Has no effect for \code{type = "bar"} or \code{type = "heatmap"}.
-#' @param ... For \code{type = "network"}, additional arguments passed to the
-#'   per-motif \code{igraph} plot calls. The ggplot-based types (\code{"bar"},
-#'   \code{"heatmap"}) do not consume them.
-#'
-#' @return For \code{type = "bar"} and \code{type = "heatmap"}, a ggplot2
-#'   object. For \code{type = "network"}, \code{NULL} (the panels are drawn
-#'   with base graphics for their side effect). \code{invisible(NULL)} with a
-#'   message when no motif survives the \code{show_nonsig} / \code{top_n}
-#'   filters.
-#'
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' mat <- matrix(sample(0:1, 100, replace = TRUE, prob = c(0.7, 0.3)), 10, 10)
-#' diag(mat) <- 0
-#' m <- motif_census(mat, directed = TRUE, n_random = 50)
-#' plot(m)
-#' plot(m, type = "network")
-#'
-#' @seealso [motif_census()] for the analysis that produces this object
-#' @family motifs
+#' @rdname plot-results
 #' @method plot cograph_motifs
 #' @export
 plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
@@ -480,32 +441,27 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 
 #' Triad Census
 #'
-#' Count the 16 types of triads in a directed network using MAN notation.
+#' Counts the 16 types of triads in a directed network using MAN notation.
+#' Edge weights are ignored.
 #'
-#' @param x A matrix, igraph object, or cograph_network
+#' @param x A matrix, igraph object, or cograph_network.
 #'
 #' @return A named numeric vector of length 16 giving the count of each MAN
 #'   triad type, in the order listed under Details.
 #'
 #' @details
-#' Triad census is defined only for directed networks. Matrix input is built
-#' as directed; existing igraph and cograph inputs must already be directed.
+#' The triad census is defined only for directed networks. Matrix input is
+#' read as directed. An undirected igraph or cograph_network input raises an
+#' error.
 #'
-#' MAN notation describes triads by:
-#' - M: number of Mutual (reciprocal) edges
-#' - A: number of Asymmetric edges
-#' - N: number of Null (absent) edges
-#'
-#' The 16 triad types are:
-#' 003, 012, 102, 021D, 021U, 021C, 111D, 111U,
-#' 030T, 030C, 201, 120D, 120U, 120C, 210, 300
+#' A MAN code gives the number of mutual (reciprocated) dyads, the number of
+#' asymmetric dyads and the number of null (absent) dyads of a triad, followed
+#' by a letter that separates types with the same counts. The 16 triad types,
+#' in the order of the result, are 003, 012, 102, 021D, 021U, 021C, 111D,
+#' 111U, 030T, 030C, 201, 120D, 120U, 120C, 210 and 300.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' set.seed(1)
-#' mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
-#' diag(mat) <- 0
-#' # igraph and sna also export triad_census(); qualify the call.
-#' cograph::triad_census(mat)
+#' cograph::triad_census(regulation_net)
 #'
 #' @seealso [motifs()] for the unified API, [motif_census()]
 #' @family motifs
@@ -535,50 +491,42 @@ triad_census <- function(x) {
 
 #' Extract Triads with Node Labels
 #'
-#' Extract all triads from a network, preserving node labels. This allows
-#' users to see which specific node combinations form each motif pattern.
+#' Lists the triads of a network that contain at least one edge, with the
+#' labels of their nodes, so that the node combinations forming each motif
+#' pattern can be identified.
 #'
-#' @param x A matrix, igraph object, tna, or cograph_network
+#' @param x A matrix, igraph object, tna, or cograph_network.
 #' @param type Character vector of MAN codes to filter by (e.g., "030T", "030C").
 #'   Default NULL returns all types.
 #' @param involving Character vector of node labels. Only return triads
 #'   involving at least one of these nodes. Default NULL returns all triads.
-#' @param threshold Minimum edge weight for an edge to be considered present.
-#'   Type is determined by edges with weight > threshold. Default 0.
+#' @param threshold Edge weight threshold. An edge counts as present for the
+#'   triad type when its weight is greater than \code{threshold}. Default 0.
 #' @param min_total Minimum total weight across all 6 edges. Excludes trivial
 #'   triads with low overall activity. Default 5.
-#' @param directed Logical. Treat network as directed? Default auto-detected.
+#' @param directed Logical or NULL. Whether the network is treated as
+#'   directed. NULL (default) detects it from the input.
 #'
-#' @return A data frame with columns:
+#' @return A data frame with one row per triad, in node index order, and the
+#'   columns:
 #'   \describe{
-#'     \item{A, B, C}{Node labels for the three nodes in the triad}
-#'     \item{type}{MAN code (003, 012, ..., 300)}
+#'     \item{A, B, C}{Labels of the three nodes in the triad.}
+#'     \item{type}{MAN code (012, ..., 300). Triads of type 003 have no edge
+#'       and are not returned.}
 #'     \item{weight_AB, weight_BA, weight_AC, weight_CA, weight_BC, weight_CB}{
-#'       Edge weights (frequencies) for all 6 possible directed edges}
-#'     \item{total_weight}{Sum of all 6 edge weights}
+#'       Edge weights of the 6 possible directed edges.}
+#'     \item{total_weight}{Sum of the 6 edge weights.}
 #'   }
+#'   A network with fewer than 3 nodes gives a data frame with no rows.
 #'
 #' @details
-#' This function complements [motif_census()] by showing the actual node
-#' combinations that form each motif pattern. A typical workflow is:
-#'
-#' 1. Use `motif_census()` to identify over/under-represented patterns
-#' 2. Use `extract_triads()` with `type` filter to see which nodes form those patterns
-#' 3. Sort by `total_weight` to find the strongest triads
-#'
-#' **Type vs Weight distinction:**
-#' - **Type** is determined by edge presence (weight > threshold)
-#' - **Weights** are the actual frequency counts, useful for ranking triads by strength
+#' The function complements [motif_census()] by showing the node combinations
+#' that form each motif pattern. The triad type is determined by edge presence
+#' (weight greater than \code{threshold}). The weight columns hold the edge
+#' weights themselves, which measure the strength of each triad.
 #'
 #' @examples
-#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("Plan", "Execute", "Monitor", "Adapt")
-#' net <- as_cograph(mat)
-#'
-#' # All triads, feed-forward loops, triads involving "Plan"
-#' head(extract_triads(net))
-#' extract_triads(net, type = "030T")
-#' extract_triads(net, involving = "Plan")
+#' extract_triads(regulation_net, type = "030T", min_total = 0)
 #'
 #' @seealso [motifs()], [subgraphs()], [motif_census()], [extract_motifs()]
 #' @family motifs
@@ -1241,30 +1189,26 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 
 #' Extract Raw Edge List from TNA Model
 #'
-#' Extract individual-level transition counts as an edge list from a tna object.
+#' Extracts the individual-level transition counts of a tna object as an edge
+#' list.
 #'
-#' @param x A tna object created by [tna::tna()]
+#' @param x A tna object created by [tna::tna()]. Other inputs raise an error.
 #' @param by_individual Logical. If TRUE (default), returns edge list with
 #'   individual IDs. If FALSE, aggregates across all individuals.
 #' @param drop_zeros Logical. If TRUE (default), excludes edges with zero count.
 #'
 #' @return A data frame with columns:
 #'   \describe{
-#'     \item{id}{Individual identifier (only if `by_individual = TRUE`)}
-#'     \item{from}{Source state label}
-#'     \item{to}{Target state label}
-#'     \item{count}{Number of transitions}
+#'     \item{id}{Row number of the individual in the sequence data (only if
+#'       `by_individual = TRUE`).}
+#'     \item{from}{Source state label.}
+#'     \item{to}{Target state label.}
+#'     \item{count}{Number of transitions.}
 #'   }
+#'   With `by_individual = FALSE`, the rows are sorted by decreasing count.
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' Mod <- tna::tna(head(tna::group_regulation, 100))
-#'
-#' # Get edge list by individual
-#' edges <- get_edge_list(Mod)
-#' head(edges)
-#'
-#' # Aggregate across individuals
-#' agg_edges <- get_edge_list(Mod, by_individual = FALSE)
+#' get_edge_list(tna::tna(coding))
 #'
 #' @seealso [extract_motifs()] for motif analysis using edge lists
 #' @family motifs

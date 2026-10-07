@@ -13,28 +13,37 @@ centrality_indegree(x, ...)
 centrality_outdegree(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
+\item{mode}{For directed networks: \code{"all"} (default), \code{"in"} or
 \code{"out"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of degree values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Number of edges connected to each node. For directed networks,
-\code{centrality_indegree} counts incoming edges and
-\code{centrality_outdegree} counts outgoing edges.
+Degree centrality counts the edges incident to each node. With
+\code{mode = "in"} it counts incoming edges and with \code{mode = "out"}
+outgoing edges. On an undirected network the three modes agree.
+}
+\details{
+Edge weights are ignored; \code{\link{centrality_strength}} sums them
+instead. \code{normalized = TRUE} divides the scores by their maximum.
+\code{centrality_indegree()} and \code{centrality_outdegree()} are the
+\code{mode = "in"} and \code{mode = "out"} forms.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_degree(adj)
+centrality_degree(regulation_net)
+}
+\references{
+Freeman, L. C. (1978). Centrality in social networks conceptual
+clarification. Social Networks, 1(3), 215-239.
+\doi{10.1016/0378-8733(78)90021-7}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_strength}} for the weighted version.
+\code{\link{centrality_strength}}, \code{\link{centrality}}.
 }

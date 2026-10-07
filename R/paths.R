@@ -13,8 +13,8 @@
 #'   weights.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param ... Not used. Any argument supplied here raises an
+#'   \code{"unused argument"} error.
 #'
 #' @return Depends on the query:
 #' \itemize{
@@ -30,13 +30,9 @@
 #' }
 #'
 #' @details
-#' Uses \code{igraph::distances()} internally. For weighted networks, edge
-#' weights are used as distances by default. Pass \code{weights = NA} to
-#' ignore weights and treat all edges as having unit distance.
-#'
-#' Note: \code{igraph::distances()} with \code{weights = NULL} automatically
-#' uses edge weight attributes if present. To force unweighted computation,
-#' pass \code{weights = NA} explicitly.
+#' Distances are computed with \code{igraph::distances()}. For weighted
+#' networks, edge weights are used as distances by default. With
+#' \code{weights = NA}, every edge has unit distance.
 #'
 #' igraph also exports a \code{shortest_paths()} with a different signature and
 #' return value; when both packages are attached, qualify the call as
@@ -44,21 +40,7 @@
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # All-pairs distances
-#' adj <- matrix(c(
-#'   0, 1, 0, 0,
-#'   1, 0, 1, 0,
-#'   0, 1, 0, 1,
-#'   0, 0, 1, 0
-#' ), 4, 4)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-#' cograph::shortest_paths(adj)
-#'
-#' # Single source to all
-#' cograph::shortest_paths(adj, from = "A")
-#'
-#' # Point-to-point
-#' cograph::shortest_paths(adj, from = "A", to = "D")
+#' cograph::shortest_paths(regulation_net, from = "Plan")
 #'
 #' @seealso \code{\link{k_shortest_paths}}, \code{\link{network_summary}}
 shortest_paths <- function(x,
@@ -143,8 +125,8 @@ shortest_paths <- function(x,
 #'   weights.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param ... Not used. Any argument supplied here raises an
+#'   \code{"unused argument"} error.
 #'
 #' @return A list with class "cograph_k_paths" containing:
 #' \describe{
@@ -177,17 +159,7 @@ shortest_paths <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Find 3 shortest paths in a small network
-#' adj <- matrix(c(
-#'   0, 1, 1, 0, 0,
-#'   0, 0, 1, 1, 0,
-#'   0, 0, 0, 1, 1,
-#'   0, 0, 0, 0, 1,
-#'   0, 0, 0, 0, 0
-#' ), 5, 5, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' kp <- cograph::k_shortest_paths(adj, from = "A", to = "E", k = 3)
-#' kp
+#' cograph::k_shortest_paths(regulation_net, from = "Plan", to = "Share", k = 3)
 #'
 #' @seealso \code{\link{shortest_paths}}
 k_shortest_paths <- function(x,

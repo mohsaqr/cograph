@@ -14,7 +14,8 @@ wagg(w, method = "sum", n_possible = NULL)
 dropped before aggregation.}
 
 \item{method}{Aggregation method: "sum", "mean", "median", "max", "min",
-"prod", "density", "geomean". Default "sum". Any other value is an error.}
+"prod", "density", "geomean". Default "sum". Any other value is an error.
+\code{"geomean"} uses only the positive weights.}
 
 \item{n_possible}{Number of possible edges (used only by
 \code{method = "density"}; when NULL or not positive, the number of
@@ -25,12 +26,9 @@ A single numeric value, or 0 when no non-zero, non-NA weight
 remains.
 }
 \description{
-Aggregates a vector of edge weights using various methods.
-Compatible with igraph's edge.attr.comb parameter.
+Aggregates a vector of edge weights into a single value. The method names
+follow those of igraph's \code{edge.attr.comb} argument.
 }
 \examples{
-w <- c(0.5, 0.8, 0.3, 0.9)
-aggregate_weights(w, "sum")   # 2.5
-aggregate_weights(w, "mean")  # 0.625
-aggregate_weights(w, "max")   # 0.9
+aggregate_weights(regulation_net, method = "mean")
 }

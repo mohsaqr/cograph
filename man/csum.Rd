@@ -19,22 +19,24 @@ csum(
 \item{matrix}{Numeric adjacency/weight matrix. Row and column names are
 used as node labels. Values represent edge weights (e.g., transition
 counts, co-occurrence frequencies, or probabilities).}
-\item{cograph_network}{A cograph network object. The function extracts
-the weight matrix from \code{x$weights} or converts via
-\code{to_matrix()}. Clusters can be auto-detected from node attributes.}
-\item{tna}{A tna object from the tna package. Extracts \code{x$weights}.}
-\item{cluster_summary}{If already a cluster_summary, returns unchanged.}
+\item{cograph_network}{A cograph network object. Its weight matrix is
+used, and clusters can be auto-detected from node attributes.}
+\item{tna}{A tna object from the tna package. Its weight matrix is used
+and its sequence data are kept in \code{macro$data}.}
+\item{cluster_summary}{Returned unchanged.}
 }}
 
 \item{clusters}{Cluster/group assignments for nodes. Accepts multiple formats:
 \describe{
-\item{NULL}{(default) Auto-detect from cograph_network. Looks for columns
-named 'clusters', 'cluster', 'groups', or 'group' in \code{x$nodes}.
-Throws an error if no cluster column is found.
-This option only works when \code{x} is a cograph_network.}
+\item{NULL}{(default) Auto-detect from a cograph_network. The first
+node column named 'clusters', 'cluster', 'groups' or 'group' is used,
+then a 'cluster', 'group' or 'layer' column of the node groups.
+An error is raised when none is found, and for any other input
+\code{clusters} must be supplied.}
 \item{vector}{Cluster membership for each node, in the same order as the
 matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
-Cluster names will be derived from unique values.
+Cluster names are the unique values, sorted for a numeric vector and
+in order of appearance for a character vector or factor.
 Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
 \item{data.frame}{A data frame where the first column contains node names
 and the second column contains group/cluster names.
@@ -46,19 +48,19 @@ Example: \code{list(Alpha = c("A", "B"), Beta = c("C", "D"))}}
 }}
 
 \item{method}{Aggregation method for combining edge weights within/between
-clusters. Controls how multiple node-to-node edges are summarized:
+clusters. Zero and \code{NA} weights are dropped before aggregation
+(see \code{\link{aggregate_weights}}):
 \describe{
-\item{"sum"}{(default) Sum of all edge weights. Best for count data
-(e.g., transition frequencies). Preserves total flow.}
-\item{"mean"}{Average edge weight. Best when cluster sizes differ and
-you want to control for size. Note: when input is already a transition
-matrix (rows sum to 1), "mean" avoids size bias.
-Example: cluster with 5 nodes won't have 5x the weight of cluster with 1 node.}
+\item{"sum"}{(default) Sum of the edge weights. Suited to count data
+such as transition frequencies, because it preserves the total flow.}
+\item{"mean"}{Mean edge weight. Suited to inputs that are already
+transition probabilities, because the result does not grow with
+cluster size.}
 \item{"median"}{Median edge weight. Robust to outliers.}
 \item{"max"}{Maximum edge weight. Captures strongest connection.}
 \item{"min"}{Minimum edge weight. Captures weakest connection.}
-\item{"density"}{Sum divided by number of possible edges. Normalizes
-by cluster size combinations.}
+\item{"density"}{Sum divided by the number of possible edges
+(\eqn{n_i n_j} for clusters of sizes \eqn{n_i} and \eqn{n_j}).}
 \item{"geomean"}{Geometric mean of positive weights. Useful for
 multiplicative processes.}
 }}
@@ -66,30 +68,23 @@ multiplicative processes.}
 \item{type}{Post-processing applied to aggregated weights. Determines the
 interpretation of the resulting matrices:
 \describe{
-\item{"tna"}{(default) Row-normalize so each row sums to 1. Creates
-transition probabilities suitable for Markov chain analysis.
-Interpretation: "Given I'm in cluster A, what's the probability
-of transitioning to cluster B?"
-Required for use with tna package functions.
-Diagonal is zero; per-cluster data is in \code{$clusters}.}
-\item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
-Use for frequency analysis or when you need raw counts.
-Compatible with igraph's contract + simplify output.}
-\item{"cooccurrence"}{Symmetrize the matrix: (A + t(A)) / 2.
-For undirected co-occurrence analysis.}
-\item{"semi_markov"}{Row-normalize with duration weighting.
-For semi-Markov process analysis.}
+\item{"tna"}{(default) Row-normalize so each row sums to 1, which gives
+transition probabilities. Rows that sum to zero are left at zero.}
+\item{"raw"}{No normalization. The aggregated weights are returned
+as computed.}
+\item{"cooccurrence"}{Symmetrize the matrix as (A + t(A)) / 2.}
+\item{"semi_markov"}{Row-normalize, identical to \code{"tna"}.}
 }}
 
-\item{directed}{Logical. If \code{TRUE} (default), treat network as directed.
-A->B and B->A are separate edges. If \code{FALSE}, edges are undirected
-and the matrix is symmetrized before processing.}
+\item{directed}{Logical. Default \code{TRUE}. The value is recorded in
+\code{meta$directed} and does not change the weights. With
+\code{type = "cooccurrence"} the weights are symmetrized and
+\code{meta$directed} is \code{FALSE} whatever this value is.}
 
 \item{compute_within}{Logical. If \code{TRUE} (default), compute per-cluster
-transition matrices for each cluster. Each cluster gets its own n_i x n_i
-matrix showing internal node-to-node transitions.
-Set to \code{FALSE} to skip this computation for better performance when
-only the macro (cluster-level) summary is needed.}
+matrices, one \eqn{n_i \times n_i}{n_i x n_i} matrix of internal node-to-node
+weights per cluster. \code{FALSE} skips this step when only the macro
+summary is needed.}
 }
 \value{
 A \code{cluster_summary} object (S3 class) containing:
@@ -98,19 +93,23 @@ A \code{cluster_summary} object (S3 class) containing:
 \describe{
 \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 the number of clusters. Row i, column j contains the aggregated
-weight from cluster i to cluster j. Diagonal contains aggregated
-intra-cluster weight (retention / self-loops). Processing depends on \code{type}.}
-\item{inits}{Numeric vector of length k. Initial state distribution
-across clusters, computed from column sums of the original matrix.
-Represents the proportion of incoming edges to each cluster.}
+weight from cluster i to cluster j. The diagonal contains the
+aggregated within-cluster weight, node self-loops included.
+Processing depends on \code{type}.}
+\item{inits}{Named numeric vector of length k, the column sums of
+the aggregated cluster matrix (before \code{type} processing)
+divided by their total. It is uniform when all weights are zero.}
+\item{labels}{Cluster names.}
+\item{data}{Sequence data of a tna input, otherwise \code{NULL}.}
 }
 }
-\item{clusters}{Named list with one element per cluster. Each element is
-a tna object containing:
+\item{clusters}{A \code{group_tna} list with one tna object per
+cluster, each containing:
 \describe{
 \item{weights}{n_i x n_i matrix for nodes inside that cluster.
 Shows internal transitions between nodes in the same cluster.}
-\item{inits}{Initial distribution for the cluster.}
+\item{inits}{Column sums of the within-cluster weights divided by
+their total.}
 }
 NULL if \code{compute_within = FALSE}.}
 \item{cluster_members}{Named list mapping cluster names to their member node labels.
@@ -130,50 +129,38 @@ symmetrizes them)}
 }
 }
 \description{
-Aggregates node-level network weights to cluster-level summaries. Computes
-both macro (cluster-to-cluster) transitions and per-cluster transitions
-(how nodes connect inside each cluster).
+Aggregates node-level network weights to cluster-level summaries. The
+result holds the macro (cluster-to-cluster) network and one network of
+within-cluster connections per cluster.
 }
 \details{
-This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
-Use \code{\link{as_tna}} to convert results to tna objects for further
-analysis with the tna package.
+The function is the matrix-based entry point to Multi-Cluster Multi-Level
+(MCML) analysis. \code{\link{as_tna}} converts the result to tna models.
 \subsection{Workflow}{
 
-Typical MCML analysis workflow:
+A typical MCML analysis computes the summary, then plots it with
+\code{\link{plot_mcml}} or converts it to tna models with
+\code{\link{as_tna}}:
 \preformatted{
-# 1. Create network
-net <- cograph(edges, nodes = nodes)
-net$nodes$clusters <- group_assignments
-
-# 2. Compute cluster summary
-cs <- csum(net, type = "tna")
-
-# 3. Convert to tna models
-tna_models <- as_tna(cs)
-
-# 4. Analyze/visualize
-plot(tna_models$macro)
-tna::centralities(tna_models$macro)
+cs <- csum(net, clusters = clusters, type = "tna")
+plot_mcml(cs)
+as_tna(cs)
 }
 }
 
 \subsection{Between-Cluster Matrix Structure}{
 
-The \code{macro$weights} matrix has clusters as both rows and columns:
-\itemize{
-\item Off-diagonal (row i, col j): Aggregated weight from cluster i to cluster j
-\item Diagonal (row i, col i): Per-cluster total (sum of internal edges in cluster i)
-}
-
-When \code{type = "tna"}, rows sum to 1 and diagonal values represent
-"retention rate" - the probability of staying inside the same cluster.
+The macro weight matrix has clusters as both rows and columns. An
+off-diagonal cell (i, j) holds the aggregated weight from cluster i to
+cluster j. A diagonal cell (i, i) holds the aggregated weight of the edges
+inside cluster i. When \code{type = "tna"}, rows sum to 1 and the diagonal
+is the probability of staying inside the same cluster.
 }
 
 \subsection{Choosing method and type}{
 
 \tabular{lll}{
-\strong{Input data} \tab \strong{Recommended} \tab \strong{Reason} \cr
+Input data \tab Recommended \tab Reason \cr
 Edge counts \tab method="sum", type="tna" \tab Preserves total flow, normalizes to probabilities \cr
 Transition matrix \tab method="mean", type="tna" \tab Avoids cluster size bias \cr
 Frequencies \tab method="sum", type="raw" \tab Keep raw counts for analysis \cr
@@ -182,17 +169,10 @@ Correlation matrix \tab method="mean", type="raw" \tab Average correlations \cr
 }
 }
 \examples{
-mat <- matrix(runif(100), 10, 10); diag(mat) <- 0
-rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-
-# Membership vector
-cs <- csum(mat, c(1,1,1,2,2,2,3,3,3,3))
-cs$macro$weights      # 3x3 cluster transition matrix
-
-# Named list of clusters, TNA-normalized
-clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])
-cs <- csum(mat, clusters, type = "tna")
-rowSums(cs$macro$weights)  # all 1 (TNA probabilities)
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+csum(regulation_net, clusters = clusters, type = "tna")
 }
 \seealso{
 \code{\link{as_tna}} to convert results to tna objects,

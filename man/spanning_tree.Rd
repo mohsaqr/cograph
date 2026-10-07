@@ -21,10 +21,14 @@ spanning_tree(
 \item{maximum}{Logical. Find the maximum spanning tree instead of the
 minimum. Default FALSE. Set TRUE when the weights are similarities.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. Directedness to read the input with; the
-tree itself is undirected.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input. The tree itself is undirected.}
 }
 \value{
 An undirected \code{cograph_network} holding the spanning tree (or
@@ -32,18 +36,14 @@ forest), or the input format when \code{keep_format = TRUE}. Every node is
 kept.
 }
 \description{
-Prim's algorithm on each connected component, so a disconnected network
-yields a spanning forest.
+Computes a spanning tree with Prim's algorithm on each connected component,
+so a disconnected network yields a spanning forest. A directed network is
+symmetrized first, each pair taking the larger of its two arc weights.
+Self-loops are ignored. Missing or infinite weights raise a
+\code{cograph_bad_selection} error.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-spanning_tree(adj)
-spanning_tree(adj, maximum = TRUE)
+spanning_tree(regulation_net, maximum = TRUE)
 }
 \references{
 Prim, R. C. (1957). Shortest connection networks and some generalizations.

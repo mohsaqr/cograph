@@ -12,21 +12,20 @@ network_radius(x, directed = NULL, ...)
 \item{directed}{Logical or NULL. Consider edge direction? Default NULL,
 which follows the directedness of the converted graph.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which accepts no arguments
+besides \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Numeric: the network radius
+Numeric scalar: the network radius.
 }
 \description{
-Computes the radius of a network - the minimum eccentricity across all nodes.
-The eccentricity of a node is the maximum shortest path distance to any other node.
-The radius is the smallest such maximum distance.
+Computes the radius of a network, the minimum eccentricity across all
+nodes. The eccentricity of a node is its largest shortest-path distance to
+any other node. Edge weights are used as distances, and directed networks
+use outgoing paths.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Star graph: center has eccentricity 1, leaves have 2, so radius = 1
-star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_radius(star)  # 1
+network_radius(regulation_net)
 \dontshow{\}) # examplesIf}
 }

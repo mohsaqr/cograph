@@ -2,26 +2,47 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_communicability_betweenness}
 \alias{centrality_communicability_betweenness}
-\title{Communicability Betweenness Centrality}
+\title{Communicability Betweenness}
 \usage{
 centrality_communicability_betweenness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of communicability betweenness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Fraction of total communicability that passes through each node.
+Communicability betweenness (Estrada, Higham and Hatano 2009) is the share
+of the communicability between other pairs of nodes that is lost when the
+node is removed. With \eqn{G = e^{A}}{G = exp(A)} and \eqn{G^{(r)}}{G^(r)}
+the same exponential after the edges of \eqn{r} are deleted,
+\deqn{\omega_r = \frac{1}{(n-1)(n-2)} \sum_{p \ne q,\; p, q \ne r}
+  \frac{G_{pq} - G^{(r)}_{pq}}{G_{pq}}.}{
+  omega_r = 1 / ((n-1)(n-2)) sum_{p != q; p, q != r}
+  (G_pq - G^(r)_pq) / G_pq.}
+}
+\details{
+\eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
+scores lie between 0 and 1. The measure is defined for undirected networks.
+On a directed network the matrix exponential needs the inverse of an
+eigenvector matrix, and when that matrix is singular the function stops
+with an unclassed error, as it does for \code{regulation_net}.
+\code{directed = FALSE} gives the undirected reading.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_communicability_betweenness(adj)
+centrality_communicability_betweenness(regulation_net, directed = FALSE)
+}
+\references{
+Estrada, E., Higham, D. J., & Hatano, N. (2009). Communicability
+betweenness in complex networks. Physica A, 388(5), 764-774.
+\doi{10.1016/j.physa.2008.11.011}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_communicability}},
+\code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 }

@@ -9,10 +9,11 @@ network_rich_club(x, k = NULL, normalized = FALSE, n_random = 10, ...)
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{k}{Degree threshold. Only nodes with degree > k are included.
-If NULL, uses median degree.}
+\item{k}{Degree threshold. Only nodes with degree greater than \code{k}
+are included. Default NULL uses the median degree.}
 
-\item{normalized}{Logical. Normalize by random graph expectation? Default FALSE.}
+\item{normalized}{Logical. If TRUE, divide by the mean coefficient of
+random graphs with the same degree sequence. Default FALSE.}
 
 \item{n_random}{Number of random graphs for normalization. Default 10.}
 
@@ -20,13 +21,15 @@ If NULL, uses median degree.}
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Numeric: rich club coefficient (> 1 indicates rich club effect when
-normalized). \code{NA} when fewer than two nodes exceed \code{k}.
+Numeric scalar: the rich club coefficient. A normalized value above
+1 indicates a rich club effect. \code{NA} when fewer than two nodes
+exceed \code{k}.
 }
 \description{
-Computes the rich club coefficient for a given degree threshold k.
-Measures the tendency of high-degree nodes to connect to each other.
-A normalized version compares to random graphs.
+Computes the rich club coefficient for a degree threshold \code{k}, the
+density of ties among nodes with degree above \code{k}. It measures the
+tendency of high-degree nodes to connect to each other. Degrees are taken
+on the undirected simple skeleton of the network.
 }
 \section{Reproducibility}{
 
@@ -38,9 +41,7 @@ argument, confidence intervals, and the full rich club curve.
 }
 
 \examples{
-# Scale-free networks often show rich-club effect
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-  network_rich_club(g, k = 5)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+network_rich_club(regulation_net, k = 5)
+\dontshow{\}) # examplesIf}
 }

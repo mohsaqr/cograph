@@ -32,16 +32,11 @@ A \code{cograph_network} whose edge table has the new columns, or
 the input format when \code{keep_format = TRUE}.
 }
 \description{
-Add or Change Edge Attributes
+Evaluates expressions against the edge table and stores the results as
+edge columns.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-as.data.frame(mutate_edges(adj, strong = weight > 0.5))
+as.data.frame(mutate_edges(regulation_net, strong = weight > 0.2))
 }
 \seealso{
 \code{\link{mutate_nodes}}, \code{\link{select_edges}}

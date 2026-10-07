@@ -1,20 +1,5 @@
-#' @title Built-in Themes
-#' @description Pre-defined themes for network visualization.
-#' @name themes-builtin
-#' @return A \code{CographTheme} object.
-#' @examples
-#' theme_cograph_classic()
-#' theme_cograph_dark()
-NULL
-
-#' Classic Theme
-#'
-#' Traditional network visualization style with blue nodes and gray edges.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_classic()
 theme_cograph_classic <- function() {
   CographTheme$new(
     name = "classic",
@@ -34,14 +19,8 @@ theme_cograph_classic <- function() {
   )
 }
 
-#' Colorblind-friendly Theme
-#'
-#' Theme using colors distinguishable by people with color vision deficiency.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_colorblind()
 theme_cograph_colorblind <- function() {
   CographTheme$new(
     name = "colorblind",
@@ -61,14 +40,8 @@ theme_cograph_colorblind <- function() {
   )
 }
 
-#' Grayscale Theme
-#'
-#' Black and white theme suitable for print.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_gray()
 theme_cograph_gray <- function() {
   CographTheme$new(
     name = "gray",
@@ -88,14 +61,8 @@ theme_cograph_gray <- function() {
   )
 }
 
-#' Dark Theme
-#'
-#' Dark background theme for presentations.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_dark()
 theme_cograph_dark <- function() {
   CographTheme$new(
     name = "dark",
@@ -115,14 +82,8 @@ theme_cograph_dark <- function() {
   )
 }
 
-#' Minimal Theme
-#'
-#' Clean, minimal style with thin borders.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_minimal()
 theme_cograph_minimal <- function() {
   CographTheme$new(
     name = "minimal",
@@ -142,14 +103,8 @@ theme_cograph_minimal <- function() {
   )
 }
 
-#' Viridis Theme
-#'
-#' Theme using viridis color palette.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_viridis()
 theme_cograph_viridis <- function() {
   CographTheme$new(
     name = "viridis",
@@ -169,14 +124,8 @@ theme_cograph_viridis <- function() {
   )
 }
 
-#' Nature Theme
-#'
-#' Earth tones theme inspired by nature.
-#'
-#' @return A CographTheme object.
+#' @rdname themes
 #' @export
-#' @examples
-#' theme <- theme_cograph_nature()
 theme_cograph_nature <- function() {
   CographTheme$new(
     name = "nature",

@@ -11,14 +11,7 @@ Core class representing a network for visualization. Stores nodes, edges,
 layout coordinates, and aesthetic mappings.
 }
 \examples{
-# Create network from adjacency matrix
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-
-# Access properties
-net$n_nodes
-net$n_edges
-net$is_directed
+CographNetwork$new(regulation_net)
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
@@ -29,9 +22,10 @@ net$is_directed
 
 \item{\code{is_directed}}{Whether the network is directed.}
 
-\item{\code{has_weights}}{Whether edges have weights.}
+\item{\code{has_weights}}{\code{TRUE} when any edge weight differs from 1.}
 
-\item{\code{node_labels}}{Vector of node labels (priority: labels > label).}
+\item{\code{node_labels}}{Vector of node labels, taken from the \code{labels} column
+of the node table when present and from \code{label} otherwise.}
 }
 \if{html}{\out{</div>}}
 }
@@ -79,17 +73,23 @@ Create a new CographNetwork object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{input}}{Network input supported by \code{parse_input},
-such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.}
+\item{\code{input}}{Network input, such as a matrix, edge list, igraph,
+statnet network, qgraph or tna object. \code{NULL} creates an empty object.}
 
-\item{\code{directed}}{Logical. Force directed interpretation. NULL for auto-detect.}
+\item{\code{directed}}{Logical. Forces a directed or undirected interpretation.
+\code{NULL} detects it from the input.}
 
-\item{\code{nodes}}{Node metadata. Can be NULL or a data frame with node attributes.
-If data frame has a \code{label} or \code{labels} column, those are used for display.}
+\item{\code{nodes}}{\code{NULL} or a data frame of node attributes. Its rows are
+matched to the node labels by a \code{name}, \code{label} or \code{id} column, tried in
+that order, and the remaining columns are added to the node table. When
+no column matches and the row count equals the number of nodes, the
+columns are added in row order. A \code{labels} column supplies the display
+labels returned by \verb{$node_labels}.}
 
 \item{\code{simplify}}{Logical or character. If FALSE (default), every transition
 from tna sequence data is a separate edge. If TRUE or a string
-("sum", "mean", "max", "min"), duplicate edges are aggregated.}
+("sum", "mean", "max", "min"), duplicate transitions are aggregated.
+Other inputs are not affected.}
 }
 \if{html}{\out{</div>}}
 }
@@ -101,7 +101,8 @@ A new CographNetwork object.
 \if{html}{\out{<a id="method-CographNetwork-clone_network"></a>}}
 \if{latex}{\out{\hypertarget{method-CographNetwork-clone_network}{}}}
 \subsection{Method \code{clone_network()}}{
-Clone the network with optional modifications.
+Create a copy with the same nodes, edges, weights, layout,
+aesthetics, theme, layout information and plot parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographNetwork$clone_network()}\if{html}{\out{</div>}}
 }
@@ -202,7 +203,9 @@ Set layout coordinates.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{coords}}{Matrix or data frame with x, y columns, one row per node.}
+\item{\code{coords}}{Matrix or data frame with at least two columns and one row
+per node. The first two columns are renamed \code{x} and \code{y} and are also
+written to the node table. \code{NULL} leaves the layout unchanged.}
 }
 \if{html}{\out{</div>}}
 }
@@ -214,7 +217,8 @@ The object itself, invisibly.
 \if{html}{\out{<a id="method-CographNetwork-set_node_aes"></a>}}
 \if{latex}{\out{\hypertarget{method-CographNetwork-set_node_aes}{}}}
 \subsection{Method \code{set_node_aes()}}{
-Set node aesthetics.
+Set node aesthetics. The list is merged into the current
+node aesthetics.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographNetwork$set_node_aes(aes)}\if{html}{\out{</div>}}
 }
@@ -222,7 +226,7 @@ Set node aesthetics.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{aes}}{List of aesthetic parameters.}
+\item{\code{aes}}{Named list of aesthetic parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -234,7 +238,8 @@ The object itself, invisibly.
 \if{html}{\out{<a id="method-CographNetwork-set_edge_aes"></a>}}
 \if{latex}{\out{\hypertarget{method-CographNetwork-set_edge_aes}{}}}
 \subsection{Method \code{set_edge_aes()}}{
-Set edge aesthetics.
+Set edge aesthetics. The list is merged into the current
+edge aesthetics.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographNetwork$set_edge_aes(aes)}\if{html}{\out{</div>}}
 }
@@ -242,7 +247,7 @@ Set edge aesthetics.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{aes}}{List of aesthetic parameters.}
+\item{\code{aes}}{Named list of aesthetic parameters.}
 }
 \if{html}{\out{</div>}}
 }
@@ -306,7 +311,8 @@ Get layout coordinates.
 }
 
 \subsection{Returns}{
-Data frame with x, y coordinates.
+A data frame with \code{x} and \code{y} columns, or \code{NULL} when no layout
+is set.
 }
 }
 \if{html}{\out{<hr>}}
@@ -345,7 +351,8 @@ Get theme.
 }
 
 \subsection{Returns}{
-CographTheme object.
+The stored theme (a CographTheme object or theme name), or
+\code{NULL}.
 }
 }
 \if{html}{\out{<hr>}}

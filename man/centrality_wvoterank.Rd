@@ -13,64 +13,54 @@ centrality_enrenew(x, enrenew_depth = 2, ...)
 centrality_voterank_plus(x, voterank_lambda = 0.1, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. WVoteRank uses
+\code{weighted} (use edge weights, default \code{TRUE}).}
 
-\item{enrenew_depth}{Renewal radius \eqn{l} for \code{enrenew}. Default 2.}
+\item{enrenew_depth}{Renewal radius \eqn{l} for EnRenew (default 2).}
 
-\item{voterank_lambda}{Suppression factor \eqn{\lambda} for
-\code{voterank_plus}. Default 0.1.}
+\item{voterank_lambda}{Suppression factor \eqn{\lambda}{lambda} for
+VoteRank++ (default 0.1).}
 }
 \value{
-Named numeric vector in \eqn{(0, 1]}, one score per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Three further spreader-selection procedures in the VoteRank family. All
-three elect one node per round until every node is placed and return
-the election order as a score, 1 for the first elected down to
-\eqn{1 / n}; ties go to the lowest node index. Direction and self-loops
-are ignored.
+Three spreader-selection procedures in the VoteRank family that elect
+one node per round. WVoteRank (Sun et al. 2019) scores a node by
+\eqn{s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}}{
+  s_v = sqrt(k_v sum_{u in N(v)} va_u w_vu)}
+and lowers the ability of the neighbors of a winner by
+\eqn{1 / \langle w \rangle}{1 / <w>}, the inverse of the average strength.
+EnRenew (Guo et al. 2020) elects the largest neighbor entropy
+\eqn{E_v = -\sum_{u \in N(v)} p_{uv} \ln p_{uv}}{
+  E_v = -sum_{u in N(v)} p_uv ln p_uv},
+\eqn{p_{uv} = k_u / \sum_{l \in N(v)} k_l}{p_uv = k_u / sum_{l in N(v)} k_l},
+and scales the entropy terms within \code{enrenew_depth} steps by
+\eqn{1 - 1 / (2^{d-1} \ln \langle k \rangle)}{1 - 1 / (2^(d-1) ln <k>)}.
+VoteRank++ (Liu et al. 2021) starts from ability
+\eqn{\ln(1 + k_i / k_{\max})}{ln(1 + k_i / k_max)}, splits votes in
+proportion to degree, and multiplies abilities by \eqn{\lambda}{lambda}
+one step from a winner and by \eqn{\sqrt{\lambda}}{sqrt(lambda)} two
+steps away.
 }
 \details{
-\describe{
-\item{\code{wvoterank} (Sun, Chen, He & Ch'ng 2019)}{VoteRank for
-weighted graphs: \eqn{s_v = \sqrt{k_v \sum_{u \in N(v)} va_u w_{vu}}}.
-After an election the winner's ability is 0 and its neighbors lose
-\eqn{1 / \langle w \rangle}, where \eqn{\langle w \rangle} is the
-average strength (the paper's Figure 1 pins strength, not degree).
-Uses edge weights; with unit weights it is VoteRank with a
-square-root score. Reproduces all sixty numbers of the paper's
-Figure 1.}
-\item{\code{enrenew} (Guo, Yang, Guo, Pan & Chen 2020)}{Entropy-based
-selection: \eqn{E_v = \sum_{u \in N(v)} -p_{uv} \ln p_{uv}} with
-\eqn{p_{uv} = k_u / \sum_{l \in N(v)} k_l}; after electing the
-largest \eqn{E}, every entropy term flowing outward to depth
-\eqn{d \le l} is scaled by \eqn{1 - 1 / (2^{d-1} \ln \langle k
-    \rangle)}, with \eqn{l} = \code{enrenew_depth} (default 2).
-Reproduces the paper's Figure 1. The authors' released code differs
-from the paper in several ways; the paper is implemented. Note the
-factor turns negative when \eqn{\langle k \rangle < e}.}
-\item{\code{voterank_plus} (Liu, Li, Fang & Yao 2021)}{Initial ability
-\eqn{\ln(1 + k_i / k_{\max})}, degree-proportional vote shares over
-unelected neighbors, score \eqn{\sqrt{k_i \sum_j va_j w_{j \to i}}},
-and after an election abilities are multiplied by \eqn{\lambda}
-one step away and \eqn{\sqrt{\lambda}} two steps away
-(\code{voterank_lambda}, default 0.1). The article is closed access;
-the implementation matches the authors' released code exactly,
-including its exclusion of elected nodes from the vote-share
-denominator.}
-}
+Elections continue until every node is placed. The first elected scores 1
+and the last \eqn{1/n}{1/n}, so scores lie in \eqn{(0, 1]}{(0, 1]}, and
+ties go to the lowest node index. Direction and self-loops are ignored.
+WVoteRank uses edge weights, and with unit weights it is VoteRank with a
+square-root score. The other two ignore weights. The renewal factor of
+EnRenew is negative when \eqn{\langle k \rangle < e}{<k> < e}. EnRenew
+follows the article where the released code of the authors differs from
+it. VoteRank++ follows the released code of the authors, including the
+exclusion of elected nodes from the vote-share denominator.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_wvoterank(adj)
-centrality_enrenew(adj)
-centrality_voterank_plus(adj)
+centrality_wvoterank(regulation_net)
+centrality_enrenew(regulation_net)
+centrality_voterank_plus(regulation_net)
 }
 \references{
 Sun, H.-L., Chen, D.-B., He, J.-L., & Ch'ng, E. (2019). A voting
@@ -87,5 +77,5 @@ Fractals, 152, 111309.
 }
 \seealso{
 \code{\link{centrality_voterank}},
-\code{\link{centrality_ncvoterank}}.
+\code{\link{centrality_ncvoterank}}, \code{\link{centrality}}.
 }

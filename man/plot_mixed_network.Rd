@@ -24,34 +24,35 @@ plot_mixed_network(
 )
 }
 \arguments{
-\item{sym_matrix}{A symmetric matrix representing undirected relationships.
-These edges will be drawn straight without arrows.}
+\item{sym_matrix}{A symmetric matrix of undirected relationships. Each
+non-zero pair is plotted once as a straight edge without arrows.}
 
-\item{asym_matrix}{An asymmetric matrix representing directed relationships.
-These edges will be drawn curved with arrows. Reciprocal edges curve in
-opposite directions.}
+\item{asym_matrix}{An asymmetric matrix of directed relationships, with
+the same dimensions as \code{sym_matrix}. Its edges are plotted as curved
+arrows.}
 
 \item{layout}{Layout algorithm or coordinate matrix. Default "oval".}
 
-\item{sym_color}{Color for symmetric/undirected edges. Default
-\code{"ivory4"}.}
+\item{sym_color}{Color for undirected edges. Default \code{"ivory4"}.}
 
-\item{asym_color}{Color for asymmetric/directed edges. Can be a single color
-or a vector of two colors for positive/negative directions. Default
-"#003355" (dark blue, matching TNA style).}
+\item{asym_color}{Color for directed edges. Either a single color, or two
+colors for reciprocal pairs: the first for the edge from the
+lower-indexed node and the second for the reverse edge. Non-reciprocal
+edges use the first color. Default \code{"#003355"} (dark blue, the TNA
+edge color).}
 
 \item{curvature}{Curvature magnitude for directed edges. Default 0.3.}
 
-\item{edge_width}{Edge width(s). If NULL (default), scales automatically by
-edge weight like TNA plots. Pass a numeric value to override.}
+\item{edge_width}{Edge width(s). If NULL (default), widths scale with edge
+weight as in TNA plots. A numeric value overrides the scaling.}
 
 \item{node_size}{Node size. Default 7.}
 
 \item{title}{Plot title. Default NULL.}
 
 \item{threshold}{Minimum absolute edge weight to display. Values with
-\code{abs(value) < threshold} are set to zero (edge removed). Default 0.
-Zero-weight edges are always removed regardless of this setting.}
+\code{abs(value) < threshold} are set to zero, and zero-weight edges are
+not plotted. Default 0.}
 
 \item{edge_labels}{Show edge weight labels. Default TRUE.}
 
@@ -61,38 +62,27 @@ Zero-weight edges are always removed regardless of this setting.}
 
 \item{edge_label_position}{Position of edge labels along edge (0-1). Default 0.7.}
 
-\item{initial}{Optional named numeric vector of initial state probabilities
-(length = number of nodes). When provided, nodes are drawn as donuts with
-the fill proportion equal to the initial probability. Default NULL.}
+\item{initial}{Optional numeric vector of initial state probabilities.
+A named vector is matched to the node names, with missing states set to
+0; an unnamed vector is used in node order. Nodes are then plotted as
+donuts filled in proportion to the initial probability. A warning is
+issued when the values do not sum to 1 (tolerance 0.01). Default NULL.}
 
-\item{...}{Additional arguments passed to splot().}
+\item{...}{Additional arguments passed to \code{\link{splot}}.}
 }
 \value{
-Invisibly returns a list with the combined edge data and filtered
-symmetric/asymmetric matrices.
+Invisibly, a list with three elements: \code{edges}, a data frame
+with one row per plotted edge and columns \code{from}, \code{to}
+(node indices), \code{weight}, \code{type} ("undirected" or
+"directed") and \code{color}; and \code{sym_matrix} and
+\code{asym_matrix}, the input matrices after thresholding.
 }
 \description{
-Plot a network combining symmetric (undirected) and asymmetric
-(directed) matrices with appropriate edge styling.
-
-Creates a network visualization combining edges from a symmetric matrix
-(rendered as straight undirected edges) and an asymmetric matrix
-(rendered as curved directed edges).
+Plots one network that combines the edges of a symmetric matrix, shown as
+straight undirected edges, with the edges of an asymmetric matrix, shown as
+curved directed edges.
 }
 \examples{
-# Create symmetric matrix (undirected)
-sym <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-sym[1,2] <- sym[2,1] <- 0.5
-sym[3,4] <- sym[4,3] <- 0.6
-
-# Create asymmetric matrix (directed)
-asym <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-asym[1,3] <- 0.7
-asym[3,1] <- 0.3
-asym[2,4] <- 0.8
-asym[4,2] <- 0.4
-
-# Plot combined network
-plot_mixed_network(sym, asym, title = "Mixed Network")
+plot_mixed_network(symmetrize(regulation_net, keep_format = TRUE), regulation_net)
 
 }

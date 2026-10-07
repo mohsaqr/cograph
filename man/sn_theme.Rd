@@ -12,10 +12,13 @@ Matrices and other inputs are auto-converted.}
 
 \item{theme}{Theme name (string) or CographTheme object.}
 
-\item{...}{Additional theme parameters to override.}
+\item{...}{Theme parameters to override, such as \code{background},
+\code{node_fill} or \code{edge_color}. An unknown parameter name raises
+an error.}
 }
 \value{
-Modified cograph_network object.
+The \code{cograph_network} with the theme stored in its
+\code{theme} element.
 }
 \description{
 Apply a visual theme to the network.
@@ -24,24 +27,20 @@ Apply a visual theme to the network.
 \subsection{Available Themes}{
 
 \describe{
-\item{\strong{classic}}{Default theme with white background, blue nodes, gray edges.}
-\item{\strong{dark}}{Dark background with light nodes. Good for presentations.}
-\item{\strong{minimal}}{Subtle styling with thin edges and muted colors.}
-\item{\strong{colorblind}}{Optimized for color vision deficiency.}
-\item{\strong{gray}/\strong{grey}}{Black and white theme suitable for print.}
-\item{\strong{viridis}}{Perceptually uniform colors.}
-\item{\strong{nature}}{Nature-inspired colors.}
+\item{\code{"classic"}}{White background, blue nodes and gray edges.}
+\item{\code{"dark"}}{Dark background with bright nodes, for presentations.}
+\item{\code{"minimal"}}{Subtle styling with thin edges and muted colors.}
+\item{\code{"colorblind"}}{Optimized for color vision deficiency.}
+\item{\code{"gray"}/\code{"grey"}}{Black and white theme suitable for print.}
+\item{\code{"viridis"}}{Perceptually uniform colors.}
+\item{\code{"nature"}}{Nature-inspired colors.}
 }
 
 Use \code{list_themes()} to see all available themes.
 }
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> sn_theme("dark") |> splot()
-
-# Override a theme property
-cograph(adj) |> sn_theme("classic", background = "lightgray") |> splot()
+cograph(regulation_net) |> sn_theme("dark") |> splot()
 }
 \seealso{
 \code{\link{cograph}} for network creation,

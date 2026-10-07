@@ -7,24 +7,36 @@
 centrality_leaderrank(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).
-Must be directed.}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of LeaderRank values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-PageRank variant with a ground node connected to all nodes.
-Requires a directed graph.
+LeaderRank (Lu et al. 2011) adds a ground node joined in both directions
+to every node and runs a random walk without damping on the extended
+network. The final score of the ground node is shared equally among the
+other nodes.
+}
+\details{
+The measure needs a directed network. On undirected input every score is
+\code{NA} with a warning that carries no condition class. Edge weights are
+ignored; \code{\link{centrality_weighted_leaderrank}} uses them. The walk
+starts with one unit at every node and none at the ground node, so the
+scores sum to \eqn{n}. The values equal \code{centiserve::leaderrank()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_leaderrank(adj)
+centrality_leaderrank(regulation_net)
+}
+\references{
+Lu, L., Zhang, Y.-C., Yeung, C. H., & Zhou, T. (2011). Leaders in social
+networks, the Delicious case. PLoS ONE, 6(6), e21202.
+\doi{10.1371/journal.pone.0021202}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_pagerank}} for standard PageRank.
+\code{\link{centrality_weighted_leaderrank}},
+\code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 }

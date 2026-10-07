@@ -26,13 +26,7 @@
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # From matrix
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' g <- to_igraph(adj)
-#'
-#' # Force directed
-#' g_dir <- to_igraph(adj, directed = TRUE)
+#' to_igraph(regulation_net)
 to_igraph <- function(x, directed = NULL) {
   .need_igraph("to_igraph()")
 
@@ -151,13 +145,22 @@ to_igraph <- function(x, directed = NULL) {
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object.
 #' @param method Community detection algorithm to use. One of:
 #'   \itemize{
-#'     \item \code{"louvain"}: Louvain method (default, fast and accurate)
+#'     \item \code{"louvain"}: Louvain modularity optimization (default)
 #'     \item \code{"walktrap"}: Walktrap algorithm based on random walks
 #'     \item \code{"fast_greedy"}: Fast greedy modularity optimization
 #'     \item \code{"label_prop"}: Label propagation algorithm
 #'     \item \code{"infomap"}: Infomap algorithm based on information flow
-#'     \item \code{"leiden"}: Leiden algorithm (improved Louvain)
+#'     \item \code{"leiden"}: Leiden algorithm, run with the defaults of
+#'       \code{igraph::cluster_leiden()}. Its default constant Potts model
+#'       objective can place every node in its own community.
 #'   }
+#'   \code{"louvain"}, \code{"leiden"} and \code{"fast_greedy"} require an
+#'   undirected graph. A directed network is collapsed to an undirected one for
+#'   these methods, with the weights of reciprocal edges averaged, and a
+#'   message is issued for \code{"louvain"} and \code{"leiden"}. The
+#'   \code{"louvain"}, \code{"leiden"}, \code{"label_prop"} and
+#'   \code{"infomap"} methods use random numbers, so \code{set.seed()} makes
+#'   their result reproducible.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param weights Logical. Use edge weights for community detection. Default TRUE.
@@ -166,7 +169,7 @@ to_igraph <- function(x, directed = NULL) {
 #'   \code{data.frame} and has one row per node with columns:
 #'   \itemize{
 #'     \item \code{node}: Node labels/names
-#'     \item \code{community}: Integer community membership
+#'     \item \code{community}: Numeric community membership
 #'   }
 #'   The algorithm name, the igraph community object, the modularity and the
 #'   input network are carried as attributes for the \code{print}, \code{plot}
@@ -174,16 +177,7 @@ to_igraph <- function(x, directed = NULL) {
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Basic usage
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' detect_communities(adj)
-#'
-#' # Different algorithm
-#' detect_communities(adj, method = "walktrap")
+#' detect_communities(regulation_net, method = "walktrap")
 detect_communities <- function(x, method = "louvain", directed = NULL,
                                weights = TRUE) {
 
@@ -265,26 +259,17 @@ detect_communities <- function(x, method = "louvain", directed = NULL,
 #'     \item A function that takes n and returns n colors
 #'     \item A palette name: "rainbow", "colorblind", "pastel", "viridis"
 #'   }
+#'   Any other single string is used as one color for every community.
 #' @param ... Additional arguments passed to \code{\link{detect_communities}}.
 #'
-#' @return A named character vector of colors (one per node), suitable for
-#'   use with \code{splot()} \code{node_fill} parameter.
+#' @return A character vector of colors with one element per node, named by
+#'   node, for use as the \code{node_fill} argument of \code{splot()}.
 #'
 #' @seealso \code{\link{detect_communities}}, \code{\link{splot}}
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Basic usage with splot
-#' splot(adj, node_fill = color_communities(adj))
-#'
-#' # Custom palette
-#' splot(adj, node_fill = color_communities(adj, palette = c("red", "blue")))
+#' color_communities(regulation_net, method = "walktrap")
 color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 
   # Get community membership
@@ -340,7 +325,7 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'
 #' Filter edges using dplyr-style expressions on any edge column. Returns a
 #' cograph_network object by default (universal format), or optionally a
-#' matrix, igraph, or statnet network object when \code{keep_format = TRUE}
+#' matrix, igraph, statnet network or tna object when \code{keep_format = TRUE}
 #' and the input used one of those formats.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
@@ -351,7 +336,7 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'   filtering edges does not remove nodes. Set FALSE to drop them, or call
 #'   \code{\link{remove_isolates}()} afterwards.
 #' @param .keep_isolates Deprecated. Use \code{keep_isolates}.
-#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#' @param keep_format Logical. If TRUE, matrix, igraph, statnet network and tna
 #'   inputs are returned in that format. Default FALSE
 #'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
@@ -359,29 +344,15 @@ color_communities <- function(x, method = "louvain", palette = NULL, ...) {
 #'   Only used for non-cograph_network inputs.
 #'
 #' @return A cograph_network object with filtered edges. If \code{keep_format = TRUE},
-#'   matrix, igraph, and statnet network inputs are converted back to that type.
-#'   Nodes are never removed by the filter itself; when the filter strands a
-#'   node a \code{cograph_isolates_created} warning is raised.
+#'   matrix, igraph, statnet network and tna inputs are converted back to that type.
+#'   With \code{keep_isolates = TRUE}, a node that loses all its edges stays in
+#'   the network and a \code{cograph_isolates_created} warning is raised.
 #'
 #' @seealso \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Keep only strong edges
-#' filter_edges(adj, weight > 0.5)
-#'
-#' # Matrix in, matrix out
-#' filter_edges(adj, weight > 0.5, keep_format = TRUE)
-#'
-#' # Pipe-friendly with cograph_network
-#' as_cograph(adj) |>
-#'   filter_edges(weight > 0.3) |>
-#'   filter_nodes(degree >= 2) |>
-#'   splot()
+#' filter_edges(regulation_net, weight > 0.15)
 filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
                          directed = NULL, .keep_isolates = NULL) {
   keep_isolates <- .resolve_deprecated_arg(keep_isolates, .keep_isolates,
@@ -421,15 +392,15 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
 #'
 #' Filter nodes using dplyr-style expressions on any node column or centrality
 #' measure. Returns a cograph_network object by default (universal format), or
-#' optionally a matrix, igraph, or statnet network object when
+#' optionally a matrix, igraph, statnet network or tna object when
 #' \code{keep_format = TRUE} and the input used one of those formats.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using any node column or centrality measure.
 #'   Available variables include:
 #'   \describe{
-#'     \item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
-#'       \code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+#'     \item{Node columns}{All columns of the node table, such as \code{id},
+#'       \code{label}, \code{name}, \code{x}, \code{y} and any custom columns.}
 #'     \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 #'       \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 #'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
@@ -453,7 +424,7 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
 #'   }
-#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#' @param keep_format Logical. If TRUE, matrix, igraph, statnet network and tna
 #'   inputs are returned in that format. Default FALSE
 #'   returns cograph_network (universal format).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
@@ -461,21 +432,13 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
 #'   Only used for non-cograph_network inputs.
 #'
 #' @return A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
-#'   matrix, igraph, and statnet network inputs are converted back to that type.
+#'   matrix, igraph, statnet network and tna inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Keep only high-degree nodes
-#' filter_nodes(adj, degree >= 3)
-#'
-#' # Filter by label, combined with degree
-#' filter_nodes(adj, degree >= 2 & label != "D")
+#' filter_nodes(regulation_net, degree >= 7)
 filter_nodes <- function(x, ..., keep_edges = c("internal", "none"),
                          keep_format = FALSE, directed = NULL,
                          .keep_edges = NULL) {
@@ -515,7 +478,6 @@ filter_nodes <- function(x, ..., keep_edges = c("internal", "none"),
 subset_nodes <- filter_nodes
 
 #' @rdname filter_edges
-#' @return See \code{\link{filter_edges}}.
 #' @export
 subset_edges <- filter_edges
 
@@ -1191,26 +1153,16 @@ subset_edges <- filter_edges
 #'     \item \code{to}: Target node name/label
 #'     \item \code{weight}: Edge weight
 #'   }
-#'   Any further edge columns the network carries (for example \code{session}
-#'   or \code{time} from temporal edge lists) are \emph{not} included; use
-#'   \code{\link{get_edges}}, which returns the edge table whole. An
-#'   undirected network contributes one row per unordered pair, not two.
+#'   Further edge columns, such as \code{session} or \code{time} from
+#'   temporal edge lists, are dropped. \code{\link{get_edges}} returns the
+#'   full edge table. An undirected network contributes one row per unordered
+#'   pair.
 #'
 #' @seealso \code{\link{to_df}}, \code{\link{to_igraph}}, \code{\link{as_cograph}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Convert to edge list
-#' to_data_frame(adj)
-#'
-#' # Use alias
-#' to_df(adj)
+#' to_data_frame(regulation_net)
 to_data_frame <- function(x, directed = NULL) {
   net <- as_cograph(x, directed = directed)
   edges <- get_edges(net)
@@ -1257,23 +1209,7 @@ to_df <- function(x, directed = NULL) {
 #'
 #' @export
 #' @examples
-#' # From matrix
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' to_matrix(adj)
-#'
-#' # From cograph_network
-#' net <- as_cograph(adj)
-#' to_matrix(net)
-#'
-#' # From igraph (weighted graph)
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
-#'   to_matrix(g)
-#' }
+#' to_matrix(student_interactions)
 to_matrix <- function(x, directed = NULL) {
 
   # If already a matrix, return as-is
@@ -1307,12 +1243,8 @@ to_matrix <- function(x, directed = NULL) {
 #'   \code{\link{as_cograph}}
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("network", quietly = TRUE)) {
-#'   adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#'   rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'   net <- to_network(adj)
-#' }
+#' @examplesIf requireNamespace("network", quietly = TRUE)
+#' to_network(regulation_net)
 to_network <- function(x, directed = NULL) {
 
   if (!requireNamespace("network", quietly = TRUE)) { # nocov start
@@ -1357,19 +1289,19 @@ to_network <- function(x, directed = NULL) {
 # select_nodes() - Lazy Centrality Selection
 # =============================================================================
 
-#' Select Nodes with Lazy Centrality Computation
+#' Select Nodes
 #'
-#' A more nuanced node selection function that improves upon \code{filter_nodes()}
-#' with lazy centrality computation (only computes measures actually referenced),
-#' multiple selection modes, and global context variables for structural awareness.
+#' Selects nodes by name, index, rank on a centrality measure, neighborhood,
+#' connected component, or filter expressions on node columns, centrality
+#' measures and structural variables.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using node columns, centrality measures, or
 #'   global context variables. Centrality measures are computed lazily (only
 #'   those actually referenced). Available variables:
 #'   \describe{
-#'     \item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
-#'       \code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+#'     \item{Node columns}{All columns of the node table, such as \code{id},
+#'       \code{label}, \code{name}, \code{x}, \code{y} and any custom columns.}
 #'     \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 #'       \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 #'       \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
@@ -1403,43 +1335,35 @@ to_network <- function(x, directed = NULL) {
 #'     \item{\code{"internal"}}{(default) Keep only edges between remaining nodes}
 #'     \item{\code{"none"}}{Remove all edges}
 #'   }
-#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#' @param keep_format Logical. If TRUE, matrix, igraph, statnet network and tna
 #'   inputs are returned in that format. Default FALSE returns cograph_network.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
-#' Selection modes are combined with AND logic (like tidygraph/dplyr):
-#' \itemize{
-#'   \item \code{select_nodes(x, top = 10, component = "largest")} selects
-#'     top 10 nodes \strong{within} the largest component
-#'   \item All criteria must be satisfied for a node to be selected
-#' }
+#' Selection criteria are combined with AND logic, so a node is selected only
+#' when it satisfies all of them. The \code{top} ranking is applied to the
+#' nodes that pass \code{name}, \code{index}, \code{component} and
+#' \code{neighbors_of}, and the filter expressions in \code{...} are applied
+#' afterwards. For example,
+#' \code{select_nodes(x, top = 10, component = "largest")} selects the 10
+#' highest-degree nodes within the largest component.
 #'
-#' Centrality measures are computed lazily - only measures actually referenced
-
-#' in expressions or the \code{by} parameter are computed. This makes
-#' \code{select_nodes()} faster than \code{filter_nodes()} for large networks.
+#' Only the centrality measures referenced in expressions or in \code{by} are
+#' computed.
 #'
 #' For networks with negative edge weights, \code{betweenness},
 #' \code{closeness} and \code{pagerank} are undefined and return \code{NA},
 #' with a \code{cograph_negative_weights} warning.
 #'
 #' @return A cograph_network object with selected nodes. If \code{keep_format = TRUE},
-#'   matrix, igraph, and statnet network inputs are converted back to that type.
+#'   matrix, igraph, statnet network and tna inputs are converted back to that type.
 #'
 #' @seealso \code{\link{filter_nodes}}, \code{\link{select_neighbors}},
 #'   \code{\link{select_component}}, \code{\link{select_top}}
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' select_nodes(adj, degree >= 3)
-#' select_nodes(adj, top = 2, by = "pagerank")
-#' select_nodes(adj, neighbors_of = "A", order = 2)
-#' select_nodes(adj, component = "largest")
+#' select_nodes(regulation_net, top = 3, by = "pagerank")
 select_nodes <- function(x, ...,
                          name = NULL,
                          index = NULL,
@@ -1767,17 +1691,7 @@ select_nodes <- function(x, ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Direct neighbors of A
-#' select_neighbors(adj, of = "A")
-#'
-#' # Neighbors up to 2 hops
-#' select_neighbors(adj, of = "A", order = 2)
+#' select_neighbors(regulation_net, of = "Plan")
 select_neighbors <- function(x, of, order = 1L, ...,
                              keep_edges = c("internal", "none"),
                              keep_format = FALSE, directed = NULL) {
@@ -1808,20 +1722,7 @@ select_neighbors <- function(x, of, order = 1L, ...,
 #'
 #' @export
 #' @examples
-#' # Create disconnected network
-#' adj <- matrix(0, 6, 6)
-#' adj[1, 2] <- adj[2, 1] <- 1
-#' adj[1, 3] <- adj[3, 1] <- 1
-#' adj[4, 5] <- adj[5, 4] <- 1
-#' adj[5, 6] <- adj[6, 5] <- 1
-#' adj[4, 6] <- adj[6, 4] <- 1
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-#'
-#' # Largest component
-#' select_component(adj, which = "largest")
-#'
-#' # Component containing node "A"
-#' select_component(adj, which = "A")
+#' select_component(regulation_net, which = "largest")
 select_component <- function(x, which = "largest", ...,
                              keep_edges = c("internal", "none"),
                              keep_format = FALSE, directed = NULL) {
@@ -1843,7 +1744,8 @@ select_component <- function(x, which = "largest", ...,
 #'   other measure \code{\link{centrality}()} computes (see
 #'   \code{\link{list_centralities}()}). An unknown name raises a
 #'   \code{cograph_bad_selection} error. Default \code{"degree"}.
-#' @param ... Additional filter expressions to apply.
+#' @param ... Additional filter expressions, applied after the top \code{n} nodes
+#'   are selected.
 #' @param keep_edges How to handle edges. Default "internal".
 #' @param keep_format Logical. Keep input format? Default FALSE.
 #' @param directed Logical or NULL. Auto-detect if NULL.
@@ -1854,17 +1756,7 @@ select_component <- function(x, which = "largest", ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Top 2 by degree
-#' select_top(adj, n = 2)
-#'
-#' # Top 2 by PageRank
-#' select_top(adj, n = 2, by = "pagerank")
+#' select_top(regulation_net, n = 3, by = "pagerank")
 select_top <- function(x, n, by = "degree", ...,
                        keep_edges = c("internal", "none"),
                        keep_format = FALSE, directed = NULL) {
@@ -1877,11 +1769,10 @@ select_top <- function(x, n, by = "degree", ...,
 # select_edges() - Lazy Edge Selection
 # =============================================================================
 
-#' Select Edges with Lazy Computation
+#' Select Edges
 #'
-#' A powerful edge selection function with lazy computation (only computes
-#' metrics actually referenced), multiple selection modes, and structural
-#' awareness (bridges, communities, reciprocity).
+#' Selects edges by filter expressions, by node sets, by rank on a metric, or
+#' by structural properties such as bridges, communities and reciprocity.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, or tna object.
 #' @param ... Filter expressions using edge columns or computed metrics.
@@ -1918,23 +1809,23 @@ select_top <- function(x, n, by = "degree", ...,
 #'   filtering edges does not remove nodes. Set FALSE to drop them, or call
 #'   \code{\link{remove_isolates}()} afterwards.
 #' @param .keep_isolates Deprecated. Use \code{keep_isolates}.
-#' @param keep_format Logical. If TRUE, matrix, igraph, and statnet network
+#' @param keep_format Logical. If TRUE, matrix, igraph, statnet network and tna
 #'   inputs are returned in that format. Default FALSE returns cograph_network.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
-#' Selection modes are combined with AND logic:
-#' \itemize{
-#'   \item \code{select_edges(x, top = 10, involving = "A")} selects
-#'     top 10 edges \strong{among those involving node A}
-#'   \item All criteria must be satisfied for an edge to be selected
-#' }
+#' Selection criteria are combined with AND logic, so an edge is selected only
+#' when it satisfies all of them. The \code{top} ranking is applied to the
+#' edges that pass \code{involving}, \code{between}, \code{bridges_only} and
+#' \code{mutual_only}, and the filter expressions in \code{...} are applied
+#' afterwards. For example, \code{select_edges(x, top = 10, involving = "A")}
+#' selects the 10 strongest edges among those involving node A.
 #'
-#' Edge metrics are computed lazily - only those actually referenced in
-#' expressions or required by selection modes are computed.
+#' Only the edge metrics referenced in expressions or required by a selection
+#' criterion are computed.
 #'
 #' @return A cograph_network object with selected edges. If \code{keep_format = TRUE},
-#'   matrix, igraph, and statnet network inputs are converted back to that type.
+#'   matrix, igraph, statnet network and tna inputs are converted back to that type.
 #'   Nodes left without edges are kept and reported in a
 #'   \code{cograph_isolates_created} warning, unless
 #'   \code{keep_isolates = FALSE}.
@@ -1944,14 +1835,7 @@ select_top <- function(x, n, by = "degree", ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-#'                 .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' select_edges(adj, weight > 0.5)
-#' select_edges(adj, top = 3)
-#' select_edges(adj, involving = "A")
-#' select_edges(adj, between = list(c("A", "B"), c("C", "D")))
+#' select_edges(regulation_net, top = 5, keep_isolates = FALSE)
 select_edges <- function(x, ...,
                          top = NULL,
                          by = "weight",
@@ -2334,16 +2218,8 @@ select_edges <- function(x, ...,
 #'
 #' @export
 #' @examples
-#' # Create network with bridge
-#' adj <- matrix(0, 5, 5)
-#' adj[1, 2] <- adj[2, 1] <- 1
-#' adj[2, 3] <- adj[3, 2] <- 1  # Bridge
-#' adj[3, 4] <- adj[4, 3] <- 1
-#' adj[4, 5] <- adj[5, 4] <- 1
-#' adj[3, 5] <- adj[5, 3] <- 1
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#'
-#' select_bridges(adj)
+#' strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+#' select_bridges(strong, keep_isolates = FALSE)
 select_bridges <- function(x, ..., keep_isolates = TRUE,
                            keep_format = FALSE, directed = NULL) {
   select_edges(x, ..., bridges_only = TRUE, keep_isolates = keep_isolates,
@@ -2361,7 +2237,8 @@ select_bridges <- function(x, ..., keep_isolates = TRUE,
 #'   \code{"edge_betweenness"}, \code{"from_degree"}, \code{"to_degree"},
 #'   \code{"from_strength"}, \code{"to_strength"}, \code{"weight_rank"}.
 #'   Any other name raises a \code{cograph_bad_selection} error.
-#' @param ... Additional filter expressions.
+#' @param ... Additional filter expressions, applied after the top \code{n} edges
+#'   are selected.
 #' @param keep_isolates Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Keep input format? Default FALSE.
 #' @param directed Auto-detect if NULL.
@@ -2372,17 +2249,7 @@ select_bridges <- function(x, ..., keep_isolates = TRUE,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Top 3 edges by weight
-#' select_top_edges(adj, n = 3)
-#'
-#' # Top 2 by edge betweenness
-#' select_top_edges(adj, n = 2, by = "edge_betweenness")
+#' select_top_edges(regulation_net, n = 5, keep_isolates = FALSE)
 select_top_edges <- function(x, n, by = "weight", ...,
                              keep_isolates = TRUE,
                              keep_format = FALSE, directed = NULL) {
@@ -2407,17 +2274,7 @@ select_top_edges <- function(x, n, by = "weight", ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Edges involving A
-#' select_edges_involving(adj, nodes = "A")
-#'
-#' # Edges involving A or B
-#' select_edges_involving(adj, nodes = c("A", "B"))
+#' select_edges_involving(regulation_net, nodes = "Plan", keep_isolates = FALSE)
 select_edges_involving <- function(x, nodes, ...,
                                    keep_isolates = TRUE,
                                    keep_format = FALSE, directed = NULL) {
@@ -2443,14 +2300,8 @@ select_edges_involving <- function(x, nodes, ...,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' # Edges between {A, B} and {C, D}
-#' select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
+#' select_edges_between(regulation_net, set1 = c("Plan", "Monitor"),
+#'                      set2 = c("Adapt", "Reflect"), keep_isolates = FALSE)
 select_edges_between <- function(x, set1, set2, ...,
                                  keep_isolates = TRUE,
                                  keep_format = FALSE, directed = NULL) {

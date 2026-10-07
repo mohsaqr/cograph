@@ -2,41 +2,38 @@
 % Please edit documentation in R/centrality-batch13.R
 \name{centrality_volume}
 \alias{centrality_volume}
-\title{Volume centrality}
+\title{Volume Centrality}
 \usage{
 centrality_volume(x, volume_radius = 2, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{volume_radius}{Nonnegative integer hop radius, or \code{Inf}.
-Default 2, the local radius investigated by Wehmuth & Ziviani.}
+\item{volume_radius}{Hop radius: a nonnegative integer or \code{Inf}.
+Default 2.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of the original-graph degrees of all vertices within
-\code{volume_radius} hops, including the focal vertex. This is the
-localized volume measure of Wehmuth & Ziviani (DANCE/DACCER). Degrees
-include edges leaving the neighborhood; they are not recomputed inside
-the induced subgraph. Radius zero returns degree. Infinite radius returns
-twice the number of edges in the focal connected component.
+Volume centrality (Wehmuth and Ziviani 2011, 2013) is the sum of the
+degrees of all nodes within \code{volume_radius} hops of a node, the
+node itself included. Degrees are those of the whole network, so edges
+that leave the neighborhood also count.
 }
 \details{
-Uses the simple undirected, unweighted skeleton: either direction creates
-an edge, parallel edges count once, and self-loops are removed. This is
-an explicit input projection, not a weighted or directed generalization.
-Isolates score zero.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Isolated nodes score 0. Radius 0
+gives the degree, and an infinite radius gives twice the number of edges
+in the node's component. A radius that is negative or not a whole
+number raises an error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_volume(igraph::make_ring(6), volume_radius = 1)
-centrality_volume(igraph::make_ring(6), volume_radius = 0)
-\dontshow{\}) # examplesIf}
+centrality_volume(regulation_net, volume_radius = 1)
 }
 \references{
 Wehmuth, K., & Ziviani, A. (2011). Distributed Assessment of Network
@@ -47,5 +44,6 @@ Closeness CEntrality Ranking in complex networks. Computer Networks, 57,
 2536-2548. \doi{10.1016/j.comnet.2013.05.001}.
 }
 \seealso{
-\code{\link{centrality_kreach}}, \code{\link{centrality_degree}}.
+\code{\link{centrality_kreach}},
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

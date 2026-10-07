@@ -6,7 +6,7 @@
 \alias{centrality_fragmentation}
 \alias{centrality_kpath}
 \alias{centrality_epc}
-\title{Local efficiency, s-core, fragmentation, k-path census and EPC}
+\title{Local Efficiency, s-Core, Fragmentation, k-Path and EPC}
 \usage{
 centrality_local_efficiency(x, mode = "all", ...)
 
@@ -19,78 +19,71 @@ centrality_kpath(x, mode = "all", kpath_len = 3, ...)
 centrality_epc(x, epc_threshold = 0.5, epc_runs = 1000, epc_seed = NULL, ...)
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna
-object.}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{Direction: \code{"all"}, \code{"out"} or \code{"in"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. Local
+efficiency and fragmentation use \code{weighted} (default \code{TRUE}),
+\code{invert_weights} (default \code{NULL}, which inverts for tna input
+only) and \code{alpha} (inversion exponent, default 1). The s-core
+index uses \code{weighted}.}
 
-\item{kpath_len}{Maximum path length for \code{centrality_kpath}.
-Default 3.}
+\item{kpath_len}{Maximum path length for the k-path count. Default 3.
+Length 1 gives the degree in the undirected skeleton.}
 
-\item{epc_threshold}{Edge removal probability. Default 0.5.}
+\item{epc_threshold}{Probability that an edge is removed in one
+realization. Default 0.5.}
 
 \item{epc_runs}{Number of percolation realizations. Default 1000.}
 
-\item{epc_seed}{Random seed. Default \code{NULL}, which leaves the
-caller's stream alone and makes the estimate vary between calls.}
+\item{epc_seed}{Random seed. The default \code{NULL} uses the caller's
+random stream, so the estimate varies between calls. A seed gives a
+reproducible value and leaves the caller's stream unchanged.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Five node measures that other centrality packages expose and
-\code{centrality()} did not. Each is a thin wrapper on
-\code{\link{centrality}}.
+Local efficiency (Latora and Marchiori 2001) is the mean of
+\eqn{1/d_{jl}}{1/d_jl} over ordered pairs of a node's neighbors, with
+distances measured inside the subgraph induced on those neighbors. The
+s-core index (Eidsaa and Almaas 2013) is the largest strength threshold
+\eqn{s} whose s-core contains the node. Fragmentation (Borgatti 2006) is
+the distance-weighted fragmentation of the network after the node is
+deleted,
+\deqn{F_{-v} = 1 - \frac{\sum_{i \ne j} 1/d_{ij}}{(n-1)(n-2)}.}{
+  F_-v = 1 - sum_{i != j} (1/d_ij) / ((n-1)(n-2)).}
+The k-path count (Sade 1989) is the number of simple paths of length at
+most \code{kpath_len} that pass through or end at the node. The edge
+percolated component (EPC; Lin et al. 2008) is the mean size of the
+node's component, as a share of all nodes, when each edge is kept with
+probability \code{1 - epc_threshold}.
 }
 \details{
-\describe{
-\item{\code{local_efficiency} (Latora & Marchiori 2001)}{The global
-efficiency of the subgraph induced on the node's neighbors, the node
-itself removed: the mean of \eqn{1 / d_{jl}} over ordered pairs of
-neighbors, with distances measured inside that subgraph. Nodes with
-fewer than two neighbors score 0. High values mark a node whose
-neighborhood survives its loss. Matches
-\code{igraph::local_efficiency()} and
-\code{brainGraph::efficiency(type = "local")}.}
-\item{\code{s_core} (Eidsaa & Almaas 2013)}{The weighted k-core: the
-largest strength threshold \eqn{s} whose maximal subgraph of nodes
-with strength at least \eqn{s} still contains the node. Unit weights
-give the k-core number exactly. Uses edge weights.}
-\item{\code{fragmentation} (Borgatti 2006)}{Distance-weighted
-fragmentation of the network after deleting the node: \eqn{1 - \sum
-    1/d_{ij} / ((n-1)(n-2))} over the ordered pairs that remain. Higher
-means a more disruptive removal. Matches
-\code{keyplayer::fragment()} on unweighted input.}
-\item{\code{kpath} (Sade 1989)}{The number of simple paths of length at
-most \code{kpath_len} (default 3) that the node lies on, endpoints
-included; length 1 alone reproduces degree. Matches the per-vertex
-column sums of \code{sna::kpath.census()}. Enumeration is exhaustive,
-so cost grows with branching factor to the power \code{kpath_len}.}
-\item{\code{epc} (Lin et al. 2008)}{Edge percolated component: each
-edge survives with probability \code{1 - epc_threshold}, and the
-score is the mean size of the node's component over \code{epc_runs}
-realizations, as a share of the network. cytoHubba and
-\code{centiserve::epc()} divide by the node count alone, so their
-number is \code{epc_runs} times this one; the ranking is the same.
-A Monte Carlo estimate -- pass \code{epc_seed} for a reproducible
-value.}
-}
-
-\code{local_efficiency}, \code{fragmentation} and \code{kpath} follow
-\code{mode}; \code{s_core} and \code{epc} read the undirected skeleton.
+Local efficiency, fragmentation and the k-path count follow \code{mode},
+and \code{mode = "all"} treats edges as undirected. Local efficiency and
+fragmentation read edge weights as distances, so with weights below one
+local efficiency exceeds one and fragmentation is negative;
+\code{invert_weights = TRUE} converts weights to distances
+\eqn{1/w^\alpha}{1/w^alpha}. On unweighted input both lie between 0 and
+1, and a node with fewer than two neighbors has local efficiency 0.
+Fragmentation is \code{NaN} on a network with fewer than three nodes.
+The s-core index symmetrizes the network by the stronger of the two
+directions and equals the k-core number when all weights are one. The
+k-path count and EPC ignore weights, and EPC uses the undirected
+skeleton. EPC is a Monte Carlo estimate, and cytoHubba and
+\code{centiserve::epc()} report the same quantity multiplied by the
+number of runs.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_local_efficiency(adj)
-centrality_s_core(adj)
-centrality_fragmentation(adj)
-centrality_kpath(adj, kpath_len = 2)
-centrality_epc(adj, epc_runs = 50, epc_seed = 1)
+centrality_local_efficiency(regulation_net)
+centrality_s_core(regulation_net)
+centrality_fragmentation(regulation_net, weighted = FALSE)
+centrality_kpath(regulation_net, kpath_len = 2)
+centrality_epc(regulation_net, epc_runs = 100, epc_seed = 1)
 }
 \references{
 Latora, V., & Marchiori, M. (2001). Efficient behavior of small-world
@@ -114,7 +107,6 @@ identification for network biology. Nucleic Acids Research, 36, W438-W443.
 }
 \seealso{
 \code{\link{centrality_coreness}},
-\code{\link{centrality_weighted_kshell}},
 \code{\link{centrality_geodesic_kpath}},
-\code{\link{network_local_efficiency}}.
+\code{\link{network_local_efficiency}}, \code{\link{centrality}}.
 }

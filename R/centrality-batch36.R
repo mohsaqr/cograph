@@ -47,65 +47,45 @@ calculate_controlrank <- function(cg, weights = NULL, normalized = FALSE) {
   result
 }
 
-#' ControlRank centrality
+#' ControlRank Centrality
 #'
-#' Zhou, Yu and Lu's ControlRank is the smallest eigenvalue after deleting
-#' a node's row and column from the symmetric part of the graph Laplacian.
-#' With \eqn{L = D-A}, this is
-#' \eqn{CR_i = \lambda_{\min}(((L+L^T)/2)_{-i,-i})}.
-#' D retains the original graph's degrees: the Laplacian is not recomputed
-#' on the vertex-deleted graph. Larger values receive higher rank.
+#' ControlRank (Zhou, Yu and Lu 2019) is the smallest eigenvalue of the
+#' symmetric part of the graph Laplacian \eqn{L = D - A}{L = D - A} after
+#' the row and column of the node are deleted:
+#' \deqn{CR_i = \lambda_{\min}\left(\left(\frac{L + L^T}{2}\right)_{-i,-i}
+#'   \right).}{
+#'   CR_i = lambda_min(((L + t(L)) / 2)[-i, -i]).}
+#' Larger values rank higher.
 #'
-#' Uses finite nonnegative interaction weights. For directed input,
-#' \eqn{A_{ij}} denotes an arc from i to j and D contains outgoing strengths.
-#' This fixes the row-Laplacian orientation explicitly; transpose the input
-#' to use incoming strengths. Symmetrizing L preserves its diagonal, so
-#' this is different from constructing a Laplacian of the undirected
-#' projection. Directed scores can be negative and are not clipped.
-#' For matrix inputs with very small weights, supply \code{directed = TRUE}
-#' explicitly (or use a directed igraph object): the shared input parser's
-#' approximate symmetry detection can otherwise infer an undirected graph.
-#'
-#' Loops are removed and zero weights are absent connections. Parallel
-#' weights follow the generic simplify rule; remaining parallel edges sum.
-#' With \code{weighted = FALSE}, each remaining edge contributes one.
-#' Mode, weight inversion for shortest paths and cutoff are ignored.
-#'
-#' Connected undirected graphs with at least two nodes have positive
-#' scores. Disconnected undirected graphs score zero for every node because
-#' at least one component remains ungrounded. Empty graphs return no scores;
-#' singletons return zero as an explicit extension of the undefined empty
-#' minor. The source excludes isolates; the matrix formula here also applies
-#' to disconnected directed graphs, whose scores may remain negative.
-#'
-#' This implements the spectral index, not a controller simulation, a
-#' finite-feedback convergence rate, or an optimization over controller
-#' sets. In particular, no general directed stability guarantee is inferred
-#' from these scores. The paper's multi-node selection problem is separate.
-#'
-#' Dense eigensolves take O(n to the fourth) time and O(n squared) memory;
-#' this measure is marked costly and excluded from the default all tier.
-#' Disconnected blocks are solved separately, preserving isolated zeros
-#' before normalization. Global scaling avoids intermediate overflow.
-#' Unrepresentable weight ranges and unresolved positive spectra raise errors.
-#' Signed directed scores near zero can retain floating-point roundoff;
-#' very small raw scores can underflow. Uniform weight scaling multiplies
-#' raw scores by the same factor.
+#' @details
+#' Edge weights must be finite and nonnegative, \code{weighted = FALSE}
+#' gives every edge weight one, and loops are removed. In a directed
+#' network \eqn{A_{ij}}{A_ij} is the arc from \eqn{i}{i} to \eqn{j}{j},
+#' \eqn{D}{D} holds the out-strengths and scores can be negative. On a
+#' connected undirected network with at least two nodes all scores are
+#' positive, and on a disconnected undirected network every score is zero.
+#' A single node scores zero. With \code{normalized = TRUE} the scores are
+#' divided by their maximum when it is positive, so negative directed
+#' scores stay negative. For matrix input with very small weights, set
+#' \code{directed = TRUE} explicitly, because symmetry detection is
+#' approximate. A weight range beyond double precision or an unresolved
+#' spectrum raises an error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides by the maximum if it is positive;
-#'   otherwise raw scores are retained. This package normalization is
-#'   optional and is not part of the published definition.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (use edge weights, default \code{TRUE}) and
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Zhou, J., Yu, X. and Lu, J.-A. (2019). Node Importance in Controlled
 #'   Complex Networks. IEEE Transactions on Circuits and Systems II: Express
 #'   Briefs, 66(3), 437-441. \doi{10.1109/TCSII.2018.2845940}.
+#' @seealso \code{\link{centrality_laplacian}},
+#'   \code{\link{centrality_spectralrank}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_controlrank(igraph::make_ring(5))
-#' centrality_controlrank(igraph::make_star(6, mode = "undirected"))
+#' @examples
+#' centrality_controlrank(regulation_net)
 centrality_controlrank <- function(x, ...) {
   df <- centrality(x, measures = "controlrank", ...)
   stats::setNames(df$controlrank, df$node)

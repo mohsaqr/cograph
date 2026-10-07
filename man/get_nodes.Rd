@@ -2,25 +2,157 @@
 % Please edit documentation in R/class-network.R
 \name{get_nodes}
 \alias{get_nodes}
-\title{Get Nodes from Cograph Network}
+\alias{get_edges}
+\alias{get_labels}
+\alias{get_source}
+\alias{get_data}
+\alias{get_meta}
+\alias{set_nodes}
+\alias{set_edges}
+\alias{set_layout}
+\alias{set_groups}
+\alias{get_groups}
+\alias{nodes}
+\alias{is_directed}
+\alias{n_nodes}
+\alias{n_edges}
+\title{Access and Modify a Cograph Network}
 \usage{
 get_nodes(x)
+
+get_edges(x)
+
+get_labels(x)
+
+get_source(x)
+
+get_data(x)
+
+get_meta(x)
+
+set_nodes(x, nodes_df)
+
+set_edges(x, edges_df)
+
+set_layout(x, layout_df)
+
+set_groups(
+  x,
+  groups = NULL,
+  type = c("group", "cluster", "layer"),
+  nodes = NULL,
+  layers = NULL,
+  clusters = NULL
+)
+
+get_groups(x)
+
+nodes(x)
+
+is_directed(x)
+
+n_nodes(x)
+
+n_edges(x)
 }
 \arguments{
-\item{x}{A cograph_network object.}
+\item{x}{A \code{cograph_network} object. \code{is_directed()} also accepts
+a \code{\link{CographNetwork}} or an igraph object.}
+
+\item{nodes_df}{A data frame of node information. A missing \code{id}
+column is filled with row numbers and a missing \code{label} column with
+the ids. The stored weight matrix is rebuilt from the new node table.}
+
+\item{edges_df}{A data frame with columns \code{from} and \code{to}
+(integer row numbers into the node table) and an optional \code{weight}
+column, which defaults to 1. Extra columns are kept. Each edge may appear
+once, and an undirected network counts A-B and B-A as the same edge.}
+
+\item{layout_df}{A data frame with \code{x} and \code{y} columns, or a
+matrix whose first two columns are used, with one row per node.}
+
+\item{groups}{Node groupings in one of these formats:
+\itemize{
+\item A character string naming a community detection method of
+\code{\link{detect_communities}} (\code{"louvain"},
+\code{"walktrap"}, \code{"fast_greedy"}, \code{"label_prop"},
+\code{"infomap"}, \code{"leiden"}), which requires the igraph
+package.
+\item A named list mapping each group name to a vector of node labels,
+for example \code{list(A = c("N1", "N2"), B = c("N3", "N4"))}.
+\item An unnamed vector with one group assignment per node, in node order.
+\item A data frame with a \code{node} (or \code{nodes}) column and one of
+\code{layer}, \code{cluster} or \code{group} (plural forms are accepted
+and normalized to the singular).
+\item \code{NULL}, in which case \code{nodes} and one of \code{layers} or
+\code{clusters} supply the grouping.
+}}
+
+\item{type}{Group type stored by \code{set_groups()}. One of
+\code{"group"} (default), \code{"cluster"} or \code{"layer"}. It is ignored
+when \code{layers} or \code{clusters} is given, since the type then follows
+from the argument used.}
+
+\item{nodes}{Character vector of node labels, used with \code{layers} or
+\code{clusters} to give groupings as vectors. When \code{NULL}, the
+assignments follow the node order of the network.}
+
+\item{layers}{Character or factor vector of layer assignments, the same
+length as \code{nodes}.}
+
+\item{clusters}{Character or factor vector of cluster assignments, the same
+length as \code{nodes}.}
 }
 \value{
-A node metadata data frame, usually with \code{id} and \code{label}
-columns, plus layout or other metadata columns when present.
+\describe{
+\item{\code{get_nodes()}, \code{nodes()}}{The node table, with \code{id}
+and \code{label} columns plus layout coordinates or other metadata
+columns when present. \code{nodes()} is a deprecated alias of
+\code{get_nodes()}.}
+\item{\code{get_edges()}}{A data frame with one row per edge and columns
+\code{from} and \code{to} (integer row numbers into the node table),
+\code{weight}, and any extra edge columns. An undirected network stores
+one row per unordered pair. \code{\link[=as_cograph]{as.data.frame}()}
+returns the same table with node labels as endpoints.}
+\item{\code{get_labels()}}{A character vector of node labels.}
+\item{\code{get_groups()}}{A data frame with a \code{node} column and one
+of \code{layer}, \code{cluster} or \code{group}, or \code{NULL} when no
+groups are set.}
+\item{\code{get_source()}}{A character string naming the input type (for
+example \code{"matrix"}, \code{"tna"}, \code{"igraph"},
+\code{"edgelist"}), or \code{"unknown"}.}
+\item{\code{get_data()}}{The original estimation data (for example the
+sequence data of a tna model), or \code{NULL} when none is stored.}
+\item{\code{get_meta()}}{A list with component \code{source} (input
+type). Networks built from a tna model also carry \code{tna} (type,
+group name and group index).}
+\item{\code{n_nodes()}, \code{n_edges()}}{An integer count. Each
+undirected edge counts once.}
+\item{\code{is_directed()}}{A single logical value.}
+\item{\code{set_nodes()}, \code{set_edges()}, \code{set_layout()},
+\code{set_groups()}}{The modified \code{cograph_network}.
+\code{set_layout()} writes the coordinates into the \code{x} and
+\code{y} columns of the node table. \code{set_groups()} stores the
+grouping as \code{node_groups} for use by the group-aware plot
+functions. It stops with an error when a node is assigned twice, when
+a node is missing from the assignment or unknown to the network, and
+when fewer than two groups result. \code{set_edges()} raises an error
+of class \code{cograph_bad_selection} for endpoints outside the node
+table and for duplicated edges.}
+}
 }
 \description{
-Extracts the nodes data frame from a cograph_network object.
+These functions read and replace the parts of a \code{cograph_network}
+object created by \code{\link{as_cograph}}. The getters return the node
+table, the edge table, the node labels, the node groups, the source type,
+the stored estimation data, the metadata list, and the counts of nodes and
+edges. The setters return a modified copy of the network.
 }
 \examples{
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- as_cograph(mat)
-get_nodes(net)
+net <- as_cograph(regulation_net)
+get_edges(net)
 }
 \seealso{
-\code{\link{as_cograph}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
+\code{\link{as_cograph}}, \code{\link{splot}},
+\code{\link{detect_communities}}
 }

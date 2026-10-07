@@ -9,9 +9,10 @@ See individual functions: \code{\link{soplot}} returns a
 ggplot2 object.
 }
 \description{
-Main grid-based rendering functions.
+The grid rendering engine. \code{\link{soplot}} plots a
+network with grid graphics, and \code{\link{sn_ggplot}} converts a network
+into a ggplot2 object.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-soplot(adj)
+soplot(regulation_net)
 }

@@ -31,8 +31,7 @@ The output \code{filename}, invisibly.
 Save a Cograph network visualization to a file.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- cograph(adj)
-sn_save(net, file.path(tempdir(), "network.pdf"))
+sn_save(cograph(regulation_net),
+  filename = file.path(tempdir(), "network.pdf"))
 
 }

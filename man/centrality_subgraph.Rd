@@ -7,23 +7,37 @@
 centrality_subgraph(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of subgraph centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Participation in closed loops (walks), weighting shorter loops more heavily.
-Based on the diagonal of the matrix exponential of the adjacency matrix.
+Subgraph centrality (Estrada and Rodriguez-Velazquez 2005) counts the
+closed walks that start and end at a node, weighting a walk of length
+\eqn{k} by \eqn{1/k!}:
+\deqn{SC(i) = \sum_{k=0}^{\infty} \frac{(A^k)_{ii}}{k!} = \left(e^{A}\right)_{ii}.}{
+  SC(i) = sum_k (A^k)_ii / k! = exp(A)_ii.}
+}
+\details{
+\eqn{A} is the binary adjacency matrix without self-loops, so edge weights
+are ignored. On a directed network \eqn{A} is replaced by
+\eqn{A + A^{T}}{A + t(A)}, so a reciprocated pair has entry 2; the values
+then equal \code{igraph::subgraph_centrality()}. An empty network raises
+an error.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_subgraph(adj)
+centrality_subgraph(regulation_net)
+}
+\references{
+Estrada, E., & Rodriguez-Velazquez, J. A. (2005). Subgraph centrality in
+complex networks. Physical Review E, 71(5), 056103.
+\doi{10.1103/PhysRevE.71.056103}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_communicability}},
+\code{\link{centrality_eigenvector}}, \code{\link{centrality}}.
 }

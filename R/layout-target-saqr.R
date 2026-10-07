@@ -4,6 +4,7 @@
 #'   transition-network viewer).
 #' @name layout-target-saqr
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Extract node count, labels, and a directed weight matrix from a network.
@@ -40,18 +41,21 @@ NULL
 
 #' Target Layout (focal-node, topological)
 #'
-#' Port of qgraph's \code{flow()} layout. One node of interest (the
-#' \code{target}) is placed alone, then every other node is drawn in successive
-#' levels ordered by unweighted graph distance (BFS hops) from it. This shows
-#' how the target node connects out into the rest of the network.
+#' Adapts the \code{flow()} layout of qgraph. One node of interest (the
+#' \code{target}) is placed alone, and every other node is placed in successive
+#' levels ordered by its unweighted graph distance (number of hops) from the
+#' target. Edge direction is ignored. The layout shows how the target node
+#' connects to the rest of the network.
 #'
-#' Unlike qgraph's implementation, weights are binarized for layering (only
-#' connectivity matters) and disconnected nodes are placed in an extra trailing
-#' level instead of raising an error.
+#' Weights are binarized for layering, so only connectivity matters. Nodes
+#' that cannot be reached from the target are placed in one extra level after
+#' the last. qgraph raises an error for such nodes.
 #'
 #' @param network A \code{CographNetwork} or \code{cograph_network} object.
 #' @param target Node of interest, given as a label (character) or 1-based
-#'   index. When \code{NULL} (default) the highest-degree node is used.
+#'   index. When \code{NULL} (default) the node with the most neighbors is
+#'   used. A label that is not found or an index out of range raises an
+#'   error.
 #' @param horizontal Logical. If \code{TRUE} (default) levels flow left to right
 #'   with the target node on the left; if \code{FALSE} they flow top to bottom.
 #' @param equalize Logical. If \code{TRUE} (default) nodes are evenly spaced
@@ -60,10 +64,7 @@ NULL
 #' @return Data frame with \code{x}, \code{y} coordinates, one row per node.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1,
-#'                 1, 0, 0, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
-#' net <- CographNetwork$new(adj)
-#' layout_target(net, target = 1)
+#' layout_target(CographNetwork$new(regulation_net), target = "Plan")
 #'
 #' @export
 layout_target <- function(network, target = NULL, horizontal = TRUE,
@@ -136,20 +137,19 @@ layout_target <- function(network, target = NULL, horizontal = TRUE,
 
 #' Saqr Layout (Start/End transition flow)
 #'
-#' Port of the Dynalytics Desktop "saqr" layout (Saqr et al., LAK25). Designed
-#' for directed transition networks: the Start node sits alone on the top row,
-#' the End node (if present) alone on the bottom row, and every other node is
-#' ranked by its outgoing weight from Start (strongest connections nearest Start)
-#' and split into 2 middle rows (<= 10 middle nodes) or 3 (> 10). A sine
-#' envelope narrows the rows near Start/End for a lens-shaped silhouette, and the
-#' first middle row is zig-zag jittered.
-#'
-#' If the \code{start} label is absent the highest out-degree node is used. The
-#' End row is only drawn when the \code{end} label is present.
+#' Places the nodes of a directed transition network in rows between a Start
+#' and an End node (Saqr et al., LAK25). The Start node is alone on the top
+#' row and the End node, when present, is alone on the bottom row. The other
+#' nodes are ranked by the weight of the edge they receive from Start, with
+#' the strongest nearest Start. They are split into two middle rows when there
+#' are at most 10 of them and into three rows otherwise. A sine envelope
+#' narrows the rows near Start and End, which gives the layout a lens shape.
+#' The first middle row is offset in a zig-zag pattern.
 #'
 #' @param network A \code{CographNetwork} or \code{cograph_network} object.
-#' @param start Label of the Start node (default \code{"Start"}). Falls back to
-#'   the highest out-degree node when the label is not found.
+#' @param start Label of the Start node (default \code{"Start"}). When the
+#'   label is not found, the node with the largest sum of outgoing weights is
+#'   used.
 #' @param end Label of the End node (default \code{"End"}). The End row is
 #'   omitted when the label is not found.
 #' @param jitter Numeric in \code{[0, 1]}. Zig-zag amount applied to the first
@@ -158,13 +158,8 @@ layout_target <- function(network, target = NULL, horizontal = TRUE,
 #' @return Data frame with \code{x}, \code{y} coordinates, one row per node.
 #'
 #' @examples
-#' adj <- matrix(0, 5, 5,
-#'   dimnames = list(c("Start", "A", "B", "C", "End"),
-#'                   c("Start", "A", "B", "C", "End")))
-#' adj["Start", "A"] <- 5; adj["Start", "B"] <- 3; adj["Start", "C"] <- 1
-#' adj["A", "End"] <- 2; adj["B", "End"] <- 4; adj["C", "End"] <- 1
-#' net <- CographNetwork$new(adj, directed = TRUE)
-#' layout_saqr(net)
+#' layout_saqr(CographNetwork$new(regulation_net), start = "Explore",
+#'   end = "Share")
 #'
 #' @export
 layout_saqr <- function(network, start = "Start", end = "End",

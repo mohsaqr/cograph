@@ -7,25 +7,44 @@
 centrality_betweenness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}, \code{cutoff},
-\code{invert_weights}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{invert_weights} (default \code{NULL}, which is \code{TRUE} for tna
+input), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+(largest path length considered, default -1 for no limit) and
+\code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of betweenness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Fraction of shortest paths passing through each node. Nodes with high
-betweenness act as bridges connecting different parts of the network.
+Betweenness centrality (Freeman 1977) sums, over pairs of other nodes, the
+fraction of shortest paths between them that pass through the node:
+\deqn{B(v) = \sum_{s \ne v \ne t} \frac{\sigma_{st}(v)}{\sigma_{st}},}{
+  B(v) = sum_{s != v != t} sigma_st(v) / sigma_st,}
+where \eqn{\sigma_{st}}{sigma_st} is the number of shortest paths from
+\eqn{s} to \eqn{t} and \eqn{\sigma_{st}(v)}{sigma_st(v)} the number of
+those through \eqn{v}.
+}
+\details{
+On a directed network the sum runs over ordered pairs along the edge
+direction, and on an undirected network over unordered pairs. Edge weights
+are read as path lengths, and \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
+\code{weighted = FALSE} has no effect. \code{cutoff} drops paths longer
+than the given length. \code{normalized = TRUE} divides the scores by
+their maximum.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_betweenness(adj)
+centrality_betweenness(regulation_net)
+}
+\references{
+Freeman, L. C. (1977). A set of measures of centrality based on
+betweenness. Sociometry, 40(1), 35-41. \doi{10.2307/3033543}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_load}} for a related measure.
+\code{\link{centrality_load}}, \code{\link{centrality_stress}},
+\code{\link{centrality}}.
 }

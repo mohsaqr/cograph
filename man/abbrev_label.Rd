@@ -16,7 +16,9 @@ label_abbrev(label, abbrev = NULL, n_labels = NULL)
 \itemize{
 \item NULL: No abbreviation (return labels unchanged)
 \item Integer: Maximum character length (truncate + ellipsis)
-\item "auto": Adaptive abbreviation based on label count
+\item "auto": Length chosen from the label count. Up to 5 labels are
+kept whole, and up to 8, 12, 20 or more labels are cut to 15, 10, 6
+or 4 characters.
 }}
 
 \item{n_labels}{Number of labels (used for "auto" mode). If NULL, uses
@@ -29,14 +31,5 @@ Character vector of (possibly abbreviated) labels.
 Abbreviates labels to a maximum length, adding ellipsis if truncated.
 }
 \examples{
-labels <- c("VeryLongStateName", "Short", "AnotherLongName")
-
-# No abbreviation
-abbrev_label(labels, NULL)
-
-# Fixed max length
-abbrev_label(labels, 5)  # "Very…", "Short", "Anot…"
-
-# Auto-adaptive
-abbrev_label(labels, "auto")
+abbrev_label(colnames(regulation_net), abbrev = 4)
 }

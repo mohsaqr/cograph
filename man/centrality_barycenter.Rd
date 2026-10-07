@@ -7,25 +7,42 @@
 centrality_barycenter(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1), \code{cutoff} (largest path length considered,
+default -1 for no limit) and \code{normalized} (divide by the maximum,
+default \code{FALSE}).}
 }
 \value{
-Named numeric vector of barycenter centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Inverse of the total distance to all reachable nodes.
+Barycenter centrality is the reciprocal of the total shortest-path distance
+from a node to the nodes it reaches:
+\deqn{BC(v) = \frac{1}{\sum_{w \ne v} d(v, w)}.}{
+  BC(v) = 1 / sum_{w != v} d(v, w).}
+Unreachable nodes are left out of the sum.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. The formula is
+the one \code{\link{centrality_closeness}} computes, and with the default
+\code{weighted = TRUE} the two agree on every node that reaches another
+node. A node that reaches no other node scores 0, where closeness returns
+\code{NaN}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_barycenter(adj)
+centrality_barycenter(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_average_distance}}, \code{\link{centrality}}.
 }

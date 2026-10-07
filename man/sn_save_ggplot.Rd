@@ -37,8 +37,7 @@ The output \code{filename}, invisibly.
 Save network as a ggplot2 object to file using ggsave.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- cograph(adj)
-sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))
+sn_save_ggplot(cograph(regulation_net),
+  filename = file.path(tempdir(), "network.pdf"))
 
 }

@@ -19,23 +19,7 @@ available.
 Converts any supported network format to an adjacency matrix.
 }
 \examples{
-# From matrix
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-to_matrix(adj)
-
-# From cograph_network
-net <- as_cograph(adj)
-to_matrix(net)
-
-# From igraph (weighted graph)
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected", weighted = TRUE)
-  to_matrix(g)
-}
+to_matrix(student_interactions)
 }
 \seealso{
 \code{\link{to_igraph}}, \code{\link{to_df}}, \code{\link{as_cograph}},

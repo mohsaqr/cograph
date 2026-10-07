@@ -7,49 +7,42 @@
 centrality_ncvoterank(x, ncvote_theta = 0.5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{ncvote_theta}{Weight \eqn{\theta} of the plain vote. Default 0.5.}
+\item{ncvote_theta}{Weight \eqn{\theta}{theta} of the plain vote
+(default 0.5).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in \eqn{(0, 1]}, one score per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Kumar and Panda's (2020) neighborhood-coreness VoteRank. As in
-VoteRank, every node votes for its neighbors with its voting ability,
-the top scorer is elected, and the abilities around it are weakened;
-here each voter's ability is additionally weighted by its neighborhood
-coreness,
-\deqn{s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v],
-  \qquad nc_v = \frac{\sum_{w \in N(v)} ks(w)}
-  {\max_j \sum_{w \in N(j)} ks(w)},}
-with \eqn{ks} the k-shell index (Bae & Kim 2014) and \eqn{\theta = 0.5}.
-After an election the winner's ability drops to 0, its neighbors lose
-\eqn{1 / \langle k \rangle} and the nodes two steps away lose
-\eqn{1 / (2 \langle k \rangle)}. Elections continue until every node is
-placed, as in \code{\link{centrality_voterank}}; the first elected
-scores 1, the last \eqn{1 / n}.
+NCVoteRank (Kumar and Panda 2020) is VoteRank (Zhang et al. 2016) with
+the voting ability of each voter weighted by its neighborhood coreness.
+A node collects the score
+\deqn{s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v], \qquad
+  nc_v = \frac{\sum_{w \in N(v)} ks(w)}{\max_j \sum_{w \in N(j)} ks(w)},}{
+  s_u = sum_{v in N(u)} va_v [theta + (1 - theta) nc_v],
+  nc_v = sum_{w in N(v)} ks(w) / max_j sum_{w in N(j)} ks(w),}
+with \eqn{ks} the k-shell index. The top scorer is elected, its ability
+drops to 0, its neighbors lose \eqn{1/\langle k \rangle}{1/<k>} and the
+nodes two steps away lose \eqn{1/(2\langle k \rangle)}{1/(2<k>)}.
 }
 \details{
-\strong{Provenance.} The original Physica A article could not be obtained;
-this definition follows the Centrality Zoo encyclopedia (Shvydun 2025)
-and three independent restatements (Yu et al. 2020, Li et al. 2022,
-Zhu et al. 2023), which agree on the voter-side coreness weighting.
-The scaling of the coreness term by its maximum follows Yu et al., who
-state the coreness is normalized without giving the form. With
-\eqn{\theta = 1} and no two-hop weakening the procedure is exactly
-VoteRank, which is reproduced against \code{networkx.voterank}.
-Defined for undirected graphs; direction, weights and loops are ignored.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights and loops are ignored. Elections continue
+until every node is placed. The first elected scores 1 and the last
+\eqn{1/n}{1/n}, so scores lie in \eqn{(0, 1]}{(0, 1]}. The definition
+follows the Centrality Zoo and three independent restatements of the
+article, and the scaling of the coreness by its maximum follows Yu et
+al. (2020). With \eqn{\theta = 1}{theta = 1} and no two-step weakening the
+procedure is VoteRank.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_ncvoterank(adj)
+centrality_ncvoterank(regulation_net)
 }
 \references{
 Kumar, S., & Panda, B. S. (2020). Identifying influential nodes in
@@ -61,5 +54,6 @@ a set of influential spreaders in complex networks. Scientific
 Reports, 6, 27823.
 }
 \seealso{
-\code{\link{centrality_voterank}}.
+\code{\link{centrality_voterank}},
+\code{\link{centrality_wvoterank}}, \code{\link{centrality}}.
 }

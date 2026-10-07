@@ -7,22 +7,38 @@
 centrality_topological_coefficient(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of topological coefficient values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Fraction of shared second-order neighbors, measuring topological overlap
-between a node and its neighbors.
+The topological coefficient (Stelzl et al. 2005) measures how far a node
+shares neighbors with the nodes it is linked to through a common neighbor:
+\deqn{T(v) = \frac{\sum_{u \in U_v} J(v, u)}{|U_v|\, k_v},}{
+  T(v) = sum_{u in U_v} J(v, u) / (|U_v| k_v),}
+where \eqn{U_v} is the set of nodes that share at least one neighbor with
+\eqn{v}, \eqn{J(v, u)} is the number of shared neighbors plus one when
+\eqn{u} and \eqn{v} are linked, and \eqn{k_v} is the degree.
+}
+\details{
+Edge weights and direction are ignored. A node that shares no neighbor
+with any other node scores 0, as does an isolated node. On undirected
+networks the values equal \code{centiserve::topocoefficient()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_topological_coefficient(adj)
+centrality_topological_coefficient(regulation_net)
+}
+\references{
+Stelzl, U., Worm, U., Lalowski, M., Haenig, C., Brembeck, F. H., Goehler,
+H., et al. (2005). A human protein-protein interaction network: A
+resource for annotating the proteome. Cell, 122(6), 957-968.
+\doi{10.1016/j.cell.2005.08.029}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_transitivity}},
+\code{\link{centrality_lac}}, \code{\link{centrality}}.
 }

@@ -2,60 +2,51 @@
 % Please edit documentation in R/centrality-batch28.R
 \name{centrality_coleman_theil}
 \alias{centrality_coleman_theil}
-\title{Coleman-Theil hierarchy index}
+\title{Coleman-Theil Hierarchy Index}
 \usage{
 centrality_coleman_theil(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (use edge weights, default \code{TRUE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Measures concentration of Burt's dyadic constraints over a node's contacts.
-Let mutual tie strength be z_ij+z_ji, and p_ij its proportion of all mutual
-strength incident to i. With organizational weights fixed at one, define
-\deqn{c_{ij}=(p_{ij}+\sum_q p_{iq}p_{qj})^2,\quad
-r_{ij}=c_{ij}/\operatorname{mean}_{k\in N(i)}c_{ik}.}
-The index is \eqn{\sum_{j\in N(i)}r_{ij}\log(r_{ij})/(d_i\log(d_i))}.
-Contacts are distinct nodes with positive mutual strength. Investment
-proportions use the full supplied graph, including alters' outside ties.
+The Coleman-Theil index (Burt 1992) measures how concentrated Burt's
+dyadic constraint is across the \eqn{d_i}{d_i} contacts of node
+\eqn{i}{i}. Let \eqn{p_{ij}}{p_ij} be the share of the mutual tie
+strength of \eqn{i}{i} invested in \eqn{j}{j},
+\eqn{c_{ij} = (p_{ij} + \sum_q p_{iq} p_{qj})^2}{c_ij = (p_ij + sum_q
+p_iq p_qj)^2} the constraint, and \eqn{r_{ij}}{r_ij} the constraint
+divided by its mean over the contacts. Then
+\deqn{H_i = \frac{\sum_{j \in N(i)} r_{ij} \log r_{ij}}{d_i \log d_i}.}{
+  H_i = sum_{j in N(i)} r_ij log(r_ij) / (d_i log(d_i)).}
 }
 \details{
-Follows Burt's STRUCTURE 4.2 manual (pages 181-183): isolates score zero
-and nodes with one contact score one. The general formula is undefined
-in these two cases; these are the author's explicit conventions. JUNG's
-documented implementation instead returns NaN for isolates. Values range
-from zero for equal constraints to one for complete concentration. Input
-organizational/oligopoly multipliers from STRUCTURE are not implemented;
-they are fixed at one, as in the Zoo's formula.
-
-Finite nonnegative weights are supported. Zero-weight ties are absent,
-loops are removed, and remaining parallel edges sum after generic
-simplification. Directed ties are combined by summing both directions;
-\code{weighted=FALSE} assigns unit weight to each retained edge before
-combining them, so reciprocity can affect mutual investment. Generic mode,
-shortest-path inversion and cutoff do not affect the result. Empty input
-returns no scores. Components are independent before global normalization.
-
-The default output is already the unit-interval hierarchy index.
-\code{normalized=TRUE} additionally divides by the largest node score;
-an all-zero vector remains zero. Dense native arithmetic costs O(n cubed)
-time and O(n squared) memory. Global weight scaling precedes mutual sums.
-Unrepresentable positive weight or investment ranges raise an error;
-tiny squared constraints may underflow and use the zero-log-zero limit.
-Relative deviations of local constraints within 16 machine epsilons are
-treated as uniform; a series stabilizes the entropy near uniformity.
+The mutual tie strength of a pair is the sum of the weights in both
+directions, so direction is combined and loops are removed. Edge weights
+must be finite and nonnegative, and \code{weighted = FALSE} gives every
+edge weight one before the directions are combined. The index lies
+between zero, for equal constraints, and one, for constraint
+concentrated on one contact. Following Burt's STRUCTURE 4.2 manual
+(pages 181-183), an isolated node scores zero and a node with one
+contact scores one. The organizational and oligopoly multipliers of
+STRUCTURE are fixed at one. A weight range beyond double precision
+raises an error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_coleman_theil(igraph::make_star(5, mode = "undirected"))
-\dontshow{\}) # examplesIf}
+centrality_coleman_theil(regulation_net)
 }
 \references{
 Burt, R. S. (1992). Structural Holes: The Social Structure of Competition.
 Harvard University Press. \doi{10.4159/9780674029095}.
+}
+\seealso{
+\code{\link{centrality_constraint}},
+\code{\link{centrality_effective_size}}, \code{\link{centrality}}.
 }

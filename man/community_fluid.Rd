@@ -10,33 +10,29 @@ community_fluid(x, no.of.communities, ...)
 com_fl(x, no.of.communities, ...)
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{no.of.communities}{Number of communities to detect. Required.}
+\item{no.of.communities}{Number of communities to detect. Required; a
+missing value raises an error.}
 
 \item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Simulates fluid dynamics where communities compete for nodes.
-Requires specifying the number of communities.
+Fluid communities algorithm, in which a fixed number of communities
+expand and compete for nodes. A directed graph is collapsed to an
+undirected graph. A disconnected graph raises a warning and only its
+largest component is partitioned, so the result has one row per node of
+that component. Edge weights are not used.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Detect exactly 2 communities
-  comm <- community_fluid(g, no.of.communities = 2)
-}
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-m <- matrix(runif(25), 5, 5); diag(m) <- 0
-net <- as_cograph(m)
-com_fl(net, no.of.communities = 2)
+community_fluid(regulation_net, no.of.communities = 2)
 \dontshow{\}) # examplesIf}
 }
 \references{

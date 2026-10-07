@@ -7,52 +7,39 @@
 centrality_s_shell(x, s_shell_a = 0.5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{s_shell_a}{Exponent \eqn{a} of the link weights. A single
-non-negative number; default 0.5. Anything else raises a
-\code{cograph_bad_parameter} error.}
+\item{s_shell_a}{Exponent \eqn{a} of the link weights (default 0.5, the
+value the source recommends).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named integer vector of shell indices, one per node.
+A named integer vector with one shell index per node, in input
+node order.
 }
 \description{
-Liu, Tang, Do and Hui's (2017) strength-based generalization of k-shell
-for identifying spreaders. Each link is given an asymmetric weight from
-the topology alone,
-\deqn{w_{ij} = 1 + (k_i \, k^{out}_j)^a,}
-where \eqn{k^{out}_j} is the number of \eqn{j}'s neighbors that lie
-outside \eqn{i}'s closed neighborhood (links that lead a spreading
-process to new territory), and each node's strength is
-\eqn{s_i = \sum_{j \in N(i)} w_{ij}}. The graph is then peeled like a
-k-shell but by strength: the minimum remaining strength is the
-threshold, everything at or below it is removed (neighbors lose the
-corresponding \eqn{w_{ji}}), removals cascade until the threshold holds,
-and the removed nodes receive the next shell index. Higher index = more
-central. With \eqn{a = 0} the shells are the dense ranks of the k-core
-numbers.
+The s-shell index (Liu, Tang, Do and Hui 2017) peels the network like the
+k-shell decomposition but by a strength computed from the topology.
+Each link gets the asymmetric weight
+\deqn{w_{ij} = 1 + (k_i\, k^{out}_j)^a,}{w_ij = 1 + (k_i k_out(j))^a,}
+where \eqn{k^{out}_j}{k_out(j)} counts the neighbors of \eqn{j} outside
+the closed neighborhood of \eqn{i}, and the strength of \eqn{i} is
+\eqn{s_i = \sum_{j \in N(i)} w_{ij}}{s_i = sum_{j in N(i)} w_ij}. At each
+step the nodes at the minimum remaining strength are removed, the
+removals cascade, and the removed nodes receive the next shell index.
 }
 \details{
-The index is an ordinal counter (1 = outermost shell), not a strength
-value, so it is not comparable across graphs. Isolates form shell 1 on
-their own, shifting every other shell up by one, as the paper's rule
-implies. Direction, edge weights and self-loops are ignored. The paper's
-robust default is \eqn{a = 0.5}.
-
-Validated against the shell peeled at each threshold being exactly the
-complement of the maximal subgraph in which every node keeps strength
-above the threshold (brute force over all vertex subsets), and against
-k-core dense ranks at \eqn{a = 0}.
+Direction, edge weights and self-loops are ignored. The index is an
+ordinal counter starting at 1 for the outermost shell, so values are
+comparable within a network only. Higher indices mark more central
+nodes. Isolated nodes form shell 1 on their own and shift every other
+shell up by one. With \eqn{a = 0} the shells are the dense ranks of the
+k-core numbers. A \code{s_shell_a} that is not a single non-negative
+number raises an error of class \code{cograph_bad_parameter}.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 2, 1, 3, 4, 5), c(2, 3, 3, 4, 5, 6))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_s_shell(adj)
+centrality_s_shell(regulation_net)
 }
 \references{
 Liu, Y., Tang, M., Do, Y., & Hui, P. M. (2017). Accurate
@@ -60,5 +47,6 @@ ranking of influential spreaders in networks based on dynamically
 asymmetric link weights. Physical Review E, 96(2), 022323.
 }
 \seealso{
-\code{\link{centrality_coreness}} for the k-shell index.
+\code{\link{centrality_coreness}},
+\code{\link{centrality_weighted_kshell}}, \code{\link{centrality}}.
 }

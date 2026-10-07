@@ -22,7 +22,7 @@ object.}
 A data frame with one row per directed edge and columns
 \code{from}, \code{to}, \code{weight}, \code{reciprocated} (logical),
 \code{reverse_weight} (NA when not reciprocated) and \code{weight_ratio}
-(\code{weight / reverse_weight}; NA when not reciprocated). Rows are
+(\code{reverse_weight / weight}; NA when not reciprocated). Rows are
 ordered with reciprocated edges first, then by \code{|weight_ratio|}
 descending.
 }
@@ -38,9 +38,7 @@ only defined for directed edges.
 
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0, 0.8, 0, 0.3, 0, 0.5, 0.7, 0, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::edge_reciprocity(adj, directed = TRUE)
+cograph::edge_reciprocity(regulation_net, top = 5)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

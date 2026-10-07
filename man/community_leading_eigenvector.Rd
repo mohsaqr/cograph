@@ -30,43 +30,41 @@ com_le(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{steps}{Maximum number of splits. Default -1 (until modularity decreases).}
+\item{steps}{Maximum number of split attempts. Default -1 (no limit).}
 
 \item{start}{Starting community structure (membership vector).}
 
-\item{options}{ARPACK options list. Default uses igraph::arpack_defaults().}
+\item{options}{ARPACK options list. Default
+\code{igraph::arpack_defaults()}.}
 
-\item{callback}{Optional callback function called after each split.}
+\item{callback}{Optional function called after each split.}
 
-\item{extra}{Extra argument passed to callback.}
+\item{extra}{Extra argument passed to \code{callback}.}
 
-\item{env}{Environment for callback evaluation.}
+\item{env}{Environment in which \code{callback} is evaluated.}
 
 \item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Detects communities using the leading eigenvector of the modularity matrix.
-Hierarchical divisive algorithm.
+Detects communities with the leading eigenvector of the modularity
+matrix, splitting the network divisively. A directed graph is collapsed to
+an undirected graph with summed edge weights.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_leading_eigenvector(g)
-membership(comm)
-\dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_le(net)
+community_leading_eigenvector(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

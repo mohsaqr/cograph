@@ -25,51 +25,39 @@ cnet(
 \item{cluster_list}{Cluster specification:
 \itemize{
 \item Named list of node vectors (e.g., \code{list(A = c("n1", "n2"), B = c("n3", "n4"))})
-\item String column name from nodes data (e.g., "clusters", "groups")
-\item NULL to auto-detect from common column names
+\item A membership vector or a data frame, as in \code{\link{csum}}
+\item A single string naming a column of the node table of a
+cograph_network (e.g., "clusters", "groups")
+\item NULL (default) to use the first node column named "clusters",
+"cluster", "groups", "group", "community" or "module" of a
+cograph_network, with a message naming the column
 }}
 
 \item{method}{Aggregation method for edge weights: "sum", "mean", "max",
 "min", "median", "density", "geomean". Default "sum".}
 
-\item{directed}{Logical. Treat network as directed. Default TRUE.}
+\item{directed}{Logical. Whether the summary network is directed.
+Default TRUE.}
 }
 \value{
-A cograph_network object with:
-\itemize{
-\item One node per cluster (named by cluster)
-\item Edge weights = aggregated between-cluster weights
-\item nodes$size = cluster sizes (number of original nodes)
-}
+A cograph_network object with one node per cluster, labelled by
+cluster name. The edge weights are the aggregated between-cluster
+weights, and the diagonal holds the aggregated within-cluster weights.
+The node table has a \code{size} column with the number of original
+nodes in each cluster.
 
 See \code{\link{summarize_network}}.
 }
 \description{
 Creates a summary network where each cluster becomes a single node.
 Edge weights are aggregated from the original network using the specified
-method. Returns a cograph_network object ready for plotting.
+method, without normalization.
 }
 \examples{
-# Create a network with clusters
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-
-# Define clusters
-clusters <- list(
-  Group1 = c("A", "B", "C"),
-  Group2 = c("D", "E", "F"),
-  Group3 = c("G", "H", "I", "J")
-)
-
-# Create summary network
-summary_net <- summarize_network(mat, clusters)
-splot(summary_net)
-
-# With cograph_network (auto-detect clusters column)
-Net <- cograph(mat)
-Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
-summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+summarize_network(regulation_net, cluster_list = clusters)
 }
 \seealso{
 \code{\link{csum}}, \code{\link{plot_mcml}}

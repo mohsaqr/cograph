@@ -21,7 +21,8 @@ edge_centrality(
 edge_betweenness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object)}
+\item{x}{Network input (matrix, edge-list data frame, igraph, network,
+cograph_network, tna object).}
 
 \item{measures}{Which measures to calculate. Default "all" calculates all
 available edge measures. Options: "betweenness", "weight", "overlap",
@@ -34,20 +35,25 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
 \item{cutoff}{Maximum path length for betweenness. Default -1 (no limit).}
 
-\item{invert_weights}{Logical or NULL. Invert weights for path-based measures?
-Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).}
+\item{invert_weights}{Logical or NULL. Whether edge betweenness inverts the
+weights, so that higher weights mean shorter paths. The default
+\code{NULL} is TRUE for tna objects and FALSE otherwise.}
 
-\item{alpha}{Numeric. Exponent for weight inversion. Default 1.}
+\item{alpha}{Numeric. Exponent of the inversion, which computes distances
+as \code{1 / weight^alpha}. Default 1.}
 
 \item{digits}{Integer or NULL. Round numeric columns. Default NULL.}
 
 \item{sort_by}{Character or NULL. Column to sort by (descending). Default NULL.}
 
-\item{...}{Additional arguments forwarded to the graph constructor, namely
-\code{loops} and \code{simplify} (see \code{\link{centrality}}).}
+\item{...}{For \code{edge_centrality()}, the graph-construction
+arguments \code{loops} and \code{simplify} (see
+\code{\link{centrality}}). For \code{edge_betweenness()}, arguments
+passed to \code{edge_centrality()}.}
 }
 \value{
-A base \code{data.frame} with one row per edge, in the canonical
+\code{edge_centrality()} returns a base \code{data.frame} with one
+row per edge, in the canonical
 (row-major) edge order of the input. The first two columns are
 \code{from} and \code{to} (character when the input carried node names,
 numeric indices otherwise); the remaining columns are those the requested
@@ -57,18 +63,20 @@ undirected input therefore gives \code{from}, \code{to}, \code{weight},
 \code{triangles}, and a directed input adds \code{reciprocated},
 \code{reverse_weight} and \code{weight_ratio}.
 
-Named numeric vector of edge betweenness values (named by
-\code{"from->to"}).
+\code{edge_betweenness()} returns a numeric vector of edge
+betweenness values named \code{"from->to"}, for directed and undirected
+inputs alike.
 }
 \description{
-Computes centrality measures for edges in a network and returns a tidy
-data frame. Unlike node centrality, these measures describe edge importance.
+Computes centrality measures for the edges of a network and returns a
+tidy data frame with one row per edge.
 }
 \details{
 Edge measures available, with the column(s) each one adds:
 \describe{
-\item{betweenness}{Number of shortest paths passing through the edge.
-Adds \code{betweenness}.}
+\item{betweenness}{Edge betweenness, the sum over node pairs of the
+share of their shortest paths that pass through the edge. Adds
+\code{betweenness}.}
 \item{weight}{Original edge weight (1 for an unweighted input). Adds
 \code{weight}.}
 \item{overlap}{Jaccard neighborhood overlap of the edge endpoints. Adds
@@ -84,19 +92,5 @@ the last two \code{NA} where the edge is not reciprocated.}
 \code{reciprocity} on an undirected input.
 }
 \examples{
-# Create test network
-mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-
-# All edge measures
-edge_centrality(mat)
-
-# Just betweenness
-edge_centrality(mat, measures = "betweenness")
-
-# Sort by betweenness to find bridge edges
-edge_centrality(mat, sort_by = "betweenness")
-mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-edge_betweenness(mat)
+edge_centrality(regulation_net, measures = "betweenness")
 }

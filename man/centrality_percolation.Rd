@@ -7,29 +7,47 @@
 centrality_percolation(x, states = NULL, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{states}{Named numeric vector of node states (0-1). Default \code{NULL}
-(all nodes get state 1).}
+\item{states}{Percolation state of each node, between 0 and 1. The
+default \code{NULL} gives every node state 1.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}).}
 }
 \value{
-Named numeric vector of percolation centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Importance for spreading processes using node states. Each node has
-a state (0-1) representing how activated it is. When all states are
-equal, equivalent to betweenness.
+Percolation centrality (Piraveenan et al. 2013) weights each shortest path
+through a node by the percolation state \eqn{x_s} of its source:
+\deqn{PC(v) = \frac{1}{n-2} \sum_{s \ne v \ne t}
+  \frac{\sigma_{st}(v)}{\sigma_{st}} \frac{x_s}{\sum_i x_i - x_v},}{
+  PC(v) = (1 / (n - 2)) sum_{s != v != t} (sigma_st(v) / sigma_st) x_s / (sum_i x_i - x_v),}
+where \eqn{\sigma_{st}}{sigma_st} is the number of shortest paths from
+\eqn{s} to \eqn{t} and \eqn{\sigma_{st}(v)}{sigma_st(v)} the number through
+\eqn{v}. With equal states the score is the normalized betweenness.
+}
+\details{
+Edge weights are read as distances, \code{weighted = FALSE} uses hop
+counts, and \code{invert_weights} has no effect on this measure. Paths
+follow edge direction on a directed network. \code{states} is matched to
+nodes by name when it has names and by position otherwise. Its values are
+clipped to \eqn{[0, 1]} and missing values are set to 1, and a vector of
+the wrong length raises an error. A network with fewer than three nodes
+scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_percolation(adj)
-centrality_percolation(adj, states = c(A = 0.8, B = 0.2, C = 0.5))
+centrality_percolation(regulation_net)
+}
+\references{
+Piraveenan, M., Prokopenko, M., & Hossain, L. (2013). Percolation
+centrality: Quantifying graph-theoretic impact of nodes during
+percolation in networks. PLoS ONE, 8(1), e53095.
+\doi{10.1371/journal.pone.0053095}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_betweenness}} which this generalizes.
+\code{\link{centrality_betweenness}},
+\code{\link{centrality_load}}, \code{\link{centrality}}.
 }

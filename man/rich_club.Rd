@@ -21,17 +21,17 @@ rich_club(
 object.}
 
 \item{rich}{Character. Prominence definition: \code{"k"} (degree, default)
-or \code{"s"} (strength / weighted degree).}
+or \code{"s"} (strength, the weighted degree).}
 
 \item{weighted}{Logical. If TRUE (default), compute the weighted rich club
 coefficient. If FALSE, compute the unweighted version (density among rich
 nodes).}
 
 \item{normalized}{Logical. If TRUE (default), normalize against
-degree-preserving random graphs and include confidence intervals. The
-null graphs are drawn with \code{igraph::sample_degseq()} (which fixes the
-degree sequence); for a weighted rich club the observed edge weights are
-additionally reshuffled across the null edges, following Opsahl et al.
+degree-preserving random graphs and report the null distribution. The
+null graphs are generated with \code{igraph::sample_degseq()}, which fixes
+the degree sequence. For a weighted rich club the observed edge weights
+are also reshuffled across the null edges, following Opsahl et al.
 (2008).}
 
 \item{n_random}{Integer. Number of random graphs for normalization. Default
@@ -39,26 +39,28 @@ additionally reshuffled across the null edges, following Opsahl et al.
 
 \item{directed}{Logical or NULL. Default NULL (auto-detect).}
 
-\item{seed}{Integer or NULL. Random seed for reproducibility. Default NULL.}
+\item{seed}{Integer or NULL. Random seed for the null graphs. When a seed
+is given, the caller's random state is restored on exit. Default NULL.}
 
-\item{digits}{Integer or NULL. Round numeric output. Default NULL.}
+\item{digits}{Integer or NULL. Round all numeric columns, including
+\code{threshold}. Default NULL.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which takes no further
+arguments, so any argument supplied here raises an error.}
 }
 \value{
 A data frame with class \code{"cograph_rich_club"}, one row per
-prominence threshold at which at least two nodes are "rich", and columns:
+prominence threshold at which at least two nodes are rich, and columns:
 \describe{
-\item{threshold}{The prominence cut-off; nodes with prominence strictly
+\item{threshold}{The prominence cut-off. Nodes with prominence strictly
 greater than this value form the club. Thresholds range over the
 observed prominence values excluding the maximum.}
 \item{n_rich}{Number of club members at that threshold.}
 \item{phi}{Observed rich club coefficient.}
 \item{phi_norm, phi_rand, ci_lo, ci_hi}{Present only when
-\code{normalized = TRUE}: the observed coefficient divided by the null
-mean, the null mean itself, and the 2.5\\% / 97.5\\% quantiles of the
-null distribution.}
+\code{normalized = TRUE}. They hold the observed coefficient divided by
+the null mean, the null mean itself, and the 2.5\\% and 97.5\\%
+quantiles of the null distribution.}
 }
 The data frame has zero rows for graphs that are too small, complete, or
 regular for any threshold to yield a club. The arguments \code{rich},
@@ -66,25 +68,41 @@ regular for any threshold to yield a club. The arguments \code{rich},
 (\code{"network"}) are stored as attributes.
 }
 \description{
-Computes the rich club curve across all prominence thresholds, measuring
-whether prominent nodes preferentially direct their strongest ties toward
-each other. Supports both unweighted (Colizza et al. 2006) and weighted
-(Opsahl et al. 2008) formulations.
+Computes the rich club curve across all prominence thresholds. The
+unweighted coefficient (Colizza et al. 2006) measures the density of ties
+among prominent nodes. The weighted coefficient (Opsahl et al. 2008)
+measures whether prominent nodes concentrate the strongest ties of the
+network among themselves. A directed network is converted to an undirected
+one before the computation, with the weights of reciprocal edges summed,
+and self-loops are removed.
 }
 \details{
-\strong{Unweighted}: \eqn{\phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}
+The unweighted coefficient is
+\eqn{\phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}{phi(k) = 2 E_{>k} / (N_{>k} (N_{>k} - 1))}, where \eqn{N_{>k}} is
+the number of nodes with prominence above \eqn{k} and \eqn{E_{>k}} the
+number of edges among them.
 
-\strong{Weighted}: \eqn{\phi^w(k) = W_{>k} / \sum_{l=1}^{E_{>k}} w_l^{ranked}}
+The weighted coefficient is
+\eqn{\phi^w(k) = W_{>k} / \sum_{l=1}^{E_{>k}} w_l^{ranked}}{phi^w(k) = W_{>k} / sum_{l=1}^{E_{>k}} w_l^{ranked}}, where
+\eqn{W_{>k}} is the total weight of the edges among the rich nodes and
+\eqn{w_l^{ranked}} is the \eqn{l}-th largest edge weight in the network.
 
-\strong{Normalization}: \eqn{\phi_{norm} = \phi_{obs} / \bar{\phi}_{rand}}. A
-value > 1 indicates rich club ordering beyond what the degree sequence
-alone explains.
+The normalized coefficient is
+\eqn{\phi_{norm} = \phi_{obs} / \bar{\phi}_{rand}}{phi_{norm} = phi_{obs} / bar{phi}_{rand}}. A value above 1
+indicates rich club ordering beyond what the degree sequence alone
+explains.
 }
+\section{Printing and plotting}{
+
+Printing the result shows the prominence definition, the weighting and
+normalization settings, the number of thresholds with \code{phi_norm > 1}
+and the first ten rows of the table. \code{plot()} on the result is
+documented in \code{\link{plot-results}}.
+}
+
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-rc <- cograph::rich_club(g, n_random = 20)
-plot(rc)
+rich_club(regulation_net, n_random = 20, seed = 1)
 \dontshow{\}) # examplesIf}
 }
 \references{

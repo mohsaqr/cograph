@@ -2,34 +2,48 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_generalized_closeness}
 \alias{centrality_generalized_closeness}
-\title{Generalized Closeness Centrality}
+\title{Generalized Closeness}
 \usage{
 centrality_generalized_closeness(x, mode = "all", decay_parameter = 0.5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{decay_parameter}{Numeric between 0 and 1 (the alpha parameter).
+\item{decay_parameter}{Decay factor \eqn{\alpha}{alpha} of the formula.
 Default 0.5.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of generalized closeness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of alpha^d over all nodes. Generalization of decay centrality
-matching tidygraph's implementation.
+Generalized closeness, as in the tidygraph package, sums a decay factor
+\eqn{\alpha}{alpha} raised to the distance from the node to every node:
+\deqn{GC(v) = \sum_{w} \alpha^{d(v, w)}.}{GC(v) = sum_w alpha^d(v, w).}
+The sum includes the node itself, which adds one to every score, and
+unreachable nodes contribute 0.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, with the inversion exponent
+\code{alpha} of \code{\link{centrality}}, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. The values equal
+those of \code{\link{centrality_decay}} with the same
+\code{decay_parameter}, which is not checked.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_generalized_closeness(adj)
+centrality_generalized_closeness(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_decay}} (equivalent formulation).
+\code{\link{centrality_decay}},
+\code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 }

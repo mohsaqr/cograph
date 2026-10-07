@@ -22,39 +22,43 @@ plot_centrality_distribution(
 \item{x}{A data frame from \code{\link{centrality}}, or a network input
 (matrix, igraph, cograph_network, tna).}
 
-\item{measure}{Character. Which centrality measure to plot. Default
-\code{"degree_all"}. Must match a column name in the centrality output.}
+\item{measure}{Character. Column of the centrality output to plot, for
+example \code{"degree_all"} (default) or \code{"strength_in"}. An
+unknown name is an error that lists the available columns.}
 
 \item{type}{Character. \code{"histogram"} (default) or \code{"density"}.}
 
 \item{normalize}{Logical. Show proportions instead of counts. Default FALSE.}
 
-\item{bins}{Integer or NULL. Number of bins. Default NULL (auto).}
+\item{bins}{Integer or NULL. Number of equal-width histogram bins. The
+default NULL uses the Freedman-Diaconis rule.}
 
-\item{log}{Character. Log scaling: \code{""}, \code{"y"}, or \code{"xy"}.
-Values containing \code{"x"} are accepted for compatibility but only the
-y-axis is log-scaled by this plotting implementation. Default \code{""}.}
+\item{log}{Character. \code{"y"} or \code{"xy"} log-scales the y-axis.
+The x-axis is never log-scaled, and any other value gives linear axes.
+Default \code{""}.}
 
-\item{col}{Fill color. Default \code{"steelblue"}.}
+\item{col}{Fill color (line color for the density). Default
+\code{"steelblue"}.}
 
-\item{border}{Border color. Default \code{"white"}.}
+\item{border}{Bar border color for the histogram. Default \code{"white"}.}
 
-\item{main}{Plot title. Default auto-generated from measure name.}
+\item{main}{Plot title. The default NULL builds a title such as
+\code{"Degree Distribution"} from the measure name.}
 
-\item{xlab}{X-axis label. Default auto-generated.}
+\item{xlab}{X-axis label. The default NULL uses the measure name.}
 
 \item{...}{Additional arguments passed to \code{\link[graphics]{barplot}}
 or \code{\link[graphics]{plot}}.}
 }
 \value{
-Invisibly returns the centrality values plotted.
+Invisibly, a numeric vector of the finite centrality values
+plotted.
 }
 \description{
-Histogram or density plot of any centrality measure. Accepts the output
-of \code{\link{centrality}} directly.
+Histogram or density plot of one centrality measure. The input is either
+the data frame returned by \code{\link{centrality}} or a network, for
+which the measure is computed first.
 }
 \examples{
-adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::plot_centrality_distribution(adj, measure = "degree_all")
+cograph::plot_centrality_distribution(regulation_net, measure = "strength_all")
 }

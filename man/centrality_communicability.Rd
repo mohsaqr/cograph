@@ -7,23 +7,43 @@
 centrality_communicability(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of communicability values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Total communicability: row sums of the matrix exponential of the adjacency
-matrix. Measures a node's ability to broadcast information through all paths.
+Total communicability (Estrada and Hatano 2008; Benzi and Klymko 2013) sums
+the walks of every length that start at a node, a walk of length \eqn{k}
+weighted by \eqn{1/k!}:
+\deqn{TC(v) = \sum_{w} \left[ e^{A} \right]_{vw}
+  = \sum_{w} \sum_{k = 0}^{\infty} \frac{(A^k)_{vw}}{k!}.}{
+  TC(v) = sum_w [exp(A)]_vw = sum_w sum_{k >= 0} (A^k)_vw / k!.}
+}
+\details{
+\eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
+matrix exponential is formed from an eigendecomposition that assumes a
+symmetric matrix. On a directed network the result therefore differs from
+the row sums of \eqn{e^{A}}{exp(A)}, and \code{directed = FALSE} gives the
+undirected reading for which the measure is defined.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_communicability(adj)
+centrality_communicability(regulation_net, directed = FALSE)
+}
+\references{
+Estrada, E., & Hatano, N. (2008). Communicability in complex networks.
+Physical Review E, 77(3), 036111. \doi{10.1103/PhysRevE.77.036111}.
+
+Benzi, M., & Klymko, C. (2013). Total communicability as a centrality
+measure. Journal of Complex Networks, 1(2), 124-149.
+\doi{10.1093/comnet/cnt007}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_subgraph}} for the diagonal-only variant.
+\code{\link{centrality_subgraph}},
+\code{\link{centrality_communicability_betweenness}},
+\code{\link{centrality}}.
 }

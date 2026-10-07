@@ -27,8 +27,9 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.}
 centrality calculations where the underlying igraph routine accepts them.
 Default TRUE.}
 
-\item{mode}{For directed networks: "all", "in", or "out". Affects degree-based
-calculations. Default "all".}
+\item{mode}{For directed networks: "all", "in", or "out". Used by the
+degree, strength and closeness statistics added by \code{detailed = TRUE}.
+Default "all".}
 
 \item{loops}{Logical. If TRUE (default), keep self-loops. Set FALSE to remove them.}
 
@@ -36,22 +37,21 @@ calculations. Default "all".}
 Options: "sum" (default), "mean", "max", "min", or FALSE/"none" to keep
 multiple edges.}
 
-\item{detailed}{Logical. If TRUE, include mean/sd centrality statistics.
-Default FALSE returns 18 basic metrics; TRUE returns 29 metrics.}
+\item{detailed}{Logical. If TRUE, add 11 summary statistics of node-level
+centralities to the 16 basic metrics. Default FALSE.}
 
-\item{extended}{Logical. If TRUE, include additional structural metrics
-(girth, radius, clique size, cut vertices, bridges, efficiency).
-Default FALSE.}
+\item{extended}{Logical. If TRUE, add 8 structural metrics (girth, radius,
+vertex connectivity, clique size, cut vertices, bridges, global and local
+efficiency). Default FALSE.}
 
 \item{digits}{Integer. Round numeric results to this many decimal places.
-Default 3.}
+Default 3. NULL skips rounding.}
 
 \item{...}{Additional arguments (currently unused)}
 }
 \value{
-A data frame with one row containing network-level statistics:
-
-\strong{Basic measures (always computed):}
+A data frame with one row. The basic measures are always
+computed:
 \describe{
 \item{node_count}{Number of nodes in the network}
 \item{edge_count}{Number of edges in the network}
@@ -59,8 +59,9 @@ A data frame with one row containing network-level statistics:
 \item{component_count}{Number of connected components}
 \item{diameter}{Longest shortest path in the network}
 \item{mean_distance}{Average shortest path length}
-\item{min_cut}{Minimum cut value (edge connectivity)}
-\item{centralization_degree}{Degree centralization (0-1)}
+\item{min_cut}{Minimum number of edges whose removal disconnects the
+network. Edge weights are not used.}
+\item{centralization_degree}{Degree centralization over all ties (0-1)}
 \item{centralization_in_degree}{In-degree centralization (directed only)}
 \item{centralization_out_degree}{Out-degree centralization (directed only)}
 \item{centralization_betweenness}{Betweenness centralization (0-1)}
@@ -71,10 +72,10 @@ A data frame with one row containing network-level statistics:
 \item{assortativity_degree}{Degree assortativity coefficient}
 }
 
-\strong{Extended measures (when extended = TRUE):}
+The extended measures are added when \code{extended = TRUE}:
 \describe{
 \item{girth}{Length of shortest cycle (Inf if acyclic)}
-\item{radius}{Minimum eccentricity (shortest max-distance from any node)}
+\item{radius}{Minimum eccentricity over all nodes}
 \item{vertex_connectivity}{Minimum nodes to remove to disconnect graph}
 \item{largest_clique_size}{Size of the largest complete subgraph}
 \item{cut_vertex_count}{Number of articulation points (cut vertices)}
@@ -83,7 +84,7 @@ A data frame with one row containing network-level statistics:
 \item{local_efficiency}{Average local efficiency across nodes}
 }
 
-\strong{Detailed measures (when detailed = TRUE):}
+The detailed measures are added when \code{detailed = TRUE}:
 \describe{
 \item{mean_degree, sd_degree, median_degree}{Degree distribution statistics}
 \item{mean_strength, sd_strength}{Weighted degree statistics}
@@ -96,29 +97,12 @@ A data frame with one row containing network-level statistics:
 }
 }
 \description{
-Computes comprehensive network-level statistics for a network.
-Returns a data frame with one row containing various metrics
-including density, centralization scores, transitivity, and more.
+Computes network-level statistics and returns them as a one-row data
+frame. The basic set covers size, density, connectivity, path lengths,
+centralization, transitivity, reciprocity and degree assortativity.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Basic usage with adjacency matrix
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-network_summary(adj)
-
-# With detailed statistics
-network_summary(adj, detailed = TRUE)
-
-# With extended structural metrics
-network_summary(adj, extended = TRUE)
-
-# All metrics
-network_summary(adj, detailed = TRUE, extended = TRUE)
-
-# From igraph object
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_gnp(20, 0.3)
-  network_summary(g)
-}
+network_summary(regulation_net)
 \dontshow{\}) # examplesIf}
 }

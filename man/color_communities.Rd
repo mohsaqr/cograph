@@ -18,13 +18,14 @@ for available methods. Default \code{"louvain"}.}
 \item A character vector of colors
 \item A function that takes n and returns n colors
 \item A palette name: "rainbow", "colorblind", "pastel", "viridis"
-}}
+}
+Any other single string is used as one color for every community.}
 
 \item{...}{Additional arguments passed to \code{\link{detect_communities}}.}
 }
 \value{
-A named character vector of colors (one per node), suitable for
-use with \code{splot()} \code{node_fill} parameter.
+A character vector of colors with one element per node, named by
+node, for use as the \code{node_fill} argument of \code{splot()}.
 }
 \description{
 Generate colors for nodes based on community membership. Designed for
@@ -32,17 +33,7 @@ direct use with \code{splot()} \code{node_fill} parameter.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Basic usage with splot
-splot(adj, node_fill = color_communities(adj))
-
-# Custom palette
-splot(adj, node_fill = color_communities(adj, palette = c("red", "blue")))
+color_communities(regulation_net, method = "walktrap")
 \dontshow{\}) # examplesIf}
 }
 \seealso{

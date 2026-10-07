@@ -2,31 +2,39 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_lac}
 \alias{centrality_lac}
-\title{Local Average Connectivity (LAC)}
+\title{Local Average Connectivity}
 \usage{
 centrality_lac(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of LAC values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Average degree of neighbors within the neighborhood subgraph. Measures
-how interconnected a node's neighbors are. Proposed by Li et al. (2011)
-for identifying essential proteins in PPI networks.
+Local average connectivity (Li et al. 2011) is the mean degree of the
+neighbors of a node within the subgraph \eqn{C_v} induced by those
+neighbors:
+\deqn{LAC(v) = \frac{1}{k_v} \sum_{u \in N(v)} k_u^{C_v},}{
+  LAC(v) = (1 / k_v) sum_{u in N(v)} k_u^(C_v),}
+where \eqn{k_u^{C_v}}{k_u^(C_v)} is the degree of \eqn{u} inside
+\eqn{C_v}. High values mark nodes whose neighbors are tied to each other.
+}
+\details{
+Edge weights are ignored. \code{mode} selects the neighbors and the degree
+counted inside \eqn{C_v}. With \code{mode = "all"} on a directed network
+in-ties and out-ties are both counted, so a reciprocated tie counts twice.
+An isolated node scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lac(adj)
+centrality_lac(regulation_net)
 }
 \references{
 Li, M., Wang, J., Chen, X., Wang, H., & Pan, Y. (2011). A local average
@@ -34,6 +42,6 @@ connectivity-based method for identifying essential proteins from the network
 level. \emph{Computational Biology and Chemistry}, 35(3), 143-150.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_dmnc}} for another neighborhood density measure.
+\code{\link{centrality_dmnc}}, \code{\link{centrality_mnc}},
+\code{\link{centrality}}.
 }

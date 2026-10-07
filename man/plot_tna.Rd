@@ -60,13 +60,15 @@ tplot(
 
 \item{labels}{Node labels}
 
-\item{layout}{Layout: "circle", "spring", "oval", or a coordinate matrix}
+\item{layout}{Layout: "oval" (default), "circle", "spring", or a coordinate
+matrix.}
 
-\item{theme}{Plot theme ("colorblind", "gray", etc.)}
+\item{theme}{Plot theme. Default "colorblind".}
 
 \item{mar}{Plot margins (numeric vector of length 4)}
 
-\item{cut}{Edge emphasis threshold}
+\item{cut}{Edge emphasis threshold, passed to \code{edge_cutoff} of
+\code{splot()}.}
 
 \item{edge.label.position}{Position of edge labels along edge (0-1)}
 
@@ -76,15 +78,18 @@ tplot(
 
 \item{vsize}{Node size}
 
-\item{pie}{Pie/donut fill values (e.g., initial probabilities)}
+\item{pie}{Donut fill values in 0-1 (for example, initial probabilities).}
 
-\item{pieColor}{Pie/donut segment colors}
+\item{pieColor}{Donut fill colors.}
 
-\item{lty}{Line type for edges (1=solid, 2=dashed, 3=dotted)}
+\item{lty}{Line type for edges: 1 solid, 2 dashed, 3 dotted, 4 dotdash,
+5 longdash, 6 twodash, or a line-type name.}
 
-\item{directed}{Logical, is the graph directed?}
+\item{directed}{Logical, is the graph directed? NULL (default) treats a
+symmetric weight matrix as undirected and any other input as directed.}
 
-\item{minimum}{Minimum edge weight to display}
+\item{minimum}{Minimum absolute edge weight to display, passed to
+\code{threshold} of \code{splot()}.}
 
 \item{posCol}{Color for positive edges}
 
@@ -95,26 +100,19 @@ tplot(
 
 \item{title}{Plot title}
 
-\item{...}{Additional arguments passed to splot()}
+\item{...}{Additional arguments passed to \code{splot()}. They take
+precedence over the translated qgraph arguments.}
 }
 \value{
-Invisibly returns the cograph_network object from splot().
+The \code{cograph_network} object returned by \code{splot()},
+invisibly.
 }
 \description{
-A drop-in replacement for qgraph::qgraph() that uses cograph's splot engine.
-Accepts qgraph parameter names for seamless migration from qgraph to cograph.
+Plots a network with \code{splot()} and TNA styling, using qgraph argument
+names such as \code{vsize}, \code{edge.color} and \code{pie}.
+\code{tplot()} is an alias.
 }
 \examples{
-# Simple usage
-m <- matrix(runif(25), 5, 5)
-plot_tna(m)
+plot_tna(regulation_net)
 
-# With qgraph-style parameters
-plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
-
-# With custom colors
-plot_tna(m, color = palette_colorblind(5), vsize = 10)
-
-m <- matrix(runif(25), 5, 5)
-tplot(m)
 }

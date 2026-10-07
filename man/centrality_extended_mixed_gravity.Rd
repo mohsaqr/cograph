@@ -2,51 +2,40 @@
 % Please edit documentation in R/centrality-batch39.R
 \name{centrality_extended_mixed_gravity}
 \alias{centrality_extended_mixed_gravity}
-\title{Extended mixed gravitational centrality}
+\title{Extended Mixed Gravitational Centrality}
 \usage{
 centrality_extended_mixed_gravity(x, gravity_radius = 3, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{gravity_radius}{Nonnegative hop-distance cutoff, default three.
-NULL or infinity includes every reachable partner. Fractional cutoffs
-include exactly integer hop distances not exceeding them; values below
-one give zero. The optional \code{"auto"} is a cograph heuristic:
-round half the mean finite positive distance to the nearest integer
-(ties to even), with minimum one. It is not the cited radius rule and
-can change when disconnected components are added.}
+\item{gravity_radius}{Hop-distance cutoff of the inner scores. Default
+3. \code{NULL} or \code{Inf} includes every reachable node.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Extended mixed gravitational centrality (EMGC), also called IGC+, sums
-the raw MGC scores of immediate neighbors:
-\eqn{EMGC_i=\sum_{j\in N(i)}MGC_j}.
-Each inner MGC score uses its own source node j's core number, partner
-degrees, and original-graph hop distances. The inner radius is centered
-on j, so a contribution can reach r+1 hops from i. Paths from j back to i
-are included. The outer neighbor sum has no distance or mass factor.
+Extended mixed gravitational centrality (Wang, Li and Xia 2018), also
+called IGC+, sums the mixed gravitational scores of the immediate
+neighbors of a node:
+\deqn{EMGC_i = \sum_{j \in N(i)} MGC_j.}{
+  EMGC_i = sum_{j in N(i)} MGC_j.}
 }
 \details{
-Follows the reproduction in Li and Huang (2022), equation 8, attributed
-to Wang et al. (2018); the original full equations and software have not
-been inspected. Uses the same skeleton and radius conventions as
-\code{\link{centrality_mixed_gravity}}. Default inner radius three follows
-the reproduced definition; radius one matches the Zoo's literal inner
-neighbor sum. Optional maximum normalization occurs only after summing
-raw neighbor scores. Isolates and radii below one score zero. Empty and
-singleton graphs give no scores and zero, respectively. Dense O(n cubed)
-time and O(n squared) memory. Verification of these numerical equations
-does not establish author-software parity or predictive superiority.
+Each inner score \eqn{MGC_j}{MGC_j} uses the radius around \eqn{j}{j},
+so a contribution can come from up to \code{gravity_radius + 1} hops
+from the focal node. The implementation follows the reproduction in Li
+and Huang (2022), equation 8. The input handling and radius options of
+\code{\link{centrality_mixed_gravity}} apply, so direction, weights,
+loops and parallel edges are ignored. Isolated nodes score zero.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_extended_mixed_gravity(igraph::make_ring(6))
-\dontshow{\}) # examplesIf}
+centrality_extended_mixed_gravity(regulation_net)
 }
 \references{
 Wang, J., Li, C. and Xia, C. (2018). Improved centrality indicators to
@@ -57,4 +46,8 @@ Mathematics and Computation, 334, 388-400.
 Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
 model considering multi-characteristics of nodes. Scientific Reports, 12,
 9879. \doi{10.1038/s41598-022-14005-3}.
+}
+\seealso{
+\code{\link{centrality_mixed_gravity}},
+\code{\link{centrality_gravity}}, \code{\link{centrality}}.
 }

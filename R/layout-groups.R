@@ -2,32 +2,32 @@
 #' @description Arrange nodes in groups, with each group in a circular arrangement.
 #' @name layout-groups
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Group-based Layout
 #'
-#' Arrange nodes based on group membership. Groups are positioned in a
-#' circular arrangement around the center, with nodes within each group
-#' also arranged in a circle.
+#' Places the nodes by group membership. The group centers lie on a circle
+#' around (0.5, 0.5), starting at the top and proceeding counterclockwise in
+#' the order of the group levels. A single group is centered at (0.5, 0.5).
+#' The nodes of each group lie on a circle around their group center, and a
+#' group with one node is placed at its center.
 #'
 #' @param network A \code{CographNetwork} or \code{cograph_network} object.
-#' @param groups Vector specifying group membership for each node.
-#'   Can be numeric, character, or factor.
-#' @param group_positions Optional list or data frame with x, y coordinates
-#'   for each group center.
-#' @param inner_radius Radius of nodes within each group (default: 0.15).
-#' @param outer_radius Radius for positioning group centers (default: 0.35).
-#' @return Data frame with x, y coordinates.
+#' @param groups Vector of group memberships, one per node (numeric,
+#'   character, or factor). A length different from the number of nodes
+#'   raises an error.
+#' @param group_positions Optional list or data frame with columns \code{x}
+#'   and \code{y} giving the group centers, one row per group level.
+#' @param inner_radius Radius of the circle of nodes within each group.
+#'   Default 0.15.
+#' @param outer_radius Radius of the circle of group centers. Default 0.35.
+#' @return A data frame with columns \code{x} and \code{y} and one row per
+#'   node, in node order.
 #'
 #' @examples
-#' # Create a network with groups
-#' adj <- matrix(0, 9, 9)
-#' adj[1, 2:3] <- 1; adj[2:3, 1] <- 1  # Group 1
-#' adj[4, 5:6] <- 1; adj[5:6, 4] <- 1  # Group 2
-#' adj[7, 8:9] <- 1; adj[8:9, 7] <- 1  # Group 3
-#' net <- CographNetwork$new(adj)
-#' groups <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
-#' coords <- layout_groups(net, groups)
+#' layout_groups(CographNetwork$new(regulation_net),
+#'   groups = rep(c("A", "B"), each = 5))
 #'
 #' @export
 layout_groups <- function(network, groups, group_positions = NULL,

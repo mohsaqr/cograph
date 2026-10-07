@@ -16,27 +16,25 @@ as_tna(x)
 \method{as_tna}{default}(x)
 }
 \arguments{
-\item{x}{A \code{cluster_summary} object created by \code{\link{csum}}.
-The cluster_summary should typically be created with \code{type = "tna"} to
-ensure row-normalized transition probabilities. If created with
-\code{type = "raw"}, the raw counts will be passed to \code{tna::tna()}
-which will normalize them.}
+\item{x}{A \code{cluster_summary} object created by \code{\link{csum}}, or
+an \code{mcml} object created by \code{\link{summarize_clusters}}. A tna
+object is returned unchanged, and any other input is an error. The
+weights are passed to \code{tna::tna()}, which row-normalizes them, so a
+summary computed with \code{type = "raw"} gives the same transition
+probabilities as one computed with \code{type = "tna"}.}
 }
 \value{
-A \code{group_tna} object (S3 class) -- a flat named list of tna
-objects. The first element is named \code{"macro"} and represents the
-cluster-level transitions. Subsequent elements are named by cluster name
-and represent internal transitions within each cluster.
+A \code{group_tna} object, a flat named list of tna objects. The
+first element is named \code{"macro"} and holds the cluster-level
+transitions. The remaining elements are named by cluster and hold the
+internal transitions of each cluster.
 \describe{
-\item{macro}{A tna object representing cluster-level transitions.
-Contains \code{$weights} (k x k transition matrix), \code{$inits}
-(initial distribution), and \code{$labels} (cluster names).
-Use this for analyzing how learners/entities move between high-level
-groups or phases.}
-\item{<cluster_name>}{Per-cluster tna objects, one per cluster. Each tna
-object represents internal transitions within that cluster. Contains
-\code{$weights} (n_i x n_i matrix), \code{$inits} (initial distribution),
-and \code{$labels} (node labels). A cluster that cannot become a tna
+\item{macro}{A tna object of cluster-level transitions, with
+\code{weights} (k x k transition matrix), \code{inits} (initial
+distribution) and \code{labels} (cluster names).}
+\item{<cluster_name>}{One tna object per cluster, with \code{weights}
+(n_i x n_i matrix), \code{inits} (initial distribution) and
+\code{labels} (node labels). A cluster that cannot become a tna
 model is left out with a warning (see Excluded Clusters).}
 }
 
@@ -47,39 +45,16 @@ A \code{group_tna} object (flat list of tna objects: macro + per-cluster).
 A \code{tna} object constructed from the input.
 }
 \description{
-Converts a \code{cluster_summary} object to proper tna objects that can be
-used with all functions from the tna package. Creates a macro (cluster-level)
-tna model and per-cluster tna models (internal transitions within each
-cluster), returned as a flat \code{group_tna} object.
+Converts a \code{cluster_summary} or \code{mcml} object to tna models that
+can be used with the functions of the tna package. The result holds a macro
+(cluster-level) model and one model of the internal transitions of each
+cluster, as a flat \code{group_tna} object.
 }
 \details{
-This is the final step in the MCML workflow, enabling full integration with
-the tna package for centrality analysis, bootstrap validation, permutation
-tests, and visualization.
 \subsection{Requirements}{
 
-The tna package must be installed. If not available, the function throws
-an error with installation instructions.
-}
-
-\subsection{Workflow}{
-
-\preformatted{
-# Full MCML workflow
-net <- cograph(edges, nodes = nodes)
-net$nodes$clusters <- group_assignments
-cs <- csum(net, type = "tna")
-tna_models <- as_tna(cs)
-
-# Now use tna package functions
-plot(tna_models$macro)
-tna::centralities(tna_models$macro)
-tna::bootstrap(tna_models$macro, iter = 1000)
-
-# Analyze per-cluster patterns
-plot(tna_models$ClusterA)
-tna::centralities(tna_models$ClusterA)
-}
+The tna package must be installed. Without it, the function raises an
+error.
 }
 
 \subsection{Excluded Clusters}{
@@ -101,10 +76,7 @@ includes all clusters.
 clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
                  C2 = c("Plan", "Create", "Share"),
                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
-cs <- csum(regulation_net, clusters, type = "tna")
-tna_models <- as_tna(cs)
-names(tna_models)          # "macro", "C1", "C2", "C3"
-splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
+as_tna(csum(regulation_net, clusters = clusters, type = "tna"))
 \dontshow{\}) # examplesIf}
 }
 \seealso{

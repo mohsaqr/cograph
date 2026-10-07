@@ -18,12 +18,18 @@ overlay_communities(
 \item{x}{A network object passed to \code{\link{splot}}: \code{tna},
 matrix, \code{igraph}, or \code{cograph_network}.}
 
-\item{communities}{Community assignments in any format:
-a method name (e.g., \code{"walktrap"}, \code{"louvain"}),
-a numeric or factor membership vector (e.g., \code{c(1, 1, 2, 2, 3)}),
-a named list of character vectors,
-a \code{cograph_communities} object, or
-a \code{tna_communities} object.}
+\item{communities}{Community assignments in any of these formats:
+\itemize{
+\item the name of an igraph \code{cluster_*} algorithm (e.g.,
+\code{"walktrap"}, \code{"louvain"}, \code{"leiden"},
+\code{"edge_betweenness"}), matched partially; directed networks are
+collapsed to undirected before detection;
+\item a numeric or factor membership vector in node order (e.g.,
+\code{c(1, 1, 2, 2, 3)}), or named by node;
+\item a named list of character vectors of node names;
+\item a \code{cograph_communities}, igraph \code{communities} or
+\code{tna_communities} object.
+}}
 
 \item{blob_colors}{Character vector of fill colors for blobs.
 Recycled if shorter than the number of communities. Default
@@ -38,23 +44,16 @@ Recycled if shorter than the number of communities. Default
 \item{...}{Additional arguments passed to \code{\link{splot}}.}
 }
 \value{
-The \code{\link{splot}} result — a \code{cograph_network}
-object — invisibly. Called for the side effect of drawing.
+Invisibly, the \code{cograph_network} object returned by
+\code{\link{splot}}. Called for the side effect of plotting.
 }
 \description{
-Render a network with \code{\link{splot}} and overlay smooth blob
-shapes highlighting node communities.
+Plots a network with \code{\link{splot}} and overlays smooth blob
+shapes that mark node communities.
 }
 \examples{
-set.seed(1)
-mat <- matrix(runif(25), 5, 5,
-              dimnames = list(LETTERS[1:5], LETTERS[1:5]))
-diag(mat) <- 0
-overlay_communities(mat, list(g1 = c("A","B"), g2 = c("C","D","E")))
-
-if (requireNamespace("igraph", quietly = TRUE)) {
-  comm <- cograph::communities(regulation_net, method = "infomap")
-  overlay_communities(regulation_net, comm)
-}
-
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+comm <- cograph::communities(regulation_net, method = "walktrap")
+overlay_communities(regulation_net, comm)
+\dontshow{\}) # examplesIf}
 }

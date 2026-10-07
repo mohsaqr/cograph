@@ -2,66 +2,52 @@
 % Please edit documentation in R/centrality-batch23.R
 \name{centrality_adaptive_leaderrank}
 \alias{centrality_adaptive_leaderrank}
-\title{Adaptive LeaderRank centrality}
+\title{Adaptive LeaderRank}
 \usage{
 centrality_adaptive_leaderrank(x, alr_h_mode = "all", ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{alr_h_mode}{Original H-index convention: all (default), out or in.}
+\item{alr_h_mode}{Neighbors and degrees used for the H-index:
+\code{"all"} (default), \code{"out"} or \code{"in"}. On an undirected
+network the three agree.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Xu and Wang's adaptive LeaderRank computes original node H-indices,
-then adds a ground node with H-index one, joined bidirectionally to
-every original node. Each augmented arc from j to i has weight
-\eqn{a_{ji}h_i}. Row-normalized weights define the resource transition
-matrix. Raw stationary scores retain total augmented mass N, following
-initial score one on ordinary nodes and zero on ground. The ground
-score is omitted without redistribution. H-indices are not recomputed
-after ground edges are added.
+Adaptive LeaderRank (Xu and Wang 2017) adds a ground node with H-index
+1 that is linked in both directions to every node, and weights each arc
+from \eqn{j} to \eqn{i} by the H-index \eqn{h_i} of its target. The
+H-index of a node is the largest \eqn{h} such that at least \eqn{h} of
+its neighbors have degree at least \eqn{h}. The score is the stationary
+resource of the random walk on the row-normalized weights, started with
+one unit on every node and none on the ground.
 }
 \details{
-The H-index is the largest integer h for which at least h original
-neighbors have degree at least h. The focal node is excluded from that
-neighbor list. This differs from cograph's existing closed-neighborhood
-\code{\link{centrality_lobby}} convention.
-
-The paper evaluates directed and undirected networks but does not pin
-a directed H-index convention. \code{alr_h_mode} makes that choice
-explicit. Default \code{"all"} computes H-indices on the simple
-undirected skeleton, merging reciprocal arcs. \code{"out"} uses outgoing
-neighbors' out-degrees; \code{"in"} uses incoming neighbors' in-degrees.
-These directed H-index choices are explicit cograph conventions, not
-claims of the authors' directed-software behavior. In every case, resource
-flow retains the original directed arcs. Undirected edges become opposite
-arcs, and all H-index modes then coincide.
-
-Input weights are ignored; the algorithm generates its own destination
-weights. Loops are removed and parallel arcs count once. The generic
-\code{mode}, inversion and cutoff arguments are ignored. Original nodes
-with H-index zero receive zero stationary score. If every H-index is zero,
-the ground transition row is undefined and all scores are NaN. This can
-occur on edgeless inputs or some directed inputs in in/out H-index modes.
-Empty input returns an empty vector. No H-index pseudocount is added.
-
-A native ground-elimination solve obtains the unique stationary solution
-in O(N^3) time and O(N^2) memory, including periodic chains for which
-ordinary iteration need not converge. Optional final max normalization
-acts on the returned ordinary-node scores. Numerical definition agreement
-does not establish superior spreading predictions or author-code parity.
+The random walk keeps the direction of the arcs, and an undirected edge
+counts as two opposite arcs. Edge weights, loops and parallel arcs are
+ignored, and \code{mode} has no effect. H-indices are computed once on
+the original network. With \code{alr_h_mode = "all"} they use the
+simple undirected skeleton, \code{"out"} uses the out-degrees of
+out-neighbors and \code{"in"} the in-degrees of in-neighbors. The
+returned scores omit the ground, so they sum to less than \eqn{N}. A
+node with H-index 0 scores 0, and when every H-index is 0 all scores are
+\code{NaN} without a warning.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_adaptive_leaderrank(igraph::make_ring(4))
-\dontshow{\}) # examplesIf}
+centrality_adaptive_leaderrank(regulation_net)
 }
 \references{
 Xu, S., & Wang, P. (2017). Identifying important nodes by adaptive
 LeaderRank. Physica A, 469, 654-664. \doi{10.1016/j.physa.2016.11.034}.
+}
+\seealso{
+\code{\link{centrality_weighted_leaderrank}},
+\code{\link{centrality_lobby}}, \code{\link{centrality}}.
 }

@@ -30,14 +30,7 @@ structural vocabulary that \code{\link{select_nodes}()} offers, and stores
 the results as node columns.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-as.data.frame(mutate_nodes(adj, deg = degree, hub = degree >= 3),
-              what = "nodes")
+as.data.frame(mutate_nodes(regulation_net, deg = degree), what = "nodes")
 }
 \seealso{
 \code{\link{mutate_edges}}, \code{\link{select_nodes}},

@@ -2,29 +2,49 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_flow_betweenness}
 \alias{centrality_flow_betweenness}
-\title{Flow Betweenness Centrality}
+\title{Flow Betweenness}
 \usage{
 centrality_flow_betweenness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of flow betweenness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Max-flow based betweenness centrality.
+Flow betweenness (Freeman, Borgatti and White 1991) sums, over pairs of
+other nodes \eqn{s} and \eqn{t}, the flow that passes through the node
+when a maximum flow is sent from \eqn{s} to \eqn{t} with the edge weights
+as capacities.
+}
+\details{
+The measure requires the igraph package and raises an error of class
+\code{cograph_needs_igraph} without it. The flow through a node is read
+from the maximum flow that \code{igraph::max_flow()} returns. On a
+directed network the sum runs over ordered pairs along the edge direction,
+and on an undirected network over unordered pairs. \code{weighted = FALSE}
+gives every edge capacity one, and \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the capacity.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_flow_betweenness(adj)
+centrality_flow_betweenness(regulation_net)
 \dontshow{\}) # examplesIf}
 }
+\references{
+Freeman, L. C., Borgatti, S. P., & White, D. R. (1991). Centrality in
+valued graphs: A measure of betweenness based on network flow. Social
+Networks, 13(2), 141-154. \doi{10.1016/0378-8733(91)90017-N}.
+}
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_betweenness}} for shortest-path variant.
+\code{\link{centrality_betweenness}},
+\code{\link{centrality_current_flow_betweenness}},
+\code{\link{centrality}}.
 }

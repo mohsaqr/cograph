@@ -32,22 +32,27 @@ com_ld(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{resolution}{Resolution parameter. Default 1.}
+\item{resolution}{Resolution parameter. Default 1. With the default CPM
+objective and resolution 1, a network with weights below 1 is typically
+split into single-node communities.}
 
-\item{objective_function}{Optimization objective: "CPM" (Constant Potts Model)
-or "modularity". Default "CPM".}
+\item{objective_function}{Optimization objective, \code{"CPM"} (default)
+or \code{"modularity"}.}
 
-\item{beta}{Parameter for randomness in refinement step. Default 0.01.}
+\item{beta}{Randomness parameter of the refinement step. Default 0.01.}
 
 \item{initial_membership}{Initial community assignments (optional).}
 
-\item{n_iterations}{Number of iterations. Default 2. Use -1 for convergence.}
+\item{n_iterations}{Number of iterations. Default 2. A negative value
+iterates until the partition no longer changes.}
 
-\item{vertex_weights}{Vertex weights for CPM objective.}
+\item{vertex_weights}{Vertex weights for the CPM objective.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -55,27 +60,21 @@ or "modularity". Default "CPM".}
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Leiden algorithm - an improved version of Louvain that guarantees
-well-connected communities. Supports CPM and modularity objectives.
+The Leiden algorithm, a refinement of the Louvain algorithm that
+guarantees well-connected communities. It optimizes the Constant Potts
+Model (CPM) or modularity. The graph must be undirected; a directed graph
+raises an igraph error.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Standard Leiden
-  comm <- community_leiden(g)
-
-  # Higher resolution for more communities
-  comm2 <- community_leiden(g, resolution = 1.5)
-
-  # Modularity objective
-  comm3 <- community_leiden(g, objective_function = "modularity")
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+community_leiden(to_undirected(regulation_net), objective_function = "modularity",
+                 seed = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Traag, V.A., Waltman, L., & van Eck, N.J. (2019).

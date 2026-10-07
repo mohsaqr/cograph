@@ -7,49 +7,45 @@
 centrality_community_hub_bridge(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Community labels, one per node. Required; without it
-the function warns and returns \code{NA}. Obtain one from
+\item{membership}{Community labels, one per node, for example from
 \code{\link{detect_communities}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"out"},
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
 or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Ghalmane, El Hassouni and Cherifi's (2019) score for nodes that are both
-hubs inside their community and bridges between communities:
-\deqn{CHB(i) = |C_i| \, k^{intra}_i + NNC_i \, k^{inter}_i,}
-where \eqn{|C_i|} is the number of nodes in \eqn{i}'s own community,
-\eqn{k^{intra}_i} and \eqn{k^{inter}_i} its numbers of links inside and
-outside that community, and \eqn{NNC_i} the number of \emph{other}
-communities it is linked to (eqs. 2 to 4 of the paper). Higher values
-mark nodes whose removal both fragments their community and cuts links
-between communities. A normalized variant with the same name exists in
-later work by the same group; this is the original raw form.
+Community hub-bridge centrality (Ghalmane, El Hassouni and Cherifi 2019)
+scores nodes that are hubs inside their community and bridges between
+communities:
+\deqn{CHB(i) = |C_i|\, k^{intra}_i + NNC_i\, k^{inter}_i,}{
+  CHB(i) = |C_i| k_intra(i) + NNC_i k_inter(i),}
+where \eqn{|C_i|}{|C_i|} is the size of the community of \eqn{i},
+\eqn{k^{intra}_i}{k_intra(i)} and \eqn{k^{inter}_i}{k_inter(i)} its
+numbers of links inside and outside that community, and
+\eqn{NNC_i}{NNC_i} the number of other communities it links to.
 }
 \details{
-Under \code{mode = "out"} or \code{"in"} only out- or in-links count;
-the default ignores direction. Edge weights are ignored.
+Edge weights and self-loops are ignored. Under \code{mode = "out"} or
+\code{mode = "in"} only out-links or in-links count, and the default
+ignores direction. This is the raw form of the original article. Later
+work by the same group uses a normalized variant with the same name.
+Without \code{membership} the function raises an unclassed warning and
+returns \code{NA} for every node. A \code{membership} that is not one
+non-missing label per node raises an error of class
+\code{cograph_bad_membership}.
 }
-\section{Conditions}{
-
-Raises an error of class \code{cograph_bad_membership} when
-\code{membership} is not one non-missing label per node.
-}
-
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_community_hub_bridge(adj, membership = c(1, 1, 1, 2, 2, 2))
+centrality_community_hub_bridge(regulation_net,
+                                membership = rep(1:2, each = 5))
 }
 \references{
 Ghalmane, Z., El Hassouni, M., & Cherifi, H. (2019).
@@ -57,6 +53,6 @@ Immunization of networks with non-overlapping community structure.
 Social Network Analysis and Mining, 9, 45.
 }
 \seealso{
-\code{\link{centrality_modularity_vitality}},
-\code{\link{centrality_participation}}.
+\code{\link{centrality_community_based}},
+\code{\link{centrality_modularity_vitality}}, \code{\link{centrality}}.
 }

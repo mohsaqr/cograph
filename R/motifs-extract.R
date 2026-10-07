@@ -3,25 +3,26 @@
 
 #' Extract Motifs from Network Data
 #'
-#' Extract and analyze triad motifs from network data with flexible filtering,
-#' pattern selection, and statistical significance testing. Supports both
-#' individual-level analysis (with tna objects or grouped data) and aggregate
-#' analysis (with matrices or networks). The supplied adjacency is classified
-#' as directed dyads using the 16-class MAN system.
+#' Extracts the triads of a network, classifies each one into the 16 MAN
+#' types of a directed network, and optionally tests each triad against a
+#' permutation null model. The analysis is individual-level for tna objects
+#' and grouped data, and aggregate for matrices and networks.
 #'
-#' @details Both individual and aggregate significance in this legacy extractor
-#' use a directed weighted stub-matching null: positive weights retain at least
-#' one integer stub, shuffled targets preserve the integerized in/out margins,
-#' and generated loops/parallel edges are reduced to a simple loopless
-#' projection for triad classification. This differs from aggregate
-#' [motifs()], which delegates to [motif_census()] and its simple-graph rewiring
-#' null. Observed self-loops are excluded before activity gating, counting, and
-#' null construction.
-#' The selected \code{edge_method} is reapplied to each null replicate, but
-#' positive fractional weights retain at least one integer stub. This preserves
-#' support while potentially changing the mass scale used by
-#' \code{"percent"}/\code{"expected"} inference. Descriptive results and the
-#' default \code{edge_method = "any"} are unaffected.
+#' @details Self-loops are removed before the activity filter, the counting
+#' and the null model. Significance is assessed against a directed weighted
+#' stub-matching null model. Each weight is rounded to an integer number of
+#' stubs, and a positive weight that rounds to zero keeps one stub. The target
+#' stubs are shuffled, which preserves the in- and out-strengths of every
+#' unit. Loops and multiple edges created by the shuffle are collapsed to a
+#' simple graph before the triads are classified. The aggregate mode of
+#' [motifs()] uses the simple-graph rewiring null of [motif_census()]
+#' instead.
+#'
+#' The selected \code{edge_method} is reapplied to each null replicate. Since
+#' small positive weights are rounded up to one stub, the total weight of a
+#' replicate can differ from the observed total under \code{"percent"} and
+#' \code{"expected"}. Results without significance testing and results with
+#' \code{edge_method = "any"} do not depend on this rounding.
 #'
 #' @param x Input data. Can be:
 #'   \itemize{
@@ -32,44 +33,48 @@
 #'   }
 #' @param data Optional data.frame containing transition data with an ID column
 #'   for individual-level analysis. Required columns: `from`, `to`, and the
-#'   column(s) specified in `id`. If provided, `x` should be NULL or a matrix
-#'   of node labels.
+#'   column(s) specified in `id`. An optional `weight` column gives the
+#'   transition weights (1 otherwise). `data` is used when `x` is not a tna
+#'   object, and `x` is then ignored.
 #' @param id Column name(s) identifying individuals/groups in `data`. Can be
 #'   a single string or character vector for multiple grouping columns.
 #'   Required for individual-level analysis with non-tna inputs.
-#' @param level Analysis level: "individual" counts how many people have each
-#'   triad, "aggregate" analyzes the summed/single network. Default depends
-#'   on input: "individual" for tna or when id provided, "aggregate" otherwise.
+#' @param level Analysis level: "individual" counts how many individuals show
+#'   each triad, and "aggregate" analyzes the network summed over individuals.
+#'   The default is "individual" for a tna object or when `data` and `id` are
+#'   supplied, and "aggregate" otherwise. Requesting "individual" without
+#'   individual data raises a warning and the aggregate level is used.
 #' @param edge_method Method for determining edge presence:
 #'   \describe{
-#'     \item{"any"}{Edge exists if count > 0 (simple, recommended)}
-#'     \item{"expected"}{Edge exists if observed/expected >= threshold}
-#'     \item{"percent"}{Edge exists if edge/total >= threshold}
+#'     \item{"any"}{Edge exists if count > 0.}
+#'     \item{"expected"}{Edge exists if observed/expected >= threshold.}
+#'     \item{"percent"}{Edge exists if edge/total >= threshold.}
 #'   }
 #'   Default "any".
 #' @param edge_threshold Threshold value for "expected" or "percent" methods.
-#'   For "expected", a ratio (e.g., 1.5 means 50\% stronger than expected).
-#'   The default 1.5 is calibrated for this method.
-#'   For "percent", a proportion (e.g., 0.15 for 15\% of triad total weight).
-#'   When using "percent", set this explicitly (e.g., 0.15).
-#'   Ignored when edge_method = "any". Default 1.5.
+#'   For "expected", a ratio (1.5 means 50\% stronger than expected).
+#'   For "percent", a proportion of the total triad weight (for example 0.15).
+#'   The default 1.5 is intended for "expected", so a value for "percent"
+#'   should be set explicitly. Ignored when edge_method = "any". Default 1.5.
 #' @param pattern Pattern filter for which triads to include:
 #'   \describe{
 #'     \item{"triangle"}{All 3 node pairs must be connected (any direction).
 #'       Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.}
-#'     \item{"network"}{Exclude simple sequential patterns (chains/single edges).
-#'       Excludes: 003, 012, 021C. Includes stars and triangles.}
-#'     \item{"closed"}{Network without chain patterns. Excludes: 003, 012, 021C, 120C.
-#'       Similar to network but also removes mutual+chain (120C).}
-#'     \item{"all"}{Include all 16 MAN types, no filtering.}
+#'     \item{"network"}{Excludes the empty triad and the sequential patterns
+#'       003, 012 and 021C. Stars and triangles are kept.}
+#'     \item{"closed"}{Excludes 003, 012, 021C and 120C.}
+#'     \item{"all"}{All 16 MAN types.}
 #'   }
 #' @param exclude_types Character vector of MAN types to explicitly exclude.
 #'   Applied after pattern filter. E.g., c("300") to exclude cliques.
-#' @param include_types Character vector of MAN types to exclusively include.
-#'   If provided, only these types are returned (overrides pattern/exclude).
-#' @param top Return only the top N results (by observed count or z-score).
-#'   NULL returns all results. Default NULL.
-#' @param by_type If TRUE, group results by MAN type in output. Default FALSE.
+#' @param include_types Character vector of MAN types to include. When
+#'   supplied, only these types are returned, and `pattern` and
+#'   `exclude_types` are ignored.
+#' @param top Number of rows to return, taken after sorting by observed count
+#'   (by z-score when `significance = TRUE`). NULL returns all rows.
+#'   Default NULL.
+#' @param by_type If TRUE, the rows are sorted by MAN type and then by
+#'   observed count. Default FALSE.
 #' @param min_transitions At individual level: minimum total transitions for a
 #'   person to be included in the analysis. At aggregate level: minimum triad
 #'   weight to count as present. Default 5.
@@ -77,9 +82,11 @@
 #' @param n_perm Number of permutations for the significance test. When
 #'   \code{significance = TRUE}, must be a whole number of at least 2.
 #'   Default 100.
-#' @param seed Random seed for reproducibility.
+#' @param seed Optional random seed. The caller's random number state is
+#'   restored on exit.
 #'
-#' @return A `cograph_motif_analysis` object (list) containing:
+#' @return A `cograph_motif_analysis` object (list) containing the elements
+#'   below, or \code{NULL} with a warning when no triad passes the filters.
 #'   \describe{
 #'     \item{results}{Data frame with one row per node-triple and MAN type,
 #'       the display label \code{triad}, unambiguous \code{node1}/\code{node2}/
@@ -88,17 +95,20 @@
 #'       count, z-score, empirical p-value, and significance marker. A node
 #'       triple that has different types across individuals therefore appears
 #'       in more than one row.}
-#'     \item{type_summary}{Summary counts by motif type across individuals.}
-#'     \item{params}{List of parameters used}
+#'     \item{type_summary}{A \code{table} of triad counts by MAN type,
+#'       summed over individuals and sorted in decreasing order.}
+#'     \item{params}{List of the settings used, with the number of
+#'       individuals, the number of states and the node labels.}
 #'   }
 #'
 #' @section MAN Notation:
 #' The 16 triad types use MAN (Mutual-Asymmetric-Null) notation where:
 #' \itemize{
-#'   \item First digit: number of Mutual (bidirectional) pairs
-#'   \item Second digit: number of Asymmetric (one-way) pairs
-#'   \item Third digit: number of Null (no edge) pairs
-#'   \item Letter suffix: subtype variant (C=cycle, T=transitive, D=down, U=up)
+#'   \item First digit: number of mutual (bidirectional) pairs.
+#'   \item Second digit: number of asymmetric (one-way) pairs.
+#'   \item Third digit: number of null (no edge) pairs.
+#'   \item Letter suffix: subtype (C = cycle, T = transitive, D = down,
+#'     U = up).
 #' }
 #'
 #' @section Pattern Types:
@@ -106,30 +116,22 @@
 #'   \item{Triangle patterns (all pairs connected):}{
 #'     030C (cycle), 030T (feed-forward), 120C (regulated cycle),
 #'     120D (two out-stars), 120U (two in-stars), 210 (mutual+asymmetric), 300 (clique)}
-#'   \item{Network patterns (has structure):}{
+#'   \item{Network patterns:}{
 #'     021D (out-star), 021U (in-star), 102 (mutual pair),
-#'     111D (out-star+mutual), 111U (in-star+mutual), 201 (mutual+in-star),
+#'     111D (out-star+mutual), 111U (in-star+mutual), 201 (two mutual pairs),
 #'     plus all triangle patterns}
 #'   \item{Sequential patterns (chains):}{
 #'     012 (single edge), 021C (A->B->C chain)}
 #'   \item{Empty:}{003 (no edges)}
 #' }
 #'
-#' @examples
-#' # Small aggregate example -- no significance test for speed
-#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
-#' m <- extract_motifs(mat, significance = FALSE)
-#' print(m)
+#' @section Printing and plotting:
+#' Printing the result shows the analysis settings, the MAN type distribution
+#' and the first 20 triads. \code{plot()} on the result is documented in
+#' \code{\link{plot-results}}.
 #'
-#' @examplesIf requireNamespace("tna", quietly = TRUE)
-#' \donttest{
-#' Mod <- tna::tna(head(tna::group_regulation, 100))
-#' # Individual-level from tna -- keep n_perm tiny for example speed
-#' extract_motifs(Mod, top = 10, significance = TRUE, n_perm = 10L, seed = 1)
-#' # Filter to feed-forward loops only
-#' extract_motifs(Mod, include_types = "030T", significance = FALSE)
-#' }
+#' @examples
+#' extract_motifs(regulation_net, min_transitions = 0)
 #'
 #' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
 #' @family motifs
@@ -511,9 +513,7 @@ extract_motifs <- function(x = NULL,
   result
 }
 
-#' @rdname extract_motifs
-#' @param n Number of motif rows to print.
-#' @param ... Passed to methods; currently unused.
+#' @noRd
 #' @method print cograph_motif_analysis
 #' @export
 print.cograph_motif_analysis <- function(x, n = 20, ...) {
@@ -542,62 +542,7 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
   invisible(x)
 }
 
-#' Plot Motif Analysis Results
-#'
-#' Create visualizations for motif analysis results including network diagrams
-#' of triads, bar plots of type distributions, and significance plots.
-#'
-#' @param x A `cograph_motif_analysis` object from [extract_motifs()]
-#' @param type Plot type:
-#'   \describe{
-#'     \item{\code{"triads"}}{(default) Network diagrams of specific named triads,
-#'       arranged in a grid. Each cell shows the three nodes and their edges.}
-#'     \item{\code{"types"}}{Bar chart of MAN type frequencies.}
-#'     \item{\code{"significance"}}{Z-score plot with one bar per node-triple
-#'       and MAN type. Requires \code{significance = TRUE} in
-#'       \code{extract_motifs()}.}
-#'     \item{\code{"patterns"}}{Abstract MAN pattern diagrams showing edge
-#'       structure of each triad type without specific node labels.}
-#'   }
-#' @param n Number of triads/patterns to show. Default 20.
-#' @param colors Two-element color vector mapped to a three-tone significance
-#'   scale (used by \code{type = "significance"} and by \code{type = "patterns"}
-#'   node fills): \code{colors[1]} fills items that are significantly
-#'   under-represented (\code{p < .05} and \code{z < 0}); \code{colors[2]}
-#'   fills items that are significantly over-represented (\code{p < .05} and
-#'   \code{z > 0}); everything else is filled neutral grey (\code{"#9E9E9E"}).
-#'   When significance was not run, patterns nodes use \code{colors[1]} as a
-#'   single fill. Default \code{c("#2166AC", "#B2182B")} (blue for under, red
-#'   for over).
-#' @param res Resolution for scaling (kept for backwards compatibility). Default 72.
-#' @param node_size Size of nodes in triad diagrams (1-10 scale). Default 5.
-#' @param label_size Font size for node labels (3-letter abbreviations). Default 7.
-#' @param title_size Font size for motif type title (e.g., "120C"). Default 7.
-#' @param stats_size Font size for statistics text (n, z, p). Default 5.
-#' @param ncol Number of columns in the plot grid. Default 5.
-#' @param legend Show abbreviation legend at bottom? Default TRUE.
-#' @param color Color for nodes, edges, and labels in triad diagrams.
-#'   Default \code{"#800020"} (maroon).
-#' @param spacing Spacing multiplier between grid cells (0.5-2). Default 1.
-#' @param combined Logical: when TRUE (default) and \code{type = "patterns"},
-#'   arrange the per-motif panels in an internal grid via
-#'   \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a layout the
-#'   caller has already configured (e.g. via \code{\link{panel_layout}()}).
-#' @param ... Additional arguments (unused).
-#'
-#' @return Invisibly returns NULL for triad and pattern plots, or a ggplot2
-#'   object for types and significance plots.
-#'
-#' @examples
-#' mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
-#' m <- extract_motifs(mat, significance = FALSE)
-#' plot(m)
-#' plot(m, type = "types")
-#'
-#' @seealso [extract_motifs()] for the analysis that produces this object,
-#'   [motif_census()] for statistical motif analysis
-#' @family motifs
+#' @rdname plot-results
 #' @method plot cograph_motif_analysis
 #' @export
 plot.cograph_motif_analysis <- function(x, type = c("triads", "types", "significance", "patterns"),

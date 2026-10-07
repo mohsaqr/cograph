@@ -6,7 +6,7 @@
 \alias{centrality_local_entropy}
 \alias{centrality_weighted_h_index}
 \alias{centrality_redundancy}
-\title{Heatmap, Flow Coefficient, Local Entropy, Weighted h-index, Redundancy}
+\title{Heatmap, Flow Coefficient, Local Entropy, Weighted h-index and Redundancy}
 \usage{
 centrality_heatmap(x, mode = "all", ...)
 
@@ -19,58 +19,53 @@ centrality_weighted_h_index(x, mode = "all", ...)
 centrality_redundancy(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order. The weighted h-index is an integer vector.
 }
 \description{
-Five local measures.
+Five local measures. Heatmap centrality (Duron 2020) is the farness of a
+node minus the mean farness of its neighbors,
+\eqn{C(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)} f(u)}{
+  C(v) = f(v) - (1 / k_v) sum_{u in N(v)} f(u)},
+with \eqn{f} the sum of hop distances to the reachable nodes. The flow
+coefficient (Honey et al. 2007) is the fraction of ordered pairs of
+distinct neighbors joined by a two-step path through the node and by no
+direct link, as in the Brain Connectivity Toolbox. Local entropy (Nie et
+al. 2016) is
+\eqn{-\sum_{j \in N(i)} k_j \ln k_j}{-sum_{j in N(i)} k_j ln k_j}. The
+weighted h-index (Gao et al. 2019) is the h-index of the multiset in
+which each neighbor \eqn{j} contributes the value \eqn{k_i k_j} repeated
+\eqn{k_j} times. Redundancy (Burt 1992; Borgatti 1997) is the mean degree
+of the neighbors of a node within its ego network.
 }
 \details{
-\describe{
-\item{\code{heatmap} (Duron 2020)}{Farness minus the mean farness of
-the neighbors, \eqn{C(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)}
-    f(u)}, with \eqn{f} the sum of hop distances to reachable nodes.
-\strong{Lower is more central.} Isolates score \code{NaN}. Reproduces
-Table 1 of the paper.}
-\item{\code{flow_coefficient} (Honey et al. 2007)}{Among ordered pairs
-of distinct neighbors, the fraction joined by a two-step path
-through the node but not by a direct link, as implemented in the
-Brain Connectivity Toolbox. On an undirected graph it equals one
-minus the clustering coefficient; it carries new information only on
-directed graphs. Nodes with fewer than two neighbors score 0.}
-\item{\code{local_entropy} (Nie et al. 2016)}{\eqn{-\sum_{j \in N(i)}
-    k_j \ln k_j}, as printed by the sources. Always non-positive and more
-negative for larger, denser neighborhoods, so \strong{lower is more
-central}; isolates score 0, the maximum. The original article is
-closed access; the formula is that of the Zoo and of Omar and
-Plapper's 2021 survey, which agree.}
-\item{\code{weighted_h_index} (Gao et al. 2019)}{h-index of the
-multiset in which each neighbor \eqn{j} contributes the topological
-weight \eqn{k_i k_j} repeated \eqn{k_j} times. Edge weights on the
-input play no role.}
-\item{\code{redundancy} (Burt 1992; Borgatti 1997)}{Mean degree of the
-node's neighbors within its ego network, \eqn{2 t_i / k_i}; equal to
-degree minus effective size. Higher = fewer structural holes.
-Reproduces Borgatti's worked example.}
-}
-\code{heatmap}, \code{local_entropy} and \code{weighted_h_index} follow
-\code{mode}; the others ignore direction. Edge weights are ignored.
+Edge weights are ignored by all five. Heatmap, local entropy and the
+weighted h-index follow \code{mode}. Redundancy ignores direction, and
+the flow coefficient uses the direction of the links. On an undirected
+network the flow coefficient of a node with at least two neighbors equals
+one minus its clustering coefficient, and redundancy equals degree minus
+effective size. Lower values mark more
+central nodes for heatmap and local entropy. Isolated nodes return
+\code{NaN} for heatmap and 0 for local entropy, and nodes with fewer than
+two neighbors score 0 on the flow coefficient. The formula for local
+entropy follows the Centrality Zoo and the survey of Omar and Plapper
+(2021), which agree.
 }
 \examples{
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_heatmap(star5)
-centrality_weighted_h_index(star5)
-centrality_redundancy(star5)
+centrality_heatmap(regulation_net)
+centrality_flow_coefficient(regulation_net)
+centrality_local_entropy(regulation_net)
+centrality_weighted_h_index(regulation_net)
+centrality_redundancy(regulation_net)
 }
 \references{
 Duron, C. (2020). Heatmap centrality: A new measure to identify super-
@@ -91,5 +86,5 @@ measures. Connections, 20(1), 35-38.
 }
 \seealso{
 \code{\link{centrality_effective_size}},
-\code{\link{centrality_transitivity}}.
+\code{\link{centrality_transitivity}}, \code{\link{centrality}}.
 }

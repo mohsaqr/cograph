@@ -10,25 +10,22 @@ supra_interlayer(x, from, to)
 extract_interlayer(x, from, to)
 }
 \arguments{
-\item{x}{Supra-adjacency matrix}
+\item{x}{Supra-adjacency matrix from \code{\link{supra_adjacency}}}
 
-\item{from}{Source layer index}
+\item{from}{Integer index of the source layer}
 
-\item{to}{Target layer index}
+\item{to}{Integer index of the target layer}
 }
 \value{
-Inter-layer adjacency matrix
+The N x N inter-layer block, with the supra-matrix labels
+(\code{"<layer>_<node>"}) as dimnames. An index outside \code{1:L}
+raises an error.
 }
 \description{
 Extract Inter-Layer Block
 }
 \examples{
-L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-supra_interlayer(S, 1, 2)
-L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-extract_interlayer(S, 1, 2)
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+supra <- supra_adjacency(layers, omega = 0.5)
+supra_interlayer(supra, from = 1, to = 2)
 }

@@ -20,28 +20,27 @@ Numeric: small-world coefficient sigma. \code{NA} when the graph has
 fewer than 4 nodes, no edges, or an undefined/zero mean path length.
 }
 \description{
-Computes the small-world coefficient sigma, defined as:
-sigma = (C / C_rand) / (L / L_rand)
-where C is clustering coefficient, L is mean path length, and _rand
-are values from equivalent random graphs.
+Computes the small-world coefficient
+\deqn{\sigma = \frac{C / C_{rand}}{L / L_{rand}}}{sigma = (C / C_{rand})/(L / L_{rand})}
+where \eqn{C} is the global clustering coefficient, \eqn{L} is the mean
+shortest path length, and \eqn{C_{rand}} and \eqn{L_{rand}} are their means
+over Erdos-Renyi graphs with the same numbers of nodes and edges. A
+directed network is collapsed to undirected first.
 }
 \details{
-Values > 1 indicate small-world properties. Typically small-world
-networks have sigma >> 1.
+Values above 1 indicate small-world structure.
 }
 \section{Reproducibility}{
 
 The comparison graphs are drawn from the caller's RNG stream; this function
 takes no \code{seed} argument and does not save or restore
 \code{.Random.seed}. Call \code{set.seed()} beforehand for a reproducible
-result, and prefer a larger \code{n_random} than the default for anything
-you report.
+result. A larger \code{n_random} gives a more stable estimate.
 }
 
 \examples{
-# Watts-Strogatz small-world graph
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_smallworld(1, 20, 3, 0.1)
-  network_small_world(g)  # Should be > 1
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+set.seed(1)
+network_small_world(regulation_net, n_random = 5)
+\dontshow{\}) # examplesIf}
 }

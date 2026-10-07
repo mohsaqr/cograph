@@ -23,8 +23,8 @@ set to 1. Default 0, which keeps every existing edge.}
 \item{absolute}{Logical. Compare \code{abs(weight)}. Default TRUE, so a
 correlation network keeps its strong negative edges.}
 
-\item{signed}{Logical. If TRUE, negative edges become \code{-1} rather than
-\code{1}, preserving the sign of the association. Default FALSE.}
+\item{signed}{Logical. If TRUE, negative edges become \code{-1}, which
+preserves the sign of the association. Default FALSE.}
 
 \item{keep_isolates}{Logical. Keep nodes that end up with no edges? Default TRUE.}
 
@@ -41,17 +41,12 @@ left without edges are kept and reported in a
 \code{keep_isolates = FALSE}.
 }
 \description{
-Replaces every surviving weight with 1, dropping edges at or below the
-threshold. The network equivalent of \code{sna::event2dichot()}.
+Replaces every surviving weight with 1 and drops edges whose weight is at
+or below the threshold. The operation corresponds to
+\code{sna::event2dichot()} with an absolute threshold.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-binarize(adj, threshold = 0.45)
+binarize(regulation_net, threshold = 0.1)
 }
 \references{
 Butts, C. T. (2008). Social network analysis with sna.

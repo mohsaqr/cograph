@@ -2,6 +2,7 @@
 #' @description Arrange nodes in an oval (ellipse) shape.
 #' @name layout-oval
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Oval Layout
@@ -20,9 +21,7 @@ NULL
 #' @return Data frame with x, y coordinates.
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- CographNetwork$new(adj)
-#' coords <- layout_oval(net, ratio = 1.5)
+#' layout_oval(CographNetwork$new(regulation_net), ratio = 1.5)
 #'
 #' @export
 layout_oval <- function(network, ratio = 1.5, order = NULL, start_angle = pi/2,

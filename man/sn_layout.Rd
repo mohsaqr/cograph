@@ -20,7 +20,8 @@ object, or a coordinate matrix / data frame with one row per node and
 \item{...}{Additional arguments passed to the layout function.}
 }
 \value{
-Modified cograph_network object.
+The \code{cograph_network} with node coordinates in the \code{x}
+and \code{y} columns of its node table.
 }
 \description{
 Apply a layout algorithm to compute node positions.
@@ -29,17 +30,15 @@ Apply a layout algorithm to compute node positions.
 \subsection{Built-in Layouts}{
 
 \describe{
-\item{\strong{spring}}{Force-directed layout (Fruchterman-Reingold style).
-Good general-purpose layout. Default.}
-\item{\strong{oval}/\strong{ellipse}}{Nodes arranged around an ellipse.}
-\item{\strong{circle}}{Nodes arranged in a circle. Good for small networks
-or when structure is less important.}
-\item{\strong{groups}}{Circular layout with grouped nodes clustered together.}
-\item{\strong{grid}}{Nodes in a regular grid.}
-\item{\strong{random}}{Random positions. Useful as starting point.}
-\item{\strong{star}}{Central node with others arranged around it.}
-\item{\strong{bipartite}}{Two-column layout for bipartite networks.}
-\item{\strong{gephi}/\strong{gephi_fr}}{Gephi-style force-directed layout.}
+\item{\code{"spring"}}{Force-directed layout (Fruchterman-Reingold).}
+\item{\code{"oval"}/\code{"ellipse"}}{Nodes arranged around an ellipse.}
+\item{\code{"circle"}}{Nodes arranged in a circle.}
+\item{\code{"groups"}}{Circular layout with grouped nodes clustered together.}
+\item{\code{"grid"}}{Nodes in a regular grid.}
+\item{\code{"random"}}{Random positions.}
+\item{\code{"star"}}{Central node with others arranged around it.}
+\item{\code{"bipartite"}}{Two-column layout for bipartite networks.}
+\item{\code{"gephi"}/\code{"gephi_fr"}}{Gephi-style force-directed layout.}
 }
 }
 
@@ -48,17 +47,12 @@ or when structure is less important.}
 Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr" (Fruchterman-Reingold),
 "drl", "mds", "ni" (nicely), "tr" (tree), "ci" (circle), etc.
 
-You can also pass igraph layout functions directly or use full names like
-"layout_with_kk".
+igraph layout functions and full igraph layout names such as
+\code{"layout_with_kk"} are also accepted.
 }
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> sn_layout("circle") |> splot()
-
-# Custom coordinates
-coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
-cograph(adj) |> sn_layout(coords) |> splot()
+cograph(regulation_net) |> sn_layout("circle") |> splot()
 }
 \seealso{
 \code{\link{cograph}} for network creation,

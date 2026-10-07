@@ -10,14 +10,20 @@ sn_palette(network, palette, target = "nodes", by = NULL)
 \item{network}{A cograph_network object, matrix, data.frame, or igraph object.
 Matrices and other inputs are auto-converted.}
 
-\item{palette}{Palette name or function.}
+\item{palette}{Palette name (see \code{\link{list_palettes}}) or a function
+that takes \code{n} and returns \code{n} colors.}
 
-\item{target}{What to apply the palette to: "nodes", "edges", or "both".}
+\item{target}{What to apply the palette to: "nodes" (default), "edges", or
+"both". For edges, the first two palette colors become the colors of
+positive and negative edges.}
 
-\item{by}{Variable to map colors to (for nodes: column name or "group").}
+\item{by}{Name of a node-table column whose values are mapped to palette
+colors. When \code{by} is NULL or not a column of the node table, every
+node gets the first palette color.}
 }
 \value{
-Modified cograph_network object.
+The \code{cograph_network} with the node fill colors and edge colors
+stored in its \code{node_aes} and \code{edge_aes} elements.
 }
 \description{
 Apply a color palette for node and/or edge coloring.
@@ -27,24 +33,17 @@ Apply a color palette for node and/or edge coloring.
 
 Use \code{list_palettes()} to see all available palettes. Common options:
 \describe{
-\item{\strong{viridis}}{Perceptually uniform, colorblind-friendly.}
-\item{\strong{colorblind}}{Optimized for color vision deficiency.}
-\item{\strong{pastel}}{Soft, muted colors.}
-\item{\strong{blues}}{Blue sequential palette.}
-\item{\strong{reds}}{Red sequential palette.}
-\item{\strong{diverging}}{Blue-white-red diverging palette.}
+\item{\code{"viridis"}}{Perceptually uniform, colorblind-friendly.}
+\item{\code{"colorblind"}}{Optimized for color vision deficiency.}
+\item{\code{"pastel"}}{Soft, muted colors.}
+\item{\code{"blues"}}{Blue sequential palette.}
+\item{\code{"reds"}}{Red sequential palette.}
+\item{\code{"diverging"}}{Blue-white-red diverging palette.}
 }
-
-You can also pass a custom palette function that takes \code{n} and returns
-\code{n} colors.
 }
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> sn_palette("viridis") |> splot()
-
-# Apply to edges
-cograph(adj) |> sn_palette("colorblind", target = "edges") |> splot()
+cograph(regulation_net) |> sn_palette("viridis") |> splot()
 }
 \seealso{
 \code{\link{cograph}} for network creation,

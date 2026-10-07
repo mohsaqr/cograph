@@ -7,25 +7,48 @@
 centrality_harary(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest distance counted,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of Harary centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of 1/d^2 over all reachable node pairs. Robust to disconnected graphs.
+Harary centrality sums the inverse squared shortest-path distances from a
+node to the other nodes:
+\deqn{H(i) = \sum_{j \ne i} \frac{1}{d_{ij}^{2}},}{
+  H(i) = sum_{j != i} 1 / d_ij^2,}
+with \eqn{1/\infty = 0}{1/Inf = 0}, so an unreachable node contributes
+nothing and the score is defined on disconnected networks.
+}
+\details{
+Edge weights are read as distances. On \code{regulation_net}, whose
+weights lie below one, the scores are therefore large.
+\code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
+converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+\code{mode = "all"} treats edges as undirected, \code{"out"} uses
+distances from the node and \code{"in"} distances to it. The Harary index
+of Plavsic et al. (1993) sums the inverse distances \eqn{1/d_{ij}}{1/d_ij};
+its node-level form is \code{\link{centrality_harmonic}}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_harary(adj)
+centrality_harary(regulation_net)
+}
+\references{
+Plavsic, D., Nikolic, S., Trinajstic, N., & Mihalic, Z. (1993). On the
+Harary index for the characterization of chemical graphs. Journal of
+Mathematical Chemistry, 12(1), 235-250. \doi{10.1007/BF01164638}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_harmonic}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

@@ -7,25 +7,39 @@
 centrality_semilocal(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of semi-local centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Triple-nested neighborhood computation measuring 4-hop local influence.
+Semi-local centrality (Chen et al. 2012) sums, over the neighbors \eqn{u}
+of a node and the neighbors \eqn{w} of each \eqn{u}, the number
+\eqn{N(w)} of nodes within two steps of \eqn{w}:
+\deqn{C_L(v) = \sum_{u \in \Gamma(v)} \sum_{w \in \Gamma(u)} N(w).}{
+  C_L(v) = sum_{u in N(v)} sum_{w in N(u)} N(w).}
+}
+\details{
+Edge weights are ignored. \code{mode} selects the neighbors, and with
+\code{mode = "all"} on a directed network a reciprocated tie counts twice.
+An isolated node scores 0. On undirected networks the values equal
+\code{centiserve::semilocal()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_semilocal(adj)
+centrality_semilocal(regulation_net)
+}
+\references{
+Chen, D., Lu, L., Shang, M.-S., Zhang, Y.-C., & Zhou, T. (2012).
+Identifying influential nodes in complex networks. Physica A, 391(4),
+1777-1787. \doi{10.1016/j.physa.2011.09.017}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_laplacian}},
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

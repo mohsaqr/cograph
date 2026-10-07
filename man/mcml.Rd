@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-mcml.R
 \name{mcml}
 \alias{mcml}
-\title{mcml - Deprecated alias for csum}
+\title{Deprecated Alias for csum}
 \usage{
 mcml(
   x,
@@ -14,32 +14,33 @@ mcml(
 )
 }
 \arguments{
-\item{x}{Weight matrix, tna object, cograph_network, or cluster_summary object}
+\item{x}{Weight matrix, tna object, cograph_network, or cluster_summary
+object.}
 
-\item{cluster_list}{Named list of node vectors per cluster}
+\item{cluster_list}{Named list of node vectors per cluster.}
 
-\item{aggregation}{How to aggregate edge weights: "sum", "mean", "max"}
+\item{aggregation}{How edge weights are aggregated, one of \code{"sum"},
+\code{"mean"}, \code{"max"}.}
 
-\item{as_tna}{Logical. If TRUE, return a tna-compatible object}
+\item{as_tna}{Logical. If \code{TRUE}, a tna-compatible object is returned.}
 
-\item{nodes}{Node metadata}
+\item{nodes}{Node metadata data frame, stored with the result for display labels.}
 
-\item{within}{Logical. Compute within-cluster matrices}
+\item{within}{Logical. Whether within-cluster matrices are computed.}
 }
 \value{
-A cluster_summary object (or tna if as_tna = TRUE)
+A \code{cluster_summary} object, or a tna object if
+\code{as_tna = TRUE}.
 }
 \description{
-\strong{[Deprecated]}
-
-Use \code{\link{csum}} instead. This function is provided for
-backward compatibility only.
+\code{mcml()} is deprecated and kept for backward compatibility. It calls
+\code{\link{csum}} with \code{type = "tna"}, and new code uses
+\code{csum()} directly.
 }
 \examples{
-set.seed(1)
-mat <- matrix(runif(100, 0, 0.3), 10, 10); diag(mat) <- 0
-colnames(mat) <- rownames(mat) <- paste0("N", 1:10)
-clusters <- list(C1 = paste0("N", 1:5), C2 = paste0("N", 6:10))
-mcml(mat, clusters)
+mcml(regulation_net, cluster_list = list(
+  Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+  Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share")
+))
 }
 \keyword{internal}

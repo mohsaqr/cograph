@@ -8,117 +8,127 @@ calculate_global_structure <- function(cg, model = "gsm", normalized = FALSE) {
   .cg_global_structure(b, core, model, normalized)
 }
 
-#' Global structure model centrality
+#' Global Structure Model Centrality
 #'
-#' The Global Structure Model (GSM) of Ullah et al. (2021) is
-#' \eqn{GSM(i)=\exp(k_s(i)/N)\sum_{j\ne i}k_s(j)/d_{ij}}, where
-#' k_s denotes original graph core numbers and d denotes hop distances.
-#' It combines a focal coreness factor with distance-discounted coreness
-#' of other nodes. N is the total original node count, including isolates.
+#' The global structure model (GSM; Ullah et al. 2021) multiplies a
+#' coreness factor of the node by the coreness of all other nodes, each
+#' discounted by its hop distance:
+#' \deqn{GSM(i) = \exp\left(\frac{k_s(i)}{N}\right) \sum_{j \ne i}
+#'   \frac{k_s(j)}{d_{ij}}.}{
+#'   GSM(i) = exp(k_s(i) / N) sum_{j != i} k_s(j) / d_ij.}
+#' Here \eqn{k_s}{k_s} is the core number and \eqn{N} the number of nodes,
+#' isolated nodes included.
 #'
-#' Both GSM and \code{\link{centrality_hybrid_global_structure}} use the
-#' simple undirected skeleton, ignoring weights, mode, path inversion and
-#' distance cutoffs. Loops are removed and parallel connections count once.
-#' Only reachable partners contribute; this is an explicit disconnected-graph
-#' extension. Isolates and singletons score zero, empty input returns an
-#' empty vector. Other components can affect results through the global
-#' node count and, for H-GSM, its global mean. These are not independent
-#' per-component calculations.
-#'
-#' Production uses native coreness and all-pairs distance kernels, with
-#' worst-case O(N^3) time and O(N^2) memory. Numerical verification uses
-#' independent NetworkX cores/distances and exhaustive small-graph oracles.
-#' Agreement with a numerical definition does not establish author-software
-#' parity or superior epidemic-spreading predictions.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored, and \code{mode} has no effect.
+#' Only reachable nodes contribute to the sum, which extends the measure to
+#' disconnected networks. Other components still affect the scores through
+#' \eqn{N}. An isolated node scores 0.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides final scores by their maximum.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z. (2021).
 #'   Identification of nodes influence based on global structure model in
 #'   complex networks. Scientific Reports, 11, 6173.
 #'   \doi{10.1038/s41598-021-84684-x}.
+#' @seealso \code{\link{centrality_hybrid_global_structure}},
+#'   \code{\link{centrality_improved_global_structure}},
+#'   \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_global_structure(igraph::make_ring(4))
+#' @examples
+#' centrality_global_structure(regulation_net)
 centrality_global_structure <- function(x, ...) {
   df <- centrality(x, measures = "global_structure", ...)
   stats::setNames(df$global_structure, df$node)
 }
 
-#' Hybrid global structure model centrality
+#' Hybrid Global Structure Model Centrality
 #'
-#' Mukhtar et al.'s H-GSM (2023) uses
-#' \eqn{s_i=\exp(k_s(i)k_i/N)},
-#' \eqn{a=\lceil\log_2(N^{-1}\sum_i s_i)\rceil}, and
-#' \eqn{H\text{-}GSM(i)=s_i\sum_{j\ne i}s_j/d_{ij}^{a}}.
-#' k_i is simple degree, k_s(i) is original coreness, and d is hop distance.
-#' The ceiling exponent is computed from the mean self-influence over ALL
-#' original nodes, including isolates whose self-influence is one. The
-#' factor s_i alone is not the final centrality score.
+#' The hybrid global structure model (H-GSM; Mukhtar et al. 2023) combines
+#' a self-influence
+#' \eqn{s_i = \exp(k_s(i)\, k_i / N)}{s_i = exp(k_s(i) k_i / N)}
+#' with a distance exponent \eqn{a} computed from the mean self-influence:
+#' \deqn{HGSM(i) = s_i \sum_{j \ne i} \frac{s_j}{d_{ij}^{a}}, \qquad
+#'   a = \left\lceil \log_2 \frac{1}{N} \sum_l s_l \right\rceil.}{
+#'   HGSM(i) = s_i sum_{j != i} s_j / d_ij^a,
+#'   a = ceiling(log2(sum_l s_l / N)).}
+#' Here \eqn{k_s(i)} is the core number, \eqn{k_i} the degree and \eqn{N}
+#' the number of nodes, isolated nodes included.
 #'
-#' Topology and disconnected-graph conventions are shared with
-#' \code{\link{centrality_global_structure}}. The adaptive exponent is
-#' used exactly as specified, including its discontinuities at powers of
-#' two; it is not smoothed or replaced by a fixed exponent.
-#'
-#' Self-influence, its mean and final sums are evaluated in logarithmic
-#' form. Raw scores exceeding double precision raise an error. With
-#' \code{normalized = TRUE}, final scores are computed directly as
-#' exponentials of log-score differences, so normalized results remain
-#' available even when raw scores overflow. Extremely small normalized
-#' ratios may underflow to zero. Normalization is applied to the complete
-#' score, not separately to self-influence or neighbor contributions.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored, and \code{mode} has no effect.
+#' Only reachable nodes contribute to the sum. Other components affect the
+#' scores through \eqn{N} and the mean self-influence, to which each
+#' isolated node adds 1. An isolated node scores 0. Raw scores beyond
+#' double precision raise an error. With \code{normalized = TRUE} the
+#' scores are computed on the log scale and remain available in that case.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Mukhtar, M. F., et al. (2023). Integrating local and global information to
 #'   identify influential nodes in complex networks. Scientific Reports, 13,
 #'   11411. \doi{10.1038/s41598-023-37570-7}.
+#' @seealso \code{\link{centrality_global_structure}},
+#'   \code{\link{centrality_improved_global_structure}},
+#'   \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_hybrid_global_structure(igraph::make_ring(4))
+#' @examples
+#' centrality_hybrid_global_structure(regulation_net)
 centrality_hybrid_global_structure <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "hybrid_global_structure", ...)
   stats::setNames(df$hybrid_global_structure, df$node)
 }
 
-#' Improved global structure model centrality
+#' Improved Global Structure Model Centrality
 #'
-#' The IGSM definition reproduced in Mukhtar et al. (2023), equation 5,
-#' is \eqn{IGSM(i)=\exp(k_i/N)\sum_{j\ne i}k_j/d_{ij}^{a}}, with
-#' \eqn{a=\lceil\log_2(\overline{k})\rceil}. The original method is
-#' attributed to Zhu and Wang (2022); the exact equation used here was
-#' checked in the later primary experimental paper, not its original full
-#' text. IGSM uses simple degrees rather than GSM's core numbers, and its
-#' distance exponent depends on global mean degree, including isolates.
+#' The improved global structure model (IGSM; Zhu and Wang 2022) replaces
+#' the core numbers of \code{\link{centrality_global_structure}} with
+#' degrees and raises each distance to an exponent set by the mean degree
+#' \eqn{\bar{k}}{k_bar}:
+#' \deqn{IGSM(i) = \exp\left(\frac{k_i}{N}\right) \sum_{j \ne i}
+#'   \frac{k_j}{d_{ij}^{a}}, \qquad a = \lceil \log_2 \bar{k} \rceil.}{
+#'   IGSM(i) = exp(k_i / N) sum_{j != i} k_j / d_ij^a,
+#'   a = ceiling(log2(k_bar)).}
+#' The formula follows equation 5 of Mukhtar et al. (2023).
 #'
-#' Topology, normalization and disconnected-graph conventions follow
-#' \code{\link{centrality_global_structure}}. For a positive mean degree
-#' below one, the exponent may be zero or negative; it is not clamped.
-#' With a negative exponent, more distant reachable partners contribute
-#' more, an explicit consequence of extending the equation to sparse
-#' disconnected inputs. Unreachable partners still contribute zero.
-#' Edgeless graphs score zero by an explicit extension because the
-#' logarithm of zero in the exponent is otherwise undefined.
-#'
-#' This implements IGSM itself, without an additional nearest-neighbor
-#' aggregation for the extended IGSM variant.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored, and \code{mode} has no effect.
+#' Only reachable nodes contribute to the sum, and \eqn{N} and the mean
+#' degree include every node of the network. When the mean degree is at
+#' most 1 the exponent is zero or negative, and with a negative exponent
+#' distant nodes contribute more than near ones. An isolated node scores
+#' 0, and so does every node of a network without edges.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Zhu, J.-C., & Wang, L.-W. (2022). An extended improved global structure
 #'   model for influential node identification in complex networks. Chinese
 #'   Physics B, 31, 068904. \doi{10.1088/1674-1056/ac380d}.
+#'
+#' Mukhtar, M. F., et al. (2023). Integrating local and global information to
+#'   identify influential nodes in complex networks. Scientific Reports, 13,
+#'   11411. \doi{10.1038/s41598-023-37570-7}.
+#' @seealso \code{\link{centrality_global_structure}},
+#'   \code{\link{centrality_hybrid_global_structure}},
+#'   \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_improved_global_structure(igraph::make_ring(4))
+#' @examples
+#' centrality_improved_global_structure(regulation_net)
 centrality_improved_global_structure <- function(x, ...) { # nolint: object_length_linter
   df <- centrality(x, measures = "improved_global_structure", ...)
   stats::setNames(df$improved_global_structure, df$node)

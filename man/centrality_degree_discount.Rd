@@ -3,51 +3,45 @@
 \name{centrality_degree_discount}
 \alias{centrality_degree_discount}
 \alias{centrality_single_discount}
-\title{DegreeDiscountIC and SingleDiscount Rankings}
+\title{DegreeDiscountIC and SingleDiscount}
 \usage{
 centrality_degree_discount(x, discount_p = 0.01, ...)
 
 centrality_single_discount(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{discount_p}{Propagation probability \eqn{p} for DegreeDiscountIC.
-Default 0.01.}
+\item{discount_p}{Propagation probability \eqn{p} for DegreeDiscountIC
+(default 0.01).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in \eqn{(0, 1]}, one score per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Chen, Wang and Yang's (2009) degree-discount heuristics for choosing
-spreaders under the independent-cascade model. Nodes are selected one
-at a time by the largest \emph{discounted} degree; after each selection every
-unselected neighbor \eqn{v} of the new seed counts one more selected
-neighbor, \eqn{t_v}, and its discounted degree becomes
-\deqn{dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p}
-for DegreeDiscountIC (Algorithm 4 of the paper, with propagation
-probability \eqn{p}, default 0.01), or simply \eqn{d_v - t_v} for
-SingleDiscount, where each neighbor of a new seed discounts its degree
-by one. Every node is placed, so the result is a full ranking, returned
-as a score: the first node selected scores 1, the last \eqn{1 / n}.
+DegreeDiscountIC and SingleDiscount (Chen, Wang and Yang 2009) select
+spreaders for the independent-cascade model one at a time by the largest
+discounted degree. After each selection every unselected neighbor
+\eqn{v} of the new seed gains one selected neighbor \eqn{t_v}{t_v}, and
+its DegreeDiscountIC degree becomes
+\deqn{dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p,}{
+  dd_v = d_v - 2 t_v - (d_v - t_v) t_v p,}
+with propagation probability \eqn{p}. SingleDiscount uses
+\eqn{d_v - t_v}{d_v - t_v}.
 }
 \details{
-Ties are broken by node order, which the paper does not specify.
-Direction, edge weights and self-loops are ignored, as in the paper's
-setting. Validated against an independent implementation of the
-algorithm and against the reference code of the influence-maximization
-literature on the karate club graph.
+Every node is placed, and the selection order is returned as a score.
+The first node selected scores 1 and the last \eqn{1/n}{1/n}, so scores
+lie in \eqn{(0, 1]}{(0, 1]}. Ties are broken by node order, which the
+source leaves open. Direction, edge weights and self-loops are ignored.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_degree_discount(adj)
-centrality_single_discount(adj)
+centrality_degree_discount(regulation_net)
+centrality_single_discount(regulation_net)
 }
 \references{
 Chen, W., Wang, Y., & Yang, S. (2009). Efficient influence
@@ -56,6 +50,6 @@ International Conference on Knowledge Discovery and Data Mining,
 199-208.
 }
 \seealso{
-\code{\link{centrality_voterank}} for the voting-based
-alternative.
+\code{\link{centrality_voterank}},
+\code{\link{centrality_ncvoterank}}, \code{\link{centrality}}.
 }

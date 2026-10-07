@@ -2,50 +2,53 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_dmnc}
 \alias{centrality_dmnc}
-\title{Density of Maximum Neighborhood Component (DMNC)}
+\title{Density of Maximum Neighborhood Component}
 \usage{
 centrality_dmnc(x, mode = "all", dmnc_epsilon = 1.7, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{dmnc_epsilon}{Numeric. Epsilon exponent for DMNC. Default 1.7 as
-recommended by Lin et al. (2008). centiserve uses 1.67 (four-community
-assumption). Must be between 1 and 2.}
+\item{dmnc_epsilon}{Exponent \eqn{\varepsilon}{epsilon}. Default 1.7, the
+value Lin et al. (2008) recommend. The centiserve package uses 1.67.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of DMNC values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Edges divided by nodes raised to \code{dmnc_epsilon}, both taken from the
-largest connected component of the subgraph induced on a node's
-neighbors (the focal node excluded).
+The density of maximum neighborhood component (Lin et al. 2008) looks at
+the subnetwork induced by the neighbors of a node, the node itself left
+out, and takes its largest connected component with \eqn{E} edges and
+\eqn{N} nodes:
+\deqn{DMNC(v) = \frac{E}{N^{\varepsilon}}.}{DMNC(v) = E / N^epsilon.}
+A node without neighbors scores 0.
 }
-\section{Divergence from centiserve}{
-
-\code{centiserve::dmnc()} returns different values, and not only because
-of its different \code{epsilon} default. Its edge count is taken with
-\code{induced.subgraph(graph, which(c$membership \%in\% ...))}, where the
-membership vector indexes the neighborhood subgraph but is used to
-subset the original graph. The two index spaces are not the same, so the
-edges counted are those of an unrelated vertex set. On the Zachary karate
-club the two disagree on 14 of 34 nodes at a matched epsilon, and
-reproducing that indexing exactly reproduces centiserve's output.
-cograph counts the edges of the component it actually found.
+\details{
+Edge weights are ignored, and \code{mode} sets the neighbor set. On an
+undirected network the result follows this definition. On a directed
+network the component is a strongly connected component, and its nodes are
+read from the neighbor list with each reciprocated neighbor listed twice,
+as in the centiserve package. The edge count can then belong to a
+different node set, and scores above one occur. The value of
+\code{dmnc_epsilon} is not checked.
 }
-
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_dmnc(adj)
+centrality_dmnc(regulation_net, directed = FALSE)
+}
+\references{
+Lin, C.-Y., Chin, C.-H., Wu, H.-H., Chen, S.-H., Ho, C.-W., & Ko, M.-T.
+(2008). Hubba: Hub objects analyzer, a framework of interactome hubs
+identification for network biology. Nucleic Acids Research, 36(suppl 2),
+W438-W443. \doi{10.1093/nar/gkn257}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_mnc}} for the size-only variant.
+\code{\link{centrality_mnc}}, \code{\link{centrality_mcc}},
+\code{\link{centrality}}.
 }

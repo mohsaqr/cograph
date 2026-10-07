@@ -7,25 +7,33 @@
 centrality_expected(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of expected centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of neighbor degrees. Simple but effective influence proxy.
+Expected centrality is the sum of the degrees of a node's neighbors:
+\deqn{E(v) = \sum_{u \in N(v)} k_u.}{E(v) = sum_{u in N(v)} k_u.}
+}
+\details{
+Edge weights are ignored. \code{mode} sets both the degrees and the
+neighbor set. On a directed network \code{mode = "all"} uses total degrees
+and the undirected neighbor set. Adding the node's own degree gives the
+\code{"kandhway_kuri"} form of \code{\link{centrality_diffusion}}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_expected(adj)
+centrality_expected(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_diffusion}},
+\code{\link{centrality_neighborhood_connectivity}},
+\code{\link{centrality}}.
 }

@@ -19,18 +19,21 @@ ggplot_robustness(
 )
 }
 \arguments{
-\item{...}{Named arguments: network names as names, network objects as values.}
+\item{...}{Networks, with network names as argument names. Unnamed
+networks are labelled "Network 1", "Network 2", and so on.}
 
-\item{networks}{Named list of networks (alternative to ...).}
+\item{networks}{Named list of networks, used when \code{...} is empty.}
 
 \item{measures}{Attack strategies to compare. Default c("betweenness", "degree", "random").}
 
 \item{strategy}{Character string; "sequential" (default) recalculates centrality
 after each removal, "static" uses initial centrality ranking throughout.}
 
-\item{colors}{Named vector of colors for measures.}
+\item{colors}{Vector of colors named "Betweenness", "Degree" and "Random".
+Default NULL uses red, green and blue.}
 
-\item{title}{Overall title. Default NULL.}
+\item{title}{Overall title. Default NULL. With a single network the title
+is replaced by "\if{html}{\out{<name>}}: sequential removal of nodes".}
 
 \item{n_iter}{Iterations for random. Default 1000.}
 
@@ -43,24 +46,14 @@ after each removal, "static" uses initial centrality ranking throughout.}
 \item{free_y}{If TRUE, allow different y-axis scales per facet. Default FALSE.}
 }
 \value{
-A ggplot2 object.
+A ggplot object.
 }
 \description{
-Creates a ggplot2 faceted visualization comparing robustness across
-multiple networks. Produces publication-quality figures similar to
-those in Nature Scientific Reports.
+Plots robustness curves for one or more networks with ggplot2, with one
+facet per network and one line per attack strategy.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE) &&
-    requireNamespace("ggplot2", quietly = TRUE)) {
-
-  g1 <- igraph::sample_pa(40, m = 2, directed = FALSE)
-  g2 <- igraph::sample_gnp(40, 0.15)
-
-  ggplot_robustness(
-    "Teaching network" = g1,
-    "Collaborative network" = g2,
-    n_iter = 20
-  )
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+ggplot_robustness(regulation = regulation_net, n_iter = 20, seed = 1)
+\dontshow{\}) # examplesIf}
 }

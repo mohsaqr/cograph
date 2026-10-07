@@ -7,26 +7,46 @@
 centrality_wiener(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest distance counted,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of Wiener index values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Total sum of shortest path distances from a node to all others.
-Higher values indicate less central (more peripheral) nodes.
+The Wiener centrality of a node is the sum of its shortest-path distances
+to the nodes it reaches:
+\deqn{W(i) = \sum_{j \ne i,\, d_{ij} < \infty} d_{ij}.}{
+  W(i) = sum_{j != i, d_ij < Inf} d_ij.}
+High values mark peripheral nodes. On a connected undirected network half
+the sum of the scores is the Wiener index of the network (Wiener 1947).
+}
+\details{
+Edge weights are read as distances. \code{weighted = FALSE} uses hop
+counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+distance \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+undirected, \code{"out"} uses distances from the node and \code{"in"}
+distances to it. Unreachable nodes add nothing, so on a disconnected
+network a node in a small component also scores low.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_wiener(adj)
+centrality_wiener(regulation_net)
+}
+\references{
+Wiener, H. (1947). Structural determination of paraffin boiling points.
+Journal of the American Chemical Society, 69(1), 17-20.
+\doi{10.1021/ja01193a005}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_average_distance}}, \code{\link{centrality}}.
 }

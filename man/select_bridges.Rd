@@ -30,16 +30,8 @@ A cograph_network with bridge edges only.
 Select edges whose removal would disconnect the graph.
 }
 \examples{
-# Create network with bridge
-adj <- matrix(0, 5, 5)
-adj[1, 2] <- adj[2, 1] <- 1
-adj[2, 3] <- adj[3, 2] <- 1  # Bridge
-adj[3, 4] <- adj[4, 3] <- 1
-adj[4, 5] <- adj[5, 4] <- 1
-adj[3, 5] <- adj[5, 3] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-
-select_bridges(adj)
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+select_bridges(strong, keep_isolates = FALSE)
 }
 \seealso{
 \code{\link{select_edges}}, \code{\link{select_nodes}}

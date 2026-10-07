@@ -7,22 +7,41 @@
 centrality_diversity(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of diversity centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Shannon entropy of the edge weight distribution per node. Measures
-how evenly a node distributes its connections.
+Diversity centrality (Eagle, Macy and Claxton 2010) is the Shannon entropy
+of the weights on the edges incident to a node, divided by its maximum
+\eqn{\log_2 k_v}{log2 k_v}:
+\deqn{D(v) = -\frac{\sum_{j} p_{vj} \log_2 p_{vj}}{\log_2 k_v}, \qquad
+  p_{vj} = \frac{|w_{vj}|}{\sum_{l} |w_{vl}|}.}{
+  D(v) = -sum_j p_vj log2(p_vj) / log2(k_v),
+  p_vj = |w_vj| / sum_l |w_vl|.}
+The score lies between 0 and 1 and reaches 1 when the weights are equal.
+}
+\details{
+On a directed network incoming and outgoing edges are separate entries,
+and \eqn{k_v}{k_v} counts both. Edge weights are always used, and
+\code{weighted = FALSE} has no effect. On an unweighted input every node
+with two or more edges scores 1. A node with fewer than two edges, or
+with edge weights summing to zero, scores 0.
 }
 \examples{
-mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-centrality_diversity(mat)
+centrality_diversity(regulation_net)
+}
+\references{
+Eagle, N., Macy, M., & Claxton, R. (2010). Network diversity and economic
+development. Science, 328(5981), 1029-1031.
+\doi{10.1126/science.1186605}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_entropy}},
+\code{\link{centrality_strength}}, \code{\link{centrality}}.
 }

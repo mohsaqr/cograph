@@ -1,35 +1,30 @@
 #' @title ggplot2 Conversion
-#' @description Convert Cograph network to ggplot2 object.
+#' @description \code{\link{sn_ggplot}()} converts a network to a ggplot object.
 #' @name render-ggplot
-#' @return A ggplot2 object representing the network.
+#' @return \code{sn_ggplot()} returns a ggplot object representing the network.
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' p <- sn_ggplot(adj)
+#' sn_ggplot(regulation_net)
 NULL
 
 #' Convert Network to ggplot2
 #'
-#' Convert a Cograph network visualization to a ggplot2 object for further
-#' customization and composability.
+#' Builds a ggplot object of a network that can be modified and combined with
+#' other ggplot2 layers. Nodes are points with labels and edges are straight
+#' segments, with arrows when the network is directed. Edges with positive
+#' weights are green and edges with negative weights are red. The plot uses
+#' fixed default aesthetics and does not apply styling set with the
+#' \code{sn_*} functions or a theme.
 #'
-#' @param network A cograph_network object, matrix, data.frame, or igraph object.
-#'   Matrices and other inputs are auto-converted.
+#' @param network A \code{cograph_network} object, matrix, data frame edge
+#'   list, igraph, statnet network, qgraph or tna object. A network without
+#'   layout coordinates receives a spring layout computed with seed 42.
 #' @param title Optional plot title.
 #'
-#' @return A ggplot2 object.
+#' @return A ggplot object.
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With cograph()
-#' p <- cograph(adj) |> sn_ggplot()
-#' print(p)
-#'
-#' # Direct matrix input
-#' p <- adj |> sn_ggplot()
-#'
-#' # Further customization
-#' p + ggplot2::labs(title = "My Network")
+#' sn_ggplot(regulation_net, title = "Regulation")
 sn_ggplot <- function(network, title = NULL) {
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network)

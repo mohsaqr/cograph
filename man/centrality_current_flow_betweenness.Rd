@@ -2,29 +2,56 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_current_flow_betweenness}
 \alias{centrality_current_flow_betweenness}
-\title{Current Flow Betweenness Centrality}
+\title{Current-Flow Betweenness}
 \usage{
 centrality_current_flow_betweenness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of current flow betweenness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Betweenness based on electrical current flow rather than shortest paths.
-Uses the Laplacian pseudoinverse. Requires a connected graph.
+Current-flow betweenness (Brandes and Fleischer 2005), also known as
+random-walk betweenness (Newman 2005), treats the network as an electrical
+circuit with the edge weights as conductances. One unit of current is sent
+between every pair \eqn{s, t}{s, t}, and the score is the average current
+that flows through the node:
+\deqn{CFB(v) = \frac{2}{(n-1)(n-2)} \sum_{s < t} \frac{1}{2} \sum_{u}
+  w_{vu} \left| p^{(st)}_v - p^{(st)}_u \right|,}{
+  CFB(v) = 2 / ((n-1)(n-2)) sum_{s < t} (1/2) sum_u w_vu |p_v - p_u|,}
+where \eqn{p^{(st)}}{p} are the node potentials of that pair, taken from
+the pseudoinverse of the Laplacian, and the inner sum is set to zero for
+\eqn{v = s} and \eqn{v = t}.
+}
+\details{
+The measure is defined for connected undirected networks. On a
+disconnected network every score is \code{NA}, with an unclassed warning.
+On a directed network the Laplacian is built from the asymmetric weight
+matrix, and \code{directed = FALSE} gives the undirected reading. With
+\code{weighted = FALSE} the potentials still come from the weighted
+Laplacian while the currents are read off the binary adjacency matrix.
+The fixed factor \eqn{2/((n-1)(n-2))} is the normalization of
+\code{networkx::current_flow_betweenness_centrality()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_current_flow_betweenness(adj)
+centrality_current_flow_betweenness(regulation_net, directed = FALSE)
+}
+\references{
+Brandes, U., & Fleischer, D. (2005). Centrality measures based on current
+flow. In STACS 2005, Lecture Notes in Computer Science, 3404 (pp.
+533-544). Springer. \doi{10.1007/978-3-540-31856-9_44}.
+
+Newman, M. E. J. (2005). A measure of betweenness centrality based on
+random walks. Social Networks, 27(1), 39-54.
+\doi{10.1016/j.socnet.2004.11.009}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_betweenness}} for the shortest-path variant.
+\code{\link{centrality_current_flow_closeness}},
+\code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 }

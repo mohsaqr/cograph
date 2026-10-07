@@ -26,35 +26,41 @@ Default: \code{"splot"}.}
 Edges whose weight rounds to zero at this precision are dropped unless
 \code{show_zero_edges = TRUE}.}
 
-\item{show_zero_edges}{Logical. Zero is how this representation stores
-"no edge", so an edge whose weight rounds to zero at
-\code{weight_digits} is dropped. With \code{TRUE} such an edge is
-instead drawn at the smallest magnitude \code{weight_digits} can
-express, carrying its sign; every other weight is unchanged. Default:
-FALSE.}
+\item{show_zero_edges}{Logical. A zero weight means that the edge is
+absent, so an edge whose weight rounds to zero at \code{weight_digits}
+is dropped. With \code{TRUE} each such edge is plotted at the smallest
+magnitude that \code{weight_digits} can express, with its original
+sign. Other weights are unchanged. Default: \code{FALSE}.}
 
 \item{preserve_node_size}{Logical. If TRUE, use the node sizes extracted
 from the qgraph object. Default FALSE uses cograph's standard sizing.}
 
-\item{...}{Override any extracted parameter. Use qgraph-style names (e.g.,
-\code{minimum}) or cograph names (e.g., \code{threshold}).}
+\item{...}{Overrides for any extracted parameter, given by cograph name
+(for example \code{threshold}). The qgraph names \code{minimum} and
+\code{cut} are translated to \code{threshold} and \code{edge_cutoff}.}
 }
 \value{
-Invisibly, a named list of cograph parameters that can be passed to
-\code{splot()} or \code{soplot()}.
+Invisibly, a named list of plotting parameters (the weight matrix
+\code{x}, \code{weight_digits}, the layout and the extracted node, edge
+and graph settings, after the overrides in \code{...}). It can be passed
+to \code{splot()} with \code{do.call()}. An input without an
+\code{Arguments} field that does not inherit from \code{"qgraph"} raises
+an error.
 }
 \description{
-Extracts the network, layout, and all relevant arguments from a qgraph
-object and passes them to a cograph plotting engine. Reads resolved values
-from \code{graphAttributes} rather than raw \code{Arguments}.
+Extracts the network, the layout and the plotting arguments from a qgraph
+object and passes them to a cograph plotting engine. Node, edge and graph
+settings are read from the resolved \code{graphAttributes} of the object.
+The colors \code{posCol}, \code{negCol} and the \code{theme} are read from
+its \code{Arguments}.
 }
 \details{
 \subsection{Parameter Mapping}{
 
-The following qgraph parameters are automatically extracted and mapped to
-cograph equivalents:
+The following qgraph parameters are extracted and mapped to their cograph
+equivalents.
 
-\strong{Node properties:}
+Node properties:
 \itemize{
 \item \code{labels}/\code{names} \code{->} \code{labels}
 \item \code{color} \code{->} \code{node_fill}
@@ -67,7 +73,7 @@ cograph equivalents:
 \item \code{label.color} \code{->} \code{label_color}
 }
 
-\strong{Edge properties:}
+Edge properties:
 \itemize{
 \item \code{labels} \code{->} \code{edge_labels}
 \item \code{label.cex} \code{->} \code{edge_label_size} (scaled by 0.5x)
@@ -78,7 +84,7 @@ single curvature for the whole graph)
 \item \code{edge.label.position} \code{->} \code{edge_label_position}
 }
 
-\strong{Graph properties:}
+Graph properties:
 \itemize{
 \item \code{minimum} \code{->} \code{threshold}
 \item \code{maximum} \code{->} \code{maximum}
@@ -88,7 +94,7 @@ single curvature for the whole graph)
 \item \code{theme} \code{->} \code{theme}
 }
 
-\strong{Pie/Donut:}
+Pie and donut:
 \itemize{
 \item \code{pie} values \code{->} \code{donut_fill} with
 \code{donut_inner_ratio = 0.8} and \code{donut_empty = FALSE}
@@ -96,39 +102,24 @@ single curvature for the whole graph)
 }
 }
 
-\subsection{Important Notes}{
+\subsection{Settings that are not extracted}{
 
-\itemize{
-\item \strong{edge_color and edge_width are NOT extracted} because qgraph bakes
-its cut-based fading into these vectors, producing near-invisible edges.
-cograph applies its own weight-based styling instead.
-\item The \code{cut} parameter is also not passed because it causes faint edges
-with hanging labels.
-\item Layout coordinates from qgraph are preserved with \code{rescale=FALSE}.
-\item If you override layout, rescale is automatically re-enabled.
+The edge colors and widths are not extracted, because qgraph stores them
+with its \code{cut}-based fading applied. cograph styles the edges by weight
+instead. The \code{cut} value is not extracted either.
 }
+
+\subsection{Layout}{
+
+The qgraph layout coordinates are kept with \code{rescale = FALSE}. When
+\code{layout} is supplied in \code{...}, \code{rescale} is removed and
+the new layout is rescaled.
 }
 }
 \examples{
 \dontshow{if (requireNamespace("qgraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Convert and plot a qgraph object
-adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-q <- qgraph::qgraph(adj)
-from_qgraph(q)  # Plots with splot
-
-# Use soplot engine instead
-from_qgraph(q, engine = "soplot")
-
-# Override extracted parameters
-from_qgraph(q, node_fill = "steelblue", layout = "circle")
-
-# Extract parameters without plotting
-params <- from_qgraph(q, plot = FALSE)
-names(params)  # See what was extracted
-
-# Works with themed qgraph objects
-q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")
-from_qgraph(q_themed)
+q <- qgraph::qgraph(regulation_net, DoNotPlot = TRUE)
+from_qgraph(q)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

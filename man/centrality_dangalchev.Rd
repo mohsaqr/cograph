@@ -2,31 +2,48 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_dangalchev}
 \alias{centrality_dangalchev}
-\title{Dangalchev Closeness Centrality}
+\title{Dangalchev Closeness}
 \usage{
 centrality_dangalchev(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of Dangalchev closeness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Alias for residual closeness centrality: sum of 1/2^d.
+Dangalchev closeness, the residual closeness of Dangalchev (2006), sums an
+exponentially decaying function of the distance to every node:
+\deqn{D(v) = \sum_{w} 2^{-d(v, w)}.}{D(v) = sum_w 2^(-d(v, w)).}
+The sum includes the node itself, which adds one to every score, as in the
+centiserve package. Unreachable nodes contribute 0.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. The values equal
+those of \code{\link{centrality_residual_closeness}} and of
+\code{\link{centrality_decay}} with \code{decay_parameter = 0.5}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_dangalchev(adj)
+centrality_dangalchev(regulation_net)
+}
+\references{
+Dangalchev, C. (2006). Residual closeness in networks. Physica A, 365(2),
+556-564. \doi{10.1016/j.physa.2005.12.020}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_residual_closeness}} (equivalent).
+\code{\link{centrality_residual_closeness}},
+\code{\link{centrality_decay}}, \code{\link{centrality}}.
 }

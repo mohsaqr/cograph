@@ -34,7 +34,7 @@ Default TRUE, matching \code{igraph::delete_edges()} and tidygraph:
 filtering edges does not remove nodes. Set FALSE to drop them, or call
 \code{\link{remove_isolates}()} afterwards.}
 
-\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+\item{keep_format}{Logical. If TRUE, matrix, igraph, statnet network and tna
 inputs are returned in that format. Default FALSE
 returns cograph_network (universal format).}
 
@@ -46,34 +46,18 @@ Only used for non-cograph_network inputs.}
 }
 \value{
 A cograph_network object with filtered edges. If \code{keep_format = TRUE},
-matrix, igraph, and statnet network inputs are converted back to that type.
-Nodes are never removed by the filter itself; when the filter strands a
-node a \code{cograph_isolates_created} warning is raised.
-
-See \code{\link{filter_edges}}.
+matrix, igraph, statnet network and tna inputs are converted back to that type.
+With \code{keep_isolates = TRUE}, a node that loses all its edges stays in
+the network and a \code{cograph_isolates_created} warning is raised.
 }
 \description{
 Filter edges using dplyr-style expressions on any edge column. Returns a
 cograph_network object by default (universal format), or optionally a
-matrix, igraph, or statnet network object when \code{keep_format = TRUE}
+matrix, igraph, statnet network or tna object when \code{keep_format = TRUE}
 and the input used one of those formats.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Keep only strong edges
-filter_edges(adj, weight > 0.5)
-
-# Matrix in, matrix out
-filter_edges(adj, weight > 0.5, keep_format = TRUE)
-
-# Pipe-friendly with cograph_network
-as_cograph(adj) |>
-  filter_edges(weight > 0.3) |>
-  filter_nodes(degree >= 2) |>
-  splot()
+filter_edges(regulation_net, weight > 0.15)
 }
 \seealso{
 \code{\link{filter_nodes}}, \code{\link{splot}}, \code{\link{subset_edges}}

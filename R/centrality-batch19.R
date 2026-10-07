@@ -7,49 +7,45 @@ calculate_improved_closeness <- function(cg, alpha = 0.2) {
   .cg_improved_closeness(b, alpha)
 }
 
-#' Improved closeness centrality
+#' Improved Closeness Centrality
 #'
-#' Luan et al.'s improved closeness is
-#' \eqn{ICC(i)=(n-1)/\sum_{j\ne i}d_{ij}/\sigma_{ij}^{\alpha}}, where
-#' d is the hop distance and sigma counts shortest paths. Multiple shortest
-#' paths reduce the effective distance to a partner. At alpha zero this
-#' is ordinary normalized closeness on a connected graph; on a tree it is
-#' independent of alpha because each pair has one shortest path. Scores
-#' need not be bounded by one.
+#' Improved closeness (Luan et al. 2021) divides each hop distance by a
+#' power of the number of shortest paths, so that a partner reached along
+#' many shortest paths counts as closer:
+#' \deqn{ICC(i) = \frac{n-1}{\sum_{j \ne i} d_{ij} / \sigma_{ij}^{\alpha}}.}{
+#'   ICC(i) = (n - 1) / sum_{j != i} d_ij / sigma_ij^alpha.}
+#' Here \eqn{d_{ij}}{d_ij} is the hop distance and \eqn{\sigma_{ij}}{sigma_ij}
+#' the number of shortest paths between \eqn{i} and \eqn{j}.
 #'
-#' Uses the simple undirected unweighted skeleton: either direction creates
-#' an edge, parallel edges count once and self-loops are removed. Weights,
-#' \code{mode} and path-weight inversion do not affect the result. These
-#' are explicit cograph projections to the published domain.
-#'
-#' In a disconnected graph, every node has an unreachable partner and
-#' therefore scores zero under the global infinite-distance convention.
-#' Singletons score zero by an explicit cograph convention for the otherwise
-#' undefined zero-over-zero expression. For within-component scores, supply
-#' each component separately. Empty input returns an empty vector.
-#'
-#' Breadth-first traversal counts shortest paths in logarithmic form,
-#' avoiding overflow when the number of paths exceeds double precision.
-#' Extremely small effective-distance terms can underflow to zero, but
-#' direct-neighbor terms remain one and keep the denominator positive.
-#' Computation costs O(n times (n+m)) with an additional dense adjacency
-#' representation. Default alpha 0.2 is a setting studied in the source,
-#' not an estimate or a guarantee of optimal spreading predictions.
+#' @details
+#' The measure uses the simple undirected skeleton, so direction, weights,
+#' loops and parallel edges are ignored, and \code{mode} has no effect.
+#' With \eqn{\alpha = 0}{alpha = 0} the score on a connected network is the
+#' normalized closeness,
+#' and on a tree it does not depend on \eqn{\alpha}{alpha}. Scores can
+#' exceed 1. On a disconnected network every node scores 0, because each
+#' node has an unreachable partner at infinite distance. An isolated node
+#' also scores 0. A value of \code{icc_alpha} outside 0 to 1 raises an
+#' error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param icc_alpha Multiplicity exponent between zero and one, default 0.2.
-#' @param ... Additional arguments to \code{\link{centrality}}. With
-#'   \code{normalized = TRUE}, positive final scores are divided by their
-#'   maximum. The published n-1 factor is present in raw scores already.
-#' @return Named numeric vector in input node order.
+#' @param icc_alpha Exponent \eqn{\alpha}{alpha} of the number of shortest
+#'   paths, between 0 and 1. Default 0.2, one of the values studied by Luan
+#'   et al. (2021).
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Luan, Y., Bao, Z., & Zhang, H. (2021). Identifying Influential Spreaders
 #'   in Complex Networks by Considering the Impact of the Number of Shortest
 #'   Paths. Journal of Systems Science and Complexity, 34, 2168-2181.
 #'   \doi{10.1007/s11424-021-0111-7}.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_improved_closeness(igraph::make_ring(4), icc_alpha = 0.2)
+#' @examples
+#' centrality_improved_closeness(regulation_net)
 centrality_improved_closeness <- function(x, icc_alpha = 0.2, ...) {
   df <- centrality(x, measures = "improved_closeness",
                    icc_alpha = icc_alpha, ...)

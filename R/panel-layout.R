@@ -1,39 +1,35 @@
 #' Configure a custom multi-panel layout
 #'
 #' Sets up a multi-panel device layout for use with cograph plotting
-#' functions called with \code{combined = FALSE}. Returns a \code{par()}
-#' snapshot of the previous device state so the caller can restore it
-#' via \code{on.exit(graphics::par(old_par))}.
+#' functions called with \code{combined = FALSE}. The previous \code{par()}
+#' settings are returned so that the caller can restore the device state.
 #'
-#' Use \code{spec = c(nrow, ncol)} for a uniform grid (delegates to
-#' \code{graphics::par(mfrow = ...)}). Use \code{spec = <matrix>} for a
-#' non-uniform layout (delegates to \code{graphics::layout()}); the matrix
-#' values name panel cells, so \code{matrix(c(1, 1, 2, 3), 2, 2)} produces
-#' one wide cell on top and two cells on the bottom row.
+#' A length-2 \code{spec = c(nrow, ncol)} creates a uniform grid through
+#' \code{graphics::par(mfrow = ...)}. A matrix \code{spec} creates a
+#' non-uniform layout through \code{graphics::layout()}. The matrix values
+#' number the panel cells and are read in column-major order, so
+#' \code{matrix(c(1, 1, 2, 3), 2, 2)} gives one tall cell in the left column
+#' and two stacked cells in the right column.
 #'
-#' @param spec Either a length-2 integer vector \code{c(nrow, ncol)} for a
-#'   uniform grid, or a numeric matrix of panel positions to pass to
+#' @param spec Either a length-2 vector of positive integers
+#'   \code{c(nrow, ncol)} for a uniform grid, or a numeric matrix of
+#'   non-negative panel numbers with at least one positive cell, passed to
 #'   \code{graphics::layout()}.
 #' @param mar Numeric vector of length 4 giving panel margins. Default
-#'   \code{c(2, 2, 3, 1)} matches cograph's multi-panel margin convention.
+#'   \code{c(2, 2, 3, 1)}.
 #' @param widths,heights Optional numeric vectors of column widths and row
-#'   heights. Only valid when \code{spec} is a matrix; passed straight to
-#'   \code{graphics::layout()}. Supplying them with a uniform-grid
-#'   \code{spec} is an error, since \code{par(mfrow=...)} has no
-#'   widths/heights concept.
+#'   heights, passed to \code{graphics::layout()}. They are valid only when
+#'   \code{spec} is a matrix. Supplying them with a length-2 \code{spec} is
+#'   an error.
 #'
-#' @return Invisibly returns a list of previous \code{par()} settings that
-#'   can be passed back to \code{graphics::par()} to restore the prior
-#'   device state. For both spec shapes the snapshot includes
-#'   \code{mfrow}, so \code{par(old_par)} also resets any
-#'   \code{graphics::layout()} partitioning that this call introduced.
+#' @return Invisibly, a list of the previous \code{par()} settings
+#'   (\code{mar} and \code{mfrow}). Passing it to \code{graphics::par()}
+#'   restores the prior device state and also clears a layout set by
+#'   \code{graphics::layout()}.
 #'
 #' @section Combined-flag scope:
-#' \code{panel_layout()} composes with the \code{combined = FALSE} opt-out
-#' on cograph's multi-panel plot functions. Single-network calls like
-#' \code{splot(some_tna_object)} do not honor \code{combined} — there is
-#' nothing for it to gate. Pass \code{combined = FALSE} only to the
-#' multi-panel hosts: \code{plot_netobject_group()},
+#' The \code{combined = FALSE} argument applies to the multi-panel plot
+#' functions \code{plot_netobject_group()},
 #' \code{plot_netobject_ml()}, \code{plot_net_bootstrap_group()},
 #' \code{plot_group_permutation()}, \code{plot_difference()},
 #' \code{splot.net_mlvar(type = "all")}, \code{plot_network_evolution()},
@@ -41,18 +37,13 @@
 #' \code{plot.cograph_motif_result(type = "patterns")},
 #' \code{plot.cograph_motif_analysis(type = "patterns")},
 #' \code{plot.tna_disparity(type = "comparison")}, and \code{splot()} on
-#' \code{group_tna} / similar list-of-plottables inputs.
+#' \code{group_tna} and other list inputs. A single-network \code{splot()}
+#' call plots one panel and ignores \code{combined}.
 #'
 #' @examples
-#' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-#' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
-#' net1 <- as_cograph(mat)
-#' net2 <- as_cograph(mat * 0.5)
-#'
-#' # Uniform 1 x 2 grid
 #' op <- panel_layout(c(1, 2))
-#' splot(net1, combined = FALSE)
-#' splot(net2, combined = FALSE)
+#' splot(regulation_net, combined = FALSE)
+#' splot(regulation_net, layout = "circle", combined = FALSE)
 #' graphics::par(op)
 #'
 #' @export

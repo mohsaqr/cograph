@@ -23,8 +23,8 @@ accepted value is \code{"degree"}. Any other value raises an error.}
 \item{digits}{Integer or NULL. Round result to this many decimal places.
 Default NULL (no rounding).}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Not used. Any argument supplied here raises an
+\code{"unused argument"} error.}
 }
 \value{
 An object of class \code{"cograph_assortativity"} with components:
@@ -33,8 +33,8 @@ An object of class \code{"cograph_assortativity"} with components:
 \eqn{[-1, 1]}.}
 \item{type}{Character: the degree type used.}
 \item{directed}{Logical: whether the network was treated as directed.}
-\item{n_nodes}{Integer: number of nodes.}
-\item{n_edges}{Integer: number of edges.}
+\item{n_nodes}{Numeric: number of nodes.}
+\item{n_edges}{Numeric: number of edges.}
 \item{network}{The original input network.}
 }
 }
@@ -49,16 +49,17 @@ The degree assortativity coefficient is defined as the Pearson correlation
 coefficient between the degrees of nodes at either end of each edge
 (Newman 2002):
 
-\deqn{r = \frac{\sum_{jk} jk(e_{jk} - q_j q_k)}{\sigma_q^2}}
+\deqn{r = \frac{\sum_{jk} jk(e_{jk} - q_j q_k)}{\sigma_q^2}}{r = (sum_{jk} jk(e_{jk} - q_j q_k))/sigma_q^2}
 
 where \eqn{e_{jk}} is the fraction of edges connecting degree-\eqn{j} to
 degree-\eqn{k} vertices, \eqn{q_k} is the excess degree distribution, and
-\eqn{\sigma_q^2} its variance.
+\eqn{\sigma_q^2}{sigma_q^2} its variance.
 
 Because the Pearson correlation is invariant to subtracting a constant, the
-implementation computes the correlation of the raw (rather than excess)
-degrees at the two ends of each edge, counting every undirected edge in both
-orientations; this is numerically identical to the formula above.
+implementation computes the correlation of the raw degrees at the two ends
+of each edge, counting every undirected edge in both orientations. This is
+numerically identical to the formula above. Degrees are unweighted counts
+of edges, so edge weights do not enter the coefficient.
 
 For directed networks, the coefficient is the Pearson correlation between
 the source-end and target-end degrees over each edge in its stored
@@ -70,16 +71,7 @@ degree vector has zero variance.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Assortative network (high-degree connect to high-degree)
-adj <- matrix(c(
-  0, 1, 1, 1, 0,
-  1, 0, 1, 1, 0,
-  1, 1, 0, 0, 1,
-  1, 1, 0, 0, 1,
-  0, 0, 1, 1, 0
-), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-cograph::assortativity(adj)
+cograph::assortativity(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

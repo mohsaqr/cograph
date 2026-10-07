@@ -11,13 +11,22 @@ detect_communities(x, method = "louvain", directed = NULL, weights = TRUE)
 
 \item{method}{Community detection algorithm to use. One of:
 \itemize{
-\item \code{"louvain"}: Louvain method (default, fast and accurate)
+\item \code{"louvain"}: Louvain modularity optimization (default)
 \item \code{"walktrap"}: Walktrap algorithm based on random walks
 \item \code{"fast_greedy"}: Fast greedy modularity optimization
 \item \code{"label_prop"}: Label propagation algorithm
 \item \code{"infomap"}: Infomap algorithm based on information flow
-\item \code{"leiden"}: Leiden algorithm (improved Louvain)
-}}
+\item \code{"leiden"}: Leiden algorithm, run with the defaults of
+\code{igraph::cluster_leiden()}. Its default constant Potts model
+objective can place every node in its own community.
+}
+\code{"louvain"}, \code{"leiden"} and \code{"fast_greedy"} require an
+undirected graph. A directed network is collapsed to an undirected one for
+these methods, with the weights of reciprocal edges averaged, and a
+message is issued for \code{"louvain"} and \code{"leiden"}. The
+\code{"louvain"}, \code{"leiden"}, \code{"label_prop"} and
+\code{"infomap"} methods use random numbers, so \code{set.seed()} makes
+their result reproducible.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
@@ -29,7 +38,7 @@ A \code{cograph_communities} object, which inherits from
 \code{data.frame} and has one row per node with columns:
 \itemize{
 \item \code{node}: Node labels/names
-\item \code{community}: Integer community membership
+\item \code{community}: Numeric community membership
 }
 The algorithm name, the igraph community object, the modularity and the
 input network are carried as attributes for the \code{print}, \code{plot}
@@ -41,15 +50,6 @@ algorithms. Returns a data frame with node-community assignments.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Basic usage
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-detect_communities(adj)
-
-# Different algorithm
-detect_communities(adj, method = "walktrap")
+detect_communities(regulation_net, method = "walktrap")
 \dontshow{\}) # examplesIf}
 }

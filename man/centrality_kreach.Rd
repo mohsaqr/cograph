@@ -2,33 +2,51 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_kreach}
 \alias{centrality_kreach}
-\title{Geodesic K-Path Centrality}
+\title{Geodesic K-Reach Centrality}
 \usage{
 centrality_kreach(x, mode = "all", k = 3, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{k}{Maximum path length. Default 3.}
+\item{k}{Largest distance counted, a positive number (default 3).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}, \code{invert_weights}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{invert_weights} (default \code{NULL}, which inverts for tna input
+only) and \code{alpha} (inversion exponent, default 1).}
 }
 \value{
-Named numeric vector of k-reach centrality values.
+A named integer vector with one count per node, in input node
+order.
 }
 \description{
-Count of nodes reachable within shortest path distance \code{k}. Measures
-how many nodes a given node can reach quickly.
+Geodesic k-reach centrality (Borgatti and Everett 2006) counts the nodes
+that lie within shortest-path distance \eqn{k} of a node.
+}
+\details{
+Edge weights are read as distances, so on a weighted network \eqn{k} is
+compared with the summed weights along a path; on \code{regulation_net},
+whose weights lie below one, every node reaches all others within
+\eqn{k = 1}. \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} has no
+effect, because the measure then reads the weights stored in the network;
+a hop-count reach needs a binary input such as \code{(x != 0) * 1}.
+\code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
+reached from the node and \code{"in"} nodes that reach it. A \code{k} of
+zero or below raises an error.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_kreach(adj, k = 2)
+centrality_kreach(regulation_net, k = 0.2)
+}
+\references{
+Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective on
+centrality. Social Networks, 28(4), 466-484.
+\doi{10.1016/j.socnet.2005.11.005}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_geodesic_kpath}},
+\code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 }

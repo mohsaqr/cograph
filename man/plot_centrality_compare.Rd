@@ -26,11 +26,15 @@ plot_centrality_compare(
 }
 \arguments{
 \item{...}{Two or more centrality data frames (from
-\code{\link{centrality}}) or network inputs. Names are used as
-group labels when \code{group_labels} is NULL.}
+\code{\link{centrality}}) or network inputs. When every argument is
+named, the names are used as group labels if \code{group_labels} is
+NULL.}
 
-\item{measure}{Character, a single centrality measure to compare. If
-NULL, the first shared measure is used.}
+\item{measure}{Character, a single centrality measure to compare. For
+network inputs, a name such as "strength" also matches a shared column
+with an "_all", "_in" or "_out" suffix when the match is unique. For
+centrality data frames, it must be an exact column name. If NULL, the
+first shared measure is used.}
 
 \item{style}{Character: \code{"stacked"} (default), \code{"facet"},
 \code{"grouped"}, \code{"dumbbell"}, \code{"line"}, or
@@ -42,10 +46,12 @@ NULL, the first shared measure is used.}
 \item{group_colors}{Character vector of colors, one per group.
 Default cycles through the cograph palette.}
 
-\item{node_colors}{Optional. Either a named character vector mapping
-node name to color, an unnamed vector of colors applied in node
-order, or the name of a palette (\code{"cograph"}, \code{"okabe"},
-\code{"viridis"}). Used by \code{style = "facet"}.}
+\item{node_colors}{Colors of the nodes in \code{style = "facet"}. Either
+a named character vector mapping node name to color, an unnamed vector
+of colors applied in node order, or the name of a palette
+(\code{"cograph"}, \code{"okabe"}, \code{"viridis"}). NULL (default)
+uses the node colors stored in the first network when available and
+the cograph palette otherwise.}
 
 \item{sort_by}{\code{"max"} (default) ranks nodes by highest value
 across groups; \code{"delta"} by range; \code{"first"} by first
@@ -53,10 +59,10 @@ group; \code{"alpha"} alphabetically.}
 
 \item{top_n}{Show top N nodes (by \code{sort_by}). Default: all.}
 
-\item{scale}{\code{"raw"} (default, native values on each side) or
-\code{"normalized"} ([0, 1] within each side before plotting).}
+\item{scale}{\code{"raw"} (default, native values) or
+\code{"normalized"} (min-max scaled to [0, 1] within each group).}
 
-\item{show_values}{Logical. Print the value inside each bar.
+\item{show_values}{Logical. Print the value of each bar or point.
 Default TRUE.}
 
 \item{size_by_value}{Logical. For \code{"dumbbell"} style, scale dot
@@ -67,14 +73,17 @@ dot size (mm) when \code{size_by_value = TRUE}. Default
 \code{c(2, 9)}.}
 
 \item{orientation}{Character: \code{"horizontal"} (default, nodes on
-y-axis) or \code{"vertical"} (nodes on x-axis).}
+y-axis) or \code{"vertical"} (nodes on x-axis). Ignored by the
+\code{"pyramid"} style.}
 
 \item{ncol}{Number of facet columns for \code{style = "facet"}.
 Default NULL chooses automatically.}
 
-\item{title}{Plot title.}
+\item{title}{Plot title. NULL (default) gives "Centrality comparison:"
+followed by the measure name.}
 
-\item{subtitle}{Plot subtitle. Auto-generated when NULL.}
+\item{subtitle}{Plot subtitle. When NULL, the \code{"pyramid"} style
+shows the two group labels and the other styles show none.}
 
 \item{centrality_args}{Named list of additional arguments passed to
 \code{\link{centrality}} when inputs are networks.}
@@ -83,17 +92,12 @@ Default NULL chooses automatically.}
 A ggplot object.
 }
 \description{
-Compare a centrality measure across two or more groups using stacked,
-faceted, grouped, dumbbell, line, or two-group pyramid layouts. The
+Plots one centrality measure across two or more groups as stacked,
+faceted, grouped, dumbbell, line, or pyramid charts. The
 \code{"pyramid"} style is a back-to-back horizontal bar chart for exactly
-two groups.
+two groups. Groups are aligned on the node names they share.
 }
 \examples{
-set.seed(1)
-m1 <- matrix(runif(25), 5, 5); diag(m1) <- 0
-m2 <- matrix(runif(25), 5, 5); diag(m2) <- 0
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_centrality_compare(m1, m2, measure = "strength",
-                        group_labels = c("Pre", "Post"))
+plot_centrality_compare(Full = regulation_net,
+  Strong = threshold_edges(regulation_net, minimum = 0.1), measure = "strength")
 }

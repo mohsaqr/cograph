@@ -7,23 +7,42 @@
 centrality_stress(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only) and \code{alpha}
+(inversion exponent, default 1).}
 }
 \value{
-Named numeric vector of stress centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Number of shortest paths passing through each node. Unlike betweenness,
-does not normalize by the total number of shortest paths.
+Stress centrality (Shimbel 1953) counts the shortest paths between other
+pairs of nodes that pass through a node:
+\deqn{S(v) = \sum_{s \ne v \ne t} \sigma_{st}(v),}{
+  S(v) = sum_{s != v != t} sigma_st(v),}
+where \eqn{\sigma_{st}(v)}{sigma_st(v)} is the number of shortest paths
+from \eqn{s} to \eqn{t} through \eqn{v}. Betweenness divides each count by
+the number of shortest paths between the pair; stress keeps the counts.
+}
+\details{
+Edge weights are read as distances. \code{weighted = FALSE} uses hop
+counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+distance \eqn{1/w^\alpha}{1/w^alpha}. On a directed network the paths
+follow edge direction, and on an undirected network each pair is counted
+once. The values equal \code{sna::stresscent()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_stress(adj)
+centrality_stress(regulation_net)
+}
+\references{
+Shimbel, A. (1953). Structural parameters of communication networks. The
+Bulletin of Mathematical Biophysics, 15(4), 501-507.
+\doi{10.1007/BF02476438}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_betweenness}} for the normalized variant.
+\code{\link{centrality_betweenness}},
+\code{\link{centrality_load}}, \code{\link{centrality}}.
 }

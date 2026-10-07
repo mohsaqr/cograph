@@ -69,54 +69,39 @@ calculate_linerank <- function(cg, weights = NULL, damping = 0.85,
   out
 }
 
-#' LineRank centrality
+#' LineRank Centrality
 #'
-#' Computes PageRank probabilities on the graph whose vertices represent
-#' input edges, then aggregates them at the original endpoints. On directed
-#' inputs, edge e can lead to f when the target of e is the source of f.
-#' On undirected inputs, distinct edge states are adjacent when they share
-#' an endpoint, following Kosa et al.'s clarification. This uses one state
-#' per undirected edge. A pair sharing both endpoints is adjacent once.
+#' LineRank (Kang et al. 2011) computes PageRank on the line graph, whose
+#' nodes are the edges of the network, and gives each node the sum of the
+#' stationary probabilities of its incident edges. In a directed network
+#' edge \eqn{e}{e} leads to edge \eqn{f}{f} when the target of \eqn{e}{e}
+#' is the source of \eqn{f}{f}. In an undirected network two edges are
+#' adjacent when they share an endpoint (Kosa et al. 2015).
 #'
-#' Line-graph transition weights are products of original edge weights.
-#' Row normalization cancels the starting edge weight, so products need not
-#' be formed. Uniform teleportation uses probability 1-damping; a dangling
-#' edge state also redistributes uniformly. The latter is an explicit
-#' cograph PageRank convention because the source does not pin dangling
-#' behavior. Damping accepts [0,1), default 0.85; zero is a limit extension.
-#'
-#' Default \code{linerank_aggregation = "probability"} sums stationary edge
-#' probabilities, following the definition's prose and the later study.
-#' Raw scores then sum to two on a graph with edges. \code{"weight"}
-#' additionally multiplies each probability by its original edge weight,
-#' matching the weighted incidence aggregation in Kang et al.'s Algorithm 2.
-#' These conventions differ for weighted inputs and are not interchangeable.
-#' The original pseudocode also has inconsistent row/column normalization;
-#' this implementation follows its random-walk definition, corroborated by
-#' the later paper, rather than claiming literal pseudocode equivalence.
-#'
-#' Retains direction, loops and remaining parallel edges as distinct states.
-#' A directed loop can transition to itself. Undirected line graphs exclude
-#' self transitions. Both aggregation choices count endpoint incidences, so
-#' an original loop contributes twice at its node. These loop conventions
-#' are explicit extensions. Generic \code{loops} and \code{simplify} apply
-#' first. Finite nonnegative weights are supported; zero-weight edges are
-#' absent. \code{weighted = FALSE} uses unit edge weights. Generic mode,
-#' shortest-path inversion and cutoff do not affect the result. Isolates
-#' score zero, edgeless inputs return zeros, and empty inputs return no scores.
-#'
-#' The native dense line-graph solve costs O(m cubed) time and O(m squared)
-#' memory for m retained edges; this is not the authors' distributed
-#' large-graph implementation. The measure must be requested explicitly.
-#' Unresolvable transition ranges, unstable systems and overflowing raw
-#' weighted aggregation raise errors. Maximum normalization supports raw
-#' weight overflow by scaling weights first; tiny ratios can underflow.
+#' @details
+#' The walk on the line graph moves to an adjacent edge with probability
+#' proportional to that edge's weight and jumps to a uniformly chosen edge
+#' with probability \code{1 - damping}. An edge without successors also
+#' jumps uniformly. With \code{linerank_aggregation = "probability"} the
+#' scores sum to two on a network with edges. With \code{"weight"} each
+#' stationary probability is multiplied by its edge weight before
+#' aggregation, following the weighted incidence matrix of Algorithm 2 in
+#' Kang et al. (2011). A loop contributes twice to its node, and an
+#' isolated node scores zero. Edge weights must be finite and nonnegative,
+#' and \code{weighted = FALSE} gives every edge weight one. A
+#' \code{damping} outside \eqn{[0, 1)}{[0, 1)} raises an error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param damping Edge-walk continuation probability in [0,1), default 0.85.
-#' @param linerank_aggregation Either probability (default) or weight.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param damping Probability of continuing the walk on the line graph, in
+#'   \eqn{[0, 1)}{[0, 1)}. Default 0.85.
+#' @param linerank_aggregation \code{"probability"} (default) sums the
+#'   stationary edge probabilities. \code{"weight"} multiplies them by the
+#'   edge weights first.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (use edge weights, default \code{TRUE}) and
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Kang, U., Papadimitriou, S., Sun, J., & Tong, H. (2011). Centralities in
 #'   Large Networks: Algorithms and Observations. Proceedings of the 2011 SIAM
@@ -126,9 +111,11 @@ calculate_linerank <- function(cg, weights = NULL, damping = 0.85,
 #' Kosa, B., Balassi, M., Englert, P., & Kiss, A. (2015). Betweenness versus
 #'   Linerank. Computer Science and Information Systems, 12(1), 33-48.
 #'   \doi{10.2298/CSIS141101092K}.
+#' @seealso \code{\link{centrality_pagerank}},
+#'   \code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_linerank(igraph::make_ring(4))
+#' @examples
+#' centrality_linerank(regulation_net)
 centrality_linerank <- function(x, damping = 0.85,
                                 linerank_aggregation = "probability", ...) {
   df <- centrality(x, measures = "linerank", damping = damping,

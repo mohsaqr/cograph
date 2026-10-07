@@ -89,23 +89,29 @@ htna(
 \item{node_list}{Node groups can be specified as:
 \itemize{
 \item A list of character vectors (node names per group)
-\item A string column name from nodes data (e.g., "groups")
-\item NULL to auto-detect from columns named: groups, cluster, community, etc.
-\item NULL with \code{community} specified for algorithmic detection
-}}
+\item A column name of the node table of a \code{cograph_network}
+(e.g., \code{"groups"})
+\item \code{NULL}, in which case the first node-table column named
+\code{groups}, \code{group}, \code{clusters}, \code{cluster},
+\code{community}, \code{module} or \code{layer} is used, with a
+message
+}
+Groups must not overlap, every name must be a node of \code{x}, and at
+least two groups are required.}
 
 \item{community}{Community detection method to use for auto-grouping.
 If specified, overrides \code{node_list}. See \code{\link{detect_communities}}
 for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
 "infomap", "leiden".}
 
-\item{layout}{Layout type: "auto" (default), "bipartite", "polygon", or "circular".
-When "auto", uses the circular layout for any valid group count.
-"circular" places groups along arcs of a circle.
-Legacy values "triangle" and "rectangle" are supported as aliases for "polygon".}
+\item{layout}{Layout type: \code{"auto"} (default, the circular layout),
+\code{"bipartite"} (exactly two groups), \code{"polygon"} (three or more
+groups), or \code{"circular"}. The values \code{"triangle"},
+\code{"rectangle"}, \code{"pentagon"} and \code{"hexagon"} are aliases
+for \code{"polygon"}.}
 
 \item{use_list_order}{Logical. Use node_list order (TRUE) or weight-based order (FALSE).
-Only applies to bipartite layout.}
+Only applies to the bipartite layout with \code{orientation = "vertical"}.}
 
 \item{jitter}{Controls horizontal spread of nodes. Options:
 \itemize{
@@ -113,15 +119,16 @@ Only applies to bipartite layout.}
 \item TRUE: Auto-compute jitter based on edge connectivity
 \item Numeric (0-1): Amount of jitter (0.3 = spread nodes 30\\% of column width)
 \item Named list: Manual per-node offsets by label (e.g., list(Wrong = -0.2))
-\item Numeric vector of length n: Direct x-offsets for each node
 }
-Only applies to bipartite layout.}
+Only applies to the bipartite layout with \code{orientation} set to
+\code{"vertical"} or \code{"horizontal"}.}
 
 \item{jitter_amount}{Base jitter amount when jitter=TRUE. Default 0.8.
 Higher values spread nodes more toward the center. Only applies to bipartite layout.}
 
-\item{jitter_side}{Which side(s) to apply jitter: "first", "second", "both", or "none".
-Default "first" (only first group nodes are jittered toward center).
+\item{jitter_side}{Which side(s) to apply jitter: "first" (or "left"),
+"second" (or "right"), "both", or "none". Default "first" (only first
+group nodes are jittered toward center).
 Only applies to bipartite layout.}
 
 \item{orientation}{Layout orientation for bipartite: "vertical" (two columns, default),
@@ -129,10 +136,11 @@ Only applies to bipartite layout.}
 group1 left, group2 right, tip-to-tip), or "circular" (two facing semicircles
 with a gap between them). Ignored for non-bipartite layouts.}
 
-\item{group1_pos}{Position for first group in bipartite layout. Default -2.
+\item{group1_pos}{Position of the first group in the bipartite layout, an
+x position for vertical and a y position for horizontal orientation.
 Overridden by \code{group_spacing} if specified.}
 
-\item{group2_pos}{Position for second group in bipartite layout. Default 2.
+\item{group2_pos}{Position of the second group in the bipartite layout.
 Overridden by \code{group_spacing} if specified.}
 
 \item{group_spacing}{Numeric. Distance between the two groups in bipartite layout.
@@ -140,7 +148,7 @@ Overrides \code{group1_pos}/\code{group2_pos}. For example, \code{group_spacing 
 places groups at x = -3 and x = 3. Default NULL (uses group1_pos/group2_pos).}
 
 \item{node_spacing}{Numeric. Vertical (or horizontal) gap between nodes within a group.
-Default NULL (auto-computed from the largest group size).
+Default NULL (computed from the largest number of rows in a group).
 Increase for more space between nodes (e.g., 0.5 or 0.8).}
 
 \item{columns}{Integer or vector of length 2. Number of sub-columns per group.
@@ -154,40 +162,45 @@ a group. Default NULL (auto: \code{node_spacing * 2}).}
 \item{layout_margin}{Margin around the layout (0-1). Default 0.15. Increase if
 labels or self-loops are clipped at the edges.}
 
-\item{curvature}{Edge curvature amount. Default 0.4 for visible curves.}
+\item{curvature}{Edge curvature amount.}
 
-\item{group1_color}{Color for first group nodes. Default "#4FC3F7".}
+\item{group1_color}{Color for first group nodes.}
 
-\item{group2_color}{Color for second group nodes. Default "#fbb550".}
+\item{group2_color}{Color for second group nodes.}
 
-\item{group1_shape}{Shape for first group nodes. Default "circle".}
+\item{group1_shape}{Shape for first group nodes.}
 
-\item{group2_shape}{Shape for second group nodes. Default "square".}
+\item{group2_shape}{Shape for second group nodes.}
 
 \item{group_colors}{Vector of colors for each group. Overrides group1_color/group2_color.
 If NULL, two-group layouts use group1_color/group2_color and 3+ group
-layouts use the built-in group color palette.}
+layouts cycle through a built-in palette of 12 colors. The length must
+equal the number of groups.}
 
 \item{group_shapes}{Vector of shapes for each group. Overrides group1_shape/group2_shape.
 If NULL, two-group layouts use group1_shape/group2_shape and 3+ group
-layouts use the built-in group shape palette.}
+layouts cycle through a built-in palette of 8 shapes. The length must
+equal the number of groups.}
 
 \item{angle_spacing}{Controls empty space at corners (0-1). Default 0.15.
 Higher values create larger gaps in polygon and circular layouts. For
 circular auto layout, the default is increased to 0.35 unless explicitly set.}
 
 \item{edge_colors}{Vector of colors for edges by source group. If NULL (default),
-uses darker versions of group_colors. Set to FALSE to use default edge color.}
+uses darker versions of group_colors. Set to FALSE to use the default
+edge color.}
 
 \item{intra_curvature}{Numeric. Curvature amount for intra-group edges (edges
-between nodes in the same group). When set, intra-group edges are drawn
-separately with curves that arc away from the opposing group. Default NULL
-(intra-group edges drawn normally by splot). Typical values: 0.3 to 1.0.}
+between nodes in the same group). When set, intra-group edges are removed
+from the main plot and added separately as curves that arc away from the
+opposing group. Default NULL (intra-group edges are plotted by splot).}
 
-\item{legend}{Logical. Whether to show a legend. Default TRUE.}
+\item{legend}{Logical. Whether to show a legend of the groups.}
 
 \item{legend_position}{Position for legend: "topright", "topleft", "bottomright",
-"bottomleft", "right", "left", "top", "bottom". Default "bottom".}
+"bottomleft", "right", "left", "top", "bottom". Side positions place the
+legend in a reserved margin band, and corner positions place it inside
+the plot region.}
 
 \item{legend_horiz}{Logical. Force horizontal (TRUE) or vertical (FALSE)
 legend. NULL (default) auto-selects: horizontal for "top"/"bottom"
@@ -198,65 +211,48 @@ NULL (default) lets \code{graphics::legend} pick. Ignored when the legend
 is horizontal.}
 
 \item{legend_size}{Legend text size (\code{cex}), as in \code{\link{splot}()}.
-Default 0.8. The legend's symbols are sized from it. Like all cograph text
-it is scaled with the device, and with \code{scale}.}
+The legend symbols are sized from it, and it is divided by
+\code{sqrt(scale)}. A value that is not a single positive number raises an
+error of class \code{cograph_bad_legend_size}.}
 
-\item{extend_lines}{Logical or numeric. Draw extension lines from nodes.
+\item{extend_lines}{Logical or numeric. Add extension lines from nodes.
 Only applies to bipartite layout.
 \itemize{
 \item FALSE (default): No extension lines
-\item TRUE: Draw lines extending toward the other group (default length 0.1)
+\item TRUE: Lines extending toward the other group (length 0.1)
 \item Numeric: Length of extension lines
 }}
 
-\item{scale}{Scaling factor for spacing parameters. Use scale > 1 for
-high-resolution output (e.g., scale = 4 for 300 dpi). This scales
-polygon/circular radius and legend sizing; bipartite group positions are
-controlled by \code{group1_pos}, \code{group2_pos}, and \code{group_spacing}.
-Default 1.}
+\item{scale}{Scaling factor for high-resolution output (e.g., scale = 4
+for 300 dpi). The legend text and symbols are divided by
+\code{sqrt(scale)}, and the extension lines are plotted with line width
+\code{1 / sqrt(scale)}. The node positions do not depend on
+\code{scale}, because the layout is normalized after it is computed.}
 
-\item{nodes}{Node metadata. Can be:
-\itemize{
-\item NULL (default): Use existing nodes data from cograph_network
-\item Data frame: Must have \code{label} column for matching; if \code{labels}
-column exists, uses it for display text
-}
-Display priority: \code{labels} column > \code{label} column (identifiers).}
+\item{nodes}{Node metadata. \code{NULL} (default) uses the node table of a
+\code{cograph_network}. A data frame replaces it, with one row per node
+in node order. Display labels are taken from its \code{labels} column,
+or from its \code{label} column when \code{labels} is absent.}
 
 \item{label_abbrev}{Label abbreviation: NULL (none), integer (max chars),
-or "auto" (adaptive based on node count). Applied before passing to tplot.}
+or "auto" (adaptive based on node count). See \code{\link{abbrev_label}}.}
 
-\item{...}{Additional parameters passed to tplot().}
+\item{...}{Additional parameters passed to \code{\link{tplot}()}.}
 }
 \value{
-Invisibly returns the \code{\link{tplot}()} result: a
-\code{cograph_network} object. Called for the side effect of drawing.
+Invisibly, the \code{cograph_network} object returned by
+\code{\link{tplot}()}. The function is called for its plot.
 }
 \description{
-Plots a TNA model with nodes arranged in multiple groups using geometric layouts:
-\itemize{
-\item Circular: default for \code{layout = "auto"}, with groups on arcs
-\item Bipartite: two vertical columns or horizontal rows for exactly 2 groups
-\item Polygon: nodes along edges of a regular polygon for 3+ groups
-}
-Supports triangle (3), rectangle (4), pentagon (5), hexagon (6), and beyond.
+Plots a TNA model with nodes arranged in groups by a geometric layout. The
+circular layout (the default for \code{layout = "auto"}) places each group
+on an arc of a circle. The bipartite layout places exactly two groups in
+two columns, two rows, or facing arrangements. The polygon layout places
+three or more groups along the sides of a regular polygon with one side
+per group.
 }
 \examples{
-# Create a 6-node network
-mat <- matrix(runif(36, 0, 0.3), 6, 6)
-diag(mat) <- 0
-colnames(mat) <- rownames(mat) <- c("A", "B", "C", "D", "E", "F")
-
-# Bipartite layout (2 groups)
-groups <- list(Group1 = c("A", "B", "C"), Group2 = c("D", "E", "F"))
-plot_htna(mat, groups)
-
-# Polygon layout (3 groups)
-groups3 <- list(X = c("A", "B"), Y = c("C", "D"), Z = c("E", "F"))
-plot_htna(mat, groups3)
-set.seed(1)
-mat <- matrix(runif(36, 0, 0.3), 6, 6); diag(mat) <- 0
-colnames(mat) <- rownames(mat) <- LETTERS[1:6]
-groups <- list(G1 = LETTERS[1:3], G2 = LETTERS[4:6])
-htna(mat, groups)
+clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+plot_htna(regulation_net, node_list = clusters)
 }

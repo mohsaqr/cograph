@@ -5,32 +5,36 @@
 
 #' Plot Centrality Distribution
 #'
-#' Histogram or density plot of any centrality measure. Accepts the output
-#' of \code{\link{centrality}} directly.
+#' Histogram or density plot of one centrality measure. The input is either
+#' the data frame returned by \code{\link{centrality}} or a network, for
+#' which the measure is computed first.
 #'
 #' @param x A data frame from \code{\link{centrality}}, or a network input
 #'   (matrix, igraph, cograph_network, tna).
-#' @param measure Character. Which centrality measure to plot. Default
-#'   \code{"degree_all"}. Must match a column name in the centrality output.
+#' @param measure Character. Column of the centrality output to plot, for
+#'   example \code{"degree_all"} (default) or \code{"strength_in"}. An
+#'   unknown name is an error that lists the available columns.
 #' @param type Character. \code{"histogram"} (default) or \code{"density"}.
 #' @param normalize Logical. Show proportions instead of counts. Default FALSE.
-#' @param bins Integer or NULL. Number of bins. Default NULL (auto).
-#' @param log Character. Log scaling: \code{""}, \code{"y"}, or \code{"xy"}.
-#'   Values containing \code{"x"} are accepted for compatibility but only the
-#'   y-axis is log-scaled by this plotting implementation. Default \code{""}.
-#' @param col Fill color. Default \code{"steelblue"}.
-#' @param border Border color. Default \code{"white"}.
-#' @param main Plot title. Default auto-generated from measure name.
-#' @param xlab X-axis label. Default auto-generated.
+#' @param bins Integer or NULL. Number of equal-width histogram bins. The
+#'   default NULL uses the Freedman-Diaconis rule.
+#' @param log Character. \code{"y"} or \code{"xy"} log-scales the y-axis.
+#'   The x-axis is never log-scaled, and any other value gives linear axes.
+#'   Default \code{""}.
+#' @param col Fill color (line color for the density). Default
+#'   \code{"steelblue"}.
+#' @param border Bar border color for the histogram. Default \code{"white"}.
+#' @param main Plot title. The default NULL builds a title such as
+#'   \code{"Degree Distribution"} from the measure name.
+#' @param xlab X-axis label. The default NULL uses the measure name.
 #' @param ... Additional arguments passed to \code{\link[graphics]{barplot}}
 #'   or \code{\link[graphics]{plot}}.
 #'
-#' @return Invisibly returns the centrality values plotted.
+#' @return Invisibly, a numeric vector of the finite centrality values
+#'   plotted.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-#' cograph::plot_centrality_distribution(adj, measure = "degree_all")
+#' cograph::plot_centrality_distribution(regulation_net, measure = "strength_all")
 plot_centrality_distribution <- function(x,
                                          measure = "degree_all",
                                          type = c("histogram", "density"),
@@ -97,12 +101,16 @@ plot_centrality_distribution <- function(x,
 
 #' Plot Edge Weight Distribution
 #'
-#' Histogram of edge weights in a network.
+#' Histogram of edge weights in a network. The number of edges and the mean
+#' and standard deviation of the weights are printed in the top margin.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna.
 #' @param normalize Logical. Show proportions. Default FALSE.
-#' @param bins Integer or NULL. Number of bins. Default NULL (auto).
-#' @param log Character. Log scaling. Default \code{""}.
+#' @param bins Integer or NULL. Number of equal-width bins. With the default
+#'   NULL, integer weights spanning at most 30 units get one bin per integer
+#'   and other weights use the Freedman-Diaconis rule.
+#' @param log Character. \code{"y"} or \code{"xy"} log-scales the y-axis.
+#'   Any other value gives linear axes. Default \code{""}.
 #' @param directed Logical or NULL. Default NULL (auto-detect).
 #' @param col Fill color. Default \code{"steelblue"}.
 #' @param border Border color. Default \code{"white"}.
@@ -110,12 +118,11 @@ plot_centrality_distribution <- function(x,
 #' @param xlab X-axis label. Default \code{"Weight"}.
 #' @param ... Additional arguments passed to \code{\link[graphics]{barplot}}.
 #'
-#' @return Invisibly returns the weight vector.
+#' @return Invisibly, a numeric vector of edge weights (all 1 for an
+#'   unweighted network).
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0, 2, 3, 2, 0, 1, 3, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' cograph::plot_edge_weights(adj)
+#' cograph::plot_edge_weights(regulation_net)
 plot_edge_weights <- function(x,
                               normalize = FALSE,
                               bins = NULL,
@@ -175,25 +182,27 @@ plot_edge_weights <- function(x,
 #' Plot Degree-Degree Correlation
 #'
 #' Scatter plot of each node's degree against the average degree of its
-#' neighbors. Reveals assortative (positive slope) or disassortative
-#' (negative slope) mixing patterns.
+#' neighbors. A positive slope indicates assortative mixing and a negative
+#' slope indicates disassortative mixing. When more than two nodes have
+#' neighbors, a least-squares line is added and the Pearson correlation is
+#' printed in the top margin.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna.
-#' @param mode Character. For directed networks: \code{"all"}, \code{"in"},
-#'   or \code{"out"}. Default \code{"all"}.
+#' @param mode Character. Degree type and neighborhood used for directed
+#'   networks: \code{"all"} (default), \code{"in"}, or \code{"out"}.
 #' @param directed Logical or NULL. Default NULL (auto-detect).
 #' @param col Point color. Default \code{"steelblue"}.
 #' @param main Title. Default \code{"Degree-Degree Correlation"}.
 #' @param ... Additional arguments passed to \code{\link[graphics]{plot}}.
 #'
-#' @return Invisibly returns a data frame with columns \code{node},
-#'   \code{degree}, \code{avg_neighbor_degree}.
+#' @return Invisibly, a data frame with one row per node and columns
+#'   \code{node}, \code{degree} and \code{avg_neighbor_degree}. The
+#'   average neighbor degree is \code{NA} for nodes without neighbors.
 #' @seealso \code{\link{centrality}}, \code{\link{degree_distribution}},
 #'   \code{\link{network_summary}}
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-#' cograph::plot_degree_correlation(g)
+#' cograph::plot_degree_correlation(student_interactions)
 plot_degree_correlation <- function(x,
                                     mode = "all",
                                     directed = NULL,
@@ -246,32 +255,45 @@ plot_degree_correlation <- function(x,
 
 #' Plot Network Evolution (Small Multiples)
 #'
-#' Displays a network at different time points side by side. Accepts an edge
-#' list data frame with a time column, or a pre-built list of networks.
-#' All panels share the same node layout for visual comparison.
+#' Plots a network at different time points side by side. The input is an
+#' edge list data frame with a time column, a \code{cograph_network} whose
+#' stored edge data contain such a column, or a list of networks. All panels
+#' share one node layout. At least two periods are required.
 #'
-#' @param x An edge list data frame with columns \code{from}, \code{to}, and
-#'   a time column, OR a list of network objects (matrices, igraph, etc.).
-#' @param time Character. Name of the time/group column in \code{x}. Ignored
-#'   if \code{x} is a list.
-#' @param slices Integer or NULL. Number of equal-width time bins. Default
-#'   NULL uses unique values of the time column.
+#' @param x An edge list data frame with columns \code{from}, \code{to},
+#'   optionally \code{weight}, and a time column; a \code{cograph_network}
+#'   with stored edge data; or a list of network objects (matrices, igraph,
+#'   etc.).
+#' @param time Character. Name of the time column in \code{x}. Required for
+#'   data frame input and ignored if \code{x} is a list.
+#' @param slices Integer or NULL. Number of equal-width bins of the numeric
+#'   time column. Default NULL uses the unique time values.
 #' @param cumulative Logical. If TRUE, each panel shows all edges up to that
 #'   time point (growing network). If FALSE (default), each panel shows only
 #'   edges from that period.
-#' @param labels Character vector of panel labels. Default NULL (auto from
-#'   time values).
-#' @param layout Layout specification. Default \code{"spring"}.
-#' @param ncol Integer. Grid columns. Default auto.
-#' @param node_size Numeric. Default 5.
-#' @param seed Integer or NULL. Default 42.
-#' @param combined Logical: when TRUE (default), arrange period panels in an
-#'   internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
-#'   into a layout the caller has already configured (e.g. via
-#'   \code{\link{panel_layout}()}).
+#' @param labels Character vector of panel labels, one per period. The
+#'   default NULL uses the time values, or \code{"T1"}, \code{"T2"}, ...
+#'   for list input.
+#' @param layout Character. Any character value computes one
+#'   Fruchterman-Reingold layout from the union of all edges and uses it for
+#'   every panel. Default \code{"spring"}.
+#' @param ncol Integer. Number of grid columns. The default NULL uses
+#'   \code{min(number of periods, 4)}.
+#' @param node_size Numeric. Node size passed to \code{\link{splot}}.
+#'   Default 5.
+#' @param seed Integer or NULL. Random seed for the shared layout. The
+#'   caller's random number state is restored on exit. NULL sets no seed.
+#'   Default 42.
+#' @param combined Logical. When TRUE (default), the period panels are
+#'   arranged in an internal grid via \code{graphics::par(mfrow = ...)}.
+#'   When FALSE, the panels are plotted into a layout the caller has already
+#'   configured, for example with \code{\link{panel_layout}()}.
 #' @param ... Additional arguments passed to \code{\link{splot}}.
 #'
-#' @return Invisible list of per-panel networks or edge-list data frames.
+#' @return Invisibly, a list with one element per period. For data frame
+#'   input each element is the edge-list data frame of that period (all
+#'   earlier periods included when \code{cumulative = TRUE}). For list input
+#'   it is the input list.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' set.seed(1)
@@ -280,7 +302,6 @@ plot_degree_correlation <- function(x,
 #'   to   = sample(LETTERS[1:5], 30, replace = TRUE),
 #'   week = sample(1:4, 30, replace = TRUE))
 #' cograph::plot_network_evolution(edges, time = "week")
-#' cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
 plot_network_evolution <- function(x,
                                    time = NULL,
                                    slices = NULL,

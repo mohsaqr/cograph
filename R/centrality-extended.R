@@ -1359,17 +1359,20 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
 #'   \code{"out"}. Used by \code{"degree"} and \code{"closeness"} only.
 #' @param ... Ignored; accepted for call compatibility with the other
 #'   centrality verbs.
-#' @return A single number: the summed gap between the most central node and
-#'   every other node, divided by the theoretical maximum for the measure, so
-#'   0 marks a perfectly even network and 1 a perfect star. Nodes whose score
-#'   is \code{NA} or \code{NaN} are dropped from the sum. Returns 0 when the
-#'   network has two or fewer nodes.
+#' @return A single number. It is the summed gap between the most central node
+#'   and every other node, divided by a theoretical maximum. For degree,
+#'   betweenness and closeness the maximum is the value of an unweighted
+#'   star, so unweighted input gives 0 for a perfectly even network and 1 for
+#'   an undirected star. For eigenvector centrality, whose scores are scaled to
+#'   a maximum of 1, the divisor is \eqn{n - 1}, and a star gives a value
+#'   below 1. Weighted closeness
+#'   scales with the inverse of the edge weights, so its centralization can
+#'   exceed 1. Nodes whose score is \code{NA} or \code{NaN} are dropped from
+#'   the sum. The value is 0 when the network has two or fewer nodes.
 #'
 #' @export
 #' @examples
-#' star <- matrix(0, 5, 5)
-#' star[1, 2:5] <- 1; star[2:5, 1] <- 1
-#' cograph::centralization(star, "degree")
+#' cograph::centralization(regulation_net, measure = "degree")
 centralization <- function(x, measure = c("degree", "betweenness",
                                           "closeness", "eigenvector"),
                            directed = NULL, mode = "all", ...) {

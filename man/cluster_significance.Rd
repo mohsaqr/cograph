@@ -35,22 +35,18 @@ distribution. Default 100.}
 
 \item{method}{Null model type:
 \describe{
-\item{"configuration"}{Preserves degree sequence (default). More
-stringent test.}
-\item{"gnm"}{Erdos-Renyi model with same number of edges. Tests against
-random baseline.}
+\item{"configuration"}{(default) Undirected configuration model
+that preserves the total degree of each node.}
+\item{"gnm"}{Erdos-Renyi G(n, m) model with the same number of nodes
+and edges and the same directedness.}
 }}
 
 \item{null}{Which null question to answer. Default \code{"detect"}:
 \describe{
-\item{"detect"}{Null is the modularity of the \emph{best partition
-found by community detection} on each null graph. Answers "is the
-observed partition stronger than what community detection would
-recover on similar random graphs?" — the historical behavior.}
-\item{"fixed"}{Null is the modularity of the supplied
-\code{communities} membership \emph{evaluated on each null graph}.
-Answers "does the supplied partition itself explain more structure
-than it would on similar random graphs?" — the conservative test.}
+\item{"detect"}{The null value is the modularity of the partition
+found by community detection on each null graph.}
+\item{"fixed"}{The null value is the modularity of the supplied
+\code{communities} membership evaluated on each null graph.}
 }}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
@@ -61,47 +57,47 @@ A \code{cograph_cluster_significance} object with:
 \item{observed_modularity}{Modularity of the input communities}
 \item{null_mean}{Mean modularity of random networks}
 \item{null_sd}{Standard deviation of null modularity}
-\item{z_score}{Standardized score: (observed - null_mean) / null_sd}
-\item{p_value}{One-sided p-value (probability of observing equal or
-higher modularity by chance)}
+\item{z_score}{Standardized score (observed - null_mean) / null_sd,
+or \code{NA} when \code{null_sd} is zero}
+\item{p_value}{One-sided upper-tail p-value of \code{z_score} under
+the standard normal distribution; \code{NA} when \code{null_sd} is
+zero}
 \item{null_values}{Vector of modularity values from null distribution}
 \item{method}{Null model method used}
 \item{null}{Which null question was asked ("detect" or "fixed")}
 \item{n_random}{Number of random networks generated}
 }
-
-See \code{\link{cluster_significance}}.
 }
 \description{
 Compares observed modularity against a null model distribution to assess
 whether the detected community structure is statistically significant.
 }
 \details{
-Two null models are supported. The default, \code{null = "detect"},
-generates \code{n_random} random networks, runs community detection
-(Louvain, with fast-greedy fallback) on each, and records the resulting
-modularity. Low p-value means the observed partition beats what
-detection would return on similar random graphs. \code{null = "fixed"}
-instead evaluates the user-supplied membership on each null graph, so
-low p-value means the partition itself is stronger than it would be on
-similar random graphs — a tighter question that isolates the
-partition's quality from any detector's behavior.
+The function generates \code{n_random} random networks from the null model.
+With \code{null = "detect"}, community detection (Louvain, or fast greedy
+when Louvain fails) is run on each null network and its modularity is
+recorded. A low p-value then indicates that the observed partition is
+stronger than the partitions detection recovers on random networks. With
+\code{null = "fixed"}, the supplied membership is evaluated on each null
+network. A low p-value then indicates that the partition explains more
+structure in the observed network than in random networks, independently
+of any detection algorithm.
 
-A significant result (low p-value) indicates that the community structure
-is stronger than expected by chance for networks with similar properties.
+The observed modularity is computed with the edge weights of \code{x}. The
+null networks are unweighted.
 }
+\section{Printing and plotting}{
+
+Printing the result shows the null model, the observed and null modularity,
+the z-score and the p-value. \code{plot()} on the result plots a histogram
+of the null modularity values with the observed value marked.
+}
+
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
-sig <- cluster_significance(g, comm, n_random = 20, seed = 123)
-print(sig)
+comm <- communities(regulation_net, method = "walktrap")
+cluster_significance(regulation_net, comm, n_random = 20, seed = 1)
 \dontshow{\}) # examplesIf}
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-  csig(g, comm, n_random = 20, seed = 1)
-}
 }
 \references{
 Reichardt, J., & Bornholdt, S. (2006).

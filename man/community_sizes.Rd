@@ -7,18 +7,18 @@
 community_sizes(x)
 }
 \arguments{
-\item{x}{A cograph_communities object}
+\item{x}{A \code{cograph_communities} object.}
 }
 \value{
-Integer vector of community sizes
+An unnamed integer vector of community sizes, ordered by
+community number.
 }
 \description{
 Get Community Sizes
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
+comm <- community_walktrap(regulation_net)
 community_sizes(comm)
 \dontshow{\}) # examplesIf}
 }

@@ -2,28 +2,39 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_effective_size}
 \alias{centrality_effective_size}
-\title{Effective Size (Burt's)}
+\title{Effective Size}
 \usage{
 centrality_effective_size(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of effective size values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Network effective size: degree minus redundancy. Measures non-redundant
-contacts in ego network.
+Burt's effective size is the number of a node's contacts minus their
+redundancy, the average number of ties each contact has to the other
+contacts:
+\deqn{ES(v) = k_v - \frac{1}{k_v} \sum_{j \in N(v)} |N(v) \cap N(j)|.}{
+  ES(v) = k_v - (1 / k_v) sum_{j in N(v)} |N(v) & N(j)|.}
+On an undirected network this is \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
+with \eqn{t_v}{t_v} the number of ties among the contacts.
+}
+\details{
+Edge weights are ignored. On a directed network each reciprocated neighbor
+enters the neighbor list twice, so \eqn{k_v}{k_v} counts it twice and the
+result differs from that of the undirected skeleton. An isolated node
+scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_effective_size(adj)
+centrality_effective_size(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_constraint}} for a related structural holes measure.
+\code{\link{centrality_constraint}},
+\code{\link{centrality_redundancy}}, \code{\link{centrality}}.
 }

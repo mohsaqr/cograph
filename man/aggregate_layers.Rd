@@ -18,26 +18,25 @@ lagg(
 )
 }
 \arguments{
-\item{layers}{List of adjacency matrices}
+\item{layers}{List of adjacency matrices of the same dimensions}
 
-\item{method}{Aggregation: "sum", "mean", "max", "min", "union", "intersection"}
+\item{method}{Aggregation: "sum" (default), "mean", "max", "min", "union"
+or "intersection". \code{"union"} and \code{"intersection"} return a
+binary matrix of the cells with a positive weight in any or in every
+layer.}
 
-\item{weights}{Optional layer weights (for weighted sum)}
+\item{weights}{Optional numeric vector of layer weights, one per layer,
+used only by \code{method = "sum"} to compute a weighted sum.}
 }
 \value{
-Aggregated adjacency matrix
+The aggregated adjacency matrix, with the dimnames of the first
+layer. A list with a single layer is returned unchanged for every
+\code{method}.
 }
 \description{
 Combines multiple network layers into a single network.
 }
 \examples{
-nodes <- c("A", "B", "C")
-l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-layers <- list(L1 = l1, L2 = l2)
-
-aggregate_layers(layers, "sum")           # total edge weight
-aggregate_layers(layers, "mean")          # average edge weight
-aggregate_layers(layers, "union")         # edge present in any layer
-aggregate_layers(layers, "intersection")  # edge present in every layer
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+aggregate_layers(layers, method = "mean")
 }

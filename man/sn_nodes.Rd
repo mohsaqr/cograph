@@ -55,14 +55,19 @@ Matrices and other inputs are auto-converted.}
 
 \item{size}{Node size. Can be a single value, vector (per-node), or column name.}
 
-\item{shape}{Node shape. Options: "circle", "square", "triangle", "diamond",
-"pentagon", "hexagon", "ellipse", "heart", "star", "pie", "donut", "cross", "rectangle",
-or any custom SVG shape registered with register_svg_shape().}
+\item{shape}{Node shape. One of the shapes listed by \code{\link{list_shapes}()}
+(for example "circle", "square", "triangle", "diamond", "pentagon",
+"hexagon", "ellipse", "heart", "star", "pie", "donut", "cross",
+"rectangle"), or a custom SVG shape registered with
+\code{\link{register_svg_shape}()}.}
 
-\item{node_svg}{Custom SVG for node shape: path to SVG file OR inline SVG string.
-Overrides shape parameter when provided.}
+\item{node_svg}{Custom SVG for the node shape: a path to an SVG file or an
+inline SVG string. It is registered as a temporary shape and replaces
+\code{shape}.}
 
-\item{svg_preserve_aspect}{Logical: maintain SVG aspect ratio? Default TRUE.}
+\item{svg_preserve_aspect}{Logical: maintain the SVG aspect ratio? The value
+is stored with the network, but the renderer always preserves the aspect
+ratio, so it has no effect at present.}
 
 \item{fill}{Node fill color. Can be a single color, vector, or column name.}
 
@@ -70,13 +75,14 @@ Overrides shape parameter when provided.}
 
 \item{border_width}{Node border width.}
 
-\item{alpha}{Node transparency (0-1).}
+\item{alpha}{Node opacity in [0, 1]. Values outside this range raise an error.}
 
 \item{label_size}{Label text size.}
 
 \item{label_color}{Label text color.}
 
-\item{label_position}{Label position: "center", "above", "below", "left", "right".}
+\item{label_position}{Label position: "center" (render default), "above",
+"below", "left" or "right".}
 
 \item{show_labels}{Logical. Show node labels? Default TRUE.}
 
@@ -88,19 +94,20 @@ Each element corresponds to a node and contains values for its segments.}
 \item{pie_border_width}{Border width for pie chart nodes.}
 
 \item{donut_fill}{For donut shape: numeric value (0-1) specifying fill proportion.
-0.1 = 10\% filled, 0.5 = 50\% filled, 1.0 = fully filled ring.
+A value of 0.5 fills half of the ring and 1 fills the whole ring.
 Can be a single value (all nodes) or vector (per-node values).}
 
-\item{donut_values}{Deprecated. Use donut_fill for simple fill proportion.
-Still works for backwards compatibility.}
+\item{donut_values}{Deprecated. Use \code{donut_fill}. Ignored when
+\code{donut_fill} is supplied.}
 
 \item{donut_color}{For donut shape: fill color(s) for the donut ring.
 Single color sets fill for all nodes.
 Two colors set fill and background for all nodes.
 More than 2 colors set per-node fill colors (recycled to n_nodes).
-Default: "maroon" fill, "gray90" background when shape="donut".}
+The render default is a "maroon" fill on a "gray90" background.}
 
-\item{donut_colors}{Deprecated. Use donut_color instead.}
+\item{donut_colors}{Deprecated. Use \code{donut_color}. Ignored when
+\code{donut_color} is supplied.}
 
 \item{donut_border_width}{Border width for donut chart nodes.}
 
@@ -129,7 +136,9 @@ donuts); set it explicitly to override that for every node.}
 
 \item{donut_value_suffix}{For donut shape: text after value (e.g., "\%"). Default "".}
 
-\item{donut_value_format}{For donut shape: custom format function (overrides digits).}
+\item{donut_value_format}{For donut shape: a function that formats the
+center value. It replaces \code{donut_value_digits}. A non-function raises
+an error.}
 
 \item{donut2_values}{For double donut: list of values for inner donut ring.}
 
@@ -150,48 +159,37 @@ donuts); set it explicitly to override that for every node.}
 \item{node_names}{Alternative names for legend (separate from display labels).}
 }
 \value{
-Modified cograph_network object that can be piped to further customization
-functions or plotting functions.
+The input as a \code{cograph_network} object, with the supplied
+settings merged into its node aesthetics. It can be piped to further
+customization or plotting functions.
 }
 \description{
-Customize the visual appearance of nodes in a network plot.
+Sets the visual properties of the nodes in a network plot. Every argument
+except \code{network} defaults to \code{NULL}, which leaves the current setting unchanged; the
+defaults stated below are the values used at render time.
 }
 \details{
 \subsection{Vectorization}{
 
-All aesthetic parameters can be specified as:
-\itemize{
-\item \strong{Single value}: Applied to all nodes (e.g., \code{fill = "blue"})
-\item \strong{Vector}: Per-node values, recycled if shorter than node count
-\item \strong{Column name}: String referencing a column in the node data frame
-}
-
-Parameters are validated for correct length; providing a vector with length
-other than 1 or n_nodes will produce a warning about recycling.
+The arguments \code{size}, \code{shape}, \code{fill}, \code{border_color},
+\code{border_width}, \code{alpha}, \code{label_size}, \code{label_color},
+\code{label_position} and \code{node_names} accept a single value, which is
+applied to all nodes, or a per-node vector. A vector of another length is
+recycled to the number of nodes without a warning. A single string that
+matches a column of the node data frame is replaced by that column.
 }
 
 \subsection{Donut Charts}{
 
-Donut charts are ideal for showing a single proportion (0-1) per node:
-\itemize{
-\item Set \code{donut_fill} to a numeric value or vector (0 = empty, 1 = full)
-\item Use \code{donut_color} to set fill color(s)
-\item Use \code{donut_shape} for non-circular donuts ("square", "hexagon", etc.)
-\item Enable \code{donut_show_value = TRUE} to display the value in the center
-}
+A donut node shows one proportion in [0, 1] per node. \code{donut_fill}
+sets the proportion, \code{donut_color} the ring color, \code{donut_shape}
+the base shape of the ring, and \code{donut_show_value = TRUE} prints the
+value in the center.
 }
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |>
-  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle") |>
-  splot()
-
-# Per-node customization: vectors of length n
-cograph(adj) |>
-  sn_nodes(size = c(0.08, 0.06, 0.1),
-           fill = c("#E41A1C", "#377EB8", "#4DAF4A"),
-           shape = c("circle", "square", "triangle")) |>
+cograph(regulation_net) |>
+  sn_nodes(fill = "steelblue", shape = "square") |>
   splot()
 }
 \seealso{

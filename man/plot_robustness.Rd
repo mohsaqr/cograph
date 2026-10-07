@@ -20,16 +20,18 @@ plot_robustness(
 )
 }
 \arguments{
-\item{...}{One or more robustness results from \code{\link{robustness}},
-or named arguments to pass networks for on-the-fly computation.}
+\item{...}{One or more robustness results from \code{\link{robustness}}.
+When these are supplied, \code{x} is ignored.}
 
-\item{x}{Network for computing robustness on-the-fly.}
+\item{x}{Network on which robustness is computed for each of
+\code{measures}. Used when \code{...} is empty.}
 
-\item{measures}{Character vector of attack strategies to compare.
-Default c("betweenness", "degree", "random").}
+\item{measures}{Character vector of attack strategies to compare when
+\code{x} is supplied. Default c("betweenness", "degree", "random").}
 
-\item{colors}{Named vector of colors. Default: green=Degree, red=Betweenness,
-blue=Random (matching Nature paper style).}
+\item{colors}{Vector of colors named by measure (\code{"betweenness"},
+\code{"degree"}, \code{"random"}). Default NULL uses red for betweenness,
+green for degree and blue for random. Unmatched measures are gray.}
 
 \item{title}{Plot title. Default "Network Robustness: sequential removal of nodes".}
 
@@ -41,31 +43,25 @@ blue=Random (matching Nature paper style).}
 
 \item{legend_pos}{Legend position. Default "topright".}
 
-\item{n_iter}{Number of iterations for random. Default 1000.}
+\item{n_iter}{Number of iterations for random removal when \code{x} is
+supplied. Default 1000.}
 
 \item{seed}{Random seed. Default NULL.}
 
-\item{type}{Removal type. Default "vertex".}
+\item{type}{Removal type, "vertex" or "edge", when \code{x} is supplied.
+Default "vertex". With "edge", \code{measures} must not include "degree".}
 }
 \value{
-Invisibly returns combined data frame of all robustness results.
+Invisibly, a \code{cograph_robustness} data frame that stacks the
+plotted results (columns as in \code{\link{robustness}}).
 }
 \description{
-Creates a visualization of network robustness showing the fraction of
-remaining nodes in the largest connected component during sequential
-node/edge removal. Supports comparison of multiple attack strategies.
+Plots the fraction of nodes remaining in the largest connected component
+against the fraction of nodes or edges removed, with one line per attack
+strategy, in base graphics.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-
-  # Quick comparison of all strategies
-  plot_robustness(x = g, n_iter = 20)
-
-  # Or compute separately
-  rob1 <- robustness(g, measure = "betweenness")
-  rob2 <- robustness(g, measure = "degree")
-  rob3 <- robustness(g, measure = "random", n_iter = 20)
-  plot_robustness(rob1, rob2, rob3)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+plot_robustness(x = regulation_net, n_iter = 20, seed = 1)
+\dontshow{\}) # examplesIf}
 }

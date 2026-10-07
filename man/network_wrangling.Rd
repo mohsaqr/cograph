@@ -7,16 +7,16 @@
 Each verb returns a \code{cograph_network}, except
 \code{\link{split_components}()}, which returns a list of them. With
 \code{keep_format = TRUE} a matrix, igraph, statnet network or tna input
-comes back in that format.
+comes back in that format. An edge-list data frame comes back as a
+\code{cograph_network} with a warning.
 }
 \description{
-cograph's verbs for reshaping a network. Every verb takes any supported
-input (matrix, edge list, igraph, statnet network, tna model,
-\code{cograph_network}), takes its options as named arguments, and returns a
-\code{cograph_network} — or the input format when
-\code{keep_format = TRUE}. There is no pipeline state to activate and
-nothing to unpack afterwards: use \code{as.data.frame()} for the tidy edge
-or node table.
+cograph provides verbs for reshaping a network. Each verb accepts any
+supported input (matrix, edge list, igraph, statnet network, tna model,
+\code{cograph_network}) and takes its options as named arguments. The
+result is a \code{cograph_network}, or the input format when
+\code{keep_format = TRUE}. \code{as.data.frame()} returns the edge or node
+table of a result.
 }
 \section{Selecting}{
 
@@ -57,7 +57,8 @@ total, or to [0, 1].}
 \code{\link{complement_network}()}}{Derived graphs.}
 \item{\code{\link{reorder_nodes}()}, \code{\link{rename_nodes}()}}{Change
 node order or labels without changing the network.}
-\item{\code{\link{simplify}()}}{Merge duplicate edges and drop loops.}
+\item{\code{\link{simplify}()}}{Merge duplicate edges and drop loops.
+It returns the input format.}
 }
 }
 
@@ -81,23 +82,23 @@ two networks.}
 \code{cograph_network} (see \code{\link{as.data.frame.cograph_network}}).
 }
 
-\section{Semantics worth knowing}{
+\section{Semantics}{
 
 \itemize{
-\item \strong{Filtering edges does not remove nodes.} This matches
+\item Filtering edges does not remove nodes, as in
 \code{igraph::delete_edges()} and tidygraph. Nodes left without edges
-raise a \code{cograph_isolates_created} warning; call
-\code{\link{remove_isolates}()} to drop them, or pass
-\code{keep_isolates = FALSE}.
-\item \strong{Undirected results stay undirected.} The weight matrix of an
-undirected result is symmetric, so nothing downstream re-detects it as
-directed.
-\item \strong{Metadata survives.} Node groups, estimation data, layout
-coordinates and the original source type are carried through every verb.
-\item \strong{Malformed selections are errors.} Unknown node names, out-of-
-range or fractional indices, unknown measure names and a malformed
-\code{between} raise a \code{cograph_bad_selection} error rather than
-warning and returning something plausible.
+raise a \code{cograph_isolates_created} warning. They are dropped by
+\code{\link{remove_isolates}()} or by \code{keep_isolates = FALSE}
+in the verbs that have that argument.
+\item The weight matrix of an undirected result is symmetric, so the
+result is still detected as undirected downstream.
+\item Node groups, estimation data, layout coordinates and the original
+source type are carried through the verbs.
+\item Unknown node names, out-of-range or fractional indices, unknown
+measure names and a malformed \code{between} raise a
+\code{cograph_bad_selection} error. The \code{name} argument of
+\code{\link{select_nodes}()} is an exception. Unknown names in it are
+skipped, and a warning is given when no node matches.
 }
 }
 
@@ -109,19 +110,5 @@ warning and returning something plausible.
 }
 
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# One call, named arguments, a tidy table out
-as.data.frame(threshold_edges(adj, minimum = 0.4))
-
-# Verbs compose
-adj |>
-  threshold_edges(minimum = 0.4) |>
-  remove_isolates() |>
-  mutate_nodes(deg = degree) |>
-  as.data.frame(what = "nodes")
+as.data.frame(threshold_edges(regulation_net, minimum = 0.2))
 }

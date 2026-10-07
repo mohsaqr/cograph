@@ -2,29 +2,52 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_current_flow_closeness}
 \alias{centrality_current_flow_closeness}
-\title{Current Flow Closeness Centrality}
+\title{Current-Flow Closeness}
 \usage{
 centrality_current_flow_closeness(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of current flow closeness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Information centrality based on electrical current flow through the network.
-Uses the pseudoinverse of the Laplacian matrix. Requires a connected graph.
+Current-flow closeness (Brandes and Fleischer 2005), equal to the
+information centrality of Stephenson and Zelen (1989), replaces the
+shortest-path distance in closeness by the effective resistance
+\eqn{R_{vw}}{R_vw} of the network read as an electrical circuit with the
+edge weights as conductances:
+\deqn{CFC(v) = \frac{n - 1}{\sum_{w \ne v} R_{vw}}, \qquad
+  R_{vw} = L^{+}_{vv} + L^{+}_{ww} - 2 L^{+}_{vw},}{
+  CFC(v) = (n - 1) / sum_{w != v} R_vw,
+  R_vw = L+_vv + L+_ww - 2 L+_vw,}
+with \eqn{L^{+}}{L+} the pseudoinverse of the Laplacian.
+}
+\details{
+The measure is defined for connected undirected networks. On a
+disconnected network every score is \code{NA}, with an unclassed warning.
+On a directed network the Laplacian is built from the asymmetric weight
+matrix, and \code{directed = FALSE} gives the undirected reading. Edge
+weights are always used, and \code{weighted = FALSE} has no effect.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_current_flow_closeness(adj)
+centrality_current_flow_closeness(regulation_net, directed = FALSE)
+}
+\references{
+Stephenson, K., & Zelen, M. (1989). Rethinking centrality: Methods and
+examples. Social Networks, 11(1), 1-37.
+\doi{10.1016/0378-8733(89)90016-6}.
+
+Brandes, U., & Fleischer, D. (2005). Centrality measures based on current
+flow. In STACS 2005, Lecture Notes in Computer Science, 3404 (pp.
+533-544). Springer. \doi{10.1007/978-3-540-31856-9_44}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_closeness}} for the shortest-path variant.
+\code{\link{centrality_current_flow_betweenness}},
+\code{\link{centrality_information}}, \code{\link{centrality}}.
 }

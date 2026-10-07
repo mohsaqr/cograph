@@ -7,39 +7,42 @@
 centrality_katz(x, katz_alpha = 0.1, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{katz_alpha}{Attenuation factor. Must satisfy
-\eqn{\alpha < 1 / \rho(A)} where \eqn{\rho(A)} is the spectral radius.
-Default 0.1 matches centiserve and NetworkX conventions.}
+\item{katz_alpha}{Attenuation factor \eqn{\alpha}{alpha} (default 0.1).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of Katz centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Katz (1953) status index: \eqn{C = (I - \alpha A^T)^{-1} \mathbf{1}}.
-Each node's score sums attenuated walks of every length back to it, with
-attenuation \eqn{\alpha} applied per step. Rankings are identical to
-Bonacich's alpha centrality with a uniform exogenous vector.
+Katz (1953) status sums the walks of every length that end at a node,
+each step attenuated by \eqn{\alpha}{alpha}:
+\deqn{c = (I - \alpha A^{T})^{-1}\mathbf{1},}{c = (I - alpha t(A))^(-1) 1,}
+where \eqn{A} is the weighted adjacency matrix and \eqn{\alpha}{alpha} is
+\code{katz_alpha}.
 }
 \details{
-Equivalence is verified bit-exact against \code{centiserve::katzcent}
-(cograph mirrors centiserve's exact LAPACK call sequence) and at machine
-epsilon against \code{igraph::alpha_centrality(exo = 1)} and
-\code{networkx.katz_centrality_numpy}.
+The series converges for \eqn{\alpha < 1/\rho(A)}{alpha < 1/rho(A)}, where
+\eqn{\rho(A)}{rho(A)} is the spectral radius. A divergent series is
+detected from scores below one and raises a \code{cograph_katz_diverged}
+warning that names the bound; the returned values are then not Katz
+scores. Edge weights are always used, and \code{weighted = FALSE} has no
+effect. On a directed network the score counts walks that arrive at the
+node. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
+same \code{alpha}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_katz(adj)
+centrality_katz(regulation_net)
 }
 \references{
 Katz, L. (1953). A new status index derived from sociometric analysis.
 \emph{Psychometrika}, 18(1), 39-43.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_eigenvector}},
-\code{\link{centrality_pagerank}}.
+\code{\link{centrality_alpha}},
+\code{\link{centrality_eigenvector}}, \code{\link{centrality_hubbell}},
+\code{\link{centrality}}.
 }

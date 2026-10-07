@@ -10,7 +10,9 @@ layout_target(network, target = NULL, horizontal = TRUE, equalize = TRUE, ...)
 \item{network}{A \code{CographNetwork} or \code{cograph_network} object.}
 
 \item{target}{Node of interest, given as a label (character) or 1-based
-index. When \code{NULL} (default) the highest-degree node is used.}
+index. When \code{NULL} (default) the node with the most neighbors is
+used. A label that is not found or an index out of range raises an
+error.}
 
 \item{horizontal}{Logical. If \code{TRUE} (default) levels flow left to right
 with the target node on the left; if \code{FALSE} they flow top to bottom.}
@@ -24,21 +26,19 @@ within each level.}
 Data frame with \code{x}, \code{y} coordinates, one row per node.
 }
 \description{
-Port of qgraph's \code{flow()} layout. One node of interest (the
-\code{target}) is placed alone, then every other node is drawn in successive
-levels ordered by unweighted graph distance (BFS hops) from it. This shows
-how the target node connects out into the rest of the network.
+Adapts the \code{flow()} layout of qgraph. One node of interest (the
+\code{target}) is placed alone, and every other node is placed in successive
+levels ordered by its unweighted graph distance (number of hops) from the
+target. Edge direction is ignored. The layout shows how the target node
+connects to the rest of the network.
 }
 \details{
-Unlike qgraph's implementation, weights are binarized for layering (only
-connectivity matters) and disconnected nodes are placed in an extra trailing
-level instead of raising an error.
+Weights are binarized for layering, so only connectivity matters. Nodes
+that cannot be reached from the target are placed in one extra level after
+the last. qgraph raises an error for such nodes.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1,
-                1, 0, 0, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
-net <- CographNetwork$new(adj)
-layout_target(net, target = 1)
+layout_target(CographNetwork$new(regulation_net), target = "Plan")
 \dontshow{\}) # examplesIf}
 }

@@ -13,21 +13,16 @@ network_vertex_connectivity(x, ...)
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Integer: minimum vertex cut size
+Numeric scalar: the minimum vertex cut size, or \code{NA} when
+igraph cannot compute it.
 }
 \description{
-Computes the vertex connectivity of a network - the minimum number of
-vertices that must be removed to disconnect the graph (or make it trivial).
-Higher values indicate more robust network structure.
+Computes the vertex connectivity of a network, the minimum number of
+vertices whose removal disconnects the graph or leaves a single vertex.
+Higher values indicate a more robust structure.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Complete graph K4 has vertex connectivity 3
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-network_vertex_connectivity(k4)  # 3
-
-# Path graph has vertex connectivity 1
-path <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-network_vertex_connectivity(path)  # 1
+network_vertex_connectivity(regulation_net)
 \dontshow{\}) # examplesIf}
 }

@@ -1,74 +1,70 @@
 #' Detect Core-Periphery Structure
 #'
-#' Identifies core-periphery structure in a network using either continuous
-#' (Borgatti-Everett) or discrete methods. Core nodes are densely interconnected,
-#' while periphery nodes connect primarily to the core.
+#' Identifies core-periphery structure in a network with a continuous
+#' (Borgatti-Everett) or a discrete method. Core nodes are densely
+#' interconnected, and periphery nodes connect mainly to the core. Edge
+#' weights are ignored; the analysis uses the binary adjacency matrix.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param method Character string; either "continuous" (default, Borgatti-Everett
 #'   model) or "discrete" (binary core/periphery assignment).
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param iter Integer; maximum number of iterations for the continuous algorithm.
-#'   Default 100.
-#' @param digits Integer or NULL. Round numeric outputs to this many decimal
-#'   places. Default NULL (no rounding).
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param iter Integer; maximum number of power iterations. Must be at least
+#'   1. Default 100.
+#' @param digits Integer or NULL. Number of decimal places for the coreness
+#'   scores, the fitness and the densities. Default NULL (no rounding).
+#' @param ... Passed to \code{\link{to_igraph}}, which accepts no further
+#'   arguments. Any argument supplied here raises an error.
 #'
 #' @return A data frame with class \code{"cograph_core_periphery"}, one row per
 #'   node, and columns:
 #'   \describe{
 #'     \item{node}{Node label.}
-#'     \item{role}{Character: \code{"core"} or \code{"periphery"}.}
+#'     \item{role}{Character: \code{"core"} or \code{"periphery"}. For the
+#'       continuous method a node is core when its coreness is at or above the
+#'       median coreness.}
 #'     \item{coreness}{Numeric continuous coreness score, rescaled to
 #'       \eqn{[0, 1]}. Reported for both methods.}
 #'   }
-#'   The attributes \code{"fitness"}, \code{"core_density"},
-#'   \code{"periphery_density"} and \code{"network"} (the original input) carry
-#'   the remaining results.
+#'   The attributes \code{"fitness"}, \code{"core_density"} and
+#'   \code{"periphery_density"} hold the fit and the block densities, and
+#'   \code{"network"} holds the original input.
 #'
 #' @details
-#' \strong{Continuous method (Borgatti-Everett):}
-#' Seeks a coreness vector \code{c} (rescaled to the 0-1 range) whose ideal
-#' rank-1 pattern matrix (the outer product of the vector with itself)
-#' correlates as highly as possible with the adjacency matrix. The vector is
-#' approximated by initializing from the dominant eigenvector of the adjacency
-#' matrix and refining it by power iteration until convergence or \code{iter}
-#' steps; the achieved correlation is reported as the \code{"fitness"}
-#' attribute rather than being optimized directly.
+#' ## Continuous method
+#' The Borgatti-Everett model compares the adjacency matrix with the rank-1
+#' pattern matrix \code{outer(c, c)} of a coreness vector \code{c}. Here
+#' \code{c} is estimated from the dominant eigenvector of the adjacency
+#' matrix, refined by power iteration with rescaling to \eqn{[0, 1]}. The
+#' iteration stops when the largest change falls below \eqn{10^{-6}} or after
+#' \code{iter} steps. The vector is not optimized for the correlation. The
+#' \code{"fitness"} attribute is the correlation between the off-diagonal
+#' entries of the adjacency matrix and those of the pattern matrix (the lower
+#' triangle for a symmetric matrix), and it is 0 when the correlation is
+#' undefined.
 #'
-#' \strong{Discrete method:}
-#' Produces a binary core / periphery assignment. Starts from the continuous
-#' solution thresholded at the median, then greedily flips the single node
-#' assignment that most improves fitness until no flip improves it. The
-#' discrete fitness being maximized is
-#' \code{density(core) - density(periphery)}; the \code{"fitness"} attribute
-#' reported for \code{method = "discrete"} is the correlation between the
-#' adjacency matrix and the ideal block pattern of that assignment.
+#' ## Discrete method
+#' The discrete method starts from the continuous solution split at the median
+#' and repeatedly flips the single node assignment that most increases
+#' \code{density(core) - density(periphery)}. It stops when no flip increases
+#' this quantity. The \code{"fitness"} attribute is the correlation between the
+#' adjacency matrix and the ideal block pattern of the final assignment.
 #'
 #' @references
 #' Borgatti, S.P. & Everett, M.G. (2000). Models of core/periphery structures.
 #' \emph{Social Networks}, 21(4), 375-395.
 #' \doi{10.1016/S0378-8733(99)00019-2}
 #'
+#' @section Printing and plotting:
+#' Printing the result shows the core and periphery sizes, the fitness and the
+#' two block densities, followed by the node table. The result is a data frame
+#' and serves as the tidy table directly. \code{plot()} on the result is
+#' documented in \code{\link{plot-results}}.
+#'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Core-periphery in a simple network
-#' adj <- matrix(c(
-#'   0, 1, 1, 1, 0,
-#'   1, 0, 1, 1, 0,
-#'   1, 1, 0, 1, 1,
-#'   1, 1, 1, 0, 1,
-#'   0, 0, 1, 1, 0
-#' ), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' cp <- cograph::core_periphery(adj)
-#' cp
-#'
-#' # Discrete assignment
-#' cp_disc <- cograph::core_periphery(adj, method = "discrete")
-#' cp_disc
+#' core_periphery(regulation_net)
 #'
 #' @seealso \code{\link{centrality}}, \code{\link{network_summary}}
 core_periphery <- function(x,
@@ -285,28 +281,9 @@ core_periphery <- function(x,
 # Plot Method
 # =============================================================================
 
-#' Plot Core-Periphery Structure
-#'
-#' Visualizes the network with core nodes highlighted (larger, red) and
-#' periphery nodes de-emphasized (smaller, blue).
-#'
-#' @param x A \code{cograph_core_periphery} object from
-#'   \code{\link{core_periphery}}.
-#' @param core_color Color for core nodes. Default \code{"#E41A1C"}.
-#' @param periphery_color Color for periphery nodes. Default \code{"#377EB8"}.
-#' @param core_size Numeric size for core nodes. Default 12.
-#' @param periphery_size Numeric size for periphery nodes. Default 6.
-#' @param ... Additional arguments passed to \code{\link{splot}}.
-#'
-#' @return Invisible \code{x}.
+#' @rdname plot-results
 #' @method plot cograph_core_periphery
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0,1,1,1,0, 1,0,1,1,0, 1,1,0,1,1,
-#'                 1,1,1,0,1, 0,0,1,1,0), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' cp <- cograph::core_periphery(adj)
-#' plot(cp)
 plot.cograph_core_periphery <- function(x,
                                         core_color = "#E41A1C",
                                         periphery_color = "#377EB8",

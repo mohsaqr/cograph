@@ -2,40 +2,46 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_brokerage_liaison}
 \alias{centrality_brokerage_liaison}
-\title{Gould-Fernandez Brokerage — Liaison Role}
+\title{Liaison Brokerage}
 \usage{
 centrality_brokerage_liaison(x, membership = NULL, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer or character vector of group assignments, length
-equal to the number of nodes. Required.}
+\item{membership}{Group labels, one per node.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named integer vector of liaison role counts.
+A named integer vector with one count per node, in input node
+order. \code{normalized = TRUE} returns a numeric vector.
 }
 \description{
-Liaison brokerage (b_O): count of open directed 2-paths
-\eqn{A \to V \to B} where all three nodes belong to different groups.
-The broker mediates between two groups to neither of which they belong.
+Liaison brokerage (Gould and Fernandez 1989) counts the open two-paths
+\eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which \eqn{a},
+\eqn{v} and \eqn{c} belong to three different groups. A two-path is open
+when the network has no edge from \eqn{a} to \eqn{c}. This role is
+\eqn{b_O}{b_O} in the notation of the source.
 }
 \details{
-Bit-exact match against \code{sna::brokerage$raw.nli[, "b_O"]}.
-Directed-only.
+The measure is defined for directed networks. On an undirected network it
+raises an unclassed warning and returns \code{NA}, and the same happens when
+\code{membership} is missing. A \code{membership} whose length differs from
+the number of nodes raises an unclassed error. Group labels may be numbers
+or strings. With fewer than three groups every count is 0. Edge weights and
+self-loops are ignored.
 }
 \examples{
-adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_brokerage_liaison(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_liaison(regulation_net, membership = rep(1:3, length.out = 10))
 }
 \references{
 Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-approach to brokerage in transaction networks. \emph{Sociological
-Methodology}, 19, 89-126. \doi{10.2307/270949}.
+approach to brokerage in transaction networks. Sociological Methodology,
+19, 89-126. \doi{10.2307/270949}.
 }
 \seealso{
-\code{\link{centrality_brokerage_coordinator}}.
+\code{\link{centrality_brokerage_itinerant}},
+\code{\link{centrality_brokerage_coordinator}}, \code{\link{centrality}}.
 }

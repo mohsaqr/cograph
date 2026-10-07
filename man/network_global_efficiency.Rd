@@ -19,36 +19,33 @@ network_global_efficiency(
 \item{directed}{Logical or NULL. Consider edge direction? Default NULL,
 which follows the directedness of the converted graph.}
 
-\item{weights}{Edge weights (NULL for unweighted). Set to NA to ignore existing weights.}
+\item{weights}{Numeric vector of edge weights. Default NULL uses the
+graph's \code{weight} attribute when present. NA ignores weights when
+\code{invert_weights} is FALSE.}
 
-\item{invert_weights}{Logical or NULL. Invert weights so higher weights = shorter
-paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
-(matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).}
+\item{invert_weights}{Logical or NULL. If TRUE, weights are converted to
+distances as \eqn{1/w^{\alpha}}{1/w^{alpha}}, so stronger ties give shorter paths. If
+FALSE, weights are used as distances. Default NULL uses TRUE for tna
+objects and FALSE otherwise.}
 
-\item{alpha}{Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
-Default 1.}
+\item{alpha}{Numeric. Exponent for weight inversion. Default 1.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which accepts no arguments
+besides \code{directed}.}
 }
 \value{
-Numeric global efficiency. For unweighted simple graphs this is in
-\eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are below 1.
+Numeric scalar: the global efficiency. For unweighted simple graphs
+it lies in \eqn{[0, 1]}. Weighted graphs can exceed 1 when edge distances
+are below 1.
 }
 \description{
-Computes the global efficiency of a network - the average of the inverse
-shortest path lengths between all pairs of nodes. Higher values indicate
-better global communication efficiency. Handles disconnected graphs gracefully
-(infinite distances contribute 0).
+Computes the global efficiency of a network, the average of the inverse
+shortest path lengths between all ordered pairs of distinct nodes. Higher
+values indicate more efficient global communication. Unreachable pairs
+contribute 0. A graph with fewer than two nodes returns \code{NA}.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Complete graph has efficiency 1
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-network_global_efficiency(k4)  # 1
-
-# Star has lower efficiency
-star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_global_efficiency(star)  # 0.75
+network_global_efficiency(regulation_net)
 \dontshow{\}) # examplesIf}
 }

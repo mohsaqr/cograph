@@ -13,26 +13,30 @@ homophily(x, values, directed = NULL, digits = NULL, ...)
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna
 object.}
 
-\item{values}{Named vector of attribute values (names must match node names)
-or an unnamed vector in node order.}
+\item{values}{Named vector of attribute values whose names cover every node
+name, or an unnamed vector of length equal to the number of nodes, in node
+order. A numeric vector is treated as scalar and any other vector as
+nominal.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect.}
 
-\item{digits}{Integer or NULL. Round result. Default NULL.}
+\item{digits}{Integer or NULL. Round the coefficient to this many decimal
+places. Default NULL (no rounding).}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Not used. Any argument supplied here raises an
+\code{"unused argument"} error.}
 }
 \value{
 An object of class \code{"cograph_assortativity"} with components:
 \describe{
 \item{coefficient}{Numeric scalar: assortativity coefficient.}
 \item{type}{Character: \code{"nominal"} or \code{"scalar"}.}
-\item{directed}{Logical.}
-\item{n_nodes}{Integer.}
-\item{n_edges}{Integer.}
-\item{attribute_values}{The attribute values used.}
-\item{network}{Original input.}
+\item{directed}{Logical: whether the network was treated as directed.}
+\item{n_nodes}{Numeric: number of nodes.}
+\item{n_edges}{Numeric: number of edges.}
+\item{attribute_values}{The attribute values used, named by node and
+in node order.}
+\item{network}{The original input network.}
 }
 }
 \description{
@@ -44,8 +48,8 @@ correlation between attribute values at edge endpoints.
 }
 \details{
 For categorical (nominal) attributes, the coefficient is:
-\deqn{r = \frac{\text{tr}(\mathbf{e}) - \|\mathbf{e}^2\|}{1 - \|\mathbf{e}^2\|}}
-where \eqn{\mathbf{e}} is the mixing matrix with \eqn{e_{ij}} = fraction of
+\deqn{r = \frac{\text{tr}(\mathbf{e}) - \|\mathbf{e}^2\|}{1 - \|\mathbf{e}^2\|}}{r = (tr(e) - ||e^2||)/(1 - ||e^2||)}
+where \eqn{\mathbf{e}}{e} is the mixing matrix with \eqn{e_{ij}} = fraction of
 edges connecting type \eqn{i} to type \eqn{j}.
 
 For numeric (scalar) attributes, the coefficient is the Pearson correlation
@@ -59,10 +63,7 @@ variance.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0,1,1,0, 1,0,0,0, 1,0,0,1, 0,0,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-groups <- c(A = "x", B = "x", C = "y", D = "y")
-cograph::assortativity_attribute(adj, groups)
+cograph::assortativity_attribute(regulation_net, values = rep(c("self", "social"), each = 5))
 \dontshow{\}) # examplesIf}
 }
 \references{

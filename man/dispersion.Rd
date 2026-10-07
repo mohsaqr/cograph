@@ -29,7 +29,7 @@ form; otherwise the raw count.}
 \item Scalar if both \code{u} and \code{v} are specified.
 \item Named numeric vector if exactly one of \code{u}, \code{v} is given,
 one element per neighbor of that node; the names are the neighbors'
-1-based node \emph{indices} as character strings, not their labels.
+1-based node indices as character strings.
 \item A data frame with columns \code{from}, \code{to}, \code{dispersion}
 when neither \code{u} nor \code{v} is given, one row per ordered
 (node, neighbor) pair, with \code{from} and \code{to} given as 1-based
@@ -38,34 +38,29 @@ integer node indices.
 }
 }
 \description{
-Per-pair measure of tie strength from the Facebook relationship-inference
-paper. For each pair \eqn{(u, v)} where \eqn{v} is a neighbor of \eqn{u}:
+Computes the dispersion of a tie (Backstrom and Kleinberg 2014), a
+per-pair measure of tie strength. Edge weights are ignored, and directed
+networks use out-neighbors. For each pair \eqn{(u, v)} where \eqn{v} is a
+neighbor of \eqn{u}, the computation proceeds as follows.
 }
 \details{
 \enumerate{
-\item Let \eqn{S_T = N(u) \cap N(v)} be their mutual friends (embeddedness).
-\item Count pairs \eqn{(s, t) \subset S_T} such that:
+\item Let \eqn{S_T = N(u) \cap N(v)}{S_T = N(u) cap N(v)} be their mutual friends (embeddedness).
+\item Count pairs \eqn{(s, t) \subset S_T}{(s, t) subset S_T} such that:
 \itemize{
-\item \eqn{s} and \eqn{t} are not directly connected, AND
+\item \eqn{s} and \eqn{t} are not directly connected, and
 \item \eqn{s} and \eqn{t} share no common neighbor inside \eqn{N(u)}
 other than \eqn{u} and \eqn{v}.
 }
 \item The raw dispersion is this count. When \code{normalized = TRUE},
 the result is \eqn{(\mathrm{dispersion} + b)^{\alpha} /
-    (\mathrm{embeddedness} + c)} (normalization is skipped when
+    (\mathrm{embeddedness} + c)}{(dispersion + b)^{alpha} / (embeddedness + c)} (normalization is skipped when
 \code{embeddedness + c == 0}).
 }
-
-Matches \code{networkx.dispersion} bit-exact for all three call modes
-(single pair, single source, full matrix).
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-# Node 0 (R index 1) to node 33 (R index 34)
-dispersion(g, u = 1, v = 34)
-# All pairs from node 1
-head(dispersion(g, u = 1))
+dispersion(regulation_net, u = "Plan")
 \dontshow{\}) # examplesIf}
 }
 \references{

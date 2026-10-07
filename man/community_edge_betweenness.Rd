@@ -30,43 +30,48 @@ com_eb(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{directed}{Logical; treat graph as directed? Default TRUE.}
+\item{directed}{Logical. Whether edge directions are used. Default
+\code{TRUE}. \code{NULL} uses the direction of the network.}
 
-\item{edge.betweenness}{Logical; return edge betweenness values? Default TRUE.}
+\item{edge.betweenness}{Logical. Whether igraph stores the edge
+betweenness values. Default \code{TRUE}.}
 
-\item{merges}{Logical; return merge matrix? Default TRUE.}
+\item{merges}{Logical. Whether igraph stores the merge matrix. Default
+\code{TRUE}.}
 
-\item{bridges}{Logical; return bridge edges? Default TRUE.}
+\item{bridges}{Logical. Whether igraph stores the bridge edges. Default
+\code{TRUE}.}
 
-\item{modularity}{Logical; return modularity scores? Default TRUE.}
+\item{modularity}{Logical. Whether igraph stores the modularity scores.
+Default \code{TRUE}.}
 
-\item{membership}{Logical; return membership vector? Default TRUE.}
+\item{membership}{Logical. Whether igraph computes the membership vector.
+Default \code{TRUE}.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}. Its only other argument,
+\code{directed}, is already taken by this function, so any further
+argument raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Girvan-Newman algorithm. Iteratively removes edges with highest
-betweenness centrality to reveal community structure.
+The Girvan-Newman algorithm. It repeatedly removes the edge with the
+highest edge betweenness and keeps the partition with the highest
+modularity. On a weighted graph igraph warns that the membership is
+selected by modularity.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_edge_betweenness(g)
-membership(comm)
-\dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_eb(net)
+community_edge_betweenness(igraph::make_graph("Zachary"))
 \dontshow{\}) # examplesIf}
 }
 \references{

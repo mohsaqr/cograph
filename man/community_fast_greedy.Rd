@@ -24,35 +24,38 @@ com_fg(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{merges}{Logical; return merge matrix? Default TRUE.}
+\item{merges}{Logical. Whether igraph stores the merge matrix. Default
+\code{TRUE}.}
 
-\item{modularity}{Logical; return modularity scores? Default TRUE.}
+\item{modularity}{Logical. Whether igraph stores the modularity scores.
+Default \code{TRUE}.}
 
-\item{membership}{Logical; return membership vector? Default TRUE.}
+\item{membership}{Logical. Whether igraph computes the membership vector.
+Default \code{TRUE}.}
 
 \item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object. The full igraph
-\code{communities} result, including the merge dendrogram when
-\code{merges = TRUE}, is kept in the \code{"igraph_result"} attribute.
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. The igraph \code{communities} result,
+including the merge dendrogram when \code{merges = TRUE}, is kept in the
+\code{"igraph_result"} attribute.
 }
 \description{
-Hierarchical agglomeration using greedy modularity optimization.
-Produces a dendrogram of community merges.
+Hierarchical agglomeration by greedy modularity optimization, which
+produces a dendrogram of community merges. A directed graph is collapsed
+to an undirected graph with summed edge weights.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_fast_greedy(g)
-membership(comm)
+community_fast_greedy(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

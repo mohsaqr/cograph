@@ -15,15 +15,20 @@ complement_network(
 \arguments{
 \item{x}{Network input.}
 
-\item{weight}{Numeric. Weight to give the new edges. Default 1. Zero is how
-this representation stores "no edge", so \code{weight = 0} raises a
-\code{cograph_bad_selection} error rather than returning an empty network.}
+\item{weight}{Numeric. Weight of every edge in the complement. Default 1. A
+weight of zero means no edge, so \code{weight = 0} raises a
+\code{cograph_bad_selection} error.}
 
 \item{loops}{Logical. Include self-loops in the complement. Default FALSE.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} holding the complement, or the input format
@@ -31,15 +36,10 @@ when \code{keep_format = TRUE}. Directedness is preserved.
 }
 \description{
 Every pair of distinct nodes that is not joined in \code{x} is joined in the
-complement, and vice versa.
+complement, and every joined pair is absent from it.
 }
 \examples{
-adj <- matrix(c(0, 1, 0,
-                1, 0, 0,
-                0, 0, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-complement_network(adj)
+complement_network(threshold_edges(regulation_net, minimum = 0.2))
 }
 \seealso{
 \code{\link{to_undirected}}, \code{\link{binarize}}

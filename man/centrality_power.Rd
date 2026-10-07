@@ -7,28 +7,42 @@
 centrality_power(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Accepted for a uniform interface; it has no effect on this
+measure (default \code{"all"}).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of power centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Measures influence based on connections to other influential nodes.
-The power parameter controls whether connections to well-connected
-nodes increase or decrease centrality.
+Bonacich (1987) power centrality with exponent \eqn{\beta = 1}{beta = 1}
+sums the walks leaving a node, each further step weighted by \eqn{\beta}{beta}:
+\deqn{c = \gamma\,(I - A)^{-1} A \mathbf{1},}{c = g (I - A)^(-1) A 1,}
+where \eqn{A} is the binary adjacency matrix and \eqn{\gamma}{g} scales
+the scores so that their squares sum to \eqn{n}.
+}
+\details{
+The exponent is fixed at 1, and the values equal
+\code{igraph::power_centrality(exponent = 1)}. Edge weights and self-loops
+are ignored. On a directed network the score sums over out-ties, and the
+argument \code{mode} has no effect. Where \eqn{I - A} is singular, as on a
+network that contains an isolated edge, a \code{cograph_singular_system}
+error is raised, and a network without edges gives \code{NaN}. The scores
+can be negative, as on \code{regulation_net}, and \code{normalized = TRUE}
+leaves scores that are all negative unchanged.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_power(adj)
+centrality_power(regulation_net)
+}
+\references{
+Bonacich, P. (1987). Power and centrality: A family of measures. American
+Journal of Sociology, 92(5), 1170-1182. \doi{10.1086/228631}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_eigenvector}} for a related measure.
+\code{\link{centrality_eigenvector}},
+\code{\link{centrality_katz}}, \code{\link{centrality}}.
 }

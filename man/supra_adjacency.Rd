@@ -22,9 +22,14 @@ supra(
 \arguments{
 \item{layers}{List of adjacency matrices (same dimensions)}
 
-\item{omega}{Inter-layer coupling coefficient (scalar or L x L matrix)}
+\item{omega}{Inter-layer coupling coefficient, a scalar or an L x L matrix.
+Default 1. For a matrix, entry \code{[a, b]} with \code{a < b} sets the
+coupling of layers a and b.}
 
-\item{coupling}{Coupling type: "diagonal", "full", or "custom"}
+\item{coupling}{Coupling type. \code{"diagonal"} (default) couples each
+node to its own copy in the other layers with weight \code{omega}.
+\code{"full"} couples every node to every node of the other layers with
+weight \code{omega}. \code{"custom"} uses \code{interlayer_matrices}.}
 
 \item{interlayer_matrices}{For \code{coupling = "custom"}, a list of
 inter-layer matrices. Accepted shapes:
@@ -34,13 +39,13 @@ inter-layer matrices. Accepted shapes:
 \item Unnamed list of length \code{choose(L, 2)} giving every pair
 in upper-triangle row-major order: \code{(1,2), (1,3), ..., (1,L),
       (2,3), ..., (L-1,L)}.
-\item Unnamed list of length \code{L-1} giving adjacent pairs only
-(legacy chain layout): entry \code{i} is the coupling for
-\code{(i, i+1)}. Non-adjacent pairs use \code{omega[a,b] * I}.
+\item Unnamed list of length \code{L-1} giving adjacent pairs only.
+Entry \code{i} is the coupling for \code{(i, i+1)}.
 }
-If no entry matches a pair and no legacy chain layout applies, a
-warning is emitted and the diagonal default \code{omega[a,b] * I}
-is used (previously this happened silently).}
+The block of layers b and a is the transpose of the block of a and b.
+A pair with no matching entry receives the diagonal coupling
+\code{omega[a,b] * I} with a warning. A \code{NULL} value with
+\code{coupling = "custom"} is an error.}
 }
 \value{
 A supra-adjacency matrix of dimension (N\emph{L) x (N}L) with class
@@ -52,17 +57,11 @@ construction and are read back by \code{\link{supra_layer}()} and
 \code{\link{supra_interlayer}()}.
 }
 \description{
-Builds the supra-adjacency matrix for multilayer networks.
-Diagonal blocks = intra-layer, off-diagonal = inter-layer.
+Builds the supra-adjacency matrix of a multilayer network. The diagonal
+blocks hold the intra-layer adjacencies and the off-diagonal blocks the
+inter-layer coupling.
 }
 \examples{
-nodes <- c("A", "B", "C")
-l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-layers <- list(L1 = l1, L2 = l2)
-
-# 3 nodes x 2 layers gives a 6 x 6 supra-adjacency matrix.
-s <- supra_adjacency(layers, omega = 0.5)
-dim(s)
-s
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+supra_adjacency(layers, omega = 0.5)
 }

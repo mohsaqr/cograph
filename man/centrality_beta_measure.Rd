@@ -2,57 +2,45 @@
 % Please edit documentation in R/centrality-batch32.R
 \name{centrality_beta_measure}
 \alias{centrality_beta_measure}
-\title{BG-index or beta power measure}
+\title{Beta Measure}
 \usage{
 centrality_beta_measure(x, beta_direction = "positive", ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{beta_direction}{Either \code{"positive"} (default, credits sources)
-or \code{"negative"} (credits destinations).}
+\item{beta_direction}{\code{"positive"} (default) credits the sources
+of arcs. \code{"negative"} credits their targets.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.
-\code{normalized = TRUE} divides scores by their maximum; all-zero
-scores remain zero. This differs from normalizing to unit total mass.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-The positive beta-measure of node i is the sum, over its successors j,
-of one divided by the in-degree of j. Each node with predecessors shares
-one unit of domination power equally among those predecessors. This is
-van den Brink and Gilles' BG-measure (1992, definition 2.1), subsequently
-called the beta-measure (2000, definition 2.1). The negative variant
-applies the positive measure to the reversed graph (Boldi and Vigna 2014).
-It sums reciprocal source out-degrees over incoming neighbors.
+The beta measure, or BG-index (van den Brink and Gilles 2000), gives
+node \eqn{i}{i} the sum, over its successors \eqn{j}{j}, of one divided
+by the in-degree of \eqn{j}{j}. Each node with predecessors thus shares
+one unit of domination power equally among them:
+\deqn{\beta_i = \sum_{j : i \to j} \frac{1}{d^{in}_j}.}{
+  beta_i = sum_{j: i -> j} 1 / d_in(j).}
+The negative variant applies the measure to the reversed network (Boldi
+and Vigna 2014).
 }
 \details{
-Uses the simple unweighted graph, retaining direction. Loops and duplicate
-arcs are removed; weights, mode, inversion and cutoff are ignored.
-Undirected edges represent reciprocal arcs, so both variants coincide
-with the sum of reciprocal neighbor degrees. This does not implement the
-separately defined weighted extension of the original paper.
-
-Nodes without successors have positive score zero; nodes without
-predecessors have negative score zero. Isolates score zero, and empty
-graphs return no scores. There is no division by a zero degree: every
-contributing successor has at least one predecessor. Raw positive scores
-sum to the number of nodes with nonzero in-degree; raw negative scores
-sum to the number with nonzero out-degree. In disconnected graphs this
-accounting applies independently to each component.
-
-Dense matrix preparation and evaluation take O(n squared) time and memory.
-The score is an expected number of predecessor selections, not a
-probability distribution or a stationary random-walk centrality.
+The measure is computed on the simple unweighted network with direction
+kept, so weights, loops and parallel edges are ignored. An undirected
+edge is a pair of reciprocal arcs, so on an undirected network both
+variants equal the sum of the reciprocal degrees of the neighbors. A
+node without successors has positive score zero, and a node without
+predecessors has negative score zero. The positive scores sum to the
+number of nodes with nonzero in-degree, and the negative scores sum to
+the number of nodes with nonzero out-degree.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_beta_measure(igraph::make_graph("Zachary"))
-centrality_beta_measure(igraph::make_star(5, mode = "out"),
-                        beta_direction = "negative")
-\dontshow{\}) # examplesIf}
+centrality_beta_measure(regulation_net)
 }
 \references{
 van den Brink, R. and Gilles, R. P. (2000). Measuring domination in
@@ -61,4 +49,8 @@ directed networks. Social Networks, 22, 141-157.
 
 Boldi, P. and Vigna, S. (2014). Axioms for centrality. Internet
 Mathematics, 10, 222-262. \doi{10.1080/15427951.2013.865686}.
+}
+\seealso{
+\code{\link{centrality_indegree}},
+\code{\link{centrality_prestige_domain}}, \code{\link{centrality}}.
 }

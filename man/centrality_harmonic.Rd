@@ -13,28 +13,53 @@ centrality_inharmonic(x, ...)
 centrality_outharmonic(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{invert_weights} (default \code{NULL}, which inverts for tna input
+only), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+(largest distance counted, default -1 for no limit) and
+\code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of harmonic centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of inverse shortest path distances to all other nodes. Unlike closeness,
-harmonic centrality handles disconnected graphs naturally (unreachable nodes
-contribute 0 instead of making the measure undefined).
+Harmonic centrality (Marchiori and Latora 2000) sums the inverse
+shortest-path distances from a node to the other nodes:
+\deqn{H(i) = \sum_{j \ne i} \frac{1}{d_{ij}},}{
+  H(i) = sum_{j != i} 1 / d_ij,}
+with \eqn{1/\infty = 0}{1/Inf = 0}, so the score is defined on
+disconnected networks (Boldi and Vigna 2014).
+\code{centrality_inharmonic()} and \code{centrality_outharmonic()} are the
+\code{mode = "in"} and \code{mode = "out"} forms.
+}
+\details{
+Edge weights are read as distances, and \code{invert_weights = TRUE}
+converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+\code{weighted = FALSE} has no effect, because the measure then reads the
+weights stored in the network; hop-count harmonic centrality needs a
+binary input such as \code{(x != 0) * 1}. \code{mode = "all"} treats edges
+as undirected, \code{"out"} uses distances from the node and \code{"in"}
+distances to it. The scores equal \code{igraph::harmonic_centrality()} on
+the weighted graph. \code{normalized = TRUE} divides the scores by their
+maximum.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_harmonic(adj)
+centrality_harmonic(regulation_net)
+}
+\references{
+Marchiori, M., & Latora, V. (2000). Harmony in the small-world. Physica A,
+285(3-4), 539-546. \doi{10.1016/S0378-4371(00)00311-3}.
+
+Boldi, P., & Vigna, S. (2014). Axioms for centrality. Internet
+Mathematics, 10(3-4), 222-262. \doi{10.1080/15427951.2013.865686}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_closeness}} for the traditional variant.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 }

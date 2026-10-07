@@ -2,62 +2,47 @@
 % Please edit documentation in R/centrality-batch14.R
 \name{centrality_diffusion_centrality}
 \alias{centrality_diffusion_centrality}
-\title{Finite-horizon diffusion centrality}
+\title{Diffusion Centrality}
 \usage{
 centrality_diffusion_centrality(x, diffusion_q = 1, diffusion_steps = 3, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{diffusion_q}{Finite multiplier between 0 and 1, default 1.}
+\item{diffusion_q}{Discount \eqn{q}, between 0 and 1. Default 1.}
 
-\item{diffusion_steps}{Nonnegative integer horizon, default 3. Must be
-no larger than \code{.Machine$integer.max}.}
+\item{diffusion_steps}{Horizon \eqn{T}, a nonnegative integer. Default 3.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure
+uses \code{weighted} (default \code{TRUE}), \code{loops} (default
+\code{TRUE}) and \code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Banerjee et al.'s diffusion centrality is
-\eqn{DC(A;q,T) = \sum_{t=1}^{T}(qA)^t\mathbf{1}}.
-It sums weighted walks starting at each node, allowing revisits and
-returns to the source. Directed edges carry information from their source
-to their target: the result uses row sums, regardless of \code{mode}.
-Transpose the input adjacency matrix to measure incoming walks.
+Diffusion centrality (Banerjee et al. 2013) counts the walks of length
+1 to \eqn{T} that start at a node, each discounted by \eqn{q} per step:
+\deqn{DC(A; q, T) = \sum_{t=1}^{T} (qA)^t \mathbf{1}.}{
+  DC(A; q, T) = sum_{t=1}^{T} (qA)^t 1.}
+Walks may revisit nodes and return to the source, so the score counts
+repeated hearings of a message.
 }
 \details{
-A is the adjacency matrix with the original edge weights when
-\code{weighted = TRUE}, or unit edge weights otherwise. Self-loops follow
-\code{loops}; an undirected self-loop contributes its weight once on the
-diagonal. The \code{simplify} argument combines parallel edges first;
-any remaining parallel edges contribute additively to A. Weight inversion
-for shortest paths does not affect this measure.
-
-When every entry of qA is between zero and one, scores have the paper's
-interpretation as expected total hearings of information. Larger weights
-are accepted as a mathematical weighted-walk extension of that polynomial,
-without a probability interpretation. Scores count repeated hearings,
-not distinct recipients. They need not be bounded by the number of nodes.
-
-Default q = 1 and T = 3 are explicit cograph choices, not estimates of
-a diffusion process or the parameters used by the Zoo. T = 0 returns zero;
-T = 1 gives q times outgoing strength (degree for a binary graph).
-A finite horizon requires no spectral convergence condition. Numerical
-overflow raises an error, including when normalization is requested.
-
-This is distinct from \code{\link{centrality_diffusion}}: its default
-is diffusion degree, and its TNA variant fixes q = 1 and T = n.
-The existing \code{lambda} and \code{diffusion_method} arguments do not
-affect this measure. Computation uses T matrix-vector products.
+\eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}.
+Directed edges carry information from source to target, so the score
+uses row sums and \code{mode} has no effect. Transposing the input
+gives incoming walks. Self-loops follow \code{loops}. Negative or non-finite
+weights raise an error. \eqn{T = 0} gives 0 and \eqn{T = 1} gives
+\eqn{q} times the out-strength. When every entry of \eqn{qA} lies
+between 0 and 1 the score is the expected number of times the
+information is heard (Banerjee et al. 2013), and it can exceed the
+number of nodes. The defaults \eqn{q = 1} and \eqn{T = 3} are package
+choices. This measure differs from \code{\link{centrality_diffusion}}.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)
-centrality_diffusion_centrality(g, diffusion_q = 0.5, diffusion_steps = 2)
-\dontshow{\}) # examplesIf}
+centrality_diffusion_centrality(regulation_net)
 }
 \references{
 Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2013).
@@ -68,4 +53,8 @@ Banerjee, A., Chandrasekhar, A. G., Duflo, E., & Jackson, M. O. (2019).
 Using Gossips to Spread Information: Theory and Evidence from Two
 Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490.
 \doi{10.1093/restud/rdz008}.
+}
+\seealso{
+\code{\link{centrality_dynamics_sensitive}},
+\code{\link{centrality_diffusion}}, \code{\link{centrality}}.
 }

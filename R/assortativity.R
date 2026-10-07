@@ -22,8 +22,8 @@
 #'   accepted value is \code{"degree"}. Any other value raises an error.
 #' @param digits Integer or NULL. Round result to this many decimal places.
 #'   Default NULL (no rounding).
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param ... Not used. Any argument supplied here raises an
+#'   \code{"unused argument"} error.
 #'
 #' @return An object of class \code{"cograph_assortativity"} with components:
 #'   \describe{
@@ -31,8 +31,8 @@
 #'       \eqn{[-1, 1]}.}
 #'     \item{type}{Character: the degree type used.}
 #'     \item{directed}{Logical: whether the network was treated as directed.}
-#'     \item{n_nodes}{Integer: number of nodes.}
-#'     \item{n_edges}{Integer: number of edges.}
+#'     \item{n_nodes}{Numeric: number of nodes.}
+#'     \item{n_edges}{Numeric: number of edges.}
 #'     \item{network}{The original input network.}
 #'   }
 #'
@@ -41,16 +41,17 @@
 #' coefficient between the degrees of nodes at either end of each edge
 #' (Newman 2002):
 #'
-#' \deqn{r = \frac{\sum_{jk} jk(e_{jk} - q_j q_k)}{\sigma_q^2}}
+#' \deqn{r = \frac{\sum_{jk} jk(e_{jk} - q_j q_k)}{\sigma_q^2}}{r = (sum_{jk} jk(e_{jk} - q_j q_k))/sigma_q^2}
 #'
 #' where \eqn{e_{jk}} is the fraction of edges connecting degree-\eqn{j} to
 #' degree-\eqn{k} vertices, \eqn{q_k} is the excess degree distribution, and
-#' \eqn{\sigma_q^2} its variance.
+#' \eqn{\sigma_q^2}{sigma_q^2} its variance.
 #'
 #' Because the Pearson correlation is invariant to subtracting a constant, the
-#' implementation computes the correlation of the raw (rather than excess)
-#' degrees at the two ends of each edge, counting every undirected edge in both
-#' orientations; this is numerically identical to the formula above.
+#' implementation computes the correlation of the raw degrees at the two ends
+#' of each edge, counting every undirected edge in both orientations. This is
+#' numerically identical to the formula above. Degrees are unweighted counts
+#' of edges, so edge weights do not enter the coefficient.
 #'
 #' For directed networks, the coefficient is the Pearson correlation between
 #' the source-end and target-end degrees over each edge in its stored
@@ -74,16 +75,7 @@
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Assortative network (high-degree connect to high-degree)
-#' adj <- matrix(c(
-#'   0, 1, 1, 1, 0,
-#'   1, 0, 1, 1, 0,
-#'   1, 1, 0, 0, 1,
-#'   1, 1, 0, 0, 1,
-#'   0, 0, 1, 1, 0
-#' ), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' cograph::assortativity(adj)
+#' cograph::assortativity(regulation_net)
 assortativity <- function(x,
                           directed = NULL,
                           type = NULL,
@@ -151,28 +143,32 @@ assortativity <- function(x,
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna
 #'   object.
-#' @param values Named vector of attribute values (names must match node names)
-#'   or an unnamed vector in node order.
+#' @param values Named vector of attribute values whose names cover every node
+#'   name, or an unnamed vector of length equal to the number of nodes, in node
+#'   order. A numeric vector is treated as scalar and any other vector as
+#'   nominal.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
-#' @param digits Integer or NULL. Round result. Default NULL.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param digits Integer or NULL. Round the coefficient to this many decimal
+#'   places. Default NULL (no rounding).
+#' @param ... Not used. Any argument supplied here raises an
+#'   \code{"unused argument"} error.
 #'
 #' @return An object of class \code{"cograph_assortativity"} with components:
 #'   \describe{
 #'     \item{coefficient}{Numeric scalar: assortativity coefficient.}
 #'     \item{type}{Character: \code{"nominal"} or \code{"scalar"}.}
-#'     \item{directed}{Logical.}
-#'     \item{n_nodes}{Integer.}
-#'     \item{n_edges}{Integer.}
-#'     \item{attribute_values}{The attribute values used.}
-#'     \item{network}{Original input.}
+#'     \item{directed}{Logical: whether the network was treated as directed.}
+#'     \item{n_nodes}{Numeric: number of nodes.}
+#'     \item{n_edges}{Numeric: number of edges.}
+#'     \item{attribute_values}{The attribute values used, named by node and
+#'       in node order.}
+#'     \item{network}{The original input network.}
 #'   }
 #'
 #' @details
 #' For categorical (nominal) attributes, the coefficient is:
-#' \deqn{r = \frac{\text{tr}(\mathbf{e}) - \|\mathbf{e}^2\|}{1 - \|\mathbf{e}^2\|}}
-#' where \eqn{\mathbf{e}} is the mixing matrix with \eqn{e_{ij}} = fraction of
+#' \deqn{r = \frac{\text{tr}(\mathbf{e}) - \|\mathbf{e}^2\|}{1 - \|\mathbf{e}^2\|}}{r = (tr(e) - ||e^2||)/(1 - ||e^2||)}
+#' where \eqn{\mathbf{e}}{e} is the mixing matrix with \eqn{e_{ij}} = fraction of
 #' edges connecting type \eqn{i} to type \eqn{j}.
 #'
 #' For numeric (scalar) attributes, the coefficient is the Pearson correlation
@@ -193,10 +189,7 @@ assortativity <- function(x,
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0,1,1,0, 1,0,0,0, 1,0,0,1, 0,0,1,0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' groups <- c(A = "x", B = "x", C = "y", D = "y")
-#' cograph::assortativity_attribute(adj, groups)
+#' cograph::assortativity_attribute(regulation_net, values = rep(c("self", "social"), each = 5))
 assortativity_attribute <- function(x,
                                     values,
                                     directed = NULL,

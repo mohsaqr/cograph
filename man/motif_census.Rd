@@ -2,7 +2,6 @@
 % Please edit documentation in R/motifs.R
 \name{motif_census}
 \alias{motif_census}
-\alias{print.cograph_motifs}
 \title{Network Motif Analysis}
 \usage{
 motif_census(
@@ -13,79 +12,76 @@ motif_census(
   directed = NULL,
   seed = NULL
 )
-
-\method{print}{cograph_motifs}(x, ...)
 }
 \arguments{
-\item{x}{A matrix, igraph object, or cograph_network}
+\item{x}{A matrix, igraph object, or cograph_network.}
 
 \item{size}{Motif size: 3 (triads) or 4 (tetrads). Default 3.}
 
 \item{n_random}{Number of random networks for the null model. Must be a
 whole number of at least 2. Default 100.}
 
-\item{method}{Null model method: "configuration" (preserves degree) or
-"gnm" (preserves edge count). Default "configuration".}
+\item{method}{Null model method. \code{"configuration"} (default) rewires
+the graph with degree-preserving edge swaps. \code{"gnm"} draws random
+graphs with the same numbers of nodes and edges.}
 
-\item{directed}{Logical. Treat as directed? Default auto-detected.}
+\item{directed}{Logical or NULL. Whether the network is treated as
+directed. NULL (default) treats a matrix as directed when it is not
+symmetric and takes the directedness of an igraph or cograph_network
+input. A value that conflicts with an igraph or cograph_network input
+raises an error.}
 
 \item{seed}{Random seed for reproducibility. Default NULL. When supplied,
 the caller's RNG state is saved and restored.}
-
-\item{...}{Passed to methods; currently unused.}
 }
 \value{
 A \code{cograph_motifs} data frame with one row per motif class and
 columns:
 \describe{
-\item{motif}{Motif class name (the 16 MAN codes for directed triads, the
-four undirected triad classes, or \code{motif_<i>} labels for size 4).}
+\item{motif}{Motif class name. Directed triads use the 16 MAN codes,
+undirected triads the classes \code{empty}, \code{edge},
+\code{wedge} and \code{triangle}, and size 4 the igraph isomorphism
+class labels \code{M1} to \code{M218} (directed) or \code{M1} to
+\code{M11} (undirected).}
 \item{count}{Observed number of that motif in the network.}
 \item{null_mean, null_sd}{Mean and standard deviation of the count
 across the \code{n_random} null graphs.}
-\item{z_score}{\code{(count - null_mean) / null_sd}; \code{NA} when the
-null is degenerate (\code{null_sd = 0}) and the observation differs
-from it.}
-\item{p_value}{Two-sided empirical (add-one corrected) permutation
-p-value, not a Gaussian approximation.}
+\item{z_score}{\code{(count - null_mean) / null_sd}. When
+\code{null_sd = 0}, it is 0 if the count equals the null mean and
+\code{NA} otherwise.}
+\item{p_value}{Two-sided empirical permutation p-value with add-one
+correction, based on the absolute deviation from the null mean.}
 \item{significant}{Logical, \code{p_value < 0.05}.}
 }
 The motif size (\code{"size"}), directed flag (\code{"directed"}),
 null-model method (\code{"method"}), and number of random networks
-(\code{"n_random"}) are stored as attributes. Self-loops and multiple
-edges are removed before counting.
+(\code{"n_random"}) are stored as attributes.
 }
 \description{
-Analyze recurring subgraph patterns (motifs) in networks and test their
-statistical significance against null models.
+Counts the subgraph classes (motifs) of size 3 or 4 in a network and tests
+their frequencies against random networks from a null model. Edge weights
+are ignored, and self-loops and multiple edges are removed before counting.
+}
+\details{
+Printing the result shows the motif table with the null-model
+settings and the number of over- and under-represented motifs. The result
+is a data frame and serves as the tidy table directly. \code{plot()} on the
+result is documented in \code{\link{plot-results}}.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Create a directed network
-mat <- matrix(c(
-  0, 1, 1, 0,
-  0, 0, 1, 1,
-  0, 0, 0, 1,
-  1, 0, 0, 0
-), 4, 4, byrow = TRUE)
-
-# Analyze triadic motifs
-m <- motif_census(mat)
-print(m)
-plot(m)
+motif_census(regulation_net, n_random = 20, seed = 1)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=extract_motifs]{extract_motifs()}} for detailed
-triad extraction, \code{\link[=plot.cograph_motifs]{plot.cograph_motifs()}} for plotting
+triad extraction, \code{\link{plot-results}} for plotting
 
 Other motifs: 
 \code{\link{extract_motifs}()},
 \code{\link{extract_triads}()},
 \code{\link{get_edge_list}()},
 \code{\link{motifs}()},
-\code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()},
 \code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }

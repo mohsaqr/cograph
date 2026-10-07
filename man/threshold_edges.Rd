@@ -31,12 +31,14 @@ strongest first.}
 \item{density}{Numeric in (0, 1]. Keep as many of the strongest edges as
 gives this density (edges as a fraction of the possible edges).}
 
-\item{top}{Integer. Keep this many edges, the strongest first.}
+\item{top}{Non-negative integer. Keep this many edges, the strongest first.
+\code{top = 0} removes every edge.}
 
-\item{absolute}{Logical. Compare \code{abs(weight)} rather than the signed
-weight. Default TRUE, which is what correlation and partial-correlation
-networks need. \code{minimum}/\code{maximum} and the ranking used by
-\code{proportion}, \code{density} and \code{top} both follow this flag.}
+\item{absolute}{Logical. Compare \code{abs(weight)} instead of the signed
+weight. Default TRUE, which suits correlation and partial-correlation
+networks. The \code{minimum} and \code{maximum} comparisons and the
+ranking used by \code{proportion}, \code{density} and \code{top} all
+follow this flag.}
 
 \item{keep_isolates}{Logical. Keep nodes that end up with no edges? Default
 TRUE. Set FALSE, or call \code{\link{remove_isolates}()}, to drop them.}
@@ -49,36 +51,30 @@ TRUE. Set FALSE, or call \code{\link{remove_isolates}()}, to drop them.}
 A \code{cograph_network} with the surviving edges, or the input
 format when \code{keep_format = TRUE}. Every node is kept unless
 \code{keep_isolates = FALSE}; nodes the threshold stranded are reported in
-a \code{cograph_isolates_created} warning. An out-of-range
-\code{minimum}, \code{maximum}, \code{proportion}, \code{density} or
-\code{top} raises a \code{cograph_bad_selection} error.
+a \code{cograph_isolates_created} warning. A non-finite \code{minimum} or
+\code{maximum}, a \code{proportion} or \code{density} outside (0, 1],
+and a negative or fractional \code{top} raise a
+\code{cograph_bad_selection} error.
 }
 \description{
-Keeps the edges that satisfy every criterion supplied. This is the network
-equivalent of qgraph's \code{minimum}/\code{cut} arguments and of
-\code{tna::prune()}, except that it returns a network rather than a plot
-setting, so the thresholded network can be analysed, not only drawn.
+Keeps the edges that satisfy every criterion supplied. The operation
+corresponds to qgraph's \code{minimum} argument and to
+\code{tna::prune()}. The result is a network that can be analysed and
+plotted.
 }
 \details{
-When several criteria are given they are combined with AND: for example
+Several criteria are combined with AND. For example,
 \code{threshold_edges(x, minimum = 0.2, top = 20)} keeps the twenty
-strongest edges among those of weight at least 0.2.
+strongest edges among those of weight at least 0.2. When \code{proportion},
+\code{density} and \code{top} are combined, the smallest of the implied
+edge counts is used.
 
 Ties at the cut point are all kept, so \code{top = 10} can return more than
-ten edges when the tenth and eleventh weights are equal. This is deliberate:
-breaking ties on edge order would make the result depend on how the network
-was built.
+ten edges when the tenth and eleventh weights are equal. The result
+therefore does not depend on the order in which the edges are stored.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-threshold_edges(adj, minimum = 0.5)
-threshold_edges(adj, top = 2)
-threshold_edges(adj, density = 0.5)
+threshold_edges(regulation_net, minimum = 0.1)
 }
 \references{
 Epskamp, S., Cramer, A. O. J., Waldorp, L. J., Schmittmann, V. D., &

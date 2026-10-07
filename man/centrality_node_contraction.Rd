@@ -3,54 +3,53 @@
 \name{centrality_node_contraction}
 \alias{centrality_node_contraction}
 \alias{centrality_node_contraction_improved}
-\title{Node Contraction Centrality (IMC and IIMC)}
+\title{Node Contraction Centrality}
 \usage{
 centrality_node_contraction(x, ...)
 
 centrality_node_contraction_improved(x, contraction_rho = 5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 
-\item{contraction_rho}{Ratio \eqn{\alpha / \beta} for the improved form.
-Default 5.}
+\item{contraction_rho}{Ratio \eqn{\alpha / \beta}{alpha / beta} for the
+improved form (default 5).}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Tan, Wu and Deng's (2006) node-contraction importance, as restated by
-Wang et al. (2011). The agglomeration (cohesion) of a graph is
-\eqn{\partial(G) = 1 / (N \bar{L})}, with \eqn{\bar{L}} the mean
-shortest-path length over ordered pairs; contracting a node merges it
-with all its neighbors into one node, and
-\deqn{IMC(v) = 1 - \partial(G) / \partial(G_v).}
-The improved form (\code{node_contraction_improved}) adds the same score
-of the node's edges computed on the line graph:
-\eqn{IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e)},
-with \eqn{\alpha / \beta = 5} (\code{contraction_rho}) and
-\eqn{\alpha + \beta = 1}, the normalization that reproduces the paper's
-Table 1. Higher = more important. Both reproduce Table 1 of Wang et al.
-(2011). The Zoo entry describes the contracted graph as the graph with
-the node removed; the sources define it by contraction, which is what
-is implemented.
+Node contraction importance (Tan, Wu and Deng 2006, as restated by Wang
+et al. 2011) compares the agglomeration
+\eqn{\partial(G) = 1 / (N \bar{L})}{d(G) = 1 / (N L)} of a network,
+with \eqn{\bar{L}}{L} the mean shortest-path length, before and after the
+node is merged with all its neighbors into one node:
+\deqn{IMC(v) = 1 - \frac{\partial(G)}{\partial(G_v)}.}{
+  IMC(v) = 1 - d(G) / d(G_v).}
+The improved form adds the same score of the edges of the node computed
+on the line graph,
+\eqn{IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e)}{
+  IIMC(v) = alpha IMC(v) + beta sum_{e at v} IMC_L(G)(e)},
+with \eqn{\alpha + \beta = 1}{alpha + beta = 1}.
 }
 \details{
-On a disconnected graph the mean path length is taken over the
-mutually reachable ordered pairs (a cograph choice; the sources assume
-connected graphs). Direction, weights and loops are ignored. Cost is
-one all-pairs computation per node, so \eqn{O(n^2 (n + m))}; the
-improved form does the same on the line graph, \eqn{O(m^2 (m + m'))}.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights and loops are ignored. Higher values mark
+more important nodes. The sources assume a connected network. On a
+disconnected network the mean path length is taken over the mutually
+reachable ordered pairs. An isolated node scores 0, and a node whose
+contraction leaves no pair of mutually reachable nodes returns
+\code{NaN}. The Centrality Zoo describes the contracted graph as the
+graph with the node removed. The sources define it by contraction, which
+is implemented here.
 }
 \examples{
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_node_contraction(path5)
-centrality_node_contraction_improved(path5)
+centrality_node_contraction(regulation_net)
+centrality_node_contraction_improved(regulation_net)
 }
 \references{
 Tan, Y.-J., Wu, J., & Deng, H.-Z. (2006). Evaluation method for node
@@ -58,5 +57,6 @@ importance based on node contraction in complex networks. Systems
 Engineering: Theory & Practice, 26(11), 79-83.
 }
 \seealso{
-\code{\link{centrality_closeness_vitality}}.
+\code{\link{centrality_closeness_vitality}},
+\code{\link{centrality}}.
 }

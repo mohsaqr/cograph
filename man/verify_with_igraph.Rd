@@ -16,25 +16,28 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 
 \item{method}{Aggregation method. Default "sum".}
 
-\item{type}{Normalization type. Defaults to "raw" for igraph compatibility.}
+\item{type}{Normalization type passed to \code{\link{csum}}. Default
+"raw", the only type whose values igraph reproduces.}
 }
 \value{
 A list with components \code{our_result} (cograph's macro weight
 matrix), \code{igraph_result} (igraph's
-\code{contract()} + \code{simplify()} matrix), \code{matches} (logical:
-do the off-diagonals agree to within 1e-10?) and \code{difference} (the
+\code{contract()} + \code{simplify()} matrix, diagonal set to zero),
+\code{matches} (logical, whether the off-diagonal cells agree to within
+1e-10) and \code{difference} (the
 \code{all.equal()} report when they do not, otherwise NULL). Returns
 \code{NULL} with a message if igraph is not installed.
 }
 \description{
-Confirms numerical match with igraph's contract_vertices + simplify.
+Compares the macro weights of \code{\link{csum}} with the result of
+contracting the clusters in igraph (\code{igraph::contract()} followed by
+\code{igraph::simplify()}).
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  mat <- matrix(runif(100), 10, 10)
-  diag(mat) <- 0
-  rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-  clusters <- c(1,1,1,2,2,2,3,3,3,3)
-  verify_igraph(mat, clusters)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+verify_with_igraph(regulation_net, clusters = clusters)
+\dontshow{\}) # examplesIf}
 }

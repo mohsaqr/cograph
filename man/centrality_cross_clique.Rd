@@ -7,22 +7,33 @@
 centrality_cross_clique(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named integer vector of cross-clique counts.
+A named integer vector with one count per node, in input node
+order.
 }
 \description{
-Count of all cliques (not just maximal) containing each node. Measures
-embeddedness in dense substructures.
+Cross-clique connectivity (Faghani and Nguyen 2013) counts the cliques that
+contain a node. Every complete subnetwork counts, including the node
+itself and each of its edges, so a node of an isolated triangle scores 4.
+}
+\details{
+Edge direction, edge weights and self-loops are ignored.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_cross_clique(adj)
+centrality_cross_clique(regulation_net)
+}
+\references{
+Faghani, M. R., & Nguyen, U. T. (2013). A study of XSS worm propagation and
+detection mechanisms in online social networks. IEEE Transactions on
+Information Forensics and Security, 8(11), 1815-1826.
+\doi{10.1109/TIFS.2013.2280884}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_coreness}},
+\code{\link{centrality_transitivity}}, \code{\link{centrality}}.
 }

@@ -7,23 +7,41 @@
 centrality_bridging(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of bridging centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Product of betweenness and bridging coefficient. Identifies nodes that
-bridge communities.
+Bridging centrality (Hwang et al. 2008) is the product of betweenness
+\eqn{B(v)} and the bridging coefficient, which compares the inverse degree
+of a node with the inverse degrees of its neighbors:
+\deqn{BrC(v) = B(v) \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u}.}{
+  BrC(v) = B(v) (1/k_v) / sum_{u in N(v)} 1/k_u.}
+High values mark nodes that lie on many shortest paths and connect densely
+linked regions.
+}
+\details{
+The betweenness factor reads edge weights as path lengths and follows the
+edge direction of a directed network. Edge weights are always used, and
+\code{weighted = FALSE} and \code{invert_weights} have no effect. The
+degrees are total degrees, and on a directed network a reciprocated
+neighbor enters the sum twice. An isolated node scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_bridging(adj)
+centrality_bridging(regulation_net)
+}
+\references{
+Hwang, W., Kim, T., Ramanathan, M., & Zhang, A. (2008). Bridging
+centrality: Graph mining from element level to group level. In
+Proceedings of the 14th ACM SIGKDD International Conference on Knowledge
+Discovery and Data Mining (pp. 336-344). \doi{10.1145/1401890.1401934}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_localized_bridging}} for the ego-network variant.
+\code{\link{centrality_local_bridging}},
+\code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 }

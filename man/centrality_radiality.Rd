@@ -7,27 +7,50 @@
 centrality_radiality(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest distance counted,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of radiality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Centrality based on sum of (diameter + 1 - distance) normalized by n-1.
-Nodes closer to others (on average) have higher radiality.
+Radiality (Valente and Foreman 1998) reverses each distance against the
+diameter \eqn{D} and averages over the network:
+\deqn{R(i) = \frac{1}{n - 1} \sum_{j:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
+  R(i) = sum_{j: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
+Nodes close to the others score high.
+}
+\details{
+The sum includes the node itself, which contributes \eqn{D + 1}, and the
+values equal \code{centiserve::radiality()} on undirected networks.
+Unreachable nodes contribute 0. Edge weights are read as distances;
+\code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
+converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+\code{mode = "all"} treats edges as undirected, \code{"out"} uses
+distances from the node and \code{"in"} distances to it. The diameter is
+taken on the stored edge weights in the direction of the network,
+whatever \code{mode} and \code{invert_weights} are. A single-node network
+gives \code{NA}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_radiality(adj)
+centrality_radiality(regulation_net)
+}
+\references{
+Valente, T. W., & Foreman, R. K. (1998). Integration and radiality:
+Measuring the extent of an individual's connectedness and reachability
+in a network. Social Networks, 20(1), 89-105.
+\doi{10.1016/S0378-8733(97)00007-5}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_closeness}} for a related measure.
+\code{\link{centrality_integration}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

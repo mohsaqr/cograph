@@ -2,7 +2,7 @@
 % Please edit documentation in R/centrality-batch35.R
 \name{centrality_map_equation}
 \alias{centrality_map_equation}
-\title{Map equation centrality with explicit coding and flow conventions}
+\title{Map Equation Centrality}
 \usage{
 centrality_map_equation(
   x,
@@ -15,76 +15,49 @@ centrality_map_equation(
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{One module label per node; NULL gives one module.
-Unnamed vectors follow input order. Named vectors must match all input
-node names exactly and are reordered to input order.}
+\item{membership}{One module label per node. \code{NULL} (default)
+gives one module. A named vector is matched to the node names.}
 
 \item{map_flow}{\code{"unrecorded"} (default) for unrecorded link
-teleportation, or \code{"recorded"} for recorded uniform node
-teleportation.}
+teleportation or \code{"recorded"} for recorded uniform teleportation.}
 
-\item{map_convention}{\code{"paper"} (default) includes the exit symbol;
-\code{"infomap"} reproduces the visit-only author implementation/table.}
+\item{map_convention}{\code{"paper"} (default) includes module exits in
+the codebook rate. \code{"infomap"} uses node visits only.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}, including
-\code{damping}, \code{weighted}, \code{simplify}, and \code{normalized}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (use edge weights, default \code{TRUE}) and
+\code{damping} (probability of following a link, default 0.85).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Measures the reduction in codelength when a node is silenced, comparing
-the original codebook used without that node's codeword to a redesigned
-codebook. It does not remove the node or recompute the network partition.
-The score in bits is -(s-p) log2((s-p)/s), where p is the node visit rate
-and s is the rate of use of its module's codebook.
+Map equation centrality (Blocker et al. 2022) is the reduction in
+codelength, in bits, when a node's codeword is removed from its module
+codebook and the codebook is redesigned. With \eqn{p}{p} the visit rate
+of the node and \eqn{s}{s} the use rate of its module codebook,
+\deqn{MEC_i = -(s - p) \log_2 \frac{s - p}{s}.}{
+  MEC_i = -(s - p) log2((s - p) / s).}
 }
 \details{
-With \code{map_convention = "paper"}, s includes module node visits and
-module exits, as explicitly defined in Blocker et al. (2022), equations
-2 and 9-11. With \code{"infomap"}, s includes node visits only, reproducing
-Infomap 2.15.1's modular centrality and the paper's Table 1. These two
-conventions differ when a module has exit flow. The published table does
-not reproduce the equation's exit-inclusive convention. Both conventions
-give nonnegative scores; the continuous boundary value is zero if p or
-s-p is zero. The Zoo summary uses a different codelength subtraction.
-
-The default unrecorded link-teleportation model teleports proportionally
-to out-strength, then records only link-following steps and normalizes
-their total flow to one. On undirected inputs this gives visit rates
-proportional to strength, independent of damping. Recorded node
-teleportation uses uniform destinations and records all moves, including
-teleportation. Both models teleport away from dangling nodes. Damping is
-the probability of following a link, default 0.85; it must be less than one.
-Recorded teleportation remains directed even for reciprocal input arcs.
-
-Weights are nonnegative interaction strengths; zero weights are absent.
-Direction is retained, and undirected edges become reciprocal arcs. Loops
-are removed. Parallel edges follow centrality's simplify rule; remaining
-parallel weights sum. Mode, inversion and cutoff are ignored. With no
-positive edges, unrecorded flow and scores are zero by cograph convention;
-recorded flow is uniform. Empty and singleton graphs return no scores and
-zero respectively. Unrecorded isolates score zero; recorded isolates may
-have positive scores because their teleportation visits are recorded.
-
-The partition is held fixed. NULL means one module containing every node,
-the paper's one-level case. For a hierarchical partition, supply globally
-unique leaf-module labels: silencing affects only that leaf codebook, so
-higher levels cancel in the score difference. This function does not run
-community detection or claim that a supplied partition is optimal.
-
-Dense flow calculation takes O(n cubed) time and O(n squared) memory;
-unrecorded undirected flow takes O(n squared). Extreme weight ranges or
-numerically singular flow solves raise errors. Optional maximum scaling
-changes the raw bit units; tiny relative scores may underflow.
+The partition is held fixed and is given by \code{membership}, and
+\code{NULL} places every node in one module. With
+\code{map_convention = "paper"} the rate \eqn{s}{s} includes module
+exits (equations 2 and 9-11), and with \code{"infomap"} it includes node
+visits only, which reproduces Infomap 2.15.1 and Table 1 of the paper.
+With \code{map_flow = "unrecorded"} (Lambiotte and Rosvall 2012) the
+walk teleports in proportion to out-strength and only link steps are
+recorded, so on an undirected network the visit rates are proportional
+to strength for every \code{damping}. With \code{"recorded"} the walk
+teleports uniformly and teleportation steps are recorded. Direction is
+kept, loops are removed and edge weights must be finite and
+nonnegative. Under unrecorded flow an isolated node scores zero. An
+invalid \code{membership}, \code{map_flow} or \code{map_convention}, or
+a \code{damping} outside \eqn{[0, 1)}{[0, 1)}, raises an error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-centrality_map_equation(g)
-centrality_map_equation(g, membership = rep(1:2, each = 17),
-                        map_convention = "infomap")
-\dontshow{\}) # examplesIf}
+centrality_map_equation(regulation_net, membership = rep(1:2, each = 5))
 }
 \references{
 Blocker, C., Nieves, J. C. and Rosvall, M. (2022). Map equation
@@ -94,4 +67,8 @@ Network Science, 7, 56. \doi{10.1007/s41109-022-00477-9}.
 Lambiotte, R. and Rosvall, M. (2012). Ranking and clustering of nodes in
 networks with smart teleportation. Physical Review E, 85, 056107.
 \doi{10.1103/PhysRevE.85.056107}.
+}
+\seealso{
+\code{\link{centrality_community_based}},
+\code{\link{centrality_participation}}, \code{\link{centrality}}.
 }

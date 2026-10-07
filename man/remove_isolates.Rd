@@ -10,28 +10,27 @@ remove_isolates(x, keep_format = FALSE, directed = NULL)
 \item{x}{Network input: cograph_network, matrix, igraph, network, tna, or
 an edge-list data frame.}
 
-\item{keep_format}{Logical. If TRUE, matrix, igraph, statnet network and tna
-inputs are returned in that format. Default FALSE returns a
-cograph_network.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} with the isolated nodes removed (or the
-input format when \code{keep_format = TRUE}). Node order is otherwise
-preserved and edge indices are remapped to the new node numbering.
+input format when \code{keep_format = TRUE}). The remaining nodes keep
+their order, and edge indices are remapped to the new node numbering.
 }
 \description{
-Drops every node with no edges. Filtering edges deliberately keeps nodes
-(see \code{\link{filter_edges}}), so this is the explicit way to prune the
-isolates a filter left behind.
+Removes every node with no edges. Edge filters such as
+\code{\link{filter_edges}} keep all nodes, and this function removes the
+isolates that such a filter leaves behind.
 }
 \examples{
-adj <- matrix(0, 4, 4, dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-adj["A", "B"] <- adj["B", "A"] <- 1
-
-# C and D have no edges
-remove_isolates(adj)
+remove_isolates(threshold_edges(regulation_net, minimum = 0.3))
 }
 \seealso{
 \code{\link{filter_edges}}, \code{\link{split_components}},

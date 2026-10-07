@@ -8,25 +8,8 @@ NULL
 # Global registry for custom SVG shapes
 svg_shape_registry <- new.env(parent = emptyenv())
 
-#' Register Custom SVG Shape
-#'
-#' Register an SVG file or string as a custom node shape.
-#'
-#' @param name Character: unique name for this shape (used in node_shape parameter).
-#' @param svg_source Character: path to SVG file OR inline SVG string.
-#' @return Invisible NULL. The shape is registered for use with sn_nodes().
+#' @rdname shapes
 #' @export
-#'
-#' @examples
-#' # Register an inline SVG shape
-#' register_svg_shape("simple_star",
-#'   '<svg viewBox="0 0 100 100">
-#'     <polygon points="50,5 20,99 95,39 5,39 80,99" fill="currentColor"/>
-#'   </svg>')
-#'
-#' # Use it in a network
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' cograph(adj) |> sn_nodes(shape = "simple_star") |> splot()
 register_svg_shape <- function(name, svg_source) {
   if (!is.character(name) || length(name) != 1) {
     stop("name must be a single character string", call. = FALSE)
@@ -267,29 +250,14 @@ draw_svg_shape_base <- function(x, y, size, svg_data, fill, border_color, border
   invisible()
 }
 
-#' List Registered SVG Shapes
-#'
-#' Get names of all registered custom SVG shapes.
-#'
-#' @return Character vector of registered shape names.
+#' @rdname shapes
 #' @export
-#'
-#' @examples
-#' list_svg_shapes()
 list_svg_shapes <- function() {
   ls(envir = svg_shape_registry)
 }
 
-#' Unregister SVG Shape
-#'
-#' Remove a custom SVG shape from the registry.
-#'
-#' @param name Shape name to remove.
-#' @return Invisible TRUE if removed, FALSE if not found.
+#' @rdname shapes
 #' @export
-#' @examples
-#' # Attempt to unregister a non-existent shape (returns FALSE)
-#' unregister_svg_shape("nonexistent")
 unregister_svg_shape <- function(name) {
   removed <- FALSE
   if (exists(name, envir = svg_shape_registry)) {

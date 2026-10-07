@@ -61,29 +61,44 @@ init_registries <- function() {
 # Shape Registry
 # ============================================================================
 
-#' Register a Custom Shape
+#' @title Node Shapes
+#' @description
+#' Node shapes are stored in a registry and selected by name through the
+#' \code{node_shape} argument of \code{\link{splot}} and \code{\link{soplot}}
+#' or the \code{shape} argument of \code{\link{sn_nodes}}.
+#' \code{register_shape()} adds a shape given by a drawing function, and
+#' \code{get_shape()} returns the drawing function of a registered shape.
+#' \code{list_shapes()} returns the names of all registered shapes.
+#' A shape added with \code{register_shape()} is a grid shape and is used by
+#' \code{soplot()} only. \code{splot()} plots its built-in shapes and SVG
+#' shapes.
+#' \code{register_svg_shape()} adds a shape defined by an SVG file or an inline
+#' SVG string, \code{list_svg_shapes()} returns the names of the registered SVG
+#' shapes, and \code{unregister_svg_shape()} removes one. SVG shapes are used
+#' by both \code{splot()} and \code{soplot()}. Registering an existing name
+#' replaces that shape for the rest of the session.
 #'
-#' Register a new shape that can be used for node rendering.
+#' @param name Character. The name of the shape.
+#' @param draw_fn A function that renders the shape. It receives the arguments
+#'   \code{x}, \code{y}, \code{size}, \code{fill}, \code{border_color},
+#'   \code{border_width}, \code{alpha} and \code{...} and returns a grid grob.
+#' @param svg_source Character. A path to an SVG file or an inline SVG string.
 #'
-#' @param name Character. Name of the shape.
-#' @param draw_fn Function. A function that draws the shape. Should accept
-#'   parameters: x, y, size, fill, border_color, border_width, ...
+#' @return \code{register_shape()} and \code{register_svg_shape()} return
+#'   \code{NULL} invisibly. \code{get_shape()} returns the drawing function, or
+#'   \code{NULL} if no shape has that name. \code{list_shapes()} and
+#'   \code{list_svg_shapes()} return a character vector of shape names.
+#'   \code{unregister_svg_shape()} returns \code{TRUE} invisibly if the shape
+#'   was removed and \code{FALSE} if it was not found.
 #'
-#' @return Invisible NULL.
-#' @export
-#'
+#' @name shapes
 #' @examples
-#' # Register a custom hexagon shape under a new name. Registering an existing
-#' # name (for example "hexagon") would replace the built-in shape for the rest
-#' # of the session, so pick a name of your own.
-#' register_shape("my_hexagon", function(x, y, size, fill, border_color, border_width, ...) {
-#'   angles <- seq(0, 2 * pi, length.out = 7)
-#'   grid::polygonGrob(
-#'     x = x + size * cos(angles),
-#'     y = y + size * sin(angles),
-#'     gp = grid::gpar(fill = fill, col = border_color, lwd = border_width)
-#'   )
-#' })
+#' list_shapes()
+#' splot(regulation_net, node_shape = "diamond")
+NULL
+
+#' @rdname shapes
+#' @export
 register_shape <- function(name, draw_fn) {
   if (!is.function(draw_fn)) {
     stop("draw_fn must be a function", call. = FALSE)
@@ -92,24 +107,15 @@ register_shape <- function(name, draw_fn) {
   invisible(NULL)
 }
 
-#' Get a Registered Shape
-#'
-#' @param name Character. Name of the shape.
-#' @return The shape drawing function, or NULL if not found.
+#' @rdname shapes
 #' @export
-#' @examples
-#' get_shape("circle")
 get_shape <- function(name) {
 
   .cograph_env$shapes[[name]]
 }
 
-#' List Available Shapes
-#'
-#' @return Character vector of registered shape names.
+#' @rdname shapes
 #' @export
-#' @examples
-#' list_shapes()
 list_shapes <- function() {
   names(.cograph_env$shapes)
 }
@@ -118,25 +124,38 @@ list_shapes <- function() {
 # Layout Registry
 # ============================================================================
 
-#' Register a Custom Layout
+#' @title Layout Registry
+#' @description
+#' Layout algorithms are stored in a registry and selected by name through the
+#' \code{layout} argument of \code{\link{splot}}, \code{\link{soplot}} and
+#' \code{\link{sn_layout}}. \code{register_layout()} adds a layout function,
+#' \code{get_layout()} returns the function of a registered layout, and
+#' \code{list_layouts()} returns the names of all registered layouts.
+#' Registering an existing name replaces that layout for the rest of the
+#' session.
 #'
-#' Register a new layout algorithm that can be used for network visualization.
+#' @param name Character. The name of the layout.
+#' @param layout_fn A function that computes node positions. It receives the
+#'   network as the argument \code{network}, followed by any layout
+#'   parameters, and returns a matrix or data frame with \code{x} and \code{y}
+#'   columns.
 #'
-#' @param name Character. Name of the layout.
-#' @param layout_fn Function. A function that computes node positions.
-#'   Should accept a CographNetwork object and return a matrix with x, y columns.
+#' @return \code{register_layout()} returns \code{NULL} invisibly.
+#'   \code{get_layout()} returns the layout function, or \code{NULL} if no
+#'   layout has that name. \code{list_layouts()} returns a character vector of
+#'   layout names.
 #'
-#' @return Invisible NULL.
-#' @export
+#' @seealso \code{\link{layout_circle}}, \code{\link{layout_spring}},
+#'   \code{\link{layout_groups}}, \code{\link{layout_oval}}
 #'
+#' @name layout_registry
 #' @examples
-#' # Register a simple random layout under a new name. Registering an existing
-#' # name (for example "random") would replace the built-in layout for the rest
-#' # of the session, so pick a name of your own.
-#' register_layout("my_random", function(network, ...) {
-#'   n <- network$n_nodes
-#'   cbind(x = stats::runif(n), y = stats::runif(n))
-#' })
+#' list_layouts()
+#' splot(regulation_net, layout = "circle")
+NULL
+
+#' @rdname layout_registry
+#' @export
 register_layout <- function(name, layout_fn) {
   if (!is.function(layout_fn)) {
     stop("layout_fn must be a function", call. = FALSE)
@@ -145,23 +164,14 @@ register_layout <- function(name, layout_fn) {
   invisible(NULL)
 }
 
-#' Get a Registered Layout
-#'
-#' @param name Character. Name of the layout.
-#' @return The layout function, or NULL if not found.
+#' @rdname layout_registry
 #' @export
-#' @examples
-#' get_layout("circle")
 get_layout <- function(name) {
   .cograph_env$layouts[[name]]
 }
 
-#' List Available Layouts
-#'
-#' @return Character vector of registered layout names.
+#' @rdname layout_registry
 #' @export
-#' @examples
-#' list_layouts()
 list_layouts <- function() {
   names(.cograph_env$layouts)
 }
@@ -170,47 +180,63 @@ list_layouts <- function() {
 # Theme Registry
 # ============================================================================
 
-#' Register a Custom Theme
+#' @title Themes
+#' @description
+#' A theme is a \code{CographTheme} object that sets the background, node,
+#' edge and label colors of a plot. Themes are stored in a registry and
+#' selected by name through the \code{theme} argument of \code{\link{splot}},
+#' \code{\link{soplot}} and \code{\link{sn_theme}}. The functions
+#' \code{theme_cograph_*()} return the built-in themes:
+#' \describe{
+#'   \item{\code{theme_cograph_classic()}}{Blue nodes and gray edges
+#'     (\code{"classic"}).}
+#'   \item{\code{theme_cograph_colorblind()}}{Colors distinguishable under color
+#'     vision deficiency (\code{"colorblind"}).}
+#'   \item{\code{theme_cograph_gray()}}{Black and white for print
+#'     (\code{"gray"}, also \code{"grey"}).}
+#'   \item{\code{theme_cograph_dark()}}{Dark background for presentations
+#'     (\code{"dark"}).}
+#'   \item{\code{theme_cograph_minimal()}}{Thin borders and few colors
+#'     (\code{"minimal"}).}
+#'   \item{\code{theme_cograph_viridis()}}{The viridis palette
+#'     (\code{"viridis"}).}
+#'   \item{\code{theme_cograph_nature()}}{Earth tones (\code{"nature"}).}
+#' }
+#' \code{register_theme()} adds a theme under a new name, \code{get_theme()}
+#' returns a registered theme, and \code{list_themes()} returns the names of
+#' all registered themes.
 #'
-#' Register a new theme for network visualization.
+#' @param name Character. The name of the theme.
+#' @param theme A \code{CographTheme} object, for example one created with
+#'   \code{CographTheme$new()} or returned by a \code{theme_cograph_*()}
+#'   function.
 #'
-#' @param name Character. Name of the theme.
-#' @param theme A CographTheme object or a list of theme parameters.
+#' @return The \code{theme_cograph_*()} functions return a \code{CographTheme}
+#'   object. \code{register_theme()} returns \code{NULL} invisibly.
+#'   \code{get_theme()} returns the theme, or \code{NULL} if no theme has that
+#'   name. \code{list_themes()} returns a character vector of theme names.
 #'
-#' @return Invisible NULL.
-#' @export
-#'
+#' @name themes
 #' @examples
-#' # Register a custom theme
-#' register_theme("custom", list(
-#'   background = "white",
-#'   node_fill = "steelblue",
-#'   node_border = "navy",
-#'   edge_color = "gray50"
-#' ))
+#' splot(regulation_net, theme = "dark")
+NULL
+
+#' @rdname themes
+#' @export
 register_theme <- function(name, theme) {
   .cograph_env$themes[[name]] <- theme
   invisible(NULL)
 }
 
-#' Get a Registered Theme
-#'
-#' @param name Character. Name of the theme.
-#' @return The theme object, or NULL if not found.
+#' @rdname themes
 #' @export
-#' @examples
-#' get_theme("classic")
 get_theme <- function(name) {
 
   .cograph_env$themes[[name]]
 }
 
-#' List Available Themes
-#'
-#' @return Character vector of registered theme names.
+#' @rdname themes
 #' @export
-#' @examples
-#' list_themes()
 list_themes <- function() {
   names(.cograph_env$themes)
 }
@@ -232,14 +258,41 @@ get_palette <- function(name) {
   .cograph_env$palettes[[name]]
 }
 
-#' List Available Color Palettes
+#' @title Color Palettes
+#' @description
+#' The \code{palette_*()} functions generate a vector of \code{n} colors for
+#' nodes or edges. They are registered under their short names (for example
+#' \code{"colorblind"}), which \code{\link{sn_palette}} accepts, and
+#' \code{list_palettes()} returns the registered names.
+#' \describe{
+#'   \item{\code{palette_rainbow()}}{Rainbow hues.}
+#'   \item{\code{palette_colorblind()}}{The colorblind-safe colors of Wong.}
+#'   \item{\code{palette_pastel()}}{Soft pastel colors.}
+#'   \item{\code{palette_viridis()}}{The viridis family, chosen by
+#'     \code{option}.}
+#'   \item{\code{palette_blues()}, \code{palette_reds()}}{Sequential blue or
+#'     red shades.}
+#'   \item{\code{palette_diverging()}}{Blue to red through \code{midpoint}.}
+#' }
 #'
-#' Returns the names of all registered color palettes.
+#' @param n Number of colors to generate.
+#' @param alpha Transparency, from 0 (transparent) to 1 (opaque).
+#' @param option Viridis option, one of \code{"viridis"}, \code{"magma"},
+#'   \code{"plasma"}, \code{"inferno"}, \code{"cividis"}. Any other value
+#'   gives the \code{"viridis"} colors.
+#' @param midpoint Color of the midpoint of the diverging palette.
 #'
-#' @return Character vector of palette names.
-#' @export
+#' @return The \code{palette_*()} functions return a character vector of
+#'   \code{n} colors. \code{list_palettes()} returns a character vector of
+#'   palette names.
+#'
+#' @name palettes
 #' @examples
-#' list_palettes()
+#' splot(regulation_net, node_fill = palette_colorblind(n = 10))
+NULL
+
+#' @rdname palettes
+#' @export
 list_palettes <- function() {
   names(.cograph_env$palettes)
 }

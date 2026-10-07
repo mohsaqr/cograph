@@ -29,11 +29,16 @@ from matrix symmetry; \code{TRUE}/\code{FALSE} forces it.}
 centrality verbs.}
 }
 \value{
-A single number: the summed gap between the most central node and
-every other node, divided by the theoretical maximum for the measure, so
-0 marks a perfectly even network and 1 a perfect star. Nodes whose score
-is \code{NA} or \code{NaN} are dropped from the sum. Returns 0 when the
-network has two or fewer nodes.
+A single number. It is the summed gap between the most central node
+and every other node, divided by a theoretical maximum. For degree,
+betweenness and closeness the maximum is the value of an unweighted
+star, so unweighted input gives 0 for a perfectly even network and 1 for
+an undirected star. For eigenvector centrality, whose scores are scaled to
+a maximum of 1, the divisor is \eqn{n - 1}, and a star gives a value
+below 1. Weighted closeness
+scales with the inverse of the edge weights, so its centralization can
+exceed 1. Nodes whose score is \code{NA} or \code{NaN} are dropped from
+the sum. The value is 0 when the network has two or fewer nodes.
 }
 \description{
 Computes Freeman's centralization for degree, betweenness, closeness,
@@ -44,7 +49,5 @@ A weighted input carries its weights into betweenness, closeness and
 eigenvector centrality; degree centralization ignores them.
 }
 \examples{
-star <- matrix(0, 5, 5)
-star[1, 2:5] <- 1; star[2:5, 1] <- 1
-cograph::centralization(star, "degree")
+cograph::centralization(regulation_net, measure = "degree")
 }

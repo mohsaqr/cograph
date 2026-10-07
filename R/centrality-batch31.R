@@ -50,84 +50,75 @@ calculate_expected_force <- function(cg, modified = FALSE, exf_alpha = 2) {
   result
 }
 
-#' Expected Force centrality
+#' Expected Force Centrality
 #'
-#' Computes Lawyer's Expected Force after exactly two transmission events
-#' without recovery. For each seed, enumerate ordered sequences of two
-#' infected-to-susceptible edge transmissions. Each sequence produces a
-#' three-node infected cluster with D outgoing edges to susceptible nodes.
-#' Normalize these D values across all sequences and take their Shannon
-#' entropy using natural logarithms (Lawyer 2015, equation 1).
+#' The Expected Force (Lawyer 2015, equation 1) is the entropy of the
+#' onward spreading potential after two transmission events from a seed
+#' node. Each ordered sequence of two transmissions gives an infected
+#' cluster of three nodes with \eqn{D_k}{D_k} edges to susceptible nodes,
+#' and with natural logarithms
+#' \deqn{ExF_i = -\sum_k \frac{D_k}{\sum_l D_l}
+#'   \log \frac{D_k}{\sum_l D_l}.}{
+#'   ExF_i = -sum_k (D_k / sum_l D_l) log(D_k / sum_l D_l).}
 #'
-#' Different event orders or transmitting parents remain distinct even
-#' when they infect the same three nodes. A seed and two adjacent neighbors
-#' of an undirected triangle form four sequences, not one. Boundary edges
-#' are counted individually even when they reach the same susceptible node.
-#' This is not entropy over distinct infected sets or over boundary-degree
-#' categories, and is not a probability-weighted epidemic simulation.
-#'
-#' Uses the simple unweighted graph, retaining direction. In directed
-#' graphs, only outgoing infected-to-susceptible arcs transmit or contribute
-#' boundary degree, following the paper's directed extension. Loops and
-#' duplicate arcs are removed after generic processing. Weights, mode,
-#' inversion and cutoff do not affect the result. The weighted extension
-#' and horizons other than two events are outside this implementation.
-#'
-#' Zero-degree outcomes use the zero-log-zero entropy limit. If no sequence
-#' can perform two transmissions, or every resulting cluster has zero
-#' onward force, cograph returns zero. The latter is an explicit extension
-#' of the paper's undefined all-zero normalization, not author-code parity.
-#' Isolates and components of at most three nodes therefore score zero.
-#' A single positive-force outcome also has entropy zero. Empty input
-#' returns no scores. The measure is local and does not establish epidemic
-#' probability, outbreak size or predictive accuracy on the supplied graph.
-#'
-#' Native computation groups three-node clusters by boundary degree while
-#' preserving their event multiplicities. Worst-case time is O(n cubed),
-#' memory O(n squared), including dense graph preparation. Scores remain
-#' independent between components before maximum normalization.
+#' @details
+#' The measure is computed on the simple unweighted network with direction
+#' kept, so weights, loops and parallel edges are ignored. In a directed
+#' network only outgoing arcs transmit and count toward \eqn{D_k}{D_k}.
+#' Different orders of the same two infections count as distinct
+#' sequences. A node that cannot start two transmissions scores zero, so
+#' isolated nodes and nodes of components with at most three nodes score
+#' zero. When every cluster has no edge to a susceptible node the entropy
+#' is undefined, and the score is set to zero.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides by the maximum score; all-zero
-#'   results remain zero.
-#' @return Named numeric vector in input node order.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Lawyer, G. (2015). Understanding the influence of all nodes in a network.
 #'   Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
-#' @seealso \code{\link{centrality_modified_expected_force}} for degree
-#'   adjustment. \code{\link{centrality_expected}} computes a different
-#'   quantity, the sum of neighbor degrees.
+#' @seealso \code{\link{centrality_modified_expected_force}},
+#'   \code{\link{centrality_expected}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_expected_force(igraph::make_graph("Zachary"))
+#' @examples
+#' centrality_expected_force(regulation_net)
 centrality_expected_force <- function(x, ...) {
   df <- centrality(x, measures = "expected_force", ...)
   stats::setNames(df$expected_force, df$node)
 }
 
-#' Modified Expected Force centrality
+#' Modified Expected Force Centrality
 #'
-#' Multiplies the two-event Expected Force by the logarithm of alpha times
-#' seed degree (Lawyer 2015, equation 2). Alpha defaults to two, as in the
-#' paper, and must be finite and strictly greater than one. Directed input
-#' uses outgoing degree, consistent with the outgoing transmission process.
-#' An isolate scores zero without evaluating the logarithm of zero.
-#' All graph, event-counting and zero-force conventions of
-#' \code{\link{centrality_expected_force}} apply. Native log addition avoids
-#' overflow when alpha times degree cannot be represented.
+#' The modified Expected Force (Lawyer 2015, equation 2) multiplies the
+#' Expected Force of a node by the logarithm of its scaled degree
+#' \eqn{\alpha d_i}{alpha d_i}:
+#' \deqn{ExF^{\alpha}_i = \log(\alpha d_i) \, ExF_i.}{
+#'   ExF^alpha_i = log(alpha d_i) ExF_i.}
 #'
-#' @inheritParams centrality_expected_force
-#' @param exf_alpha Degree rescaling factor, default two, finite and greater
-#'   than one. The paper motivates small values; larger finite values are
-#'   permitted by the formula without a predictive-performance claim.
-#' @return Named numeric vector in input node order.
+#' @details
+#' On a directed network \eqn{d_i}{d_i} is the out-degree, in line with the
+#' outgoing transmission process. An isolated node scores zero. The input
+#' handling and zero conventions of \code{\link{centrality_expected_force}}
+#' apply. An \code{exf_alpha} that is not a finite number greater than one
+#' raises an error.
+#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param exf_alpha Degree scaling factor \eqn{\alpha}{alpha}, a finite
+#'   number greater than one. Default 2, as in the paper.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Lawyer, G. (2015). Understanding the influence of all nodes in a network.
 #'   Scientific Reports, 5, 8665. \doi{10.1038/srep08665}.
+#' @seealso \code{\link{centrality_expected_force}},
+#'   \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_modified_expected_force(igraph::make_graph("Zachary"))
+#' @examples
+#' centrality_modified_expected_force(regulation_net)
 # nolint start: object_length_linter.
 centrality_modified_expected_force <- function(x, exf_alpha = 2, ...) {
   df <- centrality(x, measures = "modified_expected_force",

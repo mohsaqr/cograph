@@ -7,28 +7,44 @@
 centrality_decay(x, mode = "all", decay_parameter = 0.5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{decay_parameter}{Numeric between 0 and 1. Default 0.5.}
+\item{decay_parameter}{Decay factor \eqn{\delta}{delta}. Default 0.5.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of decay centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of delta^d over all nodes, where d is the shortest path distance.
-Nodes near many others get higher scores. The \code{decay_parameter}
-controls the distance penalty.
+Decay centrality sums a decay factor \eqn{\delta}{delta} raised to the
+distance from the node to every node:
+\deqn{D(v) = \sum_{w} \delta^{d(v, w)}.}{D(v) = sum_w delta^d(v, w).}
+The sum includes the node itself, which adds one to every score, and
+unreachable nodes contribute 0. Values of \eqn{\delta}{delta} between 0
+and 1 discount distant nodes.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. The value of
+\code{decay_parameter} is not checked, and values above 1 give more weight
+to distant nodes. \code{\link{centrality_generalized_closeness}} computes
+the same quantity, and \code{decay_parameter = 0.5} gives
+\code{\link{centrality_dangalchev}}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_decay(adj, decay_parameter = 0.5)
+centrality_decay(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_generalized_closeness}},
+\code{\link{centrality_dangalchev}}, \code{\link{centrality}}.
 }

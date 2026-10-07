@@ -224,50 +224,49 @@ utils::globalVariables(c(
 
 #' Plot Centrality
 #'
-#' Publication-quality visualization of one or more centrality measures.
-#' Accepts the data frame from \code{\link{centrality}} directly or any
-#' network input.
+#' Plots one or more centrality measures, one facet per measure. Accepts the
+#' data frame from \code{\link{centrality}} or any network input.
 #'
 #' Four styles are available:
 #' \describe{
-#'   \item{\code{"line"}}{Faceted line view with one panel per measure.
-#'     Nodes are ordered along the requested orientation and connected within
-#'     each measure.}
-#'   \item{\code{"bar"}}{Horizontal bars, one facet per measure. Best for
-#'     reading individual measure values.}
-#'   \item{\code{"lollipop"}}{Like \code{"bar"} but with a dot at the tip.
-#'     Softer visual weight; useful on dense grids.}
-#'   \item{\code{"dot"}}{Dot-only variant of the lollipop style.}
+#'   \item{\code{"line"}}{Points connected by a line within each measure, with
+#'     nodes in the order set by \code{order_by}.}
+#'   \item{\code{"bar"}}{Bars of the measure values.}
+#'   \item{\code{"lollipop"}}{Segments ending in a dot.}
+#'   \item{\code{"dot"}}{Dots only.}
 #' }
 #'
 #' @param x Output of \code{\link{centrality}}, or any network input
 #'   (matrix, igraph, cograph_network, tna, netobject).
-#' @param measures Character vector of measure names. Default pulls the
-#'   classical five (degree, strength, betweenness, closeness, eigenvector)
-#'   when \code{x} is a network; default \code{NULL} keeps all columns
-#'   when \code{x} is already a centrality data frame.
+#' @param measures Character vector of measure names. When \code{x} is a
+#'   network and \code{measures} is NULL (default), degree, strength,
+#'   betweenness, closeness and eigenvector are computed. When \code{x} is a
+#'   centrality data frame, NULL keeps all its measure columns.
 #' @param style Character: "line" (default), "bar", "lollipop", or "dot".
 #' @param orientation Character: "horizontal" (default, nodes on y-axis) or
 #'   "vertical" (nodes on x-axis).
-#' @param scale Character: "raw" (default, native units; in the "line"
-#'   style this forces free y-axis per measure via faceting), "normalized" (\[0, 1\] 
-#'   within measure), "z" (standardized within measure), or "rank"
-#'   (1..n, highest value = 1).
-#' @param order_by Character. For "bar"/"lollipop": which measure sorts
-#'   nodes. Defaults to the first measure. Use \code{"alpha"} for
-#'   alphabetical. For "line", this also controls node ordering unless
-#'   \code{"alpha"} is requested.
-#' @param top_n Optional integer to keep only the top-N nodes (by
-#'   \code{order_by}). Useful for large graphs.
-#' @param highlight Optional integer: highlight the top-N bars/lines per
-#'   measure in full color; mute the rest. Default 0 (no highlighting).
-#' @param cluster Optional named vector or data-frame column mapping each
-#'   node to a cluster/community. Colors nodes by cluster when supplied.
-#' @param palette Character or vector. \code{"cograph"} (default) uses
-#'   cograph's teal-gold-leaf palette; \code{"okabe"} uses Okabe-Ito;
-#'   \code{"viridis"} uses viridis; or supply a character vector of colors.
-#' @param ncol For faceted styles ("bar", "lollipop"): number of columns.
-#'   Default \code{NULL} chooses sensibly based on measure count.
+#' @param scale Character: "raw" (default, native units with a free value
+#'   axis per facet), "normalized" (min-max scaled to \[0, 1\] within
+#'   measure), "z" (standardized within measure), or "rank" (1 = highest
+#'   value within measure).
+#' @param order_by Character. Name of the measure column that sorts the
+#'   nodes (e.g., "degree_all"), or \code{"alpha"} for alphabetical order.
+#'   Defaults to the first measure. In the "bar", "lollipop" and "dot"
+#'   styles an unknown name raises an error; in the "line" style it falls
+#'   back to the first measure.
+#' @param top_n Optional integer. Keeps only the top-N nodes by
+#'   \code{order_by} (by the first measure when \code{order_by = "alpha"}).
+#' @param highlight Integer. In the "bar", "lollipop" and "dot" styles, the
+#'   top-N nodes per measure are plotted in full color and the rest are
+#'   muted. Default 0 (no highlighting). Ignored by the "line" style.
+#' @param cluster Optional cluster assignment of the nodes, given as the name
+#'   of a column of \code{x}, a vector in node order, or a vector named by
+#'   node. Colors the nodes by cluster in the "bar", "lollipop" and "dot"
+#'   styles.
+#' @param palette Currently unused. Cluster colors are taken from the
+#'   built-in cograph palette.
+#' @param ncol Number of facet columns. Default \code{NULL} uses up to three
+#'   columns for eight or fewer measures and four otherwise.
 #' @param title Plot title. Default NULL.
 #' @param subtitle Plot subtitle. Default NULL.
 #' @param ... Passed to \code{\link{centrality}} when \code{x} is a network.
@@ -275,11 +274,7 @@ utils::globalVariables(c(
 #' @return A ggplot object.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-#'               5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' plot_centrality(adj)
-#' plot_centrality(adj, style = "bar", highlight = 2)
+#' plot_centrality(regulation_net)
 plot_centrality <- function(x,
                             measures = NULL,
                             style = c("line", "bar", "lollipop", "dot"),
@@ -672,16 +667,20 @@ plot_centrality <- function(x,
 
 #' Plot Centrality Comparison
 #'
-#' Compare a centrality measure across two or more groups using stacked,
-#' faceted, grouped, dumbbell, line, or two-group pyramid layouts. The
+#' Plots one centrality measure across two or more groups as stacked,
+#' faceted, grouped, dumbbell, line, or pyramid charts. The
 #' \code{"pyramid"} style is a back-to-back horizontal bar chart for exactly
-#' two groups.
+#' two groups. Groups are aligned on the node names they share.
 #'
 #' @param ... Two or more centrality data frames (from
-#'   \code{\link{centrality}}) or network inputs. Names are used as
-#'   group labels when \code{group_labels} is NULL.
-#' @param measure Character, a single centrality measure to compare. If
-#'   NULL, the first shared measure is used.
+#'   \code{\link{centrality}}) or network inputs. When every argument is
+#'   named, the names are used as group labels if \code{group_labels} is
+#'   NULL.
+#' @param measure Character, a single centrality measure to compare. For
+#'   network inputs, a name such as "strength" also matches a shared column
+#'   with an "_all", "_in" or "_out" suffix when the match is unique. For
+#'   centrality data frames, it must be an exact column name. If NULL, the
+#'   first shared measure is used.
 #' @param style Character: \code{"stacked"} (default), \code{"facet"},
 #'   \code{"grouped"}, \code{"dumbbell"}, \code{"line"}, or
 #'   \code{"pyramid"} (2 groups only).
@@ -689,17 +688,19 @@ plot_centrality <- function(x,
 #'   \code{c("Group 1", "Group 2", ...)}.
 #' @param group_colors Character vector of colors, one per group.
 #'   Default cycles through the cograph palette.
-#' @param node_colors Optional. Either a named character vector mapping
-#'   node name to color, an unnamed vector of colors applied in node
-#'   order, or the name of a palette (\code{"cograph"}, \code{"okabe"},
-#'   \code{"viridis"}). Used by \code{style = "facet"}.
+#' @param node_colors Colors of the nodes in \code{style = "facet"}. Either
+#'   a named character vector mapping node name to color, an unnamed vector
+#'   of colors applied in node order, or the name of a palette
+#'   (\code{"cograph"}, \code{"okabe"}, \code{"viridis"}). NULL (default)
+#'   uses the node colors stored in the first network when available and
+#'   the cograph palette otherwise.
 #' @param sort_by \code{"max"} (default) ranks nodes by highest value
 #'   across groups; \code{"delta"} by range; \code{"first"} by first
 #'   group; \code{"alpha"} alphabetically.
 #' @param top_n Show top N nodes (by \code{sort_by}). Default: all.
-#' @param scale \code{"raw"} (default, native values on each side) or
-#'   \code{"normalized"} (\[0, 1\] within each side before plotting).
-#' @param show_values Logical. Print the value inside each bar.
+#' @param scale \code{"raw"} (default, native values) or
+#'   \code{"normalized"} (min-max scaled to \[0, 1\] within each group).
+#' @param show_values Logical. Print the value of each bar or point.
 #'   Default TRUE.
 #' @param size_by_value Logical. For \code{"dumbbell"} style, scale dot
 #'   size by centrality value. Default FALSE.
@@ -707,24 +708,22 @@ plot_centrality <- function(x,
 #'   dot size (mm) when \code{size_by_value = TRUE}. Default
 #'   \code{c(2, 9)}.
 #' @param orientation Character: \code{"horizontal"} (default, nodes on
-#'   y-axis) or \code{"vertical"} (nodes on x-axis).
+#'   y-axis) or \code{"vertical"} (nodes on x-axis). Ignored by the
+#'   \code{"pyramid"} style.
 #' @param ncol Number of facet columns for \code{style = "facet"}.
 #'   Default NULL chooses automatically.
-#' @param title Plot title.
-#' @param subtitle Plot subtitle. Auto-generated when NULL.
+#' @param title Plot title. NULL (default) gives "Centrality comparison:"
+#'   followed by the measure name.
+#' @param subtitle Plot subtitle. When NULL, the \code{"pyramid"} style
+#'   shows the two group labels and the other styles show none.
 #' @param centrality_args Named list of additional arguments passed to
 #'   \code{\link{centrality}} when inputs are networks.
 #'
 #' @return A ggplot object.
 #' @export
 #' @examples
-#' set.seed(1)
-#' m1 <- matrix(runif(25), 5, 5); diag(m1) <- 0
-#' m2 <- matrix(runif(25), 5, 5); diag(m2) <- 0
-#' rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-#' rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-#' plot_centrality_compare(m1, m2, measure = "strength",
-#'                         group_labels = c("Pre", "Post"))
+#' plot_centrality_compare(Full = regulation_net,
+#'   Strong = threshold_edges(regulation_net, minimum = 0.1), measure = "strength")
 plot_centrality_compare <- function(...,
                                     measure = NULL,
                                     style = c("stacked", "facet", "grouped",
@@ -1463,34 +1462,39 @@ plot_centrality_compare <- function(...,
 
 #' Plot Centrality Heatmap
 #'
-#' Heatmap of nodes (rows) by centrality measures (columns), z-standardized
-#' within measure so the diverging palette is meaningful. Optional row
-#' clustering groups nodes with similar centrality profiles.
+#' Plots a heatmap of nodes (rows) by centrality measures (columns). Cell
+#' fill is the z-score of each value within its measure, mapped to a
+#' diverging color scale. Optional row clustering places nodes with similar
+#' centrality profiles next to each other.
 #'
 #' @param x Centrality data frame (from \code{\link{centrality}}) or a
 #'   network input.
-#' @param measures Character vector of measure names.
-#' @param cluster_rows Logical. Hierarchically cluster rows so nodes with
-#'   similar profiles are adjacent. Default TRUE.
-#' @param order_by If \code{cluster_rows = FALSE}, optionally the name of
-#'   a measure to sort rows by (descending). Default: first measure.
-#' @param show_values Logical. Print z-scores in cells. Default FALSE.
+#' @param measures Character vector of measure names. When \code{x} is a
+#'   network and \code{measures} is NULL (default), degree, strength,
+#'   betweenness, closeness and eigenvector are computed. When \code{x} is a
+#'   centrality data frame, NULL keeps all its measure columns.
+#' @param cluster_rows Logical. Order rows by hierarchical clustering
+#'   (Euclidean distance, average linkage) of the z-scored profiles.
+#'   Applied when there are more than two nodes. Default TRUE.
+#' @param order_by Used when rows are not clustered. Name of the measure
+#'   that sorts rows in descending order. NULL (default) or an unknown name
+#'   uses the first measure.
+#' @param show_values Logical. Print the raw centrality values in the cells.
+#'   Default FALSE.
 #' @param value_digits Decimal places for cell values. Default 1.
 #' @param low,mid,high Color stops for the diverging scale. Defaults to
-#'   blue -> white -> red.
+#'   blue, white and red.
 #' @param limits Numeric c(min, max) z-score range. Values outside are
 #'   squished to the endpoints. Default c(-2.5, 2.5).
-#' @param title,subtitle Plot title and subtitle.
+#' @param title,subtitle Plot title and subtitle. The default subtitle is
+#'   "z-scored within measure".
 #' @param ... Passed to \code{\link{centrality}} when \code{x} is a
 #'   network.
 #'
 #' @return A ggplot object.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-#'               5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' plot_centrality_heatmap(adj)
+#' plot_centrality_heatmap(regulation_net)
 plot_centrality_heatmap <- function(x,
                                     measures = NULL,
                                     cluster_rows = TRUE,

@@ -5,65 +5,71 @@
 
 #' Ego-Network Metrics
 #'
-#' Extracts the ego network of each requested node (the node, its neighbors up
-#' to a given order, and the ties among them) and reports a tidy table of
-#' personal-network metrics: size, internal tie counts and densities, and Burt's
-#' structural-hole measures. One row per ego.
+#' Extracts the ego network of each requested node and computes a table of
+#' personal-network metrics with one row per ego. An ego network consists of
+#' the node, its neighbors up to a given order and the ties among them. The
+#' metrics are the network size, tie counts and densities, and Burt's
+#' structural-hole measures.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna
 #'   object.
 #' @param nodes Character vector of node names or integer vector of node
 #'   indices selecting which egos to report. NULL (default) uses every node.
+#'   An unknown name or an index out of range raises an error.
 #' @param order Integer neighborhood order defining the ego network. 1
-#'   (default) is the standard ego network (ego + direct neighbors). Burt's
+#'   (default) is the standard ego network (ego and direct neighbors). Burt's
 #'   \code{effective_size} and \code{constraint} are only defined for
 #'   \code{order = 1} and are returned as \code{NA} otherwise.
 #' @param mode For directed networks, which ties define the neighborhood:
-#'   \code{"all"} (default), \code{"out"}, or \code{"in"}.
+#'   \code{"all"} (default), \code{"out"}, or \code{"in"}. The Burt measures
+#'   do not depend on \code{mode}.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry.
-#' @param ... Currently unused; \code{directed} is already an explicit
-#'   argument above and \code{\link{to_igraph}} accepts no others.
+#' @param ... Passed to \code{\link{to_igraph}}, which takes no further
+#'   arguments, so any argument supplied here raises an error.
 #'
-#' @return A tidy data.frame of class \code{"cograph_ego_networks"} with one row
+#' @return A data frame of class \code{"cograph_ego_networks"} with one row
 #'   per ego and columns:
 #'   \describe{
 #'     \item{node}{Ego node name.}
 #'     \item{size}{Number of alters (ego-network size, excluding ego).}
-#'     \item{ego_ties}{Number of edges in the ego network (ego + alters).}
-#'     \item{ego_density}{Edge density of the ego network including ego.}
+#'     \item{ego_ties}{Number of edges in the ego network (ego and alters).}
+#'     \item{ego_density}{Edge density of the ego network including ego.
+#'       \code{NA} for an ego without alters.}
 #'     \item{alter_ties}{Number of edges among the alters only (excluding ego).}
-#'     \item{alter_density}{Edge density among the alters. Low values indicate
-#'       many structural holes / brokerage opportunities.}
+#'     \item{alter_density}{Edge density among the alters. \code{NA} for an
+#'       ego with fewer than two alters. Low values indicate many structural
+#'       holes and brokerage opportunities.}
 #'     \item{effective_size}{Burt's effective size of the ego network
 #'       (\code{order = 1} only).}
 #'     \item{constraint}{Burt's constraint (\code{order = 1} only).}
 #'   }
+#'   The arguments \code{order} and \code{mode} and the directedness of the
+#'   network are stored as attributes. Printing the result shows
+#'   \code{order} and \code{mode} above the table.
 #'
 #' @details
-#' \code{effective_size} and \code{constraint} are computed on the full network
-#' (Burt's measures are defined directly from each node's order-1 ego network),
-#' reusing the same implementations as \code{\link{centrality}} so results match
+#' Self-loops are dropped before ties are counted. In a directed network the
+#' tie counts are counts of directed edges, and the densities divide by
+#' \eqn{m(m-1)} for \eqn{m} members.
+#'
+#' \code{effective_size} and \code{constraint} are computed on the full
+#' network from all ties of each node, with the same implementations as
+#' \code{\link{centrality}}, so the values equal
 #' \code{centrality(x, measures = c("effective_size", "constraint"))}.
+#' Effective size uses the unweighted ties. Constraint uses the edge weights.
 #'
 #' @references
 #' Burt, R.S. (1992). \emph{Structural Holes: The Social Structure of
 #' Competition}. Harvard University Press.
 #'
-#' @seealso \code{\link{centrality}} (for \code{effective_size}, \code{constraint},
-#'   \code{dispersion}), \code{\link{select_neighbors}}, \code{\link{neighborhood_overlap}}
+#' @seealso \code{\link{centrality}} (for \code{effective_size} and
+#'   \code{constraint}), \code{\link{dispersion}},
+#'   \code{\link{select_neighbors}}, \code{\link{neighborhood_overlap}}
 #'
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(
-#'   0, 1, 1, 0, 0,
-#'   1, 0, 1, 0, 0,
-#'   1, 1, 0, 1, 1,
-#'   0, 0, 1, 0, 1,
-#'   0, 0, 1, 1, 0
-#' ), 5, 5, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' cograph::ego_networks(adj)
+#' cograph::ego_networks(regulation_net, nodes = "Plan")
 ego_networks <- function(x,
                          nodes = NULL,
                          order = 1,

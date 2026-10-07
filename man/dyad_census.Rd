@@ -13,8 +13,8 @@ object.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Passed to \code{\link{to_igraph}}, which accepts no further
+arguments. Any argument supplied here raises an error.}
 }
 \value{
 A tidy data.frame of class \code{"cograph_dyad_census"} with one row
@@ -27,33 +27,26 @@ per dyad type and columns:
 (\eqn{n(n-1)/2}).}
 }
 The dyad-based reciprocity \eqn{2M / (2M + A)} is attached as the
-\code{"reciprocity"} attribute.
+\code{"reciprocity"} attribute (\code{NA} for a network without edges).
+The attributes \code{"directed"} and \code{"n_dyads"} record the
+directedness and the total number of dyads.
 }
 \description{
 Classifies every dyad (unordered pair of nodes) in a directed network into
-one of three mutually exclusive states: \strong{mutual} (M, edges in both
-directions), \strong{asymmetric} (A, an edge in exactly one direction), or
-\strong{null} (N, no edge between the pair). The dyad census is the
-dyad-level companion to \code{\link{triad_census}} and underlies dyad-based
+one of three mutually exclusive states: mutual (M, edges in both
+directions), asymmetric (A, an edge in exactly one direction), or null
+(N, no edge between the pair). The dyad census is the dyad-level
+counterpart of \code{\link{triad_census}} and is the basis of dyad-based
 reciprocity.
 }
 \details{
-For \emph{undirected} networks every present edge is counted as a mutual
-dyad and the asymmetric count is always zero, so the census reduces to a
-present/absent split. The total number of dyads is \eqn{n(n-1)/2} regardless
-of direction.
+In an undirected network every present edge is counted as a mutual dyad
+and the asymmetric count is zero. The total number of dyads is
+\eqn{n(n-1)/2} in both cases.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Directed network with a mix of mutual and asymmetric ties
-adj <- matrix(c(
-  0, 1, 1, 0,
-  1, 0, 0, 1,
-  0, 0, 0, 1,
-  0, 0, 0, 0
-), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::dyad_census(adj)
+cograph::dyad_census(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

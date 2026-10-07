@@ -24,68 +24,50 @@ calculate_random_walk_decay <- function(cg, weights = NULL, decay = 0.5,
   .cg_random_walk_decay(a, decay, unname(mass), normalized)
 }
 
-#' Random walk decay centrality
+#' Random Walk Decay Centrality
 #'
-#' Was, Rahwan and Skibski's random walk decay centrality sums discounted
-#' first-arrival probabilities:
-#' \eqn{RWD_v=\sum_u b_u E_u[a^{T_v};T_v<\infty]}, where \eqn{T_v} is
-#' the first time the walk reaches v and a is \code{rwd_decay}. The walk
-#' follows outgoing edges in proportion to their nonnegative weights.
-#' Sinks lead to a terminal state outside the graph; there is no restart
-#' or redistribution of their probability. The start counts as an arrival
-#' at time zero, so each node contributes its own starting weight b to its
-#' score. Later returns to the same target make no additional contribution.
+#' Random walk decay centrality (Was, Rahwan and Skibski 2019) sums, over
+#' all starting nodes \eqn{u}{u}, the starting weight \eqn{b_u}{b_u} times
+#' the expected discounted first arrival of a random walk from \eqn{u}{u}
+#' at node \eqn{v}{v}. With \eqn{T_v}{T_v} the first arrival time and
+#' \eqn{a}{a} the decay factor \code{rwd_decay},
+#' \deqn{RWD_v = \sum_u b_u \, E_u\left[a^{T_v}; T_v < \infty\right].}{
+#'   RWD_v = sum_u b_u E_u[a^(T_v); T_v < Inf].}
 #'
-#' The paper defines a in (0,1). The default 0.5 is an explicit cograph
-#' choice; zero is supported as the continuous limit, returning b.
-#' \code{rwd_node_weights = NULL} sets all starting weights to one. These
-#' weights are not normalized into a probability distribution in the final
-#' score. All-zero starting weights return zero by linear extension.
-#' Isolates score their own starting weight; empty input returns no scores.
-#' Disconnected components are independent before optional normalization.
-#'
-#' Retains input direction and loops. Undirected edges become opposite
-#' transitions; an undirected self-loop is one stay transition. Remaining
-#' parallel edges contribute their combined weight, or their multiplicity
-#' when \code{weighted = FALSE}. Generic \code{simplify} is applied first;
-#' use \code{simplify = FALSE} to preserve unweighted parallel multiplicity.
-#' Use \code{loops = FALSE} to remove loops explicitly. Node weights and
-#' edge weights are distinct. \code{weighted = FALSE} ignores edge weights
-#' but retains supplied node weights. Generic \code{mode}, shortest-path
-#' inversion and cutoff do not affect this measure.
-#'
-#' Removing any target's outgoing edges cannot change its own raw score:
-#' those edges can only be traversed after first arrival. Other nodes'
-#' scores may change. Global maximum normalization need not preserve this
-#' property. The published Example 3 has internally inconsistent numerical
-#' values; the implementation follows Definition 1, equation 6. Independent
-#' first-arrival calculations and the separate Example 4 and 5 tables verify it.
-#'
-#' Native absorbing systems are solved separately for each target, using
-#' only vertices that can reach it. Worst-case runtime is O(n to the fourth)
-#' with O(n squared) memory, so this measure must be requested explicitly.
-#' Row scaling avoids overflow of total outgoing weights. Unresolvable
-#' transition ranges, unstable solves and raw score overflow raise errors.
-#' If a first-arrival probability underflows, a forward-mass solve and
-#' log-space incoming flux recover its contribution where representable.
-#' Unrepresentably small final contributions can still underflow to zero.
-#' \code{normalized = TRUE} supports overflowing raw mass sums by scaling
-#' starting weights first; tiny normalized contributions may underflow.
+#' @details
+#' The walk follows outgoing edges with probability proportional to their
+#' weights, and an undirected edge is traversed in both directions. A walk
+#' that reaches a node without outgoing edges stops. Loops are kept as
+#' transitions that stay at the node unless \code{loops = FALSE}. The start
+#' counts as an arrival at time zero, so an isolated node scores its own
+#' starting weight and \code{rwd_decay = 0} returns the starting weights.
+#' Edge weights must be finite and nonnegative, and \code{weighted = FALSE}
+#' ignores edge weights while keeping \code{rwd_node_weights}. Invalid
+#' \code{rwd_decay} or \code{rwd_node_weights}, and raw scores that
+#' overflow, raise an error. Example 3 of the paper contains inconsistent
+#' numerical values, and the implementation follows Definition 1, equation
+#' 6.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param rwd_decay Finite discount factor in [0,1), default 0.5.
-#' @param rwd_node_weights Nonnegative finite starting weights, one per
-#'   input node. NULL means ones. Unnamed vectors follow input node order;
-#'   named vectors must match every node name exactly and are reordered.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param rwd_decay Decay factor \eqn{a}{a}, a finite number in
+#'   \eqn{[0, 1)}{[0, 1)}. Default 0.5.
+#' @param rwd_node_weights Nonnegative starting weights \eqn{b}{b}, one per
+#'   node. \code{NULL} (default) gives every node weight one. A named vector
+#'   is matched to the node names.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (use edge weights, default \code{TRUE}) and
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Was, T., Rahwan, T., & Skibski, O. (2019). Random Walk Decay Centrality.
 #'   Proceedings of the AAAI Conference on Artificial Intelligence, 33(01),
 #'   2197-2204. \doi{10.1609/aaai.v33i01.33012197}.
+#' @seealso \code{\link{centrality_pagerank}},
+#'   \code{\link{centrality_random_walk}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_random_walk_decay(igraph::make_ring(4), rwd_decay = 0.8)
+#' @examples
+#' centrality_random_walk_decay(regulation_net)
 centrality_random_walk_decay <- function(x, rwd_decay = 0.5,
                                          rwd_node_weights = NULL, ...) {
   df <- centrality(x, measures = "random_walk_decay", rwd_decay = rwd_decay,

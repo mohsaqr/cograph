@@ -2,7 +2,7 @@
 % Please edit documentation in R/centrality-batch43.R
 \name{centrality_iira}
 \alias{centrality_iira}
-\title{Improved iterative resource allocation (IIRA)}
+\title{Improved Iterative Resource Allocation}
 \usage{
 centrality_iira(
   x,
@@ -15,82 +15,48 @@ centrality_iira(
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{ira_mass}{Node centrality \eqn{\theta}: \code{"coreness"}
-(default, the k-shell index the source's worked example uses) or
-\code{"degree"}. Shared with \code{\link{centrality_ira}}.}
+\item{ira_mass}{Node centrality \eqn{\theta}{theta}: \code{"coreness"}
+(default) or \code{"degree"}.}
 
-\item{iira_beta}{Spreading rate \eqn{\beta}, a single number in
-\eqn{(0,1]}; default 0.2, the source's worked-example value. The
-source sweeps \eqn{\beta} in its experiments and recommends no other
-default.}
+\item{iira_beta}{Spreading rate \eqn{\beta}{beta}, a number in
+\eqn{(0, 1]}{(0, 1]} (default 0.2).}
 
-\item{iira_steps}{Number of iterations \eqn{t}, a single nonnegative
-whole number; default 50, the source's worked-example value. Zero
-returns \eqn{I(0)}.}
+\item{iira_steps}{Number of iterations, a nonnegative whole number
+(default 50).}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-IIRA is \code{\link{centrality_ira}} with the receiver's share scaled by
-how much of a spreading process that receiver could actually carry:
-\eqn{a_{ij}=[1-(1-\beta)^{k_i}]\,\theta_i
-(\sum_{u\in\Gamma(j)}\theta_u)^{-1}}, where \eqn{k_i} is the degree of
-\eqn{i} and \eqn{\beta} the spreading rate. The recursion and the
-initial condition \eqn{I(0)=(1,\dots,1)} are unchanged; there is no
-\eqn{\alpha} exponent, and the denominator keeps the plain masses.
+Improved iterative resource allocation (Zhong, Liu and Shang 2015) is
+\code{\link{centrality_ira}} with the receiver's share scaled by its
+spreading capacity \eqn{1 - (1 - \beta)^{k_i}}{1 - (1 - beta)^k_i}, where
+\eqn{k_i} is the degree and \eqn{\beta}{beta} the spreading rate. The
+recursion \eqn{I(t+1) = A\,I(t)}{I(t+1) = A I(t)} runs a fixed number of
+steps from \eqn{I(0) = (1, \dots, 1)}{I(0) = (1, ..., 1)}.
+\deqn{a_{ij} = \left[1 - (1 - \beta)^{k_i}\right]
+  \frac{\theta_i}{\sum_{u \in \Gamma(j)} \theta_u}}{
+  a_ij = [1 - (1 - beta)^k_i] theta_i / sum_{u in N(j)} theta_u}
 }
 \details{
-\strong{The scores are tiny and only their order means anything.} The
-factor \eqn{\psi_i=1-(1-\beta)^{k_i}} is strictly below one, so every
-column of \eqn{A} sums to less than one, the spectral radius is below
-one, and \eqn{I(t)\to 0} geometrically. The source runs exactly
-\eqn{t=50} steps and prints an \eqn{I(50)} of order \eqn{10^{-20}};
-cograph returns that raw vector, so the printed example is reproducible,
-and \code{normalized = TRUE} max-scales it into \eqn{[0,1]} for reading.
-Never compare raw IIRA scores across connected components: each
-component decays at its own rate, so after \code{iira_steps} steps they
-sit on different exponential scales. A large \code{iira_steps} underflows
-to zero.
-
-\strong{The Centrality Zoo entry is not this formula.} Section 2.185
-prints \eqn{p_{ij}=(1-(1-\beta)^{d_i})a_{ij}c_i/\sum_k a_{ik}c_k}, which
-pairs the numerator's index with the denominator's own neighborhood; the
-source pairs them with opposite sets. As printed, the Zoo's row sums are
-\eqn{\psi_i c_i d_i/\sum_{k\in N(i)}c_k}, so its matrix is stochastic in
-neither direction although the entry calls it stochastic, and it does not
-reproduce the source's printed matrix or its printed \eqn{I(50)}.
-cograph implements the source.
-
-Uses the simple undirected unweighted skeleton, which is the source
-domain: either arc creates one edge, parallel edges count once and loops
-are removed. Edge weights, mode, cutoff and path-weight inversion are
-ignored. An isolate has an empty neighbor sum and \eqn{\psi=0}, so it
-scores zero from the first step; that is the value of the source's empty
-sum, not an accidental zero. \code{iira_steps = 0} returns the initial
-\eqn{I(0)}, a vector of ones. Empty graphs return no scores. Cost is one
-dense \eqn{n^2} matrix plus \code{iira_steps} matrix-vector products.
-
-The version of record was not read: what was read is the author preprint
-arXiv:1505.03214v1, whose method section, worked example and figures
-carry the definition reproduced here. Numerical verification establishes
-agreement with those equations and with every value printed in the
-preprint's figure 2 example, not parity with author software, which does
-not exist, and not any claim about spreading performance.
+The measure is computed on the simple undirected skeleton of the network,
+so direction, weights, loops and parallel edges are ignored. Every column
+of \eqn{A} sums to less than one, so the scores decay geometrically and
+only their order carries meaning. \code{normalized = TRUE} divides them by
+their maximum. Each connected component decays at its own rate, so raw
+scores are comparable only within a component, and a large
+\code{iira_steps} underflows to zero. An isolate scores zero, and
+\code{iira_steps = 0} returns a vector of ones. The Centrality Zoo
+(section 2.185) states a different matrix, which is stochastic in neither
+direction and does not reproduce the source's worked example. The
+implementation follows the source.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# The source's figure 2, whose printed I(50) is
-# 8.19e-20, 4.32e-20, 4.32e-20, 6.7e-21, 6.7e-21
-fig2 <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4, 1, 5),
-                           directed = FALSE)
-centrality_iira(fig2)
-
-# Only the order carries meaning, so max-scale for reading
-centrality_iira(fig2, normalized = TRUE)
-\dontshow{\}) # examplesIf}
+centrality_iira(regulation_net, normalized = TRUE)
 }
 \references{
 Zhong, L.-F., Liu, J.-G. and Shang, M.-S. (2015). Iterative resource
@@ -99,6 +65,5 @@ influential nodes. Physics Letters A, 379(38), 2272-2276.
 \doi{10.1016/j.physleta.2015.05.021}.
 }
 \seealso{
-\code{\link{centrality_ira}} for the measure this improves, and
-\code{\link{list_centralities}} for the catalogue.
+\code{\link{centrality_ira}}, \code{\link{centrality}}.
 }

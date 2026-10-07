@@ -2,54 +2,45 @@
 % Please edit documentation in R/centrality-batch17.R
 \name{centrality_extended_gravity}
 \alias{centrality_extended_gravity}
-\title{Extended gravity centrality}
+\title{Extended Gravity Centrality}
 \usage{
 centrality_extended_gravity(x, gravity_radius = 3, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{gravity_radius}{Nonnegative hop-distance cutoff, default 3. NULL
-or infinity includes the entire reachable component. The optional
-\code{"auto"} setting is a cograph extension: round half the mean
-finite positive hop distance to the nearest integer (ties to even),
-with minimum one. It is not a parameter rule from Ma et al.}
+\item{gravity_radius}{Hop radius \eqn{r}: a nonnegative number (default
+3, the value of Ma et al. 2016), \code{"auto"}, or \code{NULL} or
+\code{Inf} for the whole component.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive final scores are divided by their
-maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Ma et al.'s extended gravity score is the sum of the immediate neighbors'
-raw gravity scores:
-\eqn{G^+(i)=\sum_{j\in N(i)}G(j)}, where
-\eqn{G(j)=\sum_{l:0<d(j,l)\le r}k_s(j)k_s(l)/d(j,l)^2}.
-Core numbers and hop distances are calculated on the original simple
-undirected graph. The radius applies around each neighbor j; it is not
-a radius around the focal node i. A contribution can therefore reach
-r+1 hops from i, and paths from a neighbor back to i also contribute.
+Extended gravity centrality (Ma et al. 2016) is the sum of the gravity
+scores of a node's neighbors,
+\deqn{G^+(i) = \sum_{j \in N(i)} G(j), \qquad
+  G(j) = \sum_{l:\, 0 < d_{jl} \le r} \frac{k_s(j)\, k_s(l)}{d_{jl}^2},}{
+  G+(i) = sum_{j in N(i)} G(j),
+  G(j) = sum_{l: 0 < d_jl <= r} k_s(j) k_s(l) / d_jl^2,}
+where \eqn{k_s}{k_s} is the k-shell index and \eqn{d} the hop distance.
 }
 \details{
-Default radius three is the setting used in the original paper. NULL
-or infinity includes every reachable partner, excluding the gravity
-source itself. Radius zero and isolates score zero. The outer neighbor
-sum has no distance penalty. All inner scores remain raw until the
-final optional max normalization.
-
-Uses the simple undirected unweighted skeleton, with either direction
-creating an edge, parallel edges counted once and loops removed. This
-projection is a cograph convention for other inputs. Edge weights,
-\code{mode}, \code{gravity_mass} and path-weight inversion do not affect
-this measure: its masses are always k-shell indices. Computation includes
-all-pairs hop distances, so it can be expensive for large graphs.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and the masses are always k-shell
+indices. The radius applies around each neighbor \eqn{j}, so a
+contribution can come from \eqn{r+1} hops away from \eqn{i}, including
+paths back to \eqn{i}. Radius 0 and isolated nodes give 0. The
+\code{"auto"} radius is half the mean finite positive hop distance,
+rounded to the nearest integer with a minimum of 1. This rule is a
+package choice. A negative radius raises an error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
-\dontshow{\}) # examplesIf}
+centrality_extended_gravity(regulation_net)
 }
 \references{
 Ma, L. L., Ma, C., Zhang, H. F., & Wang, B. H. (2016). Identifying
@@ -57,5 +48,6 @@ influential spreaders in complex networks based on gravity formula.
 Physica A, 451, 205-212. \doi{10.1016/j.physa.2015.12.162}.
 }
 \seealso{
-\code{\link{centrality_gravity}}.
+\code{\link{centrality_gravity}},
+\code{\link{centrality_extended_coreness}}, \code{\link{centrality}}.
 }

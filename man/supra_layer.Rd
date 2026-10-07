@@ -10,23 +10,19 @@ supra_layer(x, layer)
 extract_layer(x, layer)
 }
 \arguments{
-\item{x}{Supra-adjacency matrix}
+\item{x}{Supra-adjacency matrix from \code{\link{supra_adjacency}}}
 
-\item{layer}{Layer index to extract}
+\item{layer}{Integer index of the layer to extract}
 }
 \value{
-Intra-layer adjacency matrix
+The N x N intra-layer adjacency matrix, with the node names as
+dimnames. An index outside \code{1:L} raises an error.
 }
 \description{
 Extract Layer from Supra-Adjacency Matrix
 }
 \examples{
-L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-supra_layer(S, 1)
-L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-extract_layer(S, 2)
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+supra <- supra_adjacency(layers, omega = 0.5)
+supra_layer(supra, layer = 2)
 }

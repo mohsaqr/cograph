@@ -59,56 +59,41 @@ calculate_proximal_betweenness <- function(cg, variant = "source") {
          sum = source_score + target_score, union = union_score + target_score)
 }
 
-#' Proximal betweenness centrality
+#' Proximal Betweenness Centrality
 #'
-#' Fractions of shortest paths on which a node is the first or last
-#' intermediate vertex, following Brandes (2008), section 3.2, Algorithm 3.
-#' Paths have unit edge lengths. Each reachable ordered source-destination
-#' pair contributes equally, divided among all its shortest paths.
+#' Proximal betweenness (Brandes 2008, section 3.2) is the fraction of
+#' shortest paths on which a node is the last intermediate node before the
+#' destination (proximal source) or the first intermediate node after the
+#' source (proximal target). Each reachable ordered pair of nodes
+#' contributes one unit, divided equally among its shortest paths.
 #'
-#' The original terminology calls the last intermediate vertex the
-#' proximal source (a proxy interacting directly with the destination),
-#' and the first intermediate vertex the proximal target. The source
-#' variant is the default. Endpoints are excluded, so paths with fewer
-#' than two edges contribute nothing. The sum variant counts both roles;
-#' the union variant counts a vertex only once when a two-edge path places
-#' it in both roles. These are the two combination options in the paper.
-#'
-#' Raw scores sum over ordered pairs, including on undirected graphs,
-#' following the displayed definition and Algorithm 3. They are not halved.
-#' Source and target scores agree on undirected graphs; sum is twice either
-#' score, whereas union removes the two-edge overlap. This convention is
-#' distinct from the usual unordered-pair scaling of undirected betweenness.
-#'
-#' Uses the simple unweighted graph, retaining edge direction. Loops are
-#' removed and repeated edges count once after generic input processing.
-#' Weights, mode, inversion and cutoff do not affect this measure. Weighted
-#' shortest paths and edge-distinct multigraph paths are outside this
-#' implementation's verified domain. Unreachable pairs, isolates and
-#' complete graphs contribute zero; empty graphs return no scores.
-#'
-#' Native breadth-first searches and dependency accumulation take
-#' O(n(n+m)) time after the current O(n squared) dense graph preparation.
-#' Path counts use double precision; a nonfinite count raises an error
-#' instead of returning invalid fractions. Counts above the exact-integer
-#' range can be rounded, so numerical equivalence is tolerance-based.
+#' @details
+#' Shortest paths are counted with unit edge lengths on the simple network,
+#' so direction is kept and weights, loops and parallel edges are ignored.
+#' Ordered pairs are counted on undirected networks as well, so the scores
+#' are not halved. Endpoints are excluded, and paths with fewer than two
+#' edges contribute nothing. On an undirected network the source and
+#' target variants agree, and \code{"sum"} is twice either of them. The
+#' \code{"union"} variant counts a node once when a two-edge path makes it
+#' both proximal source and proximal target. Isolated nodes and every node
+#' of a complete graph score zero.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param proximal_variant One of \code{"source"} (default),
-#'   \code{"target"}, \code{"sum"}, or \code{"union"}.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#'   \code{normalized = TRUE} divides by the maximum score; all-zero
-#'   results remain zero.
-#' @return Named numeric vector in input node order.
+#' @param proximal_variant \code{"source"} (default), \code{"target"},
+#'   \code{"sum"} or \code{"union"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Brandes, U. (2008). On variants of shortest-path betweenness centrality
 #'   and their generic computation. Social Networks, 30, 136-145.
 #'   \doi{10.1016/j.socnet.2007.11.001}.
+#' @seealso \code{\link{centrality_betweenness}},
+#'   \code{\link{centrality_stress}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_proximal_betweenness(igraph::make_graph("Zachary"))
-#' centrality_proximal_betweenness(igraph::make_ring(5),
-#'                               proximal_variant = "union")
+#' @examples
+#' centrality_proximal_betweenness(regulation_net)
 # nolint start: object_length_linter.
 centrality_proximal_betweenness <- function(x, proximal_variant = "source",
                                             ...) {

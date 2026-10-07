@@ -2,55 +2,47 @@
 % Please edit documentation in R/centrality-batch27.R
 \name{centrality_x_degree}
 \alias{centrality_x_degree}
-\title{X-degree centrality}
+\title{X-Degree Centrality}
 \usage{
 centrality_x_degree(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.
-\code{normalized = TRUE} divides scores by their maximum; an all-zero
-result stays zero.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Computes Torres et al.'s X-degree (equation 3.15):
-\deqn{Xdeg(i) = (\sum_{j\in N(i)}(d_j-1))^2
-                  - \sum_{j\in N(i)}(d_j-1)^2.}
-Degrees are measured in the original simple undirected graph. The score
-counts oriented nonbacktracking walks of four edges whose middle vertex
-is i. Walks can revisit a vertex provided they do not immediately reverse
-an edge. It is also the sum of entries of the paper's matrix DFE, where
-D, F and E are blocks of the nonbacktracking matrix around i.
+X-degree (Torres et al. 2021, equation 3.15) counts the oriented
+nonbacktracking walks of four edges whose middle node is \eqn{i}{i}. It
+depends only on the degrees \eqn{d_j}{d_j} of the neighbors of
+\eqn{i}{i}:
+\deqn{Xdeg(i) = \Big(\sum_{j \in N(i)} (d_j - 1)\Big)^2
+  - \sum_{j \in N(i)} (d_j - 1)^2.}{
+  Xdeg(i) = (sum_{j in N(i)} (d_j - 1))^2 - sum_{j in N(i)} (d_j - 1)^2.}
 }
 \details{
-Uses the simple undirected skeleton: direction, weights, mode, inversion
-and cutoff do not affect results. Loops are removed and parallel edges
-count once. This projection is a cograph convention extending the
-published simple, unweighted, undirected domain. Isolates and leaves
-score zero; every vertex of a star also scores zero. Empty graphs return
-no scores. Disconnected components are independent before maximum
-normalization. These cases follow directly from the local formula.
-
-Native arithmetic accumulates nonnegative pair products instead of
-subtracting two squares. Aggregation takes O(n+m) time after neighbor
-construction; the current dense skeleton conversion uses O(n squared)
-time and memory. This is a score on the supplied graph, not the paper's
-iterative node-removal immunization algorithm. Agreement with the author
-function and matrix definition does not establish immunization efficacy,
-exact eigendrop prediction or an unconditional spectral upper bound.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+Isolated nodes and leaves score zero, and every node of a star scores
+zero. Components are scored independently. The function computes the
+score on the supplied network. The iterative node-removal immunization
+procedure of the paper is a separate algorithm.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_x_degree(igraph::make_graph("Zachary"))
-\dontshow{\}) # examplesIf}
+centrality_x_degree(regulation_net)
 }
 \references{
 Torres, L., Chan, K. S., Tong, H., & Eliassi-Rad, T. (2021).
 Nonbacktracking Eigenvalues under Node Removal: X-Centrality and Targeted
 Immunization. SIAM Journal on Mathematics of Data Science, 3(2), 656-675.
 \doi{10.1137/20M1352132}.
+}
+\seealso{
+\code{\link{centrality_degree}},
+\code{\link{centrality_dynamical_importance}}, \code{\link{centrality}}.
 }

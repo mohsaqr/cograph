@@ -7,27 +7,41 @@
 centrality_leverage(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of leverage centrality values (range -1 to 1).
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Measures a node's influence over its neighbors based on relative degree
-differences. Positive values indicate the node has more connections than
-its average neighbor.
+Leverage centrality (Joyce et al. 2010) compares the degree of a node with
+the degrees of its neighbors:
+\deqn{l_i = \frac{1}{|N(i)|} \sum_{j \in N(i)} \frac{k_i - k_j}{k_i + k_j}.}{
+  l_i = (1 / |N(i)|) sum_{j in N(i)} (k_i - k_j) / (k_i + k_j).}
+Positive values mark nodes with more ties than their typical neighbor.
+}
+\details{
+Edge weights are ignored. \code{mode} selects both the degree and the
+neighbor set, and with \code{mode = "all"} on a directed network the
+degree is in plus out. The score lies between -1 and 1. An isolated node
+is \code{NaN}. On undirected networks the values equal
+\code{centiserve::leverage()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_leverage(adj)
+centrality_leverage(regulation_net)
+}
+\references{
+Joyce, K. E., Laurienti, P. J., Burdette, J. H., & Hayasaka, S. (2010). A
+new measure of centrality for brain networks. PLoS ONE, 5(8), e12200.
+\doi{10.1371/journal.pone.0012200}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_degree}},
+\code{\link{centrality_neighborhood_connectivity}},
+\code{\link{centrality}}.
 }

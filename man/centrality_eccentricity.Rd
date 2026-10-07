@@ -13,27 +13,41 @@ centrality_ineccentricity(x, ...)
 centrality_outeccentricity(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of eccentricity values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Maximum shortest path distance from a node to any other node.
-For directed networks, \code{centrality_ineccentricity} and
-\code{centrality_outeccentricity} use incoming and outgoing paths.
+The eccentricity of a node (Hage and Harary 1995) is its largest
+shortest-path distance to a node it reaches:
+\deqn{e(v) = \max_{w:\, d(v, w) < \infty} d(v, w).}{
+  e(v) = max_{w: d(v, w) < Inf} d(v, w).}
+Lower values mark more central nodes.
+}
+\details{
+Edge weights are read as path lengths. The raw weights are always used,
+so \code{weighted = FALSE} and \code{invert_weights} have no effect. On an
+unweighted input the distances are hop counts. \code{mode = "out"} follows
+paths leaving the node and \code{mode = "in"} paths arriving at it.
+\code{centrality_outeccentricity()} and \code{centrality_ineccentricity()}
+are these two forms. A node that reaches no other node scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_eccentricity(adj)
+centrality_eccentricity(regulation_net)
+}
+\references{
+Hage, P., & Harary, F. (1995). Eccentricity and centrality in networks.
+Social Networks, 17(1), 57-63. \doi{10.1016/0378-8733(94)00248-9}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_radiality}}, \code{\link{centrality}}.
 }

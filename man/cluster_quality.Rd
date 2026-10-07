@@ -39,14 +39,8 @@ Computes per-cluster and global quality metrics for network partitioning.
 Supports both binary and weighted networks.
 }
 \examples{
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-clusters <- c(1,1,1,2,2,2,3,3,3,3)
-
-q <- cluster_quality(mat, clusters)
-q$per_cluster   # Per-cluster metrics
-q$global        # Modularity, coverage
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+cluster_quality(regulation_net, clusters = clusters)
 }

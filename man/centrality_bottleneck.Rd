@@ -7,25 +7,40 @@
 centrality_bottleneck(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named integer vector of bottleneck centrality values.
+A named integer vector with one score per node, in input node
+order.
 }
 \description{
-Number of shortest path trees where the node appears in more than n/4 paths.
+Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
+shortest-path trees in which a node is a bottleneck. For each source
+\eqn{s}, every shortest path from \eqn{s} to every reachable node is
+enumerated, and a node \eqn{v \ne s}{v != s} scores one for that source
+when it lies on more than \eqn{n/4} of these paths.
+}
+\details{
+Distances are hop counts, so edge weights are ignored. \code{mode} sets the
+direction in which the paths leave the source. Paths that end at \eqn{v}
+count toward its total. A network with one node gives that node a score of
+one.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_bottleneck(adj)
+centrality_bottleneck(regulation_net)
+}
+\references{
+Przulj, N., Wigle, D. A., & Jurisica, I. (2004). Functional topology in a
+network of protein interactions. Bioinformatics, 20(3), 340-348.
+\doi{10.1093/bioinformatics/btg415}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_stress}},
+\code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 }

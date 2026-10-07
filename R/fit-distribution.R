@@ -1,76 +1,86 @@
 #' Fit Statistical Distributions to Degree Sequence
 #'
 #' Fits one or more statistical distributions to the degree sequence of a
-#' network via maximum likelihood estimation and evaluates goodness-of-fit
-#' using Kolmogorov-Smirnov tests. Returns a comparison table sorted by AIC.
+#' network by maximum likelihood and evaluates goodness of fit with
+#' Kolmogorov-Smirnov statistics. The comparison table is sorted by AIC.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna
-#'   object.
+#'   object. Without igraph installed, only a numeric matrix is accepted.
 #' @param distributions Character vector of distributions to fit. Options:
 #'   \code{"power_law"}, \code{"exponential"}, \code{"poisson"},
-#'   \code{"geometric"}. Default \code{NULL} fits all four.
+#'   \code{"geometric"}. Default \code{NULL} fits all four. An unknown name
+#'   raises an error.
 #' @param mode For directed networks: \code{"all"}, \code{"in"}, or
 #'   \code{"out"}. Determines which degree to extract. Default \code{"all"}.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
-#' @param xmin Minimum degree to include in fitting. For power-law, NULL
-#'   triggers automatic estimation (Clauset et al. 2009 via igraph). For other
-#'   distributions, NULL defaults to 1.
+#' @param xmin Minimum degree to include in fitting. For the power law, NULL
+#'   triggers automatic estimation (Clauset et al. 2009 via igraph). For the
+#'   other distributions, NULL defaults to 1. Each fit requires at least two
+#'   degrees at or above \code{xmin} and raises an error otherwise.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return An object of class \code{"cograph_degree_fit"} containing:
+#' @return An object of class \code{"cograph_degree_fit"}, a list containing:
 #'   \describe{
-#'     \item{fits}{Named list, one entry per distribution, each with:
-#'       \code{distribution}, \code{parameters} (named list of fitted params),
-#'       \code{loglik}, \code{aic}, \code{bic}, \code{ks_stat}, \code{ks_p}.}
-#'     \item{comparison}{Data frame sorted by AIC with columns:
+#'     \item{fits}{Named list, one entry per distribution, each with
+#'       \code{distribution}, \code{parameters} (named list of fitted
+#'       parameters), \code{loglik}, \code{aic}, \code{bic}, \code{ks_stat}
+#'       and \code{ks_p}. The parameters are \code{alpha} and \code{xmin}
+#'       for the power law, \code{lambda} for the exponential and Poisson
+#'       fits, and \code{p} for the geometric fit.}
+#'     \item{comparison}{Data frame sorted by AIC with columns
 #'       \code{distribution}, \code{aic}, \code{bic}, \code{ks_stat},
 #'       \code{ks_p}.}
 #'     \item{best}{Name of the best-fitting distribution (lowest AIC).}
-#'     \item{degree}{The degree vector used for fitting.}
+#'     \item{degree}{The named degree vector used for fitting.}
 #'   }
 #'
 #' @details
-#' **Power-law** (Pareto Type I): \eqn{P(k) \sim k^{-\alpha}}. When igraph is
-#' available, uses \code{igraph::fit_power_law()} implementing the Clauset
-#' et al. (2009) method. Otherwise, computes the simple MLE:
-#' \eqn{\alpha = 1 + n / \sum \log(k / k_{min})}.
+#' The power-law model (Pareto type I) is \eqn{P(k) \sim k^{-\alpha}}{P(k) ~ k^{-alpha}}. With
+#' igraph available and \code{xmin = NULL}, it is fitted with
+#' \code{igraph::fit_power_law()}, which implements the Clauset et al. (2009)
+#' method. Otherwise the simple MLE
+#' \eqn{\alpha = 1 + n / \sum \log(k / k_{min})}{alpha = 1 + n / sum log(k / k_{min})} is computed, with
+#' \eqn{k_{min}} equal to the supplied \code{xmin} or, without igraph, to the
+#' smallest degree (at least 1).
 #'
-#' **Exponential**: \eqn{P(k) \sim e^{-\lambda k}}. MLE:
-#' \eqn{\lambda = 1 / \bar{k}}.
+#' The exponential model is \eqn{P(k) \sim e^{-\lambda k}}{P(k) ~ e^{-lambda k}}, with MLE
+#' \eqn{\lambda = 1 / \bar{k}}{lambda = 1 / bar{k}}.
 #'
-#' **Poisson**: \eqn{P(k) \sim \lambda^k e^{-\lambda} / k!}. MLE:
-#' \eqn{\lambda = \bar{k}}. Note: the KS test uses a continuous approximation
-#' for a discrete distribution; p-values are approximate.
+#' The Poisson model is \eqn{P(k) \sim \lambda^k e^{-\lambda} / k!}{P(k) ~ lambda^k e^{-lambda} / k!}, with
+#' MLE \eqn{\lambda = \bar{k}}{lambda = bar{k}}.
 #'
-#' **Geometric**: \eqn{P(k) \sim (1-p)^k p}. MLE:
-#' \eqn{p = 1 / (1 + \bar{k})}.
+#' The geometric model is \eqn{P(k) \sim (1-p)^k p}{P(k) ~ (1-p)^k p}, with MLE
+#' \eqn{p = 1 / (1 + \bar{k})}{p = 1 / (1 + bar{k})}.
 #'
-#' \code{ks_stat} is always reported. \code{ks_p} comes from
-#' \code{stats::ks.test()} for the exponential and Poisson fits and from
-#' \code{igraph::fit_power_law()} for the automatic power-law fit; it is
-#' \code{NA} for the geometric fit and for the manual (non-igraph or explicit
-#' \code{xmin}) power-law fit, whose KS statistics are computed directly
-#' against the theoretical CDF without a reference distribution. AIC and BIC
-#' count one free parameter per distribution, so the power-law \code{xmin} is
-#' not penalized.
+#' \code{ks_p} comes from \code{stats::ks.test()} for the exponential and
+#' Poisson fits and is \code{NA} for the power-law and geometric fits. The
+#' p-values are approximate because the test assumes a continuous
+#' distribution. For the exponential fit \code{stats::ks.test()} warns when
+#' degrees are tied. A power-law fit to degrees that all equal \code{xmin}
+#' is degenerate and returns \code{NA} for \code{alpha}, the likelihood and
+#' every statistic.
+#'
+#' Each likelihood is computed over the degrees at or above the
+#' \code{xmin} of that fit. With \code{xmin = NULL}, the power-law fit uses
+#' the estimated \code{xmin} and the other fits use 1, so their AIC values
+#' are computed on different subsets of the degrees. AIC and BIC count one free
+#' parameter per distribution, so the power-law \code{xmin} is not penalized.
 #'
 #' @references
 #' Clauset, A., Shalizi, C. R., & Newman, M. E. J. (2009). Power-law
 #' distributions in empirical data. \emph{SIAM Review}, 51(4), 661--703.
 #'
+#' @section Printing and plotting:
+#' Printing the result shows the best-fitting distribution, the
+#' \code{comparison} table and the fitted parameters of each distribution.
+#' \code{plot()} on the result is documented in \code{\link{plot-results}}.
+#'
 #' @seealso \code{\link{degree_distribution}}, \code{\link{centrality}}
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 0, 0,
-#'                 1, 0, 1, 1, 0,
-#'                 1, 1, 0, 1, 1,
-#'                 0, 1, 1, 0, 1,
-#'                 0, 0, 1, 1, 0), 5, 5, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' fit <- cograph::fit_degree_distribution(adj,
-#'   distributions = c("exponential", "poisson"))
-#' print(fit)
+#' fit_degree_distribution(regulation_net,
+#'   distributions = c("poisson", "geometric"))
 fit_degree_distribution <- function(x,
                                     distributions = NULL,
                                     mode = "all",
@@ -301,26 +311,8 @@ fit_degree_distribution <- function(x,
 # Print and plot methods
 # ============================================================================
 
-#' Print method for cograph_degree_fit
-#'
-#' Displays the comparison table of fitted distributions sorted by AIC.
-#'
-#' @param x A \code{cograph_degree_fit} object from
-#'   \code{\link{fit_degree_distribution}}.
-#' @param digits Number of decimal places. Default 4.
-#' @param ... Additional arguments passed to \code{print.data.frame}.
-#'
-#' @return Invisible \code{x}.
+#' @noRd
 #' @export
-#' @examples
-#' adj <- matrix(c(0, 1, 1, 0, 0,
-#'                 1, 0, 1, 1, 0,
-#'                 1, 1, 0, 1, 1,
-#'                 0, 1, 1, 0, 1,
-#'                 0, 0, 1, 1, 0), 5, 5, byrow = TRUE)
-#' fit <- cograph::fit_degree_distribution(adj,
-#'   distributions = c("exponential", "poisson"))
-#' print(fit)
 print.cograph_degree_fit <- function(x, digits = 4, ...) {
   cat("Degree Distribution Fit\n")
   cat("=======================\n")
@@ -350,33 +342,8 @@ print.cograph_degree_fit <- function(x, digits = 4, ...) {
 }
 
 
-#' Plot method for cograph_degree_fit
-#'
-#' Overlays fitted distribution curves on a histogram of observed degrees.
-#'
-#' @param x A \code{cograph_degree_fit} object from
-#'   \code{\link{fit_degree_distribution}}.
-#' @param which Character vector of distribution names to display. Default
-#'   \code{NULL} shows all fitted distributions.
-#' @param log Character string for log-scale axes: one of \code{""} (default),
-#'   \code{"x"}, \code{"y"} or \code{"xy"}. Only \code{"y"} and \code{"xy"}
-#'   actually log the histogram axis; the values containing \code{"x"} are
-#'   accepted for compatibility but merely filter non-positive fitted curve
-#'   values.
-#' @param cols Named or unnamed character vector of colors for distribution
-#'   curves. Default uses a built-in palette.
-#' @param lwd Line width for fitted curves. Default 2.
-#' @param main Plot title. Default \code{"Degree Distribution Fit"}.
-#' @param ... Additional arguments passed to \code{\link[graphics]{hist}}.
-#'
-#' @return Invisible \code{NULL}.
+#' @rdname plot-results
 #' @export
-#' @examples
-#' adj <- matrix(c(0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-#'                 1, 1, 0, 1, 1, 0, 1, 1, 0, 1,
-#'                 0, 0, 1, 1, 0), 5, 5, byrow = TRUE)
-#' fit <- cograph::fit_degree_distribution(adj)
-#' plot(fit)
 plot.cograph_degree_fit <- function(x,
                                     which = NULL,
                                     log = "",

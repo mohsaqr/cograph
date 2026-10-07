@@ -26,21 +26,11 @@ two-mode data (rows and columns are distinct node types).
 For square matrices, the function checks whether the corresponding
 undirected graph is bipartite by attempting a two-coloring via
 \code{igraph::bipartite_mapping()} when igraph is available. Without igraph,
-it uses a BFS-based two-coloring algorithm.
+it uses a breadth-first two-coloring. Positive entries define the edges,
+edge direction is ignored, and the diagonal (self-loops) is dropped before
+the check.
 }
 \examples{
-# Non-square matrix is bipartite
 inc <- matrix(c(1, 0, 1, 1, 1, 0), 2, 3)
 cograph::is_bipartite(inc)
-
-# Square bipartite-compatible adjacency
-adj <- matrix(c(0, 0, 1, 1,
-                0, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-cograph::is_bipartite(adj)
-
-# Non-bipartite (triangle)
-tri <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-cograph::is_bipartite(tri)
 }

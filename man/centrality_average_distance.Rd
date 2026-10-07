@@ -2,31 +2,44 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_average_distance}
 \alias{centrality_average_distance}
-\title{Average Distance Centrality}
+\title{Average Distance}
 \usage{
 centrality_average_distance(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of average distance values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of shortest path distances divided by (n + 1). Lower values indicate
-more central nodes.
+Average distance is the sum of the shortest-path distances from a node to
+every node, divided by \eqn{n + 1} as in the centiserve package:
+\deqn{AD(v) = \frac{1}{n + 1} \sum_{w} d(v, w).}{
+  AD(v) = sum_w d(v, w) / (n + 1).}
+Lower values mark more central nodes.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. A node that
+cannot reach every other node scores \code{Inf}, so on a disconnected
+network every score is \code{Inf}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_average_distance(adj)
+centrality_average_distance(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_barycenter}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

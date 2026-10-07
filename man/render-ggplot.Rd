@@ -4,12 +4,11 @@
 \alias{render-ggplot}
 \title{ggplot2 Conversion}
 \value{
-A ggplot2 object representing the network.
+\code{sn_ggplot()} returns a ggplot object representing the network.
 }
 \description{
-Convert Cograph network to ggplot2 object.
+\code{\link{sn_ggplot}()} converts a network to a ggplot object.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-p <- sn_ggplot(adj)
+sn_ggplot(regulation_net)
 }

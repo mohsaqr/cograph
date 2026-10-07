@@ -7,38 +7,40 @@
 centrality_local_information_dimension(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector, one value per node. \code{NaN} for a node
-that reaches no other node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Entropy-weighted local dimension (Wen & Deng 2020). With
-\eqn{p_i(l) = B_i(l) / N} the share of the network inside the box of
-\eqn{l} hops around \eqn{i} (node included), the box information is
-\eqn{I_i(l) = -p_i(l) \ln p_i(l)} and
-\deqn{D^I_i = -\frac{d I_i(l)}{d \ln l},}
-estimated as minus the least-squares slope of \eqn{I_i(l)} on
-\eqn{\ln l} for \eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}.
-\strong{Higher values mark more influential nodes.} When only one box size is
-available the discretized derivative of the source paper,
-\eqn{l (1 + \ln p_i(l))\, n_i(l) / N}, is reported.
+Local information dimensionality (Wen and Deng 2020) weights the local
+dimension by information. With \eqn{p_i(l) = B_i(l) / N}{p_i(l) = B_i(l) / N}
+the share of the network within \eqn{l} hops of \eqn{i}, the node
+included, and box information
+\eqn{I_i(l) = -p_i(l) \ln p_i(l)}{I_i(l) = -p_i(l) ln p_i(l)}, the measure
+is minus the least-squares slope of \eqn{I_i(l)}{I_i(l)} on
+\eqn{\ln l}{ln l} for
+\eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}{
+  l = 1, ..., ceiling(d_max(i) / 2)}:
+\deqn{D^I_i = -\frac{d I_i(l)}{d \ln l}.}{DI_i = -d I_i(l) / d ln l.}
 }
 \details{
-Distances are hop counts; edge weights are ignored.
+Distances are hop counts, so edge weights are ignored. On a directed
+network \code{mode} sets the direction of the paths. Higher values mark
+more influential nodes. A node with a single box size returns the
+discretized derivative of the source,
+\eqn{l (1 + \ln p_i(l))\, n_i(l) / N}{l (1 + ln p_i(l)) n_i(l) / N}. A
+node that reaches no other node returns \code{NaN}.
 }
 \examples{
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_local_information_dimension(path5)
+centrality_local_information_dimension(regulation_net)
 }
 \references{
 Wen, T., & Deng, Y. (2020). Identification of influencers in
@@ -46,5 +48,7 @@ complex networks by local information dimensionality. Information
 Sciences, 512, 549-562.
 }
 \seealso{
-\code{\link{centrality_local_dimension}}.
+\code{\link{centrality_local_dimension}},
+\code{\link{centrality_local_dimension_fixed}},
+\code{\link{centrality}}.
 }

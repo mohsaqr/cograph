@@ -95,8 +95,8 @@
 
 #' Vertical position of the MCML summary (top) layer.
 #'
-#' The one place `layer_spacing` is interpreted, shared by [plot_mcml()] and
-#' [plot_mcml_donut()]. Both draw with `asp = 1` so shapes stay round, which
+#' The one place `layer_spacing` is interpreted, shared by `plot_mcml()` and
+#' `plot_mcml_donut()`. Both draw with `asp = 1` so shapes stay round, which
 #' means the figure has a fixed shape and a taller device only adds white space
 #' -- unless the layout itself grows. The gap between the two layers is the one
 #' dimension that can grow without distorting anything, so that is what
@@ -147,415 +147,269 @@
 #' Plot Multi-Cluster Multi-Layer Network
 #'
 #' Produces a two-layer hierarchical visualization of a clustered network.
-#' The **bottom layer** shows every node arranged inside elliptical cluster
-#' shells with full within-cluster and between-cluster edges drawn at the
-#' individual-node level. The **top layer** collapses each cluster into a
-#' single summary pie-chart node whose colored slice represents, by default,
-#' the cluster's share of the initial state distribution (see
-#' \code{summary_pie} for the alternative self-retention interpretation),
-#' with edges carrying the aggregated between-cluster weights. Dashed
-#' inter-layer lines connect each detail node to its corresponding summary
-#' node, making the hierarchical mapping explicit.
+#' The bottom layer shows every node inside an elliptical cluster shell, with
+#' the within-cluster and between-cluster edges of the individual nodes. The
+#' top layer shows one summary node per cluster, with edges carrying the
+#' aggregated between-cluster weights. By default the colored slice of a
+#' summary node is the cluster's share of the initial state distribution
+#' (see \code{summary_pie}). Dashed lines connect each detail node to its
+#' summary node.
 #'
-#' Use \code{plot_mcml} when you need a simultaneous micro/macro view of
-#' cluster structure — the bottom layer reveals internal cluster dynamics while
-#' the top layer provides a bird's-eye summary. For a flat multi-cluster plot
-#' without the summary layer, see \code{\link{plot_mtna}}. For stacked
-#' multilevel/multiplex layers, see \code{\link{plot_mlna}}.
+#' For a multi-cluster plot without the summary layer, see
+#' \code{\link{plot_mtna}}. For stacked multilevel or multiplex layers, see
+#' \code{\link{plot_mlna}}.
 #'
 #' @details
-#' \strong{Two workflows:}
-#' \enumerate{
-#'   \item \strong{Direct}: pass a weight matrix (or tna / cograph_network
-#'     object) together with \code{cluster_list}. The function calls
-#'     \code{\link{csum}} internally to compute aggregated weights.
-#'   \item \strong{Pre-computed}: call \code{\link{csum}} yourself,
-#'     inspect or modify the result, then pass the \code{cluster_summary}
-#'     object as \code{x}. This avoids redundant computation when you plot
-#'     the same clustering repeatedly with different visual settings.
-#' }
+#' A weight matrix, tna object or cograph_network is passed together with
+#' \code{cluster_list}, and the aggregated weights are computed with
+#' \code{\link{csum}}. A \code{cluster_summary} computed beforehand with
+#' \code{\link{csum}} can be passed as \code{x} instead, which avoids
+#' repeating the aggregation when the same clustering is plotted several
+#' times.
 #'
-#' \strong{Mode:}
-#' \itemize{
-#'   \item \code{"weights"} (default) — displays raw aggregated edge values.
-#'     Use this when the absolute magnitude of transitions matters.
-#'   \item \code{"tna"} — row-normalizes the summary matrix to transition
-#'     probabilities (rows sum to 1) and automatically enables edge labels
-#'     on both layers (unless you explicitly set \code{edge_labels} or
-#'     \code{summary_edge_labels} to \code{FALSE}).
-#' }
+#' For a directed network the aggregated weights are computed with
+#' \code{type = "tna"}, so each row of the summary matrix sums to 1. For an
+#' undirected network they are computed with \code{type = "cooccurrence"}.
+#' The \code{mode} argument changes only the default of the edge labels.
 #'
-#' \strong{Directionality:}
-#' \code{directed = NULL} (default) auto-detects directedness from the
-#' input: \code{cluster_summary}/\code{mcml} objects carry it in
-#' \code{$meta$directed}, and plain matrices are treated as undirected when
-#' symmetric. Directed edges get arrowheads; undirected weights (e.g.,
-#' co-occurrence aggregations) are drawn as a single plain line per
-#' symmetric pair on every layer, with no arrowheads. Pass
-#' \code{directed = TRUE}/\code{FALSE} to override the detection.
-#'
-#' \strong{Layout logic:}
 #' Bottom-layer clusters are arranged on a circle of radius \code{spacing},
 #' flattened by the perspective \code{skew_angle}. Nodes inside each cluster
 #' sit on a smaller circle of radius \code{shape_size * node_radius_scale}.
-#' The top-layer summary nodes are placed on an oval above the bottom layer
-#' whose proportions are controlled by \code{top_layer_scale}.
-#'
-#' @section Input Formats:
-#' \code{x} accepts the following types:
-#' \describe{
-#'   \item{\strong{matrix}}{A square numeric weight matrix with row/column
-#'     names matching the node identifiers in \code{cluster_list}.}
-#'   \item{\strong{tna}}{A TNA model object. The \code{$weights} matrix is
-#'     extracted automatically.}
-#'   \item{\strong{cograph_network}}{A cograph network object. Weights are
-#'     extracted via \code{to_matrix()} and node metadata (display labels)
-#'     is read from the \code{$nodes} data frame.}
-#'   \item{\strong{cluster_summary}}{A pre-computed summary from
-#'     \code{\link{csum}}. When this type is passed, the
-#'     \code{cluster_list}, \code{aggregation}, and \code{nodes} parameters
-#'     are ignored because the summary already contains everything needed.}
-#'   \item{\strong{mcml / mcml_pc}}{A Nestimate multi-cluster multi-layer
-#'     object; handled exactly like a \code{cluster_summary}, with
-#'     \code{mcml_pc} rendered undirected via its \code{meta$directed} flag.}
-#' }
+#' The summary nodes are placed on an oval above the bottom layer whose radii
+#' are set by \code{top_layer_scale}.
 #'
 #' @section Edge Types:
-#' The plot contains four distinct edge categories, each with its own set
-#' of visual parameters:
+#' The plot contains four kinds of edges, each with its own visual
+#' parameters.
 #' \describe{
-#'   \item{\strong{Within-cluster (bottom)}}{Edges connecting nodes inside
-#'     the same cluster shell. Controlled by \code{edge_width_range},
-#'     \code{edge_alpha}, \code{edge_labels}, \code{edge_label_size},
-#'     \code{edge_label_color}, and \code{edge_label_digits}.}
-#'   \item{\strong{Between-cluster (bottom)}}{Edges from one cluster shell
-#'     to another, drawn between shell borders. Controlled by
-#'     \code{between_edge_width_range} and \code{between_edge_alpha}.}
-#'   \item{\strong{Summary (top)}}{Edges between summary pie-chart nodes
-#'     in the top layer. Controlled by \code{summary_edge_width_range},
-#'     \code{summary_edge_alpha}, \code{summary_edge_labels},
-#'     \code{summary_edge_label_size}, \code{summary_arrows}, and
-#'     \code{summary_arrow_size}.}
-#'   \item{\strong{Inter-layer (dashed)}}{Dashed lines connecting each
-#'     detail node to its cluster's summary node. Controlled by
-#'     \code{inter_layer_alpha}.}
+#'   \item{Within-cluster (bottom)}{Edges between nodes of the same cluster,
+#'     set by \code{edge_width_range}, \code{edge_alpha}, \code{edge_labels},
+#'     \code{edge_label_size}, \code{edge_label_color} and
+#'     \code{edge_label_digits}.}
+#'   \item{Between-cluster (bottom)}{Edges between cluster shells, set by
+#'     \code{between_edge_width_range}, \code{between_edge_alpha} and
+#'     \code{between_arrows}.}
+#'   \item{Summary (top)}{Edges between summary nodes, set by
+#'     \code{summary_edge_width_range}, \code{summary_edge_alpha},
+#'     \code{summary_edge_labels}, \code{summary_edge_label_size},
+#'     \code{summary_arrows} and \code{summary_arrow_size}.}
+#'   \item{Inter-layer (dashed)}{Lines from each detail node to its summary
+#'     node, set by \code{inter_layer_alpha}.}
 #' }
 #'
-#' @section Customization Quick Reference:
-#' \tabular{ll}{
-#'   \strong{Visual element}       \tab \strong{Key parameters} \cr
-#'   Cluster spacing / perspective  \tab \code{spacing}, \code{skew_angle} \cr
-#'   Cluster shell appearance       \tab \code{shape_size}, \code{shell_alpha}, \code{shell_border_width}, \code{colors} \cr
-#'   Detail nodes                   \tab \code{node_size}, \code{node_shape}, \code{node_border_color} \cr
-#'   Detail labels                  \tab \code{show_labels}, \code{label_size}, \code{label_abbrev}, \code{label_color}, \code{label_position} \cr
-#'   Summary nodes                  \tab \code{summary_size}, \code{summary_border_color}, \code{summary_border_width} \cr
-#'   Summary labels                 \tab \code{summary_labels}, \code{summary_label_size}, \code{summary_label_color}, \code{summary_label_position} \cr
-#'   Within-cluster edges           \tab \code{edge_width_range}, \code{edge_alpha}, \code{edge_labels} \cr
-#'   Between-cluster edges          \tab \code{between_edge_width_range}, \code{between_edge_alpha} \cr
-#'   Summary edges                  \tab \code{summary_edge_width_range}, \code{summary_edge_alpha}, \code{summary_edge_labels}, \code{summary_arrows} \cr
-#'   Directed vs undirected         \tab \code{directed} \cr
-#'   Inter-layer lines              \tab \code{inter_layer_alpha} \cr
-#'   Top-layer layout               \tab \code{top_layer_scale}, \code{inter_layer_gap} \cr
-#'   Title / legend                 \tab \code{title}, \code{subtitle}, \code{legend}, \code{legend_position} \cr
-#' }
-#'
-#' @param x A weight matrix, \code{tna} object, \code{cograph_network},
-#'   \code{cluster_summary}, or \code{mcml}/\code{mcml_pc} object (the
-#'   latter from \code{Nestimate::build_mcml_pc()}, rendered undirected via
-#'   its \code{meta$directed} flag). When a \code{cluster_summary} is provided
-#'   (e.g., from \code{\link{csum}}), all aggregation has already
-#'   been performed and the \code{cluster_list}, \code{aggregation}, and
-#'   \code{nodes} parameters are ignored. See the \strong{Input Formats}
-#'   section for details.
-#' @param cluster_list How to assign nodes to clusters. Accepts:
-#'   \itemize{
-#'     \item A \strong{named list} of character vectors — each element
-#'       contains the node names belonging to that cluster, and the list
-#'       names become the cluster labels (e.g.,
-#'       \code{list(GroupA = c("A","B"), GroupB = c("C","D"))}).
-#'     \item A \strong{string} giving a column name in the node metadata
-#'       (from a \code{cograph_network}) to use as the grouping variable.
-#'     \item \code{NULL} — attempt auto-detection from common column names
-#'       (\code{cluster}, \code{group}, etc.) in node metadata.
-#'   }
-#'   Ignored when \code{x} is a \code{cluster_summary}.
-#' @param mode What values to display on edges:
-#'   \describe{
-#'     \item{\code{"weights"}}{(default) Shows raw aggregated edge values.
-#'       Useful when absolute magnitudes (e.g., total co-occurrences) matter.}
-#'     \item{\code{"tna"}}{Row-normalizes the summary matrix so each row
-#'       sums to 1, producing transition probabilities. Automatically enables
-#'       \code{edge_labels} and \code{summary_edge_labels} unless you
-#'       explicitly set them to \code{FALSE}.}
-#'   }
-#' @param theme Visual preset controlling node and edge styling. One of:
-#'   \describe{
-#'     \item{\code{"classic"}}{(default) The historical look — pie-chart nodes
-#'       and straight summary edges, with thin borders and slightly larger
-#'       detail nodes.}
-#'     \item{\code{"rich"}}{Donut nodes on both layers plus curved (qgraph-style)
-#'       summary edges and splot self-loops.}
-#'     \item{\code{"light"}}{Like \code{"rich"} but with no cluster-shell
-#'       outline and a softer shell fill.}
-#'   }
-#'   The granular style arguments (\code{node_donut}, \code{curved_edges})
-#'   override the preset when supplied.
-#' @param node_donut Logical or \code{NULL}. Force donut node rendering on
-#'   (\code{TRUE}) or off (\code{FALSE}), overriding \code{theme}. \code{NULL}
-#'   (default) follows the preset (donut for \code{"rich"}/\code{"light"}).
-#' @param node_donut_inner_ratio Hole size (0–1) of the detail-node donut ring.
-#'   Default 0.55.
-#' @param summary_donut_inner_ratio Hole size (0–1) of the top-layer summary
-#'   donut ring. Default 0.6.
+#' @param x A square weight matrix with row and column names matching the
+#'   node names in \code{cluster_list}, a \code{tna} object (its
+#'   \code{$weights} are used), a \code{cograph_network} (its weights and
+#'   node table are used), a \code{cluster_summary} from \code{\link{csum}},
+#'   or an \code{mcml} or \code{mcml_pc} object from Nestimate. A
+#'   \code{cluster_summary}, \code{mcml} or \code{mcml_pc} object is plotted
+#'   as it is, and \code{cluster_list}, \code{aggregation} and \code{nodes}
+#'   are ignored.
+#' @param cluster_list Assignment of nodes to clusters. A named list of
+#'   character vectors gives the node names of each cluster, and the list
+#'   names become the cluster labels, for example
+#'   \code{list(GroupA = c("A", "B"), GroupB = c("C", "D"))}. A
+#'   \code{cograph_communities} object from \code{\link{detect_communities}}
+#'   is also accepted. For a \code{cograph_network}, a string names a node
+#'   column to group by, and \code{NULL} uses a node column named
+#'   \code{clusters}, \code{cluster}, \code{groups} or \code{group}.
+#' @param mode \code{"weights"} (default) or \code{"tna"}. With \code{"tna"},
+#'   \code{edge_labels} and \code{summary_edge_labels} default to \code{TRUE}
+#'   unless they are supplied. The plotted weights are the same in both modes.
+#' @param theme Visual preset, one of \code{"classic"} (default, pie-chart
+#'   nodes and straight summary edges), \code{"rich"} (donut nodes on both
+#'   layers, curved summary edges and self-loops) or \code{"light"} (as
+#'   \code{"rich"} with no shell outline and a lighter shell fill).
+#'   \code{node_donut} and \code{curved_edges} override the preset when
+#'   supplied.
+#' @param node_donut Logical or \code{NULL}. \code{TRUE} or \code{FALSE}
+#'   turns donut nodes on or off. \code{NULL} (default) follows
+#'   \code{theme}.
+#' @param node_donut_inner_ratio Hole size, from 0 to 1, of the detail-node
+#'   donut. Default 0.55.
+#' @param summary_donut_inner_ratio Hole size, from 0 to 1, of the summary
+#'   donut. Default 0.6.
 #' @param summary_donut_show_value Logical. Print the fill proportion in the
 #'   center of each summary donut. Default \code{FALSE}.
-#' @param curved_edges Logical or \code{NULL}. Force curved summary edges on or
-#'   off, overriding \code{theme}. \code{NULL} (default) follows the preset.
+#' @param curved_edges Logical or \code{NULL}. \code{TRUE} or \code{FALSE}
+#'   turns curved summary edges on or off. \code{NULL} (default) follows
+#'   \code{theme}.
 #' @param summary_curve Numeric or \code{NULL}. Curvature of curved summary
-#'   edges (only used when curved). \code{NULL} auto-selects (0.25 for directed,
-#'   straight for undirected).
-#' @param layer_spacing Vertical position of the summary (top) layer, which is
-#'   what decides how tall the figure is.
-#'   \itemize{
-#'     \item \code{NULL} (default): placed automatically, just clear of the
-#'       bottom layer (\code{inter_layer_gap} sets the clearance). The figure
-#'       then has a fixed shape, and a taller image only adds white space.
-#'     \item \code{"fill"}: the gap between the layers is stretched so the
-#'       figure uses the full height of the image it is drawn on. Change the
-#'       image height and the plot follows. Shapes stay round; only the space
-#'       between the layers grows. Never tighter than the automatic layout.
-#'     \item A single positive number: the distance from the centre of the
-#'       bottom layer to the centre of the summary layer, in the same units as
-#'       \code{spacing}. Overrides \code{inter_layer_gap}. A value small
-#'       enough to overlap the two layers raises a
-#'       \code{cograph_layers_overlap} warning.
-#'   }
-#' @param spacing Distance from the center to each cluster's position in the
-#'   bottom layer. Larger values spread clusters farther apart. Default 3.
-#' @param shape_size Radius of each cluster's elliptical shell in the bottom
-#'   layer. Increase when nodes overlap or shells feel cramped. Default 1.2.
-#' @param summary_size Size of the pie-chart summary nodes in the top layer.
-#'   Controls the visual radius of each pie chart. Default 4.
-#' @param skew_angle Perspective tilt angle in degrees (0–90). At 0 the
-#'   bottom layer is viewed from directly above (fully circular); at 90 it
-#'   collapses to a flat line. Values around 45–70 give a natural table-top
-#'   perspective. Default 60.
-#' @param aggregation Method for collapsing individual edge weights into
-#'   between-cluster and within-cluster summaries:
-#'   \describe{
-#'     \item{\code{"sum"}}{(default) Total flow — appropriate when you care
-#'       about the volume of all transitions between clusters.}
-#'     \item{\code{"mean"}}{Average flow per node pair — useful when clusters
-#'       differ in size and you want a size-normalized comparison.}
-#'     \item{\code{"max"}}{Strongest single edge — highlights the dominant
-#'       connection between each pair of clusters.}
-#'   }
-#'   Ignored when \code{x} is a \code{cluster_summary}.
-#' @param minimum Edge weight threshold. Edges with absolute weight below
-#'   this value are not drawn. Set to a small positive value (e.g., 0.01)
-#'   to remove visual noise from near-zero edges. Default 0 (show all).
-#' @param colors Character vector of colors for the clusters. The first
-#'   color is applied to the first cluster, and so on. Must have length
-#'   equal to the number of clusters, or it will be recycled. When
-#'   \code{NULL} (default), colors are auto-generated from a colorblind-safe
-#'   palette.
-#' @param legend Logical. Whether to draw a legend mapping cluster names to
-#'   colors. Default \code{TRUE}.
-#' @param show_labels Logical. Show node labels in the bottom layer.
-#'   Default \code{TRUE}. Set to \code{FALSE} for dense networks where
-#'   labels create clutter.
-#' @param nodes Node metadata data frame for custom display labels. Must
-#'   contain a \code{label} column whose values match the row/column names
-#'   of the weight matrix. If a \code{labels} column also exists, those
-#'   values are used as display text (e.g., full names instead of codes).
-#'   Display priority: \code{labels} column > \code{label} column.
-#'   Ignored when \code{x} is a \code{cluster_summary} or
-#'   \code{cograph_network} (which carries its own node metadata).
-#' @param label_size Text size (\code{cex}) for bottom-layer node labels.
-#'   \code{NULL} (default) auto-scales to 0.6. Increase for readability
-#'   in publication figures; decrease for dense networks.
-#' @param label_abbrev Controls label abbreviation to reduce overlap:
-#'   \itemize{
-#'     \item \code{NULL} — no abbreviation (show full labels).
-#'     \item An \strong{integer} — truncate labels to this many characters.
-#'     \item \code{"auto"} — adaptively abbreviates based on the total
-#'       number of nodes: more nodes triggers shorter abbreviations.
-#'   }
-#' @param node_size Size of individual detail nodes in the bottom layer.
-#'   This controls the pie-chart radius for each node. Default 2.4.
-#' @param node_shape Shape for detail nodes in the bottom layer. Supported
-#'   values: \code{"circle"}, \code{"square"}, \code{"diamond"},
-#'   \code{"triangle"}. Can be a single value applied to all nodes or a
-#'   character vector of length equal to the number of nodes (one shape
-#'   per node). Default \code{"circle"}.
-#' @param cluster_shape Accepted for backward compatibility. Summary nodes
-#'   are currently drawn as pie charts, so this parameter does not change
-#'   their shape.
-#' @param expand Names of clusters whose member states are drawn as separate
-#'   nodes in the top (macro) layer; \code{"all"} or \code{TRUE} expands every
-#'   cluster. The bottom layer always shows the partition, so an expanded
-#'   state appears as its own summary node while staying inside its cluster's
-#'   shell below, linked by the dashed line. Default \code{NULL} draws one
-#'   summary node per cluster.
-#'
-#'   The expanded macro is re-counted from \code{x} with a refined partition
-#'   (an expanded cluster contributes one group per member state), because a
-#'   k x k aggregate cannot be disaggregated after the fact. That needs the
-#'   source, so passing a pre-built \code{cluster_summary} or \code{mcml}
-#'   instead of the data falls back to \code{Nestimate::macro_network()} and
-#'   raises a \code{cograph_expand_unavailable} error when that is not
-#'   available.
-#' @param title Main plot title displayed above the figure. Default
-#'   \code{NULL} (no title).
-#' @param subtitle Subtitle displayed below the title. Default \code{NULL}
-#'   (no subtitle).
-#' @param title_size Text size (\code{cex.main}) for the title. Default 1.2.
-#' @param subtitle_size Text size (\code{cex.sub}) for the subtitle.
-#'   Default 0.9.
-#' @param legend_position Where to place the legend: \code{"right"},
-#'   \code{"left"}, \code{"top"}, \code{"bottom"}, or \code{"none"} to
-#'   suppress it entirely. Default \code{"right"}.
-#' @param legend_size Text size (\code{cex}) for legend labels. Default 0.7.
-#' @param legend_pt_size Point size (\code{pt.cex}) for legend symbols.
+#'   edges. \code{NULL} (default) uses 0.25 for directed and 0 for undirected
+#'   networks.
+#' @param layer_spacing Vertical position of the summary layer, which sets
+#'   the height of the figure. \code{NULL} (default) places it automatically
+#'   above the bottom layer, at a distance set by \code{inter_layer_gap}.
+#'   \code{"fill"} increases the gap between the layers so that the figure
+#'   uses the full height of the device, and never makes it smaller than the
+#'   automatic gap. A single positive number gives the height of the center
+#'   of the summary layer above the center of the bottom layer, in the units
+#'   of \code{spacing}, and overrides \code{inter_layer_gap}. A number that
+#'   places the summary layer inside the bottom layer raises a
+#'   \code{cograph_layers_overlap} warning, and any other value raises a
+#'   \code{cograph_bad_layer_spacing} error.
+#' @param spacing Distance from the center to each cluster in the bottom
+#'   layer. Default 3.
+#' @param shape_size Radius of each cluster shell in the bottom layer.
 #'   Default 1.2.
-#' @param summary_labels Logical. Show cluster name labels next to the
-#'   summary pie-chart nodes in the top layer. Default \code{TRUE}.
-#' @param summary_label_size Text size for summary labels. Default 0.8.
-#' @param summary_label_position Position of summary labels relative to
-#'   nodes: 1 = below, 2 = left, 3 = above, 4 = right. Default 3 (above).
-#' @param summary_label_color Color for summary labels. Default
+#' @param summary_size Size of the summary nodes. The radius of a summary
+#'   node is \code{0.0875 * summary_size}. Default 4.
+#' @param skew_angle Perspective tilt in degrees, from 0 to 90. At 0 the
+#'   bottom layer is seen from directly above and at 90 it collapses to a
+#'   line. Default 60.
+#' @param aggregation Method for aggregating node-level edge weights into
+#'   cluster-level weights: \code{"sum"} (default), \code{"mean"} or
+#'   \code{"max"}.
+#' @param minimum Edge weight threshold. Edges whose absolute weight does not
+#'   exceed this value are not plotted. Default 0.
+#' @param colors Character vector of cluster colors, recycled to the number
+#'   of clusters. \code{NULL} (default) uses the Okabe-Ito palette.
+#' @param legend Logical. Add a legend of cluster colors. Default
+#'   \code{TRUE}.
+#' @param show_labels Logical. Show node labels in the bottom layer. Default
+#'   \code{TRUE}.
+#' @param nodes Node metadata data frame for display labels. Its
+#'   \code{labels} column, or else its \code{label} column, is used as the
+#'   label text of the nodes in row order. It replaces the node table of a
+#'   \code{cograph_network} and is ignored when \code{x} is a
+#'   \code{cluster_summary}.
+#' @param label_size Text size (\code{cex}) of bottom-layer node labels.
+#'   \code{NULL} (default) uses 0.6.
+#' @param label_abbrev Label abbreviation passed to \code{\link{abbrev_label}}:
+#'   \code{NULL} (default) for full labels, an integer for the maximum number
+#'   of characters, or \code{"auto"} for a length chosen from the number of
+#'   nodes.
+#' @param node_size Size of the detail nodes. The radius of a detail node is
+#'   \code{0.035 * node_size}. Default 2.4.
+#' @param node_shape Shape of the detail nodes, a single value or one value
+#'   per node. \code{"circle"} (default) plots a pie chart of the node's
+#'   self-transition share. Other node shapes, such as \code{"square"},
+#'   \code{"diamond"} or \code{"triangle"}, are plotted as solid shapes in the
+#'   cluster color.
+#' @param cluster_shape Not used. It is kept for compatibility with earlier
+#'   versions.
+#' @param expand Names of clusters whose member states are shown as separate
+#'   nodes in the summary layer. \code{"all"} or \code{TRUE} expands every
+#'   cluster, and \code{NULL} (default) shows one summary node per cluster.
+#'   The bottom layer always shows the clusters. The summary layer is then
+#'   recomputed from \code{x} with each expanded cluster split into its
+#'   states. For a \code{cluster_summary}, \code{mcml} or \code{mcml_pc}
+#'   input it is computed with \code{Nestimate::macro_network()}, and a
+#'   \code{cograph_expand_unavailable} error is raised when that function is
+#'   not available.
+#' @param title Plot title. Default \code{NULL}.
+#' @param subtitle Subtitle shown below the figure. Default \code{NULL}.
+#' @param title_size Text size (\code{cex.main}) of the title. Default 1.2.
+#' @param subtitle_size Text size (\code{cex.sub}) of the subtitle. Default
+#'   0.9.
+#' @param legend_position Legend position: \code{"right"} (default),
+#'   \code{"left"}, \code{"top"}, \code{"bottom"} or \code{"none"}.
+#' @param legend_size Text size (\code{cex}) of legend labels. Default 0.7.
+#' @param legend_pt_size Point size (\code{pt.cex}) of legend symbols.
+#'   Default 1.2.
+#' @param summary_labels Logical. Show cluster names next to the summary
+#'   nodes. Default \code{TRUE}.
+#' @param summary_label_size Text size of summary labels. Default 0.8.
+#' @param summary_label_position Position of summary labels relative to their
+#'   nodes: 1 = below, 2 = left, 3 = above, 4 = right. When it is not
+#'   supplied, each label is placed on the side of its node that faces away
+#'   from the center of the summary layer.
+#' @param summary_label_color Color of summary labels. Default
 #'   \code{"gray20"}.
-#' @param summary_arrows Logical. Draw arrowheads on summary-layer directed
-#'   edges. Default \code{TRUE}. For fully undirected networks prefer
-#'   \code{directed = FALSE}, which also suppresses these arrowheads and
-#'   draws each symmetric edge pair only once.
-#' @param summary_arrow_size Size of arrowheads on summary edges. Default
-#'   0.10.
-#' @param summary_pie Character scalar controlling what the colored slice
-#'   of the top-layer pie chart represents. One of:
-#'   \describe{
-#'     \item{\code{"inits"}}{(default) The cluster's share of the initial
-#'       state distribution (\code{cs$macro$inits[i]}). Answers "how often
-#'       do sequences start in this cluster?" Summed across clusters the
-#'       colored slices equal 1.}
-#'     \item{\code{"self"}}{The cluster's self-retention share of
-#'       out-strength (\code{bw[i, i] / rowSums(bw)[i]}). Answers "how
-#'       sticky is this cluster — how much of its outgoing flow loops
-#'       back to itself?" Each pie is normalized independently.}
-#'   }
-#' @param edge_color_by How to color edges on all layers:
-#'   \describe{
-#'     \item{\code{"auto"}}{(default) Color edges by their cluster when the
-#'       weights are non-negative (transition networks), but switch to
-#'       sign-based coloring automatically when any negative weight is present
-#'       (correlation / association networks).}
-#'     \item{\code{"cluster"}}{Always color edges by the source cluster's color.}
-#'     \item{\code{"sign"}}{Always color edges by weight sign — positive in
-#'       \code{edge_positive_color}, negative in \code{edge_negative_color}.}
-#'   }
-#'   Sign coloring uses each edge's absolute weight for the threshold
-#'   (\code{minimum}) and line-width scaling, so negative edges are drawn
-#'   rather than dropped.
-#' @param edge_positive_color Color for positive-weight edges when sign
-#'   coloring is active. Default \code{"#2E7D32"} (green).
-#' @param edge_negative_color Color for negative-weight edges when sign
-#'   coloring is active. Default \code{"#C62828"} (red).
-#' @param between_arrows Logical. Draw arrowheads on between-cluster edges
-#'   in the bottom layer. Default \code{FALSE}.
-#' @param edge_width_range Numeric vector \code{c(min, max)} controlling the
-#'   line-width range for \strong{within-cluster} edges in the bottom layer.
-#'   The weakest edge gets \code{min} and the strongest gets \code{max}.
-#'   Default \code{c(0.3, 1.3)}.
-#' @param between_edge_width_range Numeric vector \code{c(min, max)} for
-#'   \strong{between-cluster} edges in the bottom layer (shell-to-shell
-#'   lines). Default \code{c(0.5, 2.0)}.
-#' @param summary_edge_width_range Numeric vector \code{c(min, max)} for
-#'   \strong{summary} edges in the top layer. Default \code{c(0.5, 2.0)}.
-#' @param edge_alpha Transparency (0–1) for within-cluster edges. Lower
-#'   values make these edges more subtle, keeping focus on between-cluster
-#'   structure. Default 0.35.
-#' @param between_edge_alpha Transparency (0–1) for between-cluster edges
-#'   in the bottom layer. Default 0.6.
-#' @param summary_edge_alpha Transparency (0–1) for summary-layer edges.
-#'   Default 0.7.
-#' @param inter_layer_alpha Transparency (0–1) for the dashed inter-layer
-#'   lines connecting detail nodes to their summary node. Lower values make
-#'   these scaffolding lines less visually dominant. Default 0.5.
-#' @param edge_labels Logical. Show numeric weight labels on within-cluster
-#'   edges. Default \code{FALSE} (automatically set to \code{TRUE} when
-#'   \code{mode = "tna"}).
-#' @param edge_label_size Text size for within-cluster edge labels.
-#'   Default 0.5.
-#' @param edge_label_color Color for within-cluster edge labels. Default
-#'   \code{"gray40"}.
-#' @param edge_label_digits Number of decimal places for edge weight labels
-#'   on both layers. Default 2.
-#' @param summary_edge_labels Logical. Show numeric weight labels on
-#'   summary-layer edges. Default \code{FALSE} (automatically set to
-#'   \code{TRUE} when \code{mode = "tna"}).
-#' @param summary_edge_label_size Text size for summary edge labels.
+#' @param summary_arrows Logical. Add arrowheads to summary edges. Default
+#'   \code{TRUE}. Arrowheads are removed when \code{directed = FALSE}.
+#' @param summary_arrow_size Size of the arrowheads on summary edges.
+#'   Default 0.10.
+#' @param summary_pie What the colored slice of a summary node shows.
+#'   \code{"inits"} (default) shows the cluster's share of the initial state
+#'   distribution, so the slices of all clusters sum to 1. \code{"self"}
+#'   shows the cluster's self-retention, the diagonal weight divided by the
+#'   row sum of the summary matrix.
+#' @param edge_color_by Edge coloring on all layers. \code{"auto"} (default)
+#'   colors edges by cluster when all weights are non-negative and by sign
+#'   when any weight is negative. \code{"cluster"} always uses the color of
+#'   the source cluster. \code{"sign"} always uses
+#'   \code{edge_positive_color} and \code{edge_negative_color}. The
+#'   threshold \code{minimum} and the edge widths use absolute weights, so
+#'   negative edges are plotted.
+#' @param edge_positive_color Color of positive edges under sign coloring.
+#'   Default \code{"#2E7D32"} (green).
+#' @param edge_negative_color Color of negative edges under sign coloring.
+#'   Default \code{"#C62828"} (red).
+#' @param between_arrows Logical. Add arrowheads to between-cluster edges in
+#'   the bottom layer. Default \code{FALSE}.
+#' @param edge_width_range Numeric vector \code{c(min, max)} of line widths
+#'   for within-cluster edges. Widths grow linearly with absolute weight, from
+#'   \code{min} at zero to \code{max} at the largest absolute weight. Default
+#'   \code{c(0.3, 1.3)}.
+#' @param between_edge_width_range Numeric vector \code{c(min, max)} of line
+#'   widths for between-cluster edges. Default \code{c(0.5, 2.0)}.
+#' @param summary_edge_width_range Numeric vector \code{c(min, max)} of line
+#'   widths for summary edges. Default \code{c(0.5, 2.0)}.
+#' @param edge_alpha Opacity, from 0 to 1, of within-cluster edges. Default
+#'   0.35.
+#' @param between_edge_alpha Opacity, from 0 to 1, of between-cluster edges.
 #'   Default 0.6.
-#' @param top_layer_scale Numeric vector \code{c(x_scale, y_scale)}
-#'   controlling the horizontal and vertical radii of the oval on which
-#'   summary nodes are placed, as multiples of \code{spacing}. Widen with
-#'   \code{c(1.0, 0.25)} or flatten with \code{c(0.8, 0.15)} to adjust the
-#'   top-layer shape. Default \code{c(0.8, 0.25)}.
-#' @param inter_layer_gap Vertical gap between the top of the bottom layer
-#'   and the bottom of the top layer, as a multiple of \code{spacing}.
-#'   Increase to separate the layers more. Default 0.6.
-#' @param node_radius_scale Radius of the circle on which nodes are
-#'   arranged inside each cluster shell, as a fraction of
-#'   \code{shape_size}. Increase to push nodes outward toward the shell
-#'   border; decrease to pack them tighter. Default 0.55.
-#' @param shell_alpha Fill transparency (0–1) for cluster shells. Higher
-#'   values make shells more opaque, giving stronger visual grouping but
-#'   potentially obscuring edges. Default 0.15.
-#' @param shell_border_width Line width for cluster shell borders. Default
-#'   0.75 (thin). \code{theme = "light"} drops the outline entirely.
-#' @param node_border_color Border color for detail nodes in the bottom
-#'   layer. Default \code{"gray30"}.
-#' @param node_border_width Line width for detail-node borders in the bottom
-#'   layer. Default 0.4 (thin). Increase for heavier outlines.
-#' @param summary_border_color Border color for summary pie-chart nodes.
-#'   Default \code{"gray20"}.
-#' @param summary_border_width Border line width for summary nodes.
-#'   Default 0.6 (thin).
-#' @param label_color Text color for detail node labels. Default
+#' @param summary_edge_alpha Opacity, from 0 to 1, of summary edges. Default
+#'   0.7.
+#' @param inter_layer_alpha Opacity, from 0 to 1, of the dashed inter-layer
+#'   lines. Default 0.5.
+#' @param edge_labels Logical. Show weight labels on within-cluster edges.
+#'   Default \code{FALSE}, or \code{TRUE} when \code{mode = "tna"}.
+#' @param edge_label_size Text size of within-cluster edge labels. Default
+#'   0.5.
+#' @param edge_label_color Color of within-cluster edge labels. Default
+#'   \code{"gray40"}.
+#' @param edge_label_digits Number of decimal places of edge labels on both
+#'   layers. Default 2.
+#' @param summary_edge_labels Logical. Show weight labels on summary edges.
+#'   Default \code{FALSE}, or \code{TRUE} when \code{mode = "tna"}.
+#' @param summary_edge_label_size Text size of summary edge labels. Default
+#'   0.6.
+#' @param top_layer_scale Numeric vector \code{c(x_scale, y_scale)} giving the
+#'   horizontal and vertical radii of the oval of summary nodes as multiples
+#'   of \code{spacing}. Default \code{c(0.8, 0.25)}.
+#' @param inter_layer_gap Vertical distance from the upper edge of the bottom
+#'   layer to the center of the summary layer, as a multiple of
+#'   \code{spacing}. Default 0.6.
+#' @param node_radius_scale Radius of the circle of nodes inside each cluster
+#'   shell, as a fraction of \code{shape_size}. Default 0.55.
+#' @param shell_alpha Fill opacity, from 0 to 1, of the cluster shells.
+#'   Default 0.15, or 0.10 with \code{theme = "light"}.
+#' @param shell_border_width Line width of the cluster shell borders. Default
+#'   0.75, or 0 with \code{theme = "light"}.
+#' @param node_border_color Border color of the detail nodes. Default
+#'   \code{"gray30"}.
+#' @param node_border_width Border width of the detail nodes. Default 0.4.
+#' @param summary_border_color Border color of the summary nodes. Default
 #'   \code{"gray20"}.
-#' @param label_position Accepted for backward compatibility. Detail labels
-#'   are currently positioned automatically to the left or right of each node.
-#' @param directed Logical or \code{NULL}. \code{NULL} (default)
-#'   auto-detects: a \code{cluster_summary}/\code{mcml} input uses its own
-#'   \code{$meta$directed} flag; other objects use their \code{$directed}
-#'   field when present; a plain matrix is undirected when symmetric (the
-#'   same contract as \code{\link{splot}}). When \code{TRUE}, every
-#'   non-zero cell of the weight matrices is drawn as a directed edge with
-#'   an arrowhead. When \code{FALSE} (undirected, e.g. co-occurrence
-#'   weights): arrowheads are suppressed on all three edge layers
-#'   (within-cluster, between-cluster, and summary), each symmetric pair is
-#'   drawn once instead of twice (the upper triangle is used; a warning is
-#'   issued if the weights are not symmetric), edge labels move to the edge
-#'   midpoint, and matrix input is aggregated with
-#'   \code{type = "cooccurrence"} (symmetrized counts) instead of the
-#'   row-normalized \code{type = "tna"}. Overrides \code{summary_arrows}
-#'   and \code{between_arrows}.
-#' @param ... Additional arguments (currently unused).
+#' @param summary_border_width Border width of the summary nodes. Default
+#'   0.6.
+#' @param label_color Text color of detail node labels. Default
+#'   \code{"gray20"}.
+#' @param label_position Not used. Detail labels are placed to the left or
+#'   right of each node according to its position in the shell.
+#' @param directed Logical or \code{NULL}. \code{NULL} (default) uses the
+#'   \code{$meta$directed} flag of a \code{cluster_summary} or \code{mcml}
+#'   input and the \code{$directed} field of other objects, and treats a
+#'   plain matrix as undirected when it is symmetric. With \code{TRUE}, every
+#'   non-zero weight is plotted as a directed edge with an arrowhead. With
+#'   \code{FALSE}, arrowheads are removed from all layers, overriding
+#'   \code{summary_arrows} and \code{between_arrows}, each pair is plotted
+#'   once from the upper triangle with its label at the midpoint, and a
+#'   warning is raised when the aggregated weights are not symmetric.
+#' @param ... Not used.
 #'
-#' @return Invisibly returns the \code{cluster_summary} object used for
-#'   plotting. This object can be passed back to \code{plot_mcml()} to
-#'   avoid recomputation, inspected with \code{print()}, or fed to
-#'   \code{\link{as_tna}} for further analysis.
+#' @return Invisibly, the \code{cluster_summary} object used for plotting. It
+#'   can be passed back to \code{plot_mcml()}, printed, or converted with
+#'   \code{\link{as_tna}}.
 #'
 #' @export
 #'
 #' @seealso
-#' \code{\link{csum}} for pre-computing aggregated cluster data,
-#' \code{\link{plot_mtna}} for flat multi-cluster visualization (no summary
-#'   layer),
-#' \code{\link{plot_mlna}} for stacked multilevel/multiplex layer
-#'   visualization,
-#' \code{\link{aggregate_weights}} for the low-level weight aggregation
-#'   used internally,
+#' \code{\link{csum}} for the aggregated cluster data,
+#' \code{\link{plot_mtna}} for a multi-cluster plot without a summary layer,
+#' \code{\link{plot_mlna}} for stacked multilevel or multiplex layers,
 #' \code{\link{detect_communities}} for algorithmic cluster detection
 #'
 #' @examples
@@ -563,10 +417,6 @@
 #'                  C2 = c("Plan", "Create", "Share"),
 #'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
 #' plot_mcml(regulation_net, clusters)
-#' \donttest{
-#' cs <- csum(regulation_net, clusters)
-#' plot_mcml(cs, mode = "tna", edge_labels = TRUE)
-#' }
 plot_mcml <- function(
     x,
     cluster_list = NULL,
@@ -1611,29 +1461,29 @@ plot_mcml <- function(
   invisible(cs)
 }
 
-#' mcml - Deprecated alias for csum
+#' Deprecated Alias for csum
 #'
-#' @description
-#' \strong{\[Deprecated\]}
+#' \code{mcml()} is deprecated and kept for backward compatibility. It calls
+#' \code{\link{csum}} with \code{type = "tna"}, and new code uses
+#' \code{csum()} directly.
 #'
-#' Use \code{\link{csum}} instead. This function is provided for
-#' backward compatibility only.
-#'
-#' @param x Weight matrix, tna object, cograph_network, or cluster_summary object
-#' @param cluster_list Named list of node vectors per cluster
-#' @param aggregation How to aggregate edge weights: "sum", "mean", "max"
-#' @param as_tna Logical. If TRUE, return a tna-compatible object
-#' @param nodes Node metadata
-#' @param within Logical. Compute within-cluster matrices
-#' @return A cluster_summary object (or tna if as_tna = TRUE)
+#' @param x Weight matrix, tna object, cograph_network, or cluster_summary
+#'   object.
+#' @param cluster_list Named list of node vectors per cluster.
+#' @param aggregation How edge weights are aggregated, one of \code{"sum"},
+#'   \code{"mean"}, \code{"max"}.
+#' @param as_tna Logical. If \code{TRUE}, a tna-compatible object is returned.
+#' @param nodes Node metadata data frame, stored with the result for display labels.
+#' @param within Logical. Whether within-cluster matrices are computed.
+#' @return A \code{cluster_summary} object, or a tna object if
+#'   \code{as_tna = TRUE}.
 #' @export
 #' @keywords internal
 #' @examples
-#' set.seed(1)
-#' mat <- matrix(runif(100, 0, 0.3), 10, 10); diag(mat) <- 0
-#' colnames(mat) <- rownames(mat) <- paste0("N", 1:10)
-#' clusters <- list(C1 = paste0("N", 1:5), C2 = paste0("N", 6:10))
-#' mcml(mat, clusters)
+#' mcml(regulation_net, cluster_list = list(
+#'   Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+#'   Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share")
+#' ))
 mcml <- function(x,
                  cluster_list = NULL,
                  aggregation = c("sum", "mean", "max"),

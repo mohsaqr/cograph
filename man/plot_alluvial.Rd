@@ -50,37 +50,52 @@ plot_alluvial(
 )
 }
 \arguments{
-\item{x}{Input data in one of several formats:
+\item{x}{Input data in one of these formats:
 \itemize{
-\item A transition matrix (rows = from, cols = to, values = counts)
-\item Two vectors: pass \code{before} as x and \code{after} as second argument
-(contingency table computed automatically, like chi-square)
-\item A 2-column data frame (raw observations; table computed automatically)
-\item A data frame with columns: from, to, count
-\item A list of matrices for multi-step transitions
+\item A transition matrix (rows = from, columns = to, values = counts).
+\item A vector of "before" states, with the vector of "after" states
+passed as the second argument (\code{from_title}). Both vectors must
+have the same length, greater than 2, and their contingency table is
+computed.
+\item A data frame with two columns of raw observations, whose
+contingency table is computed.
+\item A data frame with three or more columns of raw observations, one
+column per time point, plotted as a multi-step diagram.
+\item A data frame with columns \code{from}, \code{to} and
+\code{count}.
+\item A list of matrices for multi-step transitions.
+\item A \code{tna} object. Its sequence data are used as a data frame
+of time points (rows with missing values are dropped), or its weight
+matrix when no sequence data are stored.
 }}
 
-\item{from_title}{Title for the left column. Default "From". For multi-step,
-use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).}
+\item{from_title}{Title for the left column. Default "From". For
+multi-step and individual-tracking plots, a vector with one title per
+column. Data frame input then uses the column names by default, and a
+vector shorter than the number of columns is replaced by "T1", "T2", ...}
 
-\item{to_title}{Title for the right column. Default "To". Ignored for multi-step.}
+\item{to_title}{Title for the right column. Default "To". Ignored for
+multi-step plots.}
 
-\item{title}{Optional plot title. Applied via ggplot2::labs(title = title).}
+\item{title}{Optional plot title.}
 
-\item{from_colors}{Colors for left-side nodes. Default uses palette.}
+\item{from_colors}{Colors for the left-side nodes. In multi-step and
+individual-tracking plots, the colors of all states. Default NULL uses
+the built-in palette.}
 
-\item{to_colors}{Colors for right-side nodes. Default uses palette.}
+\item{to_colors}{Colors for the right-side nodes in two-column plots.
+Default NULL uses the built-in palette.}
 
 \item{flow_fill}{Fill color for flows. Default "#888888" (grey). In
-multi-step and individual-tracking plots, ignored when \code{flow_color_by}
-is set; simple two-column aggregate plots use \code{flow_fill}.}
+multi-step plots it is replaced by the state colors when
+\code{flow_color_by} is set. Individual-tracking lines do not use it.}
 
 \item{flow_alpha}{Alpha transparency for flows. Default 0.4.}
 
-\item{flow_color_by}{Color flows by state. For multi-step aggregate flows,
-use \code{"source"} or \code{"destination"}; for individual trajectories,
-\code{"first"} and \code{"last"} are also supported. Default NULL uses
-\code{flow_fill}; simple two-column aggregate plots ignore this argument.}
+\item{flow_color_by}{Color flows by state. Multi-step aggregate plots
+accept \code{"source"} or \code{"destination"}. Individual-tracking
+plots also accept \code{"first"} and \code{"last"}. Default NULL uses
+\code{flow_fill}. Two-column aggregate plots ignore this argument.}
 
 \item{flow_border}{Border color for flows. Default NA (no border).}
 
@@ -95,18 +110,20 @@ use \code{"source"} or \code{"destination"}; for individual trajectories,
 \item{label_size}{Size of node labels. Default 3.5.}
 
 \item{label_position}{Position of node labels: "beside" (default),
-"inside", "above", "below", or "outside".}
+"inside", "above", "below", "outside". In multi-step and
+individual-tracking plots, "beside" and "outside" label the first and
+last columns only. See \code{mid_label_position} for middle columns.}
 
-\item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
+\item{label_halo}{Logical: add a white halo around labels and column
+titles? Default TRUE.}
 
 \item{label_color}{Color of state name labels. Default "black". Applied to
-multi-step and individual-tracking plots; simple two-column aggregate plots
-use black external labels and white inside labels.}
+multi-step and individual-tracking plots. Two-column aggregate plots use
+black external labels and white inside labels.}
 
-\item{label_fontface}{Font face of state name labels ("plain", "bold", "italic",
-"bold.italic"). Default "plain". Applied to multi-step and
-individual-tracking plots; simple two-column aggregate plots use fixed
-label font faces.}
+\item{label_fontface}{Font face of state name labels ("plain", "bold",
+"italic", "bold.italic"). Default "plain". Applied to multi-step and
+individual-tracking plots.}
 
 \item{label_nudge}{Distance between node edge and label (in plot units).
 Default 0.02. Used by multi-step and individual-tracking plots.}
@@ -114,8 +131,7 @@ Default 0.02. Used by multi-step and individual-tracking plots.}
 \item{title_size}{Size of column titles. Default 5.}
 
 \item{title_color}{Color of column title text. Default "black". Applied to
-multi-step and individual-tracking plots; simple two-column aggregate plots
-use black titles.}
+multi-step and individual-tracking plots.}
 
 \item{title_fontface}{Font face of column titles. Default "bold". Applied to
 multi-step and individual-tracking plots.}
@@ -124,16 +140,18 @@ multi-step and individual-tracking plots.}
 
 \item{show_values}{Logical: show transition counts on flows? Default FALSE.}
 
-\item{value_position}{Position of flow values: "center", "origin", "destination",
-"outside_origin", "outside_destination". Default "center".}
+\item{value_position}{Position of flow values: "center", "origin",
+"destination", "outside_origin", "outside_destination". Default
+"center". Individual-tracking plots use "center", "origin" and
+"destination".}
 
 \item{value_size}{Size of value labels on flows. Default 3.}
 
 \item{value_color}{Color of value labels. Default "black".}
 
 \item{value_halo}{Logical: add halo around flow value labels? Default NULL
-(inherits from \code{label_halo}). Applied to multi-step and
-individual-tracking plots.}
+uses \code{label_halo}. Applied to multi-step and individual-tracking
+plots.}
 
 \item{value_fontface}{Font face of flow value labels. Default "bold".
 Applied to multi-step and individual-tracking plots.}
@@ -142,8 +160,8 @@ Applied to multi-step and individual-tracking plots.}
 "origin" or "destination" positions. Default 0.03.}
 
 \item{value_min}{Minimum count to show a flow value label in multi-step and
-individual-tracking plots. Default 0 (show all). Simple two-column
-aggregate plots show all nonzero value labels when \code{show_values = TRUE}.}
+individual-tracking plots. Default 0 (show all). Two-column aggregate
+plots show every nonzero value label when \code{show_values = TRUE}.}
 
 \item{show_totals}{Logical: show total counts on nodes? Default FALSE.}
 
@@ -151,36 +169,36 @@ aggregate plots show all nonzero value labels when \code{show_values = TRUE}.}
 
 \item{total_color}{Color of total labels. Default "white".}
 
-\item{total_fontface}{Font face of total labels. Default "bold".}
+\item{total_fontface}{Font face of total labels. Default "bold". Applied to
+multi-step and individual-tracking plots.}
 
-\item{conserve_flow}{Logical: should left and right totals match? Default TRUE.
-When FALSE, each side scales independently (allows for "lost" or "gained" items).}
+\item{conserve_flow}{Logical. When TRUE (default), node heights on both
+sides of a two-column plot are proportions of the same total flow. When
+FALSE, each side is scaled to its own total. Ignored for multi-step and
+individual-tracking plots.}
 
-\item{min_flow}{Minimum flow value to display. Default 0 (show all).}
+\item{min_flow}{Minimum flow value to display in aggregate plots. Default
+0 (show all).}
 
-\item{threshold}{Minimum edge weight to display. Flows below this value are
-removed. Combined with \code{min_flow}: effective minimum is
-\code{max(threshold, min_flow)}. Default 0.}
+\item{threshold}{Minimum flow value to display in aggregate plots. Flows
+below \code{max(threshold, min_flow)} are removed. Default 0.}
 
 \item{value_digits}{Number of decimal places for flow value labels and node
 totals. Default 2.}
 
 \item{column_gap}{Horizontal spread of columns (0-1) for multi-step and
-individual-tracking plots. Default 1 uses full width. Use smaller values
-(e.g., 0.6) to bring columns closer together.}
+individual-tracking plots. Default 1 uses the full width. Smaller values
+(e.g., 0.6) bring the columns closer together.}
 }
 \value{
-A ggplot2 object.
+A \code{ggplot} object.
 }
 \description{
-Creates an alluvial (Sankey) diagram showing aggregated flows between states.
-This is an alias for \code{plot_transitions()} with aggregated flows (default).
+Creates an alluvial (Sankey) diagram of aggregated flows between states.
+It calls \code{plot_transitions()} with \code{track_individuals = FALSE}.
 }
 \examples{
-mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
-rownames(mat) <- c("A", "B")
-colnames(mat) <- c("X", "Y", "Z")
-plot_alluvial(mat)
+plot_alluvial(regulation_net)
 
 }
 \seealso{

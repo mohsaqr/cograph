@@ -30,10 +30,13 @@ a sparser backbone (fewer edges retained).}
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-For matrices: a binary matrix (0/1) indicating significant edges.
-For tna, cograph_network, and igraph objects: a \code{tna_disparity} object
-containing the significance matrix, original weights, filtered weights,
-and summary statistics.
+For a matrix, an integer matrix of the same dimensions and
+dimnames with 1 for significant edges and 0 otherwise. For tna,
+cograph_network and igraph objects, a \code{tna_disparity} list with
+elements \code{significant} (the 0/1 matrix), \code{weights_orig},
+\code{weights_filtered} (original weights times the 0/1 matrix),
+\code{level}, \code{n_edges_orig} and \code{n_edges_filtered}. Any other
+input raises an error.
 }
 \description{
 Extracts the statistically significant backbone of a weighted network
@@ -50,24 +53,15 @@ the node's strength), the p-value is:
 
 \deqn{p = (1 - p_{ij})^{(k_i - 1)}}
 
-Edges are significant if \eqn{p < level} for either endpoint.
+The p-value is computed from the outgoing weights of the source node
+(row strength and out-degree) and from the incoming weights of the target
+node (column strength and in-degree). An edge is significant if the
+smaller of the two p-values is below \code{level}. Self-loops are never
+retained. For igraph input, unweighted edges get weight 1 and multiple
+edges are summed before filtering.
 }
 \examples{
-# Create a weighted network
-mat <- matrix(c(
-  0.0, 0.5, 0.1, 0.0,
-  0.3, 0.0, 0.4, 0.1,
-  0.1, 0.2, 0.0, 0.5,
-  0.0, 0.1, 0.3, 0.0
-), nrow = 4, byrow = TRUE)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-
-# Extract backbone at 5\% significance level
-backbone <- disparity_filter(mat, level = 0.05)
-backbone
-
-# More stringent filter (1\% level)
-backbone_strict <- disparity_filter(mat, level = 0.01)
+disparity_filter(regulation_net, level = 0.3)
 }
 \references{
 Serrano, M. A., Boguna, M., & Vespignani, A. (2009).

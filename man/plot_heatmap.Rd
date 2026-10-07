@@ -46,8 +46,10 @@ plot_heatmap(
 \item{x}{Network input: matrix, CographNetwork, cograph_network, tna,
 igraph, group_tna, or a list-like object with a \code{$weights} matrix.}
 
-\item{cluster_list}{Optional list of character vectors defining node clusters.
-Creates a block-structured heatmap with clusters along diagonal.}
+\item{cluster_list}{Optional list of character vectors of node names
+defining node clusters. The matrix is reordered so that clusters form
+blocks along the diagonal. Nodes not listed are dropped, and a listed
+name that is not in the matrix is an error.}
 
 \item{cluster_spacing}{Gap size between clusters (in cell units). Default 0.}
 
@@ -57,13 +59,17 @@ Creates a block-structured heatmap with clusters along diagonal.}
 
 \item{legend_title}{Title for legend. Default "Weight".}
 
-\item{colors}{Color palette: vector of colors for gradient, or a palette name
-("viridis", "heat", "blues", "reds", "greens", "diverging").
-Default "viridis".}
+\item{colors}{Color palette: a vector of colors for the gradient, a palette
+name ("viridis", "heat", "blues", "reds", "greens", "diverging"), or a
+single color name, which gives a gradient from white to that color.
+With a diverging scale the first three colors are used as low, mid and
+high. Default "viridis".}
 
 \item{limits}{Numeric vector c(min, max) for color scale. NULL for auto.}
 
-\item{midpoint}{Midpoint for diverging scales. NULL for auto (0 if data spans neg/pos).}
+\item{midpoint}{Midpoint of a diverging scale. Supplying it makes the
+scale diverging. With the default NULL, the scale is diverging around 0
+when the values span negative and positive numbers.}
 
 \item{na_color}{Color for NA values. Default "grey90".}
 
@@ -87,28 +93,34 @@ disable.}
 
 \item{show_diagonal}{Logical: show diagonal values? Default TRUE.}
 
-\item{diagonal_color}{Accepted for API compatibility; diagonal cells currently
-use the active fill scale unless hidden with \code{show_diagonal = FALSE}.}
+\item{diagonal_color}{Currently unused. Diagonal cells use the fill scale
+unless they are hidden with \code{show_diagonal = FALSE}.}
 
-\item{cluster_labels}{Logical: show cluster/layer labels? Default TRUE.}
+\item{cluster_labels}{Logical: show cluster or group labels? With a
+\code{cluster_list}, labels are shown only when the list is named. For
+\code{group_tna} input the group names are shown. Default TRUE.}
 
-\item{cluster_borders}{Logical: draw borders around clusters? Default TRUE.}
+\item{cluster_borders}{Logical: plot borders around clusters? Default TRUE.}
 
 \item{border_color}{Color for cluster borders. Default "black".}
 
 \item{border_width}{Width of cluster borders. Default 0.5.}
 
-\item{row_labels}{Row labels. NULL for auto (rownames or indices).}
+\item{row_labels}{Row labels for a single-network heatmap. NULL uses the
+row names or indices.}
 
-\item{col_labels}{Column labels. NULL for auto (colnames or indices).}
+\item{col_labels}{Column labels for a single-network heatmap. NULL uses
+the column names or indices.}
 
-\item{show_axis_labels}{Logical: show axis tick labels? Default TRUE.}
+\item{show_axis_labels}{Logical: show axis tick labels? Default TRUE.
+A clustered heatmap never shows axis tick labels.}
 
 \item{axis_text_size}{Size of axis labels. Default 8.}
 
 \item{axis_text_angle}{Angle for x-axis labels. Default 45.}
 
-\item{title}{Plot title. Default NULL.}
+\item{title}{Plot title. Default NULL, which gives no title, or
+"Supra-Adjacency Heatmap" for \code{group_tna} input.}
 
 \item{subtitle}{Plot subtitle. Default NULL.}
 
@@ -117,36 +129,28 @@ use the active fill scale unless hidden with \code{show_diagonal = FALSE}.}
 \item{ylab}{Y-axis label. Default NULL.}
 
 \item{threshold}{Minimum absolute value to display. Values with
-\code{abs(value) < threshold} are set to zero. Default 0.}
+\code{abs(value) < threshold} are set to zero. It is not applied to
+\code{group_tna} input. Default 0.}
 
 \item{aspect_ratio}{Aspect ratio. Default 1 (square cells).}
 
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-A ggplot2 object.
+A \code{ggplot} object.
 }
 \description{
-Visualizes a network adjacency/weight matrix as a heatmap. Supports single
-networks, multi-cluster networks (block diagonal), and multi-layer networks
-(group_tna).
+Visualizes a network weight matrix as a heatmap. Single networks,
+clustered networks (blocks along the diagonal), and multi-group networks
+(\code{group_tna}, as a supra-adjacency matrix) are supported.
 }
 \details{
-For multi-cluster networks, provide \code{cluster_list} as a named list where
-each element is a vector of node names belonging to that cluster. The heatmap
-will be reordered to show clusters as blocks along the diagonal.
-
-For group_tna objects (multiple separate networks), each network becomes a
-diagonal block. Off-diagonal blocks are empty (no inter-layer edges).
+For \code{group_tna} objects, each group network becomes a diagonal block
+of a supra-adjacency matrix, with cells labelled \code{group:node}. The
+off-diagonal blocks are \code{NA} and take \code{na_color}. The node
+labels are taken from the first group.
 }
 \examples{
-set.seed(1)
-m <- matrix(runif(25), 5, 5)
-rownames(m) <- colnames(m) <- LETTERS[1:5]
-plot_heatmap(m)
-
-# With clusters, values, and a different color scale
-clusters <- list(G1 = c("A","B"), G2 = c("C","D","E"))
-plot_heatmap(m, cluster_list = clusters, colors = "heat", show_values = TRUE)
+plot_heatmap(regulation_net)
 
 }

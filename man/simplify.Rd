@@ -54,14 +54,15 @@ simplify(x, remove_loops, remove_multiple, edge_attr_comb, ...)
 \arguments{
 \item{x}{Network input (matrix, cograph_network, igraph, tna object).}
 
-\item{remove_loops}{Logical. Remove self-loops (diagonal entries)?}
+\item{remove_loops}{Logical. Remove self-loops (diagonal entries)?
+Default \code{TRUE}.}
 
-\item{remove_multiple}{Logical. Merge duplicate edges?
-No-op for matrix/tna inputs (see Details).}
+\item{remove_multiple}{Logical. Merge duplicate edges? Default
+\code{TRUE}. Ignored for matrix and tna inputs (see Details).}
 
 \item{edge_attr_comb}{How to combine weights of duplicate edges:
-\code{"sum"}, \code{"mean"}, \code{"max"}, \code{"min"},
-\code{"first"}, or a custom function. Ignored for matrix/tna inputs.}
+\code{"sum"}, \code{"mean"} (default), \code{"max"}, \code{"min"},
+\code{"first"}, or a custom function. Ignored for matrix and tna inputs.}
 
 \item{...}{Additional arguments (currently unused).}
 }
@@ -79,28 +80,20 @@ The extent of simplification depends on the input representation:
 \itemize{
 \item \code{matrix} and \code{tna}: edges are stored as an n x n weight
 matrix. Each cell (i, j) is unique by construction, so duplicate-edge
-merging is a no-op regardless of \code{remove_multiple} /
-\code{edge_attr_comb}; only self-loops (the diagonal) can be removed.
-Convert to \code{cograph_network} or \code{igraph} first if you need
-true duplicate aggregation.
-\item \code{cograph_network}: duplicate edges in the edge-list are
-merged via \code{aggregate_duplicate_edges()} using
-\code{edge_attr_comb}.
-\item \code{igraph}: delegates to \code{igraph::simplify()}.
+merging has no effect and \code{remove_multiple} and
+\code{edge_attr_comb} are ignored. Only self-loops (the diagonal) are
+removed. Duplicate aggregation requires a \code{cograph_network} or
+\code{igraph} input.
+\item \code{cograph_network}: duplicate edges in the edge list are
+merged, and their weights are combined with \code{edge_attr_comb}.
+\item \code{igraph}: delegates to \code{igraph::simplify()}. The
+\code{weight} attribute is combined with \code{edge_attr_comb} and
+other edge attributes are dropped.
 }
 }
 \examples{
 # igraph also exports simplify(); qualify the call when both are loaded.
-# Matrix with self-loops
-mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-cograph::simplify(mat)
-
-# Edge list with duplicates
-edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
-net <- cograph(edges, layout = NULL)
-cograph::simplify(net)
-cograph::simplify(net, edge_attr_comb = "sum")
+cograph::simplify(cograph(student_interactions), edge_attr_comb = "sum")
 }
 \seealso{
 \code{\link{filter_edges}} for conditional edge removal,

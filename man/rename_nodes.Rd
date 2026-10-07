@@ -14,24 +14,27 @@ mapping old label to new (in which case \code{to} is not used).}
 
 \item{to}{Character vector of new labels, the same length as \code{from}.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} with the renamed nodes, or the input format
-when \code{keep_format = TRUE}. Labels not named in \code{from} are left
-alone.
+when \code{keep_format = TRUE}. Labels not named in \code{from} are
+unchanged. A \code{cograph_bad_selection} error is raised when
+\code{from} names a node that is not in the network or when the renaming
+would give two nodes the same label.
 }
 \description{
 Rename Nodes
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 0), 2, 2)
-rownames(adj) <- colnames(adj) <- c("A", "B")
-
-get_labels(rename_nodes(adj, from = "A", to = "Alpha"))
-get_labels(rename_nodes(adj, from = c(A = "Alpha", B = "Beta")))
+rename_nodes(regulation_net, from = "Plan", to = "Planning")
 }
 \seealso{
 \code{\link{reorder_nodes}}, \code{\link{set_nodes}}

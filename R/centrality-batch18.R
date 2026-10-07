@@ -19,52 +19,49 @@ calculate_cda <- function(cg, weights = NULL, alpha = 0.5) {
   .cg_cda(w, alpha)
 }
 
-#' Clustering degree algorithm centrality
+#' Clustering Degree Algorithm
 #'
-#' Wang et al.'s CDA returns the propagation-capability score
-#' \eqn{PC_i=CD_i+\sum_j(w_{ij}/w_{\max})CD_j}, where
-#' \eqn{CD_i=[\alpha d_i+(1-\alpha)s_i]/[1+\exp(-C_i^w)]}.
-#' Here d is degree, s is strength, and Cw is Barrat's weighted local
-#' clustering coefficient. The maximum edge weight is taken over the
-#' whole graph, including other connected components. Inner CD scores
-#' remain raw until the final optional normalization of PC.
+#' The clustering degree algorithm (CDA; Wang et al. 2018) scores a node by
+#' its clustering degree
+#' \eqn{CD_i = [\alpha d_i + (1-\alpha) s_i] / [1 + \exp(-C_i^w)]}{CD_i =
+#' (alpha d_i + (1 - alpha) s_i) / (1 + exp(-C_i^w))} plus the clustering
+#' degrees of its neighbors, each scaled by the edge weight:
+#' \deqn{PC_i = CD_i + \sum_{j \in N(i)} \frac{w_{ij}}{w_{\max}} CD_j.}{
+#'   PC_i = CD_i + sum_{j in N(i)} (w_ij / w_max) CD_j.}
+#' Here \eqn{d_i} is the degree, \eqn{s_i} the strength, \eqn{C_i^w} the
+#' weighted clustering coefficient of Barrat et al., and \eqn{w_{\max}}{w_max}
+#' the largest edge weight in the network.
 #'
-#' Uses finite nonnegative weights on an undirected graph. Zero-weight
-#' edges are absent connections. Clustering is set to zero for nodes with
-#' fewer than two positive-weight neighbors; this convention agrees with
-#' the source's leaf example. Isolates and edgeless graphs score zero.
-#' Weights retain their original units: scaling all weights can change
-#' scores and rankings because degree and strength are combined. At alpha
-#' zero, uniform weight scaling scales scores proportionally; at alpha
-#' one, scores are invariant to that scaling. Binary inputs are independent
-#' of alpha because their degree and strength coincide.
-#'
-#' Self-loops are removed. For weighted directed inputs, opposite arcs
-#' are added into undirected edge weights. Parallel weights are combined
-#' by \code{simplify} first, with any remaining parallel edges added.
-#' Without weights, the simple undirected skeleton is used. These are
-#' explicit cograph projections to the source's undirected domain.
-#' \code{mode} and shortest-path weight inversion do not affect CDA.
-#' Nonfinite intermediate strengths or scores raise an error, including
-#' when normalization is requested.
+#' @details
+#' The measure works on an undirected weighted network. On a directed
+#' network the weights of the two arcs between a pair are added, and
+#' \code{weighted = FALSE} uses the simple undirected skeleton. Self-loops
+#' are removed, and \code{mode} and \code{invert_weights} have no effect.
+#' A node with fewer than two neighbors has clustering 0, and an isolated
+#' node scores 0. Negative or non-finite weights raise an error. With
+#' \code{cda_alpha = 1} the scores are unchanged when every weight is
+#' multiplied by a constant, and with \code{cda_alpha = 0} they scale by
+#' that constant. On an unweighted network \code{cda_alpha} has no effect.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param cda_alpha Degree-versus-strength mixing weight between zero and
-#'   one. Default 0.5 follows the source; endpoints select strength and
-#'   degree respectively while retaining weighted clustering and neighbor
-#'   contributions.
-#' @param ... Additional arguments to \code{\link{centrality}}. With
-#'   \code{normalized = TRUE}, positive final scores are divided by their
-#'   maximum.
-#' @return Named numeric vector in input node order.
+#' @param cda_alpha Weight \eqn{\alpha}{alpha} of the degree against the
+#'   strength, between 0 and 1. Default 0.5, the value of Wang et al.
+#'   (2018). A value outside that range raises an error.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure
+#'   uses \code{weighted} (default \code{TRUE}) and \code{normalized}
+#'   (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Wang, Q., Ren, J., Wang, Y., Zhang, B., Cheng, Y., & Zhao, X. (2018). CDA:
 #'   A Clustering Degree Based Influential Spreader Identification Algorithm in
 #'   Weighted Complex Network. IEEE Access, 6, 19550-19559.
 #'   \doi{10.1109/ACCESS.2018.2822844}.
+#' @seealso \code{\link{centrality_strength}},
+#'   \code{\link{centrality_transitivity}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_cda(igraph::make_ring(5), cda_alpha = 0.5)
+#' @examples
+#' centrality_cda(regulation_net)
 centrality_cda <- function(x, cda_alpha = 0.5, ...) {
   df <- centrality(x, measures = "cda", cda_alpha = cda_alpha, ...)
   stats::setNames(df$cda, df$node)

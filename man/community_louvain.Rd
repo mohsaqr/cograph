@@ -10,12 +10,14 @@ community_louvain(x, weights = NULL, resolution = 1, seed = NULL, ...)
 com_lv(x, weights = NULL, resolution = 1, seed = NULL, ...)
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{resolution}{Resolution parameter. Higher values = more communities.
-Default 1 (standard modularity).}
+\item{resolution}{Resolution parameter. Higher values yield more
+communities. Default 1 (standard modularity).}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -23,25 +25,19 @@ Default 1 (standard modularity).}
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Multi-level modularity optimization using the Louvain algorithm.
-Fast and widely used for large networks.
+Multi-level modularity optimization with the Louvain algorithm. The graph
+must be undirected; a directed graph raises an igraph error, so a directed
+network is converted first, for example with \code{\link{to_undirected}()}.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-  membership(comm)
-
-  # Reproducible result with seed
-  comm1 <- community_louvain(g, seed = 42)
-  comm2 <- community_louvain(g, seed = 42)
-  identical(membership(comm1), membership(comm2))
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+community_louvain(to_undirected(regulation_net), seed = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Blondel, V.D., Guillaume, J.L., Lambiotte, R., & Lefebvre, E. (2008).

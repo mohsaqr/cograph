@@ -7,28 +7,48 @@
 centrality_within_module_z(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer vector of community assignments (one per node).}
+\item{membership}{Community of each node, a vector with one entry per
+node in input node order (default \code{NULL}).}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of within-module z-score values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Z-score of intra-community connectivity. High values indicate hubs
-within their own community. Requires community membership.
+The within-module degree z-score (Guimera and Nunes Amaral 2005)
+standardizes the number of ties a node has inside its own community
+against the other members of that community:
+\deqn{z_i = \frac{\kappa_i - \bar{\kappa}_{s_i}}{\sigma_{\kappa_{s_i}}},}{
+  z_i = (kappa_i - mean(kappa_s)) / sd(kappa_s),}
+where \eqn{\kappa_i}{kappa_i} counts the ties of \eqn{i} to its community
+\eqn{s_i}. High values mark hubs within their community.
+}
+\details{
+Edge weights are ignored. \code{mode} selects the ties counted, and with
+\code{mode = "all"} on a directed network a reciprocated tie counts twice.
+The standard deviation is the sample value. A community with one member,
+or whose members all have the same within-community degree, gives
+\code{NaN}. Without \code{membership} every score is \code{NA} with a
+warning that carries no condition class, and a \code{membership} of the
+wrong length raises an error. On undirected networks the values equal
+\code{brainGraph::within_module_deg_z_score()}.
 }
 \examples{
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-centrality_within_module_z(adj, membership = c(1, 1, 1, 2, 2))
+centrality_within_module_z(regulation_net, membership = rep(1:2, each = 5))
+}
+\references{
+Guimera, R., & Nunes Amaral, L. A. (2005). Functional cartography of
+complex metabolic networks. Nature, 433(7028), 895-900.
+\doi{10.1038/nature03288}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_participation}} for between-community diversity.
+\code{\link{centrality_participation}},
+\code{\link{centrality_gateway}}, \code{\link{centrality}}.
 }

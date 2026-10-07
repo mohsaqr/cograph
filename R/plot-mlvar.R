@@ -6,26 +6,16 @@
 #' @noRd
 NULL
 
-#' Plot a Nestimate net_mlvar object
+#' @details
+#' \code{splot.net_mlvar()} plots one or all of the temporal, contemporaneous
+#' and between-subjects networks of a \code{net_mlvar} object from
+#' \code{Nestimate::build_mlvar()}.
 #'
-#' @param x A \code{net_mlvar} object from Nestimate, of class
-#'   \code{c("net_mlvar", "netobject_group")}. The group itself is not a
-#'   \code{cograph_network}; its three elements \code{$temporal},
-#'   \code{$contemporaneous} and \code{$between} are. Model-level metadata
-#'   (\code{coefs}, \code{n_obs}, \code{n_subjects}, \code{lag},
-#'   \code{standardize}) lives in attributes, not list elements.
-#' @param type Which network: \code{"temporal"} / \code{"t"} (default),
-#'   \code{"contemporaneous"} / \code{"c"}, \code{"between"} / \code{"b"},
-#'   or \code{"all"} / \code{"a"} (1x3 panel). Matching is case-insensitive.
-#' @param combined Logical: when \code{type = "all"}, controls whether the
-#'   three panels are arranged in an internal 1 x 3 grid (TRUE, default) or
-#'   drawn into a layout the caller has already configured (FALSE — pair
-#'   with \code{\link{panel_layout}()}). Ignored for single-network types.
-#' @param ... Additional arguments passed to \code{splot()}. Individual
-#'   args (e.g. \code{layout}, \code{node_size}, \code{edge_color})
-#'   override the default styling preset.
+#' @param combined Logical. With \code{type = "all"} for a \code{net_mlvar}
+#'   object, \code{TRUE} (default) arranges the three panels in a 1 x 3 grid,
+#'   and \code{FALSE} plots them into a layout set up beforehand, for example
+#'   with \code{\link{panel_layout}()}. Ignored for a single network.
 #'
-#' @return Invisibly returns \code{x}.
 #' @rdname splot
 #' @export
 splot.net_mlvar <- function(x, type = "temporal", combined = TRUE, ...) {

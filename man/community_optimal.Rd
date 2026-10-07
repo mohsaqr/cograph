@@ -10,34 +10,28 @@ community_optimal(x, weights = NULL, ...)
 com_op(x, weights = NULL, ...)
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Weights are passed unchanged.}
 
 \item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Finds the optimal community structure by maximizing modularity exactly.
-Very slow - only use for small networks (<50 nodes).
-}
-\note{
-This is an NP-hard problem. Use only for tiny networks.
+Finds the partition with maximum modularity by exact optimization.
+Exact modularity maximization is NP-hard, so the computation is feasible
+only for small networks. A network with more than 50 nodes raises a
+warning.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_ring(10)
-comm <- community_optimal(g)
-membership(comm)
-\dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_op(net)
+community_optimal(regulation_net)
 \dontshow{\}) # examplesIf}
 }
 \references{

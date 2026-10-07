@@ -123,47 +123,60 @@ from the object: \code{$ci_level} for \code{net_bootstrap},
 \code{$level} for \code{tna_bootstrap}, \code{$alpha} for
 \code{boot_glasso}, each falling back to \code{0.05}.}
 
-\item{layout}{\code{"linear"} (default) draws the classic tall forest plot;
+\item{layout}{\code{"linear"} (default) gives the standard forest plot;
 \code{"circular"} arranges each edge as a spoke around a circle, with the
-inner ring at the data minimum and the outer ring at the data maximum;
-\code{"grouped"} arranges edges in sectors by source node where supported.}
+inner ring at the smallest lower bound and the outer ring just beyond the
+largest upper bound; \code{"grouped"} arranges edges in sectors by source
+node. The \code{net_bootstrap_group} method supports \code{"linear"} and
+\code{"circular"} only.}
 
 \item{interval}{Which interval to display: \code{"ci"} (bootstrap confidence
 interval, default), \code{"cr"} (consistency range, stability inference
 only), or \code{"both"} (CI as outer bar, CR as inner bar).}
 
-\item{show_nonsig}{Logical: include non-significant edges (greyed out)?
+\item{show_nonsig}{Logical. Include non-significant edges.
 Default \code{TRUE}.}
 
-\item{sort_by}{How to order edges on the y-axis (linear layout) or
-clockwise from top (radial layout):
+\item{sort_by}{Order of edges on the y-axis in the linear layout:
 \code{"estimate"} (default, ascending), \code{"significance"} (most
-significant at top), or \code{"name"} (alphabetical).}
+significant at top), or \code{"name"} (alphabetical). When \code{n_top}
+is set, the retained edges are ordered by estimate. The circular layout
+orders edges alphabetically, clockwise from the top.}
 
-\item{n_top}{Integer: restrict to the \code{n_top} edges with the largest
-absolute estimate. Applied after significance filtering. Default \code{NULL}.}
+\item{n_top}{Integer. Keeps only the \code{n_top} edges with the largest
+absolute estimate. Applied after significance filtering. Default
+\code{NULL}.}
 
-\item{node_colors}{Optional node-color vector for grouped radial layouts.}
+\item{node_colors}{Optional named vector of node colors for the grouped
+layout. When NULL, node colors stored in the original network or tna
+model are used if present.}
 
-\item{sig_color}{Color for significant CI bars and points. Default \code{"#2C6E8A"} (teal-blue).}
+\item{sig_color}{Color for significant CI bars and points (linear and
+circular layouts). Default \code{"#2C6E8A"} (teal-blue).}
 
 \item{cr_color}{Color for the consistency range bar (\code{interval = "cr"} or \code{"both"}).
 Default \code{"#D4829A"}.}
 
-\item{nonsig_color}{Color for non-significant edges. Default \code{"#CCCCCC"}.}
+\item{nonsig_color}{Color for non-significant edges (linear and circular
+layouts). Default \code{"#CCCCCC"}.}
 
-\item{ring_color}{Color for the reference rings (radial layout only). Default \code{"#C8C8C8"}.}
+\item{ring_color}{Color for the reference rings (circular and grouped
+layouts). Default \code{"#C8C8C8"}.}
 
-\item{median_color}{Color for the dashed median ring (radial layout only). Default \code{"#AAAAAA"}.}
+\item{median_color}{Color for the dashed median ring (circular and grouped
+layouts). Default \code{"#AAAAAA"}.}
 
-\item{label_size}{Text size for edge labels (radial and grouped layouts).
-Default \code{NULL} for automatic sizing in the main methods, or
-\code{2.8} for \code{net_bootstrap_group}.}
+\item{label_size}{Text size for edge labels (circular and grouped layouts).
+Default \code{NULL}, which gives \code{2.9} in the circular layout and
+automatic sizing in the grouped layout. The \code{net_bootstrap_group}
+method defaults to \code{2.8}.}
 
-\item{label_color}{Fixed color for edge labels (radial layout only). \code{NULL} (default)
-inherits the edge color (teal for significant, grey for non-significant).}
+\item{label_color}{Fixed color for edge labels (circular and grouped
+layouts). \code{NULL} (default) uses the edge color.}
 
-\item{point_size}{Size of the estimate square. Default \code{3} (linear) or \code{2} (radial).}
+\item{point_size}{Size of the estimate square. Default \code{NULL}, which
+gives \code{3} (linear), \code{2} (circular), or automatic sizing
+(grouped).}
 
 \item{r_inner}{Inner ring radius (grouped layout). Default \code{NULL} (auto).}
 
@@ -195,29 +208,30 @@ edges instead of only edges common to all groups. Default \code{FALSE}.}
 A \code{ggplot} object.
 }
 \description{
-A ggplot2-based forest plot for \code{net_bootstrap},
-\code{net_bootstrap_group}, \code{tna_bootstrap}, and \code{boot_glasso}
-objects. Each row is one network edge; horizontal bars span the confidence
-interval and a filled square marks the point estimate. A dashed reference
-line runs through zero.
-
-Produces a ggplot2 forest plot where each row is one network edge, the
-square marks the bootstrap mean estimate, and the horizontal bar spans the
-selected interval. A dashed reference line runs through zero. Significant
-edges are highlighted in color; non-significant ones appear in grey (only
-shown when \code{show_nonsig = TRUE}).
+Plots bootstrap results of \code{net_bootstrap},
+\code{net_bootstrap_group}, \code{tna_bootstrap} and \code{boot_glasso}
+objects as a ggplot2 forest plot. Each row is one non-zero network edge.
+A square marks the point estimate, a horizontal bar spans the selected
+interval, and a dashed reference line marks zero. Significant edges are
+plotted in \code{sig_color} and non-significant edges in a faded
+\code{nonsig_color}.
 }
 \details{
-For \code{net_bootstrap} objects from stability inference, both a bootstrap
-confidence interval (\code{ci_lower}/\code{ci_upper}) and a consistency
-range (\code{cr_lower}/\code{cr_upper}) are available. Use
-\code{interval = "both"} to overlay both on the same plot.
+Objects from stability inference (\code{net_bootstrap} and
+\code{tna_bootstrap}) carry both a bootstrap confidence interval and a
+consistency range, and \code{interval = "both"} overlays the two. When the
+consistency range is requested but absent, a message is issued and the
+confidence interval is shown. For \code{boot_glasso}, an edge is
+significant when its inclusion proportion is at least \code{1 - alpha}.
+
+The \code{net_bootstrap_group} method plots the groups side by side in
+the linear layout, with the edges ordered by their mean estimate across
+groups. Its \code{interval = "both"} shows the confidence interval only,
+and its circular layout shows the first group only.
 }
 \examples{
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Bootstrap a TNA built from sequence data (required by tna::bootstrap)
-Mod  <- tna::tna(head(tna::group_regulation, 100))
-boot <- tna::bootstrap(Mod, iter = 50)
-plot_bootstrap_forest(boot, n_top = 8)
+boot <- tna::bootstrap(tna::tna(coding), iter = 50)
+plot_bootstrap_forest(boot)
 \dontshow{\}) # examplesIf}
 }

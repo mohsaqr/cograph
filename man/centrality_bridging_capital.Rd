@@ -2,68 +2,57 @@
 % Please edit documentation in R/centrality-batch29.R
 \name{centrality_bridging_capital}
 \alias{centrality_bridging_capital}
-\title{Bridging capital from lost information walks}
+\title{Bridging Capital}
 \usage{
 centrality_bridging_capital(x, bridging_steps = 2, bridging_values = NULL, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{bridging_steps}{Nonnegative integer horizon, default two.}
+\item{bridging_steps}{Horizon \eqn{T}{T}, a nonnegative integer. Default
+2.}
 
-\item{bridging_values}{Optional nonnegative n by n source-destination
-information-value matrix; NULL uses ones. Both dimensions may be named.}
+\item{bridging_values}{Nonnegative n by n matrix of source-destination
+values \eqn{v}{v}. \code{NULL} (default) sets every value to one. Row
+and column names, when present, are matched to the node names.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (use edge weights, default \code{TRUE}) and
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Implements Jackson's section 3.3 definition:
-\deqn{Brid_i=\sum_j\sum_{s,t}v_{st}\sum_{h=1}^T
-                [P^h-(P-P_{ij}E_{ij})^h]_{st}.}
-P contains per-contact transmission probabilities between zero and one.
-Rows need
-not sum to one: this is broadcast information flow, not a Markov chain.
-\code{bridging_steps} is the finite horizon T, default two, with zero
-giving an empty sum. Input edge weights supply P; unweighted edges use
-probability one. Finite nonnegative pair values v_st default to one,
-including diagonal entries. Named value matrices are reordered by labels.
+Bridging capital (Jackson 2020, section 3.3) credits node \eqn{i}{i}
+with the expected number of walks of length at most \eqn{T}{T} that are
+lost when one entry \eqn{P_{ij}}{P_ij} of the transmission matrix is
+deleted, summed over \eqn{j}{j} and weighted by source-destination
+values \eqn{v_{st}}{v_st}:
+\deqn{Brid_i = \sum_j \sum_{s,t} v_{st} \sum_{h=1}^{T}
+  \left[P^h - (P - P_{ij} E_{ij})^h\right]_{st}.}{
+  Brid_i = sum_j sum_{s,t} v_st sum_{h=1}^T [P^h - (P - P_ij E_ij)^h]_st.}
 }
 \details{
-The source explicitly deletes one matrix entry P_ij and credits its
-criticality to i. On undirected input, opposite entries are therefore
-tested separately; deleting one leaves the reverse entry present. This
-is not simultaneous deletion of an undirected edge or of a whole node.
-Walks can repeat nodes and edges. A walk using the selected entry several
-times contributes once to that entry's deletion loss, not once per use.
-
-Direction and loops are retained, as allowed by the source's formal
-definitions. Generic loops/simplify apply first. Remaining parallel
-weights sum into one matrix entry and must still be at most one; removal
-deletes that aggregate entry. Zero weights are absent. Mode, inversion
-and shortest-path cutoff do not affect results. Isolates score zero,
-empty inputs return no scores, and all-zero values or zero horizon give
-zeros. No renormalization follows entry removal.
-
-The native implementation tracks walks that have and have not used the
-selected entry, avoiding cancellation in matrix-power subtraction. Dense
-cost is O(m T n cubed) time and O(n squared) memory, where m is the number
-of positive directed matrix entries. Request this costly measure explicitly.
-Nonrepresentable intermediate walk masses raise errors, even if a final
-rescaled result might exist. Raw valued-score overflow may be avoided by
-\code{normalized=TRUE}, which scales values first then divides final node
-scores by their maximum. This implements expected walk counts EInf, not
-the source's alternative probability-of-ever-hearing measure PInf.
+Edge weights are the transmission probabilities in \eqn{P}{P} and must
+lie between zero and one, and an unweighted edge has probability one. A
+weight above one raises an error. Direction and loops are kept, and the
+two entries of an undirected edge are deleted separately. Walks may
+repeat nodes and edges, and a walk that uses the deleted entry several
+times is counted once. Isolated nodes score zero, and
+\code{bridging_steps = 0} gives zero scores. The function computes the
+expected walk count EInf of the source paper.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_bridging_capital(igraph::make_ring(4), bridging_steps = 2)
-\dontshow{\}) # examplesIf}
+centrality_bridging_capital(regulation_net)
 }
 \references{
 Jackson, M. O. (2020). A typology of social capital and associated network
 measures. Social Choice and Welfare, 54, 311-336.
 \doi{10.1007/s00355-019-01189-3}.
+}
+\seealso{
+\code{\link{centrality_bridging}},
+\code{\link{centrality_diffusion_centrality}}, \code{\link{centrality}}.
 }

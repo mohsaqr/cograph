@@ -3,6 +3,7 @@
 #'   symmetrizing, normalizing and inverting.
 #' @name wrangle-weights
 #' @keywords internal
+#' @noRd
 NULL
 
 # =============================================================================
@@ -11,10 +12,10 @@ NULL
 
 #' Threshold Edges by Weight, Count, Proportion or Density
 #'
-#' Keeps the edges that satisfy every criterion supplied. This is the network
-#' equivalent of qgraph's \code{minimum}/\code{cut} arguments and of
-#' \code{tna::prune()}, except that it returns a network rather than a plot
-#' setting, so the thresholded network can be analysed, not only drawn.
+#' Keeps the edges that satisfy every criterion supplied. The operation
+#' corresponds to qgraph's \code{minimum} argument and to
+#' \code{tna::prune()}. The result is a network that can be analysed and
+#' plotted.
 #'
 #' @param x Network input: cograph_network, matrix, igraph, network, tna, or
 #'   an edge-list data frame.
@@ -24,32 +25,36 @@ NULL
 #'   strongest first.
 #' @param density Numeric in (0, 1]. Keep as many of the strongest edges as
 #'   gives this density (edges as a fraction of the possible edges).
-#' @param top Integer. Keep this many edges, the strongest first.
-#' @param absolute Logical. Compare \code{abs(weight)} rather than the signed
-#'   weight. Default TRUE, which is what correlation and partial-correlation
-#'   networks need. \code{minimum}/\code{maximum} and the ranking used by
-#'   \code{proportion}, \code{density} and \code{top} both follow this flag.
+#' @param top Non-negative integer. Keep this many edges, the strongest first.
+#'   \code{top = 0} removes every edge.
+#' @param absolute Logical. Compare \code{abs(weight)} instead of the signed
+#'   weight. Default TRUE, which suits correlation and partial-correlation
+#'   networks. The \code{minimum} and \code{maximum} comparisons and the
+#'   ranking used by \code{proportion}, \code{density} and \code{top} all
+#'   follow this flag.
 #' @param keep_isolates Logical. Keep nodes that end up with no edges? Default
 #'   TRUE. Set FALSE, or call \code{\link{remove_isolates}()}, to drop them.
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
-#' When several criteria are given they are combined with AND: for example
+#' Several criteria are combined with AND. For example,
 #' \code{threshold_edges(x, minimum = 0.2, top = 20)} keeps the twenty
-#' strongest edges among those of weight at least 0.2.
+#' strongest edges among those of weight at least 0.2. When \code{proportion},
+#' \code{density} and \code{top} are combined, the smallest of the implied
+#' edge counts is used.
 #'
 #' Ties at the cut point are all kept, so \code{top = 10} can return more than
-#' ten edges when the tenth and eleventh weights are equal. This is deliberate:
-#' breaking ties on edge order would make the result depend on how the network
-#' was built.
+#' ten edges when the tenth and eleventh weights are equal. The result
+#' therefore does not depend on the order in which the edges are stored.
 #'
 #' @return A \code{cograph_network} with the surviving edges, or the input
 #'   format when \code{keep_format = TRUE}. Every node is kept unless
 #'   \code{keep_isolates = FALSE}; nodes the threshold stranded are reported in
-#'   a \code{cograph_isolates_created} warning. An out-of-range
-#'   \code{minimum}, \code{maximum}, \code{proportion}, \code{density} or
-#'   \code{top} raises a \code{cograph_bad_selection} error.
+#'   a \code{cograph_isolates_created} warning. A non-finite \code{minimum} or
+#'   \code{maximum}, a \code{proportion} or \code{density} outside (0, 1],
+#'   and a negative or fractional \code{top} raise a
+#'   \code{cograph_bad_selection} error.
 #'
 #' @seealso \code{\link{binarize}}, \code{\link{filter_edges}},
 #'   \code{\link{disparity_filter}}, \code{\link{remove_isolates}}
@@ -61,15 +66,7 @@ NULL
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' threshold_edges(adj, minimum = 0.5)
-#' threshold_edges(adj, top = 2)
-#' threshold_edges(adj, density = 0.5)
+#' threshold_edges(regulation_net, minimum = 0.1)
 threshold_edges <- function(x, minimum = NULL, maximum = NULL,
                             proportion = NULL, density = NULL, top = NULL,
                             absolute = TRUE, keep_isolates = TRUE,
@@ -168,16 +165,17 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
 
 #' Binarize Edge Weights
 #'
-#' Replaces every surviving weight with 1, dropping edges at or below the
-#' threshold. The network equivalent of \code{sna::event2dichot()}.
+#' Replaces every surviving weight with 1 and drops edges whose weight is at
+#' or below the threshold. The operation corresponds to
+#' \code{sna::event2dichot()} with an absolute threshold.
 #'
 #' @param x Network input.
 #' @param threshold Numeric. Edges whose weight exceeds this value are kept and
 #'   set to 1. Default 0, which keeps every existing edge.
 #' @param absolute Logical. Compare \code{abs(weight)}. Default TRUE, so a
 #'   correlation network keeps its strong negative edges.
-#' @param signed Logical. If TRUE, negative edges become \code{-1} rather than
-#'   \code{1}, preserving the sign of the association. Default FALSE.
+#' @param signed Logical. If TRUE, negative edges become \code{-1}, which
+#'   preserves the sign of the association. Default FALSE.
 #' @param keep_isolates Logical. Keep nodes that end up with no edges? Default TRUE.
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
@@ -197,13 +195,7 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' binarize(adj, threshold = 0.45)
+#' binarize(regulation_net, threshold = 0.1)
 binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
                      keep_isolates = TRUE, keep_format = FALSE,
                      directed = NULL) {
@@ -246,8 +238,7 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #' Symmetrize a Directed Network
 #'
 #' Combines each pair of opposite arcs into one undirected edge. The result is
-#' an undirected network, so measures that branch on directedness see the
-#' change.
+#' an undirected network. Self-loops are kept unchanged.
 #'
 #' @param x Network input.
 #' @param method How to combine \code{w[i, j]} and \code{w[j, i]}:
@@ -268,11 +259,9 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #'
 #' @details
 #' \code{"max"}, \code{"min"}, \code{"mean"} and \code{"sum"} combine two
-#' values only where both arcs exist; an unreciprocated edge keeps its own
-#' weight rather than being compared against the zero that stands for the
-#' missing arc. That distinction matters for signed networks, where comparing
-#' a negative weight against a structural zero would delete the edge. Use
-#' \code{"mutual"} when an edge should survive only if it was reciprocated.
+#' values only where both arcs exist. An unreciprocated edge keeps its own
+#' weight. In a signed network an unreciprocated negative edge is therefore
+#' kept. \code{"mutual"} keeps only reciprocated edges.
 #'
 #' @return An undirected \code{cograph_network}, or the input format when
 #'   \code{keep_format = TRUE}. The weight matrix satisfies
@@ -289,14 +278,7 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, 0,
-#'                 .2, 0, .7,
-#'                 0, .1, 0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#'
-#' symmetrize(adj, method = "max")
-#' symmetrize(adj, method = "mean")
-#' symmetrize(adj, method = "mutual")
+#' symmetrize(regulation_net, method = "mean")
 symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
                                     "upper", "lower"),
                        keep_format = FALSE, directed = NULL) {
@@ -342,8 +324,8 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
 
 #' Normalize Edge Weights
 #'
-#' Rescales the weight matrix. Row normalization is what turns a transition
-#' count matrix into the transition probabilities that TNA models use.
+#' Rescales the edge weights. Row normalization turns a transition count
+#' matrix into the transition probabilities used by TNA models.
 #'
 #' @param x Network input.
 #' @param method How to rescale:
@@ -351,30 +333,27 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
 #'     \item{\code{"row"}}{(default) each row sums to 1}
 #'     \item{\code{"column"}}{each column sums to 1}
 #'     \item{\code{"max"}}{divide by the largest absolute weight}
-#'     \item{\code{"sum"}}{divide by the total of all weights}
+#'     \item{\code{"sum"}}{divide by the sum of the weight matrix, in which
+#'       each undirected edge appears twice}
 #'     \item{\code{"minmax"}}{rescale the non-zero weights to \[0, 1\]}
 #'   }
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
 #'
 #' @details
-#' A row (or column, or the whole matrix) whose total is zero is left at zero
-#' rather than producing \code{NaN}: there is nothing to distribute. Rows with
-#' a zero total are reported in a \code{cograph_zero_norm} warning so that the
-#' zeros are a stated result rather than a silent one.
+#' A row or column whose total is zero is left at zero. Zero totals, and a zero
+#' denominator for \code{"max"} or \code{"sum"}, raise a
+#' \code{cograph_zero_norm} warning.
 #'
-#' \code{"minmax"} maps the weakest edge to \code{.Machine$double.eps} rather
-#' than to exactly 0, because 0 is how this representation stores "no edge":
-#' mapping to it would delete the weakest edge instead of rescaling it.
+#' \code{"minmax"} maps the weakest edge to \code{.Machine$double.eps}. A
+#' weight of exactly 0 would remove the edge, because 0 stores "no edge". When
+#' all weights are equal they all become 1.
 #'
 #' \code{"max"}, \code{"sum"} and \code{"minmax"} rescale each edge
-#' independently and therefore keep any extra edge columns. \code{"row"} and
-#' \code{"column"} scale an edge by a total that differs at its two endpoints,
-#' so they break symmetry and return a directed network.
-#'
-#' Row and column normalization are meaningful on directed networks. On an
-#' undirected network they still work but break symmetry, so the result is
-#' returned as directed.
+#' independently and keep any extra edge columns. \code{"row"} and
+#' \code{"column"} scale an edge by a total that differs at its two endpoints.
+#' They break symmetry, so an undirected input is returned as a directed
+#' network.
 #'
 #' @return A \code{cograph_network} with rescaled weights, or the input format
 #'   when \code{keep_format = TRUE}.
@@ -384,13 +363,7 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
 #'
 #' @export
 #' @examples
-#' counts <- matrix(c(0, 3, 1,
-#'                    2, 0, 4,
-#'                    5, 1, 0), 3, 3, byrow = TRUE)
-#' rownames(counts) <- colnames(counts) <- c("A", "B", "C")
-#'
-#' normalize_weights(counts, method = "row")
-#' normalize_weights(counts, method = "max")
+#' normalize_weights(regulation_net, method = "row")
 normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minmax"),
                               keep_format = FALSE, directed = NULL) {
   method <- match.arg(method)
@@ -487,20 +460,20 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
 
 #' Invert Edge Weights (Similarity to Distance and Back)
 #'
-#' Turns strong ties into short distances, which is what path-based measures
-#' need when the weights are similarities rather than costs.
+#' Turns strong ties into short distances. Path-based measures treat weights
+#' as costs, so similarity weights are inverted before such measures are
+#' computed.
 #'
 #' @param x Network input.
 #' @param method How to invert:
 #'   \describe{
-#'     \item{\code{"reciprocal"}}{(default) \code{1 / w}. The standard
-#'       similarity-to-distance map; requires non-zero weights, which every
-#'       stored edge has.}
+#'     \item{\code{"reciprocal"}}{(default) \code{1 / w}, the standard
+#'       similarity-to-distance map.}
 #'     \item{\code{"max_minus"}}{\code{max(w) - w}. The strongest edge becomes
 #'       zero and is therefore dropped; a \code{cograph_edges_dropped} warning
 #'       says how many.}
 #'     \item{\code{"reflect"}}{\code{max(w) + min(w) - w}. Reverses the order
-#'       of the weights while keeping every edge, so no edge is lost.}
+#'       of the weights and keeps every edge when all weights are positive.}
 #'   }
 #' @param keep_format Logical. Return the input format when TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect.
@@ -512,14 +485,7 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
 #'
 #' @export
 #' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#'
-#' invert_weights(adj)
-#' invert_weights(adj, method = "reflect")
+#' invert_weights(regulation_net, method = "reciprocal")
 invert_weights <- function(x, method = c("reciprocal", "max_minus", "reflect"),
                            keep_format = FALSE, directed = NULL) {
   method <- match.arg(method)

@@ -7,47 +7,43 @@
 centrality_hubbell(x, hubbell_weight = 0.5, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{hubbell_weight}{Attenuation factor \eqn{w}. Default 0.5. If
-\eqn{w \cdot \rho(W) \ge 1}, the function returns \code{NA} with a warning.}
+\item{hubbell_weight}{Attenuation factor \eqn{w}, a positive number
+(default 0.5).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of Hubbell centrality values (or \code{NA} if
-the system is not solvable).
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Hubbell (1965) input-output centrality:
-\eqn{C = (I - w W)^{-1} \mathbf{1}}, where \eqn{W} is the (weighted)
-adjacency matrix and \eqn{w} is a weight factor that must satisfy
-\eqn{w \cdot \rho(W) < 1} for the system to be solvable.
+Hubbell (1965) centrality solves an input-output system in which the
+score of a node is one plus the attenuated scores of the nodes it sends
+ties to:
+\deqn{c = (I - wW)^{-1}\mathbf{1},}{c = (I - w W)^(-1) 1,}
+where \eqn{W} is the weighted adjacency matrix and \eqn{w} is
+\code{hubbell_weight}.
 }
 \details{
-Bit-exact match against \code{centiserve::hubbell} when edge weights are
-passed explicitly (cograph mirrors centiserve's full-inverse LAPACK call
-path).
+The system is solvable when the spectral radius of \eqn{wW} is below one.
+Otherwise every score is \code{NA} with a warning that carries no
+condition class. A \code{hubbell_weight} of zero or below raises an error.
+Edge weights are always used, and \code{weighted = FALSE} has no effect.
+The rows of \eqn{W} are outgoing ties, so on a directed network the score
+sums attenuated walks that leave the node. \code{centiserve::hubbell()}
+with \code{weights = NULL} sets every weight to 1, so it reproduces these
+values only when the weights are passed explicitly.
 }
-\section{Note on centiserve equivalence}{
-
-\code{centiserve::hubbell(g, weights = NULL)} silently resets all edge
-weights to 1, ignoring the graph's weight attribute. To reproduce cograph's
-values with centiserve on a weighted graph, pass
-\code{weights = igraph::E(g)$weight} explicitly.
-}
-
 \examples{
-# Small weighted path graph; spectral radius permits weightfactor = 0.5
-adj <- matrix(0, 4, 4)
-adj[1,2] <- adj[2,1] <- adj[2,3] <- adj[3,2] <- adj[3,4] <- adj[4,3] <- 0.3
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-centrality_hubbell(adj, hubbell_weight = 0.5)
+centrality_hubbell(regulation_net)
 }
 \references{
 Hubbell, C. H. (1965). An input-output approach to clique identification.
 \emph{Sociometry}, 28(4), 377-399.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_katz}}.
+\code{\link{centrality_katz}}, \code{\link{centrality_power}},
+\code{\link{centrality}}.
 }

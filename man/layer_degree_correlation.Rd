@@ -10,19 +10,22 @@ layer_degree_correlation(layers, mode = c("total", "in", "out"))
 ldegcor(layers, mode = c("total", "in", "out"))
 }
 \arguments{
-\item{layers}{List of adjacency matrices}
+\item{layers}{List of adjacency matrices of the same dimensions}
 
-\item{mode}{Degree type: "total", "in", "out"}
+\item{mode}{Degree type: "total" (default, row plus column sums), "in"
+(column sums) or "out" (row sums). The sums use the edge weights, so on
+a weighted layer the degree is the node strength.}
 }
 \value{
-Correlation matrix between layer degree sequences
+An L x L Pearson correlation matrix of the layer degree sequences,
+with the layer names (or \code{"Layer1"}, \code{"Layer2"}, ...) as
+dimnames.
 }
 \description{
-Measures hub consistency across layers via degree correlation.
+Measures the consistency of hubs across layers as the Pearson correlation
+of node degrees between layers.
 }
 \examples{
-mat1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-mat2 <- matrix(c(0, 0, 1, 1, 0, 0, 0, 1, 0), 3, 3)
-layers <- list(L1 = mat1, L2 = mat2)
+layers <- list(forward = regulation_net, backward = t(regulation_net))
 layer_degree_correlation(layers, mode = "total")
 }

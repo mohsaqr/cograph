@@ -2,39 +2,47 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_information}
 \alias{centrality_information}
-\title{Information Centrality (Stephenson-Zelen)}
+\title{Information Centrality}
 \usage{
 centrality_information(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}).}
 }
 \value{
-Named numeric vector of information centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Information centrality (Stephenson & Zelen 1989) measures a node's
-importance in terms of the "information" contained in all paths (not only
-shortest) passing through it. Defined via the inverse of a Laplacian-like
-matrix, yielding per-node
-\eqn{IC_i = 1 / (C_{ii} + (\mathrm{tr}(C) - 2 R_i) / n)} where
-\eqn{C = A^{-1}} and \eqn{R_i} is the row sum of \eqn{C}.
+Information centrality (Stephenson and Zelen 1989) measures the
+information carried by all paths between a node and the others, each path
+weighted by its length. With \eqn{C = B^{-1}}{C = B^(-1)}, where \eqn{B}
+has diagonal \eqn{1 + s_i}{1 + s_i} (\eqn{s_i} the strength) and
+off-diagonal entries \eqn{1 - w_{ij}}{1 - w_ij},
+\deqn{I_i = \frac{1}{C_{ii} + (T - 2R_i)/n},}{
+  I_i = 1 / (C_ii + (T - 2 R_i) / n),}
+where \eqn{T} is the trace of \eqn{C} and \eqn{R_i} the sum of row
+\eqn{i}.
 }
 \details{
-Bit-exact match against \code{sna::infocent} on connected undirected
-graphs (cograph mirrors sna's exact construction and call sequence).
+The network is symmetrized with \eqn{(w_{ij} + w_{ji})/2}{(w_ij + w_ji)/2},
+so direction is ignored. Edge weights enter as tie strengths, and
+\code{weighted = FALSE} uses the binary matrix. Isolated nodes score 0 and
+are left out of \eqn{n}. When \eqn{B} is singular, as on some disconnected
+networks, every score is \code{NA} without a warning. On unweighted
+undirected networks the values equal \code{sna::infocent()}.
 }
 \examples{
-adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-centrality_information(adj)
+centrality_information(regulation_net)
 }
 \references{
 Stephenson, K., & Zelen, M. (1989). Rethinking centrality: Methods and
 examples. \emph{Social Networks}, 11(1), 1-37.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{centrality_current_flow_closeness}}.
+\code{\link{centrality_current_flow_closeness}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

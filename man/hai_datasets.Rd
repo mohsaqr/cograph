@@ -61,22 +61,15 @@ human_ai
 human_ai_detailed
 }
 \value{
-A \code{data.frame} where each row is one session and each column is
-one time step. Every column is named T1, T2, ... Tn and holds the action
-code at that step, with \code{NA} indicating the session ended before that
-time step; there are no identifier columns. Six variants are provided:
-\code{coding} (human
-actions by category, 9 states), \code{coding_detailed} (human actions by
-fine-grained code, 15 states), \code{ai_coding} (AI actions by category,
-8 states), \code{ai_detailed} (AI actions by fine-grained code, 18 states),
-\code{human_ai} (both actors by category, 17 states), and
-\code{human_ai_detailed} (both actors by fine-grained code, 32 states).
+Each dataset is a \code{data.frame} with one row per session and
+one character column per time step (T1, T2, ... Tn). It has no
+identifier columns.
 }
 \description{
 Coded sequences of human-AI programming interactions from 34 projects
 across 429 sessions. Actions are coded at two granularity levels
-(broad categories vs fine-grained codes) and split by actor
-(Human, AI, or both combined). Each row is one session and every column is
+(broad categories and fine-grained codes) and split by actor
+(human, AI, or both combined). The AI datasets contain 428 sessions. Each row is one session and every column is
 a time step: the columns are named T1, T2, ... Tn and hold the sequential
 actions. \code{NA} indicates the session ended before that time step.
 }

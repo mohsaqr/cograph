@@ -2,46 +2,49 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_brokerage_coordinator}
 \alias{centrality_brokerage_coordinator}
-\title{Gould-Fernandez Brokerage — Coordinator Role}
+\title{Coordinator Brokerage}
 \usage{
 centrality_brokerage_coordinator(x, membership = NULL, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer or character vector of group assignments, length
-equal to the number of nodes. Required.}
+\item{membership}{Group labels, one per node.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named integer vector of coordinator role counts.
+A named integer vector with one count per node, in input node
+order. \code{normalized = TRUE} returns a numeric vector.
 }
 \description{
-Coordinator brokerage (w_I): count of open directed 2-paths
-\eqn{A \to V \to A} passing through node \eqn{V}, where all three nodes
-belong to \eqn{V}'s group. The broker mediates contact between two
-in-group members.
+Coordinator brokerage (Gould and Fernandez 1989) counts the open two-paths
+\eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which \eqn{a},
+\eqn{v} and \eqn{c} all belong to the same group. A two-path is open when
+the network has no edge from \eqn{a} to \eqn{c}. This role is \eqn{w_I}{w_I}
+in the notation of the source.
 }
 \details{
-Bit-exact match against \code{sna::brokerage$raw.nli[, "w_I"]}. Counts
-OPEN 2-paths only — those where no direct edge from \code{a} to \code{c}
-exists. Directed-only; returns \code{NA} with a warning on undirected input.
+The measure is defined for directed networks. On an undirected network it
+raises an unclassed warning and returns \code{NA}, and the same happens when
+\code{membership} is missing. A \code{membership} whose length differs from
+the number of nodes raises an unclassed error. Group labels may be numbers
+or strings. Edge weights and self-loops are ignored. The other four roles
+are \code{\link{centrality_brokerage_itinerant}},
+\code{\link{centrality_brokerage_representative}},
+\code{\link{centrality_brokerage_gatekeeper}} and
+\code{\link{centrality_brokerage_liaison}}.
 }
 \examples{
-adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_brokerage_coordinator(adj, membership = c(1, 1, 2, 2))
+centrality_brokerage_coordinator(regulation_net, membership = rep(1:2, each = 5))
 }
 \references{
-Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
-formal approach to brokerage in transaction networks.
-\emph{Sociological Methodology}, 19, 89-126.
+Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+approach to brokerage in transaction networks. Sociological Methodology,
+19, 89-126. \doi{10.2307/270949}.
 }
 \seealso{
-\code{\link{centrality}},
-\code{\link{centrality_brokerage_itinerant}},
-\code{\link{centrality_brokerage_representative}},
 \code{\link{centrality_brokerage_gatekeeper}},
-\code{\link{centrality_brokerage_liaison}}.
+\code{\link{centrality_gateway}}, \code{\link{centrality}}.
 }

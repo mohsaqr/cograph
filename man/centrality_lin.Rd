@@ -7,27 +7,42 @@
 centrality_lin(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest distance counted,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of Lin centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Reachable nodes squared divided by sum of distances. Well-defined for
-disconnected graphs.
+Lin centrality divides the squared number of nodes a node reaches by the
+sum of its distances to them:
+\deqn{L(i) = \frac{r_i^2}{\sum_{j \in R_i} d_{ij}},}{
+  L(i) = r_i^2 / sum_{j in R_i} d_ij,}
+where \eqn{R_i} is the set of \eqn{r_i} nodes reachable from \eqn{i}. The
+score is defined on disconnected networks.
+}
+\details{
+Edge weights are read as distances. \code{weighted = FALSE} uses hop
+counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+distance \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+undirected, \code{"out"} uses distances from the node and \code{"in"}
+distances to it. A node that reaches no other node scores 0, and a
+single-node network gives \code{NA}. On undirected networks the values
+equal \code{centiserve::lincent()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lin(adj)
+centrality_lin(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_closeness}} for a related measure.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 }

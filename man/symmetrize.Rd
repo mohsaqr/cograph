@@ -42,26 +42,16 @@ under \code{"sum"}. A \code{cograph_edges_dropped} warning says how many.
 }
 \description{
 Combines each pair of opposite arcs into one undirected edge. The result is
-an undirected network, so measures that branch on directedness see the
-change.
+an undirected network. Self-loops are kept unchanged.
 }
 \details{
 \code{"max"}, \code{"min"}, \code{"mean"} and \code{"sum"} combine two
-values only where both arcs exist; an unreciprocated edge keeps its own
-weight rather than being compared against the zero that stands for the
-missing arc. That distinction matters for signed networks, where comparing
-a negative weight against a structural zero would delete the edge. Use
-\code{"mutual"} when an edge should survive only if it was reciprocated.
+values only where both arcs exist. An unreciprocated edge keeps its own
+weight. In a signed network an unreciprocated negative edge is therefore
+kept. \code{"mutual"} keeps only reciprocated edges.
 }
 \examples{
-adj <- matrix(c(0, .5, 0,
-                .2, 0, .7,
-                0, .1, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-symmetrize(adj, method = "max")
-symmetrize(adj, method = "mean")
-symmetrize(adj, method = "mutual")
+symmetrize(regulation_net, method = "mean")
 }
 \references{
 Butts, C. T. (2008). Social network analysis with sna.

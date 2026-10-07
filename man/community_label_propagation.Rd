@@ -26,15 +26,19 @@ com_lp(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{mode}{For directed graphs: "out" (default), "in", or "all".}
+\item{mode}{Direction of label propagation in directed graphs, one of
+\code{"out"} (default), \code{"in"} or \code{"all"}.}
 
-\item{initial}{Initial labels (integer vector or NULL for unique labels).}
+\item{initial}{Initial labels, an integer vector, or \code{NULL} for a
+unique label per node.}
 
-\item{fixed}{Logical vector indicating which labels are fixed.}
+\item{fixed}{Logical vector marking the nodes whose labels are fixed.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -42,32 +46,17 @@ com_lp(
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Fast semi-synchronous label propagation algorithm.
-Each node adopts the most frequent label among its neighbors.
+Label propagation community detection. Each node repeatedly adopts the
+most frequent label among its neighbors.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Basic label propagation
-  comm <- community_label_propagation(g)
-
-  # With some nodes fixed to specific communities
-  initial <- rep(NA, igraph::vcount(g))
-  initial[1] <- 1  # Node 1 in community 1
-  initial[34] <- 2 # Node 34 in community 2
-  fixed <- !is.na(initial)
-  initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
-  comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
-}
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_lp(net)
+community_label_propagation(regulation_net, seed = 1)
 \dontshow{\}) # examplesIf}
 }
 \references{

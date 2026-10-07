@@ -16,8 +16,8 @@ plot_degree_correlation(
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna.}
 
-\item{mode}{Character. For directed networks: \code{"all"}, \code{"in"},
-or \code{"out"}. Default \code{"all"}.}
+\item{mode}{Character. Degree type and neighborhood used for directed
+networks: \code{"all"} (default), \code{"in"}, or \code{"out"}.}
 
 \item{directed}{Logical or NULL. Default NULL (auto-detect).}
 
@@ -28,18 +28,20 @@ or \code{"out"}. Default \code{"all"}.}
 \item{...}{Additional arguments passed to \code{\link[graphics]{plot}}.}
 }
 \value{
-Invisibly returns a data frame with columns \code{node},
-\code{degree}, \code{avg_neighbor_degree}.
+Invisibly, a data frame with one row per node and columns
+\code{node}, \code{degree} and \code{avg_neighbor_degree}. The
+average neighbor degree is \code{NA} for nodes without neighbors.
 }
 \description{
 Scatter plot of each node's degree against the average degree of its
-neighbors. Reveals assortative (positive slope) or disassortative
-(negative slope) mixing patterns.
+neighbors. A positive slope indicates assortative mixing and a negative
+slope indicates disassortative mixing. When more than two nodes have
+neighbors, a least-squares line is added and the Pearson correlation is
+printed in the top margin.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-cograph::plot_degree_correlation(g)
+cograph::plot_degree_correlation(student_interactions)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

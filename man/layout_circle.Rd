@@ -9,23 +9,30 @@ layout_circle(network, order = NULL, start_angle = pi/2, clockwise = TRUE, ...)
 \arguments{
 \item{network}{A \code{CographNetwork} or \code{cograph_network} object.}
 
-\item{order}{Optional vector specifying node order (indices or labels).}
+\item{order}{Optional vector of node indices or labels. Its i-th element is
+the node placed at the i-th position. Labels are matched only for a
+\code{CographNetwork} object. An order of the wrong length, or with
+unmatched labels, raises a warning and the default order is used.}
 
-\item{start_angle}{Starting angle in radians (default: pi/2 for top).}
+\item{start_angle}{Angle in radians of the reference position. Default
+\code{pi/2} (top of the circle).}
 
-\item{clockwise}{Logical. Arrange nodes clockwise? Default TRUE.}
+\item{clockwise}{Logical. Default \code{TRUE} places the positions
+clockwise, with the last position at \code{start_angle} and the first
+position one step clockwise of it. \code{FALSE} places the first position
+at \code{start_angle} and continues counterclockwise.}
 
-\item{...}{Additional arguments (ignored).}
+\item{...}{Ignored.}
 }
 \value{
-Data frame with x, y coordinates.
+A data frame with columns \code{x} and \code{y} and one row per
+node, in node order.
 }
 \description{
-Arrange nodes evenly spaced around a circle.
+Places the nodes at evenly spaced positions on a circle of radius 0.4
+centered at (0.5, 0.5). A single node is placed at the center.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-coords <- layout_circle(net)
+layout_circle(CographNetwork$new(regulation_net))
 
 }

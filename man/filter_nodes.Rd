@@ -29,8 +29,8 @@ subset_nodes(
 \item{...}{Filter expressions using any node column or centrality measure.
 Available variables include:
 \describe{
-\item{Node columns}{All columns in the nodes dataframe: \code{id}, \code{label},
-\code{name}, \code{x}, \code{y}, \code{inits}, \code{color}, plus any custom}
+\item{Node columns}{All columns of the node table, such as \code{id},
+\code{label}, \code{name}, \code{x}, \code{y} and any custom columns.}
 \item{Centrality measures}{\code{degree}, \code{indegree}, \code{outdegree},
 \code{strength}, \code{instrength}, \code{outstrength}, \code{betweenness},
 \code{closeness}, \code{eigenvector}, \code{pagerank}, \code{hub},
@@ -55,7 +55,7 @@ with a \code{cograph_negative_weights} warning.}
 \item{\code{"none"}}{Remove all edges}
 }}
 
-\item{keep_format}{Logical. If TRUE, matrix, igraph, and statnet network
+\item{keep_format}{Logical. If TRUE, matrix, igraph, statnet network and tna
 inputs are returned in that format. Default FALSE
 returns cograph_network (universal format).}
 
@@ -67,24 +67,16 @@ Only used for non-cograph_network inputs.}
 }
 \value{
 A cograph_network object with filtered nodes. If \code{keep_format = TRUE},
-matrix, igraph, and statnet network inputs are converted back to that type.
+matrix, igraph, statnet network and tna inputs are converted back to that type.
 }
 \description{
 Filter nodes using dplyr-style expressions on any node column or centrality
 measure. Returns a cograph_network object by default (universal format), or
-optionally a matrix, igraph, or statnet network object when
+optionally a matrix, igraph, statnet network or tna object when
 \code{keep_format = TRUE} and the input used one of those formats.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Keep only high-degree nodes
-filter_nodes(adj, degree >= 3)
-
-# Filter by label, combined with degree
-filter_nodes(adj, degree >= 2 & label != "D")
+filter_nodes(regulation_net, degree >= 7)
 }
 \seealso{
 \code{\link{filter_edges}}, \code{\link{splot}}, \code{\link{subset_nodes}}

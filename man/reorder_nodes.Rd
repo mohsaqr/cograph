@@ -10,30 +10,30 @@ reorder_nodes(x, order, keep_format = FALSE, directed = NULL)
 \item{x}{Network input.}
 
 \item{order}{Node labels or indices, in the wanted order, or one of
-\code{"label"}, \code{"degree"}, \code{"strength"} to sort by. Sorting by
-a measure is descending.}
+\code{"label"}, \code{"degree"} or \code{"strength"}. \code{"label"}
+sorts alphabetically, and the two measures sort in decreasing order. A
+vector that does not name every node exactly once raises a
+\code{cograph_bad_selection} error.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} with the nodes in the requested order and
 edge indices remapped, or the input format when \code{keep_format = TRUE}.
 }
 \description{
-Changes the order the nodes are stored in, which is the order plotting
-functions lay them out in. The network itself is unchanged.
+Changes the order in which the nodes are stored, which is the order in which
+plotting functions place them. The edges and their weights are unchanged.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-get_labels(reorder_nodes(adj, order = "degree"))
-get_labels(reorder_nodes(adj, order = c("D", "C", "B", "A")))
+reorder_nodes(regulation_net, order = "degree")
 }
 \seealso{
 \code{\link{rename_nodes}}, \code{\link{select_nodes}}

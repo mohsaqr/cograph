@@ -7,36 +7,39 @@
 centrality_neighborhood_connectivity(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure
+uses \code{loops} (keep self-loops, default \code{TRUE}).}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Mean degree of a node's neighbors (Maslov & Sneppen 2002), the
-"average neighbor degree" reported by Cytoscape:
-\deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}
-High values mark nodes attached to hubs. Isolates score 0. Under
-\code{mode = "out"} the out-neighbors' out-degrees are averaged, under
-\code{"in"} the in-neighbors' in-degrees.
+Neighborhood connectivity (Maslov and Sneppen 2002) is the mean degree of
+the neighbors of a node, the average neighbor degree reported by
+Cytoscape:
+\deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}{
+  C_NC(i) = (1 / k_i) sum_{j in N(i)} k_j.}
+}
+\details{
+Edge weights are ignored. Under \code{mode = "out"} the out-degrees of the
+out-neighbors are averaged, and under \code{mode = "in"} the in-degrees of
+the in-neighbors. Self-loops change the degrees, and \code{loops = FALSE}
+drops them. Isolated nodes score 0. High values mark nodes attached to
+hubs.
 }
 \examples{
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_neighborhood_connectivity(star5)
+centrality_neighborhood_connectivity(regulation_net)
 }
 \references{
 Maslov, S., & Sneppen, K. (2002). Specificity and stability
 in topology of protein networks. Science, 296(5569), 910-913.
 }
 \seealso{
-\code{\link{centrality_degree}}, and \code{igraph::knn()} for
-the Barrat weighted generalization.
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

@@ -7,26 +7,46 @@
 centrality_residual_closeness(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest distance counted,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of residual closeness values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of 1/2^d for all nodes, including self. Robust to disconnected graphs.
+Residual closeness (Dangalchev 2006) sums distances that decay by half
+with every step:
+\deqn{C(i) = \sum_{j} 2^{-d_{ij}},}{C(i) = sum_j 2^(-d_ij),}
+with \eqn{2^{-\infty} = 0}{2^(-Inf) = 0}, so the score is defined on
+disconnected networks.
+}
+\details{
+The sum includes the node itself, which adds 1, and the values equal
+\code{centiserve::closeness.residual()} on undirected networks. Edge
+weights are read as distances; \code{weighted = FALSE} uses hop counts,
+and \code{invert_weights = TRUE} converts a weight \eqn{w} to the distance
+\eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+undirected, \code{"out"} uses distances from the node and \code{"in"}
+distances to it. \code{\link{centrality_dangalchev}} returns the same
+values.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_residual_closeness(adj)
+centrality_residual_closeness(regulation_net)
+}
+\references{
+Dangalchev, C. (2006). Residual closeness in networks. Physica A, 365(2),
+556-564. \doi{10.1016/j.physa.2005.12.020}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_dangalchev}} (alias).
+\code{\link{centrality_dangalchev}},
+\code{\link{centrality_decay}}, \code{\link{centrality}}.
 }

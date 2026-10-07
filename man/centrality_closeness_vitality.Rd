@@ -7,26 +7,46 @@
 centrality_closeness_vitality(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of closeness vitality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Drop in the Wiener index when a node is removed. Higher values indicate
-more critical nodes for overall connectivity.
+Closeness vitality (Koschuetzki et al. 2005) is the drop in the Wiener
+index when a node is removed:
+\deqn{CV(v) = W(G) - W(G - v), \qquad W(G) = \sum_{s \ne t} d(s, t).}{
+  CV(v) = W(G) - W(G - v), W(G) = sum_{s != t} d(s, t).}
+The Wiener index sums the finite distances over ordered pairs, as in
+\code{networkx::closeness_vitality()}.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths. Pairs that are
+not connected contribute nothing to either index. An isolated node scores
+0.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_closeness_vitality(adj)
+centrality_closeness_vitality(regulation_net)
+}
+\references{
+Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
+D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
+Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.
+16-61). Springer. \doi{10.1007/978-3-540-31955-9_3}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_wiener}}, \code{\link{centrality_centroid}},
+\code{\link{centrality}}.
 }

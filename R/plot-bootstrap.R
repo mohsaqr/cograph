@@ -7,70 +7,14 @@
 #' @noRd
 NULL
 
-#' @rdname splot.tna_bootstrap
+#' @noRd
 #' @method plot tna_bootstrap
 #' @export
 plot.tna_bootstrap <- function(x, ...) {
   splot.tna_bootstrap(x, ...)
 }
 
-#' Plot Bootstrap Results
-#'
-#' Visualizes bootstrap analysis results with styling to distinguish
-#' significant from non-significant edges. Works with tna_bootstrap objects
-#' from the tna package.
-#'
-#' @param x A tna_bootstrap object (from tna::bootstrap).
-#' @param display Display mode:
-#'   \itemize{
-#'     \item "styled" (default): All edges with styling to distinguish significant/non-significant
-#'     \item "significant": Only significant edges
-#'     \item "full": All edges without significance styling
-#'     \item "ci": Show CI bands on edges
-#'   }
-#' @param edge_style_sig Line style for significant edges (1=solid). Default 1.
-#' @param edge_style_nonsig Line style for non-significant edges (2=dashed). Default 2.
-#' @param color_nonsig Accepted for compatibility; styled mode currently uses a
-#'   fixed pink color for non-significant edges.
-#' @param show_ci Logical: include CI bounds in edge labels? Default FALSE.
-#'   Use \code{display = "ci"} for CI underlays on edges.
-#' @param show_stars Logical: show significance stars (*, **, ***) on edges? Default TRUE.
-#' @param width_by Optional: "cr_lower" to scale edge width by lower consistency range bound.
-#' @param inherit_style Logical: inherit colors/layout from original TNA model? Default TRUE.
-#' @param ... Additional arguments passed to splot().
-#'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}. Called for the side effect of drawing.
-#'
-#' @details
-#' The function expects a tna_bootstrap object containing:
-#' \itemize{
-#'   \item \code{weights} or \code{weights_orig}: Original weight matrix
-#'   \item \code{weights_sig}: Significant weights only (optional)
-#'   \item \code{p_values}: P-value matrix
-#'   \item \code{ci_lower}, \code{ci_upper}: Confidence interval bounds
-#'   \item \code{level}: Significance level (default 0.05)
-#'   \item \code{model}: Original TNA model for styling inheritance
-#' }
-#'
-#' Edge styling in "styled" mode:
-#' \itemize{
-#'   \item Significant edges: solid dark blue, bold labels with stars, rendered on top
-#'   \item Non-significant edges: dashed pink, plain labels, rendered behind
-#' }
-#'
-#' @examples
-#' # Mock a tna_bootstrap object with synthetic data
-#' w <- matrix(c(0, .3, .1, .2, 0, .4, .3, .1, 0), 3, 3)
-#' rownames(w) <- colnames(w) <- c("A", "B", "C")
-#' p <- matrix(c(1, .01, .5, .03, 1, .001, .2, .8, 1), 3, 3)
-#' boot <- list(weights = w, p_values = p,
-#'              ci_lower = w - 0.05, ci_upper = w + 0.05, level = 0.05,
-#'              model = list(weights = w, labels = c("A", "B", "C")))
-#' class(boot) <- c("tna_bootstrap", "list")
-#' splot(boot)
-#' splot(boot, display = "significant")
-#'
+#' @rdname plot-results
 #' @export
 splot.tna_bootstrap <- function(x,
                                 display = c("styled", "significant", "full", "ci"),
@@ -326,22 +270,19 @@ splot.tna_bootstrap <- function(x,
 }
 
 
-#' Plot Nestimate Bootstrap Results
+#' @details
+#' \code{splot.net_bootstrap()} plots a \code{net_bootstrap} object from the
+#' Nestimate package. It shows the original network, whose weights are taken
+#' from \code{$original$weights}, with the edges styled by bootstrap
+#' significance.
 #'
-#' Visualizes \code{net_bootstrap} objects from the Nestimate package.
-#' Mirrors \code{splot.tna_bootstrap} but adapts to Nestimate's field layout:
-#' weights live under \code{$original$weights}, directed is not always TRUE,
-#' and there are no donut/inits.
+#' @param display Display mode of \code{splot.net_bootstrap()}:
+#'   \code{"styled"} (default), \code{"significant"} or \code{"full"}.
+#' @param show_ci Logical. Add the confidence bounds to the edge labels of a
+#'   \code{net_bootstrap} plot. Default \code{FALSE}.
+#' @param inherit_style Logical. Take labels, layout and colors from the
+#'   original network of a \code{net_bootstrap} object. Default \code{TRUE}.
 #'
-#' @param x A \code{net_bootstrap} object (from Nestimate).
-#' @param display Display mode: \code{"styled"} (default), \code{"significant"}, or \code{"full"}.
-#' @param show_ci Logical: overlay CI bounds on edge labels? Default FALSE.
-#' @param show_stars Logical: show significance stars on edge labels? Default TRUE.
-#' @param inherit_style Logical: inherit labels/layout/colors from network? Default TRUE.
-#' @param ... Additional arguments passed to \code{splot()}.
-#'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.net_bootstrap <- function(x,

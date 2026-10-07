@@ -26,16 +26,18 @@ com_im(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights for transitions. NULL uses network weights,
-NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
 \item{v.weights}{Vertex weights (teleportation weights).}
 
 \item{nb.trials}{Number of optimization trials. Default 10.}
 
-\item{modularity}{Logical; calculate modularity? Default TRUE.}
+\item{modularity}{Logical. Whether modularity is computed. Default
+\code{TRUE}.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -43,19 +45,19 @@ NA for unweighted.}
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Information-theoretic community detection based on random walk dynamics.
-Minimizes the map equation (description length of random walks).
+Information-theoretic community detection based on random walks. The
+partition minimizes the map equation, the description length of a random
+walk on the network.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_infomap(g, nb.trials = 20)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+community_infomap(regulation_net, nb.trials = 10, seed = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Rosvall, M., & Bergstrom, C.T. (2008).

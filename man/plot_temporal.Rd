@@ -38,40 +38,41 @@ plot_temporal(
 )
 }
 \arguments{
-\item{x}{An edge list data frame with columns \code{from}, \code{to}, and
-a time column, OR a \code{cograph_network} (reads time from stored data),
-OR a named list of network objects.}
+\item{x}{An edge list data frame with columns \code{from}, \code{to},
+optionally \code{weight}, and a time column; a \code{cograph_network}
+whose stored edge data contain the time column; or a list of network
+objects.}
 
-\item{time}{Character. Name of the time column.}
+\item{time}{Character. Name of the time column. Required for data frame
+input. It also labels the time axis.}
 
-\item{slices}{Integer or NULL. Number of equal-width time bins. Default
-NULL uses unique time values.}
+\item{slices}{Integer or NULL. Number of equal-width bins of the numeric
+time column. Empty bins are kept as empty planes. Default NULL uses the
+unique time values.}
 
-\item{cumulative}{Logical. If TRUE, edges accumulate. Default FALSE.}
+\item{cumulative}{Logical. If TRUE, each plane contains all edges up to
+its time point. Default FALSE.}
 
-\item{labels}{Character vector of layer labels. Default auto.}
+\item{labels}{Character vector of layer labels, one per plane. The default
+NULL uses the time values, or \code{"T1"}, \code{"T2"}, ... for list
+input.}
 
-\item{layout}{Character or matrix. Character values currently use a shared
-Fruchterman-Reingold/spring layout; a matrix supplies shared coordinates.
-Default \code{"spring"}.}
+\item{layout}{Character or matrix. A character value computes one
+Fruchterman-Reingold layout from the summed network. A two-column matrix
+supplies shared coordinates, one row per node. Default \code{"spring"}.}
 
-\item{node_size}{Numeric. Node size. Default 2.5.}
+\item{node_size}{Numeric. Point size (\code{cex}). Default 2.5.}
 
 \item{node_color}{Character or vector. Node fill color. A single color
-applies everywhere. An unnamed vector is recycled across \emph{layers},
-coloring each plane as a whole. A \strong{named} vector is matched to
-node names instead and colors each \emph{node} the same on every plane,
-which is what makes a node identifiable as it moves through the stack;
-names not present in the network are an error rather than silent. See
-also \code{color_by}. The original text of this parameter continues:
-a single color
-applies to all layers, or a vector of length \code{n_layers} for
-per-layer colors. Default \code{"steelblue"}.}
+applies to every node. An unnamed vector is recycled across layers and
+colors each plane as a whole, unless \code{color_by = "node"}. A named
+vector is matched to node names and gives each node the same color on
+every plane. A named vector that lacks a node raises an error of class
+\code{cograph_node_color_incomplete}. Default \code{"steelblue"}.}
 
-\item{color_by}{One of \code{"layer"} (the default, and the historical
-behavior) or \code{"node"}. Chooses what an unnamed \code{node_color}
-vector indexes. A named \code{node_color} always colors by node and
-ignores this argument.}
+\item{color_by}{One of \code{"layer"} (default) or \code{"node"}. It sets
+whether an unnamed \code{node_color} vector is recycled over layers or
+over nodes. A named \code{node_color} always colors by node.}
 
 \item{node_shape}{Integer. Point shape (\code{pch}). Default 21 (filled
 circle).}
@@ -81,8 +82,8 @@ circle).}
 \item{edge_color}{Character or vector. Edge color (single or per-layer).
 Default \code{"#E41A1C"}.}
 
-\item{edge_width}{Numeric. Base edge width. Actual width scales by
-weight. Default 1.5.}
+\item{edge_width}{Numeric. Maximum added edge width. An edge has width
+\code{0.3 + edge_width * abs(w) / max(abs(w))}. Default 1.5.}
 
 \item{edge_alpha}{Numeric. Edge transparency (0-1). Default 0.35.}
 
@@ -96,20 +97,23 @@ per-layer). Default \code{"gray92"}.}
 
 \item{plane_lty}{Integer. Plane border line type. Default 2 (dashed).}
 
-\item{box}{Logical. Draw 3D bounding box. Default TRUE.}
+\item{box}{Logical. Whether the 3D bounding box is plotted. Default TRUE.}
 
 \item{box_color}{Character. Box edge color. Default \code{"gray40"}.}
 
-\item{connections}{Logical. Draw lines connecting same nodes across
-planes. Default FALSE.}
+\item{connections}{Logical. Whether lines connect each node to itself on
+the next plane. Default FALSE.}
 
-\item{connection_color}{Character. Default \code{"gray50"}.}
+\item{connection_color}{Character. Color of the connecting lines. Default
+\code{"gray50"}.}
 
-\item{connection_alpha}{Numeric. Default 0.15.}
+\item{connection_alpha}{Numeric. Transparency of the connecting lines.
+Default 0.15.}
 
-\item{minimum}{Numeric. Minimum edge weight to display. Default 0.}
+\item{minimum}{Numeric. Only edges with weight greater than
+\code{minimum} are plotted. Default 0.}
 
-\item{show_labels}{Logical. Default FALSE.}
+\item{show_labels}{Logical. Show node labels. Default FALSE.}
 
 \item{label_size}{Numeric. Label text size. Default 0.4.}
 
@@ -118,17 +122,21 @@ planes. Default FALSE.}
 \item{angle}{Numeric vector of length 2: \code{c(dz_x, dz_y)} controlling
 the oblique projection shear. Default \code{c(1.0, 0.7)}.}
 
-\item{seed}{Integer or NULL. Default 42.}
+\item{seed}{Integer or NULL. Random seed for the shared layout. The
+caller's random number state is restored on exit. NULL sets no seed.
+Default 42.}
 
-\item{...}{Additional arguments (currently unused).}
+\item{...}{Currently unused.}
 }
 \value{
-Invisible list of adjacency matrices per layer.
+Invisibly, a list of weight matrices, one per plane, with one row
+and one column per node.
 }
 \description{
-Displays a network at different time points as vertical planes inside a
-3D oblique-projection box, with time flowing left to right. Each network
-plane extends into the depth of the box.
+Plots a network at different time points as vertical planes inside a
+3D oblique-projection box, with time running from left to right. Each
+network plane extends into the depth of the box, and all planes share one
+node layout. At least two time points are required.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}

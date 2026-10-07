@@ -2,80 +2,60 @@
 % Please edit documentation in R/centrality-batch38.R
 \name{centrality_mcgm}
 \alias{centrality_mcgm}
-\title{Multi-characteristics gravity model}
+\title{Multi-Characteristics Gravity Model Centrality}
 \usage{
 centrality_mcgm(x, mcgm_radius = 2, mcgm_alpha = NULL, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mcgm_radius}{Nonnegative hop-distance cutoff, default two. NULL
-or infinity includes every reachable partner. Fractional cutoffs
-include exactly the integer hop distances not exceeding them.}
+\item{mcgm_radius}{Hop-distance cutoff \eqn{R}{R}. Default 2, the
+setting recommended in the paper. \code{NULL} or \code{Inf} includes
+every reachable node.}
 
-\item{mcgm_alpha}{NULL uses the published median-based coefficient.
-A finite nonnegative scalar explicitly overrides it.}
+\item{mcgm_alpha}{\code{NULL} (default) uses the median-based
+\eqn{\alpha}{alpha}. A finite nonnegative number replaces it.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Li and Huang's MCGM combines degree k, core number s and eigenvector
-centrality x in node masses. Write K, S and X for these features divided
-by their respective global maxima. Equations 17 and 18 define
-\eqn{\alpha=\max\{\operatorname{median}(K),
-\operatorname{median}(X)\}/\operatorname{median}(S)},
-\eqn{m_i=K_i+\alpha S_i+X_i}, and
-\eqn{MCGM_i=\sum_{j:0<d(i,j)\le R}m_i m_j/d(i,j)^2}.
-The default radius two is the paper's recommended practical setting.
-All features refer to the original graph, not each node's neighborhood.
+MCGM (Li and Huang 2022) is a gravity model whose node mass combines
+degree \eqn{K}{K}, core number \eqn{S}{S} and eigenvector centrality
+\eqn{X}{X}, each divided by its maximum over the network:
+\deqn{MCGM_i = \sum_{j : 0 < d(i,j) \le R} \frac{m_i m_j}{d(i,j)^2},
+  \qquad m_i = K_i + \alpha S_i + X_i.}{
+  MCGM_i = sum_{j: 0 < d(i,j) <= R} m_i m_j / d(i,j)^2,
+  m_i = K_i + alpha S_i + X_i.}
+By default \eqn{\alpha}{alpha} is the larger of the medians of
+\eqn{K}{K} and \eqn{X}{X} divided by the median of \eqn{S}{S}
+(equation 17).
 }
 \details{
-The source domain is simple undirected unweighted graphs. Other inputs
-use their simple undirected skeleton: either arc creates one edge,
-parallel edges count once and loops are removed. Weights, mode, cutoff,
-gravity_mass, gravity_radius and path-weight inversion are ignored.
-These input projections are cograph conventions.
-
-On connected graphs with edges, X is the unique positive Perron vector,
-scaled to maximum one. For disconnected graphs the paper does not specify
-an eigenvector selection. This implementation projects the all-ones vector
-onto the global dominant eigenspace and then scales to maximum one.
-Equivalently, it selects the limit of identity-shifted power iteration
-initialized uniformly. Components below the largest spectral radius
-have eigenvector feature zero; tied components share the projection.
-Component roots within 64 times machine epsilon times n times
-max(1, spectral radius) are treated as tied. All feature maxima and
-medians remain global. Adding a disconnected component can change scores.
-
-When edges exist but median coreness is zero, the source's automatic
-alpha is undefined and an error requests an explicit \code{mcgm_alpha}.
-This override is an extension of the published adaptive rule; setting
-it to one recovers equation 16. It is never silently inferred from a
-different subset of nodes. Isolates score zero when the mass rule is
-defined. Edgeless graphs and radii below one return zero by an explicit
-empty-interaction convention, including a singleton; empty graphs return
-no scores. NULL or infinite radius includes all reachable partners.
-
-Raw scores preserve equation 18's scale. Optional maximum normalization
-occurs after all gravity contributions and can handle very large explicit
-alpha values whose raw scores overflow. Dense spectral calculations and
-all-pairs distances require O(n cubed) time and O(n squared) memory.
-Unresolved positive eigenvectors or overflowing raw scores raise errors.
-The published nine-node numerical example is reproduced at its printed
-precision. This establishes numerical agreement, not a universal guarantee
-of spreading prediction or parity with unreleased author software.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored,
+and \code{gravity_mass} and \code{gravity_radius} have no effect. On a
+disconnected network the eigenvector feature is the projection of the
+all-ones vector onto the dominant eigenspace, so a component with a
+smaller spectral radius has \eqn{X = 0}{X = 0}. When the median core
+number is zero the automatic \eqn{\alpha}{alpha} is undefined, and an
+error asks for \code{mcgm_alpha}. \code{mcgm_alpha = 1} gives equation
+16 of the paper. Isolated nodes score zero, and an edgeless network or
+a radius below one gives zero scores.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_mcgm(igraph::make_ring(6))
-centrality_mcgm(igraph::make_star(6), mcgm_radius = 3)
-\dontshow{\}) # examplesIf}
+centrality_mcgm(regulation_net)
 }
 \references{
 Li, Z. and Huang, X. (2022). Identifying influential spreaders by gravity
 model considering multi-characteristics of nodes. Scientific Reports, 12,
 9879. \doi{10.1038/s41598-022-14005-3}.
+}
+\seealso{
+\code{\link{centrality_gravity}},
+\code{\link{centrality_mixed_gravity}}, \code{\link{centrality}}.
 }

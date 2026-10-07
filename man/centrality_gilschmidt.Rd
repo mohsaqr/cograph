@@ -7,27 +7,36 @@
 centrality_gilschmidt(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of Gil-Schmidt power index values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Sum of 1/d(v,w) normalized by (n-1). Variant of closeness using harmonic
-mean of distances.
+The Gil-Schmidt power index sums the reciprocal hop distances from a node
+to the nodes it reaches and divides by \eqn{n - 1}:
+\deqn{GS(v) = \frac{1}{n - 1} \sum_{w \ne v} \frac{1}{d(v, w)}.}{
+  GS(v) = sum_{w != v} 1 / d(v, w) / (n - 1).}
+Unreachable nodes contribute 0, so the score lies between 0 and 1, and a
+node adjacent to every other node scores 1.
+}
+\details{
+Distances are hop counts, so edge weights are ignored and
+\code{invert_weights} has no effect. \code{mode} sets the direction of the
+paths. With \code{mode = "out"} the values match
+\code{sna::gilschmidt()} with its default settings.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_gilschmidt(adj)
+centrality_gilschmidt(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_harmonic}} for a related measure.
+\code{\link{centrality_harmonic}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

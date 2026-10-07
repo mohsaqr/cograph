@@ -7,71 +7,19 @@
 #' @noRd
 NULL
 
-#' @rdname plot_permutation
+#' @rdname plot-results
 #' @export
 splot.tna_permutation <- function(x, ...) {
   plot_permutation(x, ...)
 }
 
-#' @rdname plot_group_permutation
+#' @rdname plot-results
 #' @export
 splot.group_tna_permutation <- function(x, ...) {
   plot_group_permutation(x, ...)
 }
 
-#' Plot Permutation Test Results
-#'
-#' Visualizes permutation test results with styling to distinguish
-#' significant from non-significant edge differences. Works with tna_permutation
-#' objects from the tna package.
-#'
-#' @param x A tna_permutation object (from tna::permutation_test).
-#' @param show_nonsig Logical: show non-significant edges? Default FALSE (only significant shown).
-#' @param edge_positive_color Color for positive differences (x > y). Default "#009900" (green).
-#' @param edge_negative_color Color for negative differences (x < y). Default "#C62828" (red).
-#' @param edge_nonsig_color Color for non-significant edges. Default "#888888" (grey).
-#' @param edge_nonsig_style Line style for non-significant edges (2=dashed). Default 2.
-#' @param show_stars Logical: show significance stars (*, **, ***) on edges? Default TRUE.
-#' @param show_effect Logical: show effect size in parentheses for significant edges? Default FALSE.
-#' @param edge_nonsig_alpha Alpha for non-significant edges. Default 0.4.
-#' @param ... Additional arguments passed to splot().
-#'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}, or \code{NULL} when no edge survives the
-#'   significance filter. Called for the side effect of drawing.
-#'
-#' @details
-#' The function expects a tna_permutation object containing:
-#' \itemize{
-#'   \item \code{edges$diffs_true}: Matrix of actual edge differences (x - y)
-#'   \item \code{edges$diffs_sig}: Matrix of significant differences only
-#'   \item \code{edges$stats}: Data frame with edge_name, diff_true, effect_size, p_value
-#' }
-#'
-#' Edge styling:
-#' \itemize{
-#'   \item Significant positive: solid green, bold labels with stars
-#'   \item Significant negative: solid red, bold labels with stars
-#'   \item Non-significant (when show_nonsig=TRUE): dashed grey, plain labels, lower alpha
-#' }
-#'
-#' @examples
-#' # Mock a tna_permutation object with synthetic data
-#' diffs <- matrix(c(0, .15, -.1, -.2, 0, .05, .1, -.05, 0), 3, 3)
-#' rownames(diffs) <- colnames(diffs) <- c("A", "B", "C")
-#' diffs_sig <- diffs; diffs_sig[abs(diffs) < 0.1] <- 0
-#' perm <- list(edges = list(
-#'   diffs_true = diffs, diffs_sig = diffs_sig,
-#'   stats = data.frame(
-#'     edge_name   = c("A -> B","A -> C","B -> A","B -> C","C -> A","C -> B"),
-#'     diff_true   = c(.15,-.1,-.2,.05,.1,-.05),
-#'     effect_size = c(2.1,-1.5,-2.8,.4,1.2,-.3),
-#'     p_value     = c(.01,.04,.001,.3,.02,.5))))
-#' attr(perm, "level")  <- 0.05
-#' attr(perm, "labels") <- c("A", "B", "C")
-#' class(perm) <- c("tna_permutation", "list")
-#' plot_permutation(perm)
-#'
+#' @rdname plot-results
 #' @export
 plot_permutation <- function(x,
                                   show_nonsig = FALSE,
@@ -292,36 +240,7 @@ plot_permutation <- function(x,
 }
 
 
-#' Plot Group Permutation Test Results
-#'
-#' Visualizes all pairwise permutation test results from a group_tna object.
-#' Creates a multi-panel plot with one panel per comparison.
-#'
-#' @param x A group_tna_permutation object (from tna::permutation_test on group_tna).
-#' @param i Index or name of specific comparison to plot. NULL for all.
-#' @param combined Logical: when TRUE (default), lay out panels in an internal
-#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw each panel
-#'   into a layout the caller has already configured (e.g. via
-#'   \code{\link{panel_layout}()}). Ignored when \code{i} selects a single panel.
-#' @param ... Additional arguments passed to plot_permutation().
-#'
-#' @return When \code{i} is supplied, invisibly returns the
-#'   \code{\link{plot_permutation}()} result for the selected panel (a
-#'   \code{cograph_network}). Otherwise invisibly returns \code{NULL} after
-#'   drawing all panels.
-#'
-#' @examples
-#' # Mock a group_tna_permutation object
-#' d1 <- matrix(c(0, .2, -.1, -.2, 0, .1, .1, -.1, 0), 3, 3)
-#' rownames(d1) <- colnames(d1) <- c("A", "B", "C")
-#' d1_sig <- d1; d1_sig[abs(d1) < 0.15] <- 0
-#' perm1 <- list(edges = list(diffs_true = d1, diffs_sig = d1_sig, stats = NULL))
-#' attr(perm1, "labels") <- c("A", "B", "C")
-#' class(perm1) <- c("tna_permutation", "list")
-#' gperm <- list("G1 vs. G2" = perm1)
-#' class(gperm) <- c("group_tna_permutation", "list")
-#' plot_group_permutation(gperm)
-#'
+#' @rdname plot-results
 #' @export
 plot_group_permutation <- function(x, i = NULL, combined = TRUE, ...) {
   # Strip `title` from `...` so we can re-inject a per-panel title without
@@ -374,25 +293,23 @@ plot_group_permutation <- function(x, i = NULL, combined = TRUE, ...) {
 }
 
 
-#' Plot Nestimate Permutation Test Results
-#'
-#' Visualizes \code{net_permutation} objects from the Nestimate package.
-#' Differs from \code{plot_permutation}: p_values and effect_size are already
-#' p×p matrices (no edge-name parsing needed), and \code{directed} comes from
+#' @details
+#' \code{splot.net_permutation()} plots the edge differences of a
+#' \code{net_permutation} object from Nestimate, with significant
+#' differences highlighted. The direction of the network is taken from
 #' \code{x$x$directed}.
 #'
-#' @param x A \code{net_permutation} object (from Nestimate).
-#' @param show_nonsig Logical: show non-significant edges? Default FALSE.
-#' @param show_effect Logical: show effect size in parentheses? Default FALSE.
-#' @param edge_positive_color Color for positive differences. Default \code{"#009900"}.
-#' @param edge_negative_color Color for negative differences. Default \code{"#C62828"}.
-#' @param edge_nonsig_color Color for non-significant edges. Default \code{"#888888"}.
-#' @param edge_nonsig_style Line style for non-significant edges. Default 2L.
-#' @param show_stars Logical: show significance stars? Default TRUE.
-#' @param ... Additional arguments passed to \code{splot()}.
+#' @param show_nonsig Logical. Show non-significant edges of a
+#'   \code{net_permutation} plot. Default \code{FALSE}.
+#' @param show_effect Logical. Show the effect size in parentheses in the edge
+#'   labels of a \code{net_permutation} plot. Default \code{FALSE}.
+#' @param edge_nonsig_color Color of non-significant edges. Default
+#'   \code{"#888888"}.
+#' @param edge_nonsig_style Line type of non-significant edges. Default 2.
+#' @param show_stars Logical. Show significance stars in the edge labels of a
+#'   \code{net_bootstrap} or \code{net_permutation} plot. Default
+#'   \code{TRUE}.
 #'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}, or \code{NULL} when there is no edge to draw.
 #' @rdname splot
 #' @export
 splot.net_permutation <- function(x,

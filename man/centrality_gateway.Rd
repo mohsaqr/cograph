@@ -7,29 +7,51 @@
 centrality_gateway(x, membership = NULL, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer vector of community assignments (one per node).}
+\item{membership}{Integer module codes, one per node.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Accepted for a uniform interface. It has no effect. Default
+\code{"all"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of gateway coefficient values (0-1).
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Inter-community brokerage weighted by centrality. Combines participation
-with degree information. Requires community membership.
+The gateway coefficient (Ruiz Vargas and Wahl 2014) refines the
+participation coefficient by weighting the links of node \eqn{i} into each
+module \eqn{s} by how much of the connection between the two modules they
+carry and by the degree of the neighbors they reach:
+\deqn{G_i = 1 - \frac{1}{k_i^2} \sum_{s} k_{is}^2 \, g_{is}^2,}{
+  G_i = 1 - (1 / k_i^2) sum_s k_is^2 g_is^2,}
+where \eqn{k_{is}}{k_is} is the number of links of \eqn{i} into module
+\eqn{s} and \eqn{g_{is}}{g_is} lies between 0 and 1.
+}
+\details{
+Edge weights are ignored. On an undirected network the score lies between 0
+and 1. On a directed network \eqn{k_i}{k_i} is the in-degree while
+\eqn{k_{is}}{k_is} counts outgoing links, and the score can be negative, as
+on \code{regulation_net}. \code{membership} must hold integer codes
+\code{1, ..., m}. Without \code{membership} the function raises an
+unclassed warning and returns \code{NA}, and a \code{membership} of the
+wrong length or with character labels raises an unclassed error. With a
+single module every node scores 0, and so does a node without incoming
+links.
 }
 \examples{
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-centrality_gateway(adj, membership = c(1, 1, 1, 2, 2))
+centrality_gateway(regulation_net, membership = rep(1:2, each = 5))
+}
+\references{
+Ruiz Vargas, E., & Wahl, L. M. (2014). The gateway coefficient: A novel
+metric for identifying critical connections in modular networks. The
+European Physical Journal B, 87(7), 161.
+\doi{10.1140/epjb/e2014-40800-7}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_participation}} for the simpler participation
-coefficient.
+\code{\link{centrality_participation}},
+\code{\link{centrality_within_module_z}}, \code{\link{centrality}}.
 }

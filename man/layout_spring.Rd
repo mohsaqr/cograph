@@ -26,59 +26,69 @@ layout_spring(
 
 \item{iterations}{Number of iterations (default: 200).}
 
-\item{cooling}{Rate of temperature decrease for exponential cooling (default: 0.95).}
+\item{cooling}{Factor by which the temperature is multiplied after each
+iteration when \code{cooling_mode = "exponential"} (default: 0.95).}
 
 \item{repulsion}{Repulsion constant (default: 1.5).}
 
 \item{attraction}{Attraction constant (default: 1).}
 
-\item{seed}{Random seed for reproducibility.}
+\item{seed}{Random seed for the random initial positions. NULL (default)
+uses the current random state. When a seed is given, the caller's random
+state is restored on exit.}
 
-\item{initial}{Optional initial coordinates (matrix or data frame).
-For animations, pass the previous frame's layout to ensure smooth transitions.}
+\item{initial}{Optional initial coordinates, a matrix or a data frame with
+columns \code{x} and \code{y}. When supplied, \code{init} is ignored.
+For animations, pass the previous frame's layout to obtain smooth
+transitions.}
 
 \item{max_displacement}{Maximum distance a node can move from its initial
-position (default: NULL = no limit). Useful for animations to prevent
-large jumps between frames. Values like 0.05-0.1 work well.}
+position (default: NULL, no limit). Applies only when \code{initial} is
+supplied. In that case the coordinates are returned without the final
+rescaling. Values such as 0.05 to 0.1 suit animations.}
 
-\item{anchor_strength}{Strength of force pulling nodes toward initial positions
-(default: 0). Higher values (e.g., 0.5-2) keep nodes closer to their starting
-positions. Only applies when \code{initial} is provided.}
+\item{anchor_strength}{Strength of the force pulling nodes toward their
+initial positions (default: 0). Higher values (for example 0.5 to 2) keep
+nodes closer to their starting positions. Applies only when
+\code{initial} is supplied.}
 
-\item{area}{Area parameter controlling node spread (default: 1.5). Higher values
-spread nodes further apart.}
+\item{area}{Area parameter (default: 1.5). It sets the ideal edge length
+\eqn{k = \sqrt{area / n}}{k = sqrt(area / n)} and the initial temperature
+\eqn{\sqrt{area} / 10}{sqrt(area) / 10}. Because the final coordinates are rescaled,
+\code{area} changes the relative arrangement of the nodes and leaves the
+overall extent unchanged.}
 
-\item{gravity}{Gravity force pulling nodes toward center (default: 0). Higher
-values (e.g., 0.5-2) prevent nodes from drifting apart.}
+\item{gravity}{Strength of the force pulling nodes toward the centroid of
+the layout (default: 0). Higher values (for example 0.5 to 2) give a more
+compact layout.}
 
-\item{init}{Initialization method: "random" (default) or "circular".}
+\item{init}{Initialization method, \code{"random"} (default) or
+\code{"circular"}.}
 
-\item{cooling_mode}{Cooling schedule: "exponential" (default, uses \code{cooling}
-parameter), "vcf" (Variable Cooling Factor - adapts based on movement),
-or "linear" (linear decrease over iterations).}
+\item{cooling_mode}{Cooling schedule. \code{"exponential"} (default)
+multiplies the temperature by \code{cooling} after each iteration.
+\code{"vcf"} (variable cooling factor) multiplies it by 0.9 when the mean
+displacement is below \eqn{0.1k} and by 0.99 otherwise. \code{"linear"}
+multiplies it by \eqn{1 - t / T} at iteration \eqn{t} of \eqn{T}.}
 
 \item{...}{Additional arguments (ignored).}
 }
 \value{
-Data frame with x, y coordinates.
+A data frame with columns \code{x} and \code{y} and one row per
+node. The coordinates are centered on their mean and scaled by a common
+factor into \eqn{[0.05, 0.95]}, which preserves the aspect ratio of the
+layout. A
+network without edges returns the initial positions, and a single node is
+placed at (0.5, 0.5).
 }
 \description{
-Compute node positions using the Fruchterman-Reingold force-directed
-algorithm. Nodes connected by edges are attracted to each other while
-all nodes repel each other.
+Computes node positions with the Fruchterman-Reingold force-directed
+algorithm. Nodes connected by edges attract each other and all nodes repel
+each other. Attraction along an edge is scaled by the absolute edge weight.
+Duplicate edges between the same pair of nodes, in either direction, are
+merged by summing their weights.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0), nrow = 4)
-net <- CographNetwork$new(adj)
-coords <- layout_spring(net, seed = 42)
-
-# For animations: use previous layout as initial with constraints
-coords2 <- layout_spring(net, initial = coords, max_displacement = 0.05)
-
-# With gravity to keep nodes centered
-coords3 <- layout_spring(net, gravity = 0.5, area = 2, seed = 42)
-
-# With circular initialization and VCF cooling
-coords4 <- layout_spring(net, init = "circular", cooling_mode = "vcf", seed = 42)
+layout_spring(CographNetwork$new(regulation_net), seed = 42)
 
 }

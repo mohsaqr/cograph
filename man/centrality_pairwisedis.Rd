@@ -2,35 +2,36 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_pairwisedis}
 \alias{centrality_pairwisedis}
-\title{Pairwise Disconnectivity (Potapov et al. 2008)}
+\title{Pairwise Disconnectivity}
 \usage{
 centrality_pairwisedis(x, ...)
 }
 \arguments{
-\item{x}{Directed network input (matrix, igraph, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of pairwise disconnectivity values in \eqn{[0, 1]}.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-For a directed network, \code{pairwisedis(v)} is the fraction of ordered
-reachable pairs \eqn{(s, t)} that become unreachable when node \eqn{v} is
-removed:
-\deqn{PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|}
-where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t), s \ne t}
-with a directed path from \eqn{s} to \eqn{t}.
+Pairwise disconnectivity (Potapov et al. 2008) is the share of ordered
+reachable pairs that become unreachable when a node is removed:
+\deqn{PD(v) = \frac{|P(G)| - |P(G - v)|}{|P(G)|},}{
+  PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|,}
+where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t)},
+\eqn{s \ne t}{s != t}, with a directed path from \eqn{s} to \eqn{t}.
 }
 \details{
-Bit-exact match against \code{centiserve::pairwisedis} on directed
-graphs. Requires the input to be directed; returns \code{NA} with a
-warning on undirected inputs.
+The measure needs a directed network. On undirected input every score is
+\code{NA} with a warning that carries no condition class. Reachability
+uses hop counts, so edge weights are ignored. The score lies between 0
+and 1, and a network without reachable pairs scores 0 everywhere. The
+values equal \code{centiserve::pairwisedis()}.
 }
 \examples{
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_pairwisedis(adj)
+centrality_pairwisedis(regulation_net)
 }
 \references{
 Potapov, A. P., Goemann, B., & Wingender, E. (2008). The pairwise
@@ -39,5 +40,6 @@ regulatory networks. \emph{BMC Bioinformatics}, 9, 227.
 \doi{10.1186/1471-2105-9-227}.
 }
 \seealso{
-\code{\link{centrality}}, \code{\link{robustness}}.
+\code{\link{centrality_prestige_domain}}, \code{\link{robustness}},
+\code{\link{centrality}}.
 }

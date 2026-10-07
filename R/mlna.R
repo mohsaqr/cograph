@@ -1,61 +1,66 @@
 #' Multilevel Network Visualization
 #'
-#' Visualizes multilevel/multiplex networks where multiple layers are stacked
-#' in a 3D perspective view. Each layer contains nodes connected by solid edges
-#' (within-layer), while dashed lines connect nodes between adjacent layers
-#' (inter-layer edges). Each layer is enclosed in a parallelogram shell giving
-#' a pseudo-3D appearance.
+#' Plots a multilevel network as a stack of layers in a pseudo-3D perspective
+#' view. Each layer is enclosed in a parallelogram shell. Edges within a layer
+#' are plotted as solid curved arrows, and edges between adjacent layers are
+#' plotted as straight lines in the style set by \code{between_style}.
 #'
 #' @param model A tna object, weight matrix, or cograph_network.
-#' @param layer_list Layers can be specified as:
+#' @param layer_list Layer assignment of the nodes. One of
 #'   \itemize{
-#'     \item A list of character vectors (node names per layer)
-#'     \item A string column name from nodes data (e.g., "layer")
-#'     \item NULL to auto-detect from columns named: layer, layers, groups, etc.
-#'     \item NULL with \code{community} specified for algorithmic detection
+#'     \item a named list of character vectors with the node names of each
+#'       layer; at least two non-overlapping layers are required;
+#'     \item a single string naming a column of the node data (e.g., "layer");
+#'     \item NULL, in which case the first node-data column found among
+#'       "layer", "layers", "level", "levels", "groups", "group", "clusters"
+#'       and "cluster" is used.
 #'   }
-#' @param community Community detection method to use for auto-layering.
-#'   If specified, overrides \code{layer_list}. See \code{\link{detect_communities}}
-#'   for available methods: "louvain", "walktrap", "fast_greedy", "label_prop",
-#'   "infomap", "leiden".
-#' @param layout Node layout within layers: "horizontal" (default) spreads nodes
-#'   horizontally, "circle" arranges nodes in an ellipse, "spring" uses
-#'   force-directed placement based on within-layer connections.
+#' @param community Community detection method used to form the layers. When
+#'   given, it overrides \code{layer_list}. Passed to
+#'   \code{\link{detect_communities}}, which accepts "louvain", "walktrap",
+#'   "fast_greedy", "label_prop", "infomap" and "leiden". An error is raised
+#'   when fewer than two communities are found.
+#' @param layout Node layout within layers. "horizontal" (default) places
+#'   nodes on a horizontal line, "circle" arranges them in an ellipse, and
+#'   "spring" uses force-directed placement based on within-layer edges.
 #' @param layer_spacing Vertical distance between layer centers. Default 4.
 #' @param layer_width Horizontal width of each layer shell. Default 8.
-#' @param layer_depth Depth of each layer (for 3D effect). Default 4.
+#' @param layer_depth Depth of each layer shell in the perspective view.
+#'   Default 4.
 #' @param skew_angle Angle of perspective skew in degrees. Default 25.
-#' @param node_spacing Node placement ratio within layer (0-1). Default 0.7.
-#'   Higher values spread nodes closer to the layer edges.
-#' @param colors Vector of colors for each layer. Default auto-generated.
-#' @param shapes Vector of shapes for each layer. Default cycles through
-#'   "circle", "square", "diamond", "triangle".
-#' @param edge_colors Vector of edge colors by source layer. If NULL (default),
-#'   uses darker versions of layer colors.
-#' @param within_edges Logical. Show edges within layers (solid lines). Default TRUE.
-#' @param between_edges Logical. Show edges between adjacent layers (dashed lines).
+#' @param node_spacing Proportion of the layer width (0-1) over which nodes
+#'   are spread. Higher values place nodes closer to the layer edges.
+#'   Default 0.7.
+#' @param colors Vector of fill colors, one per layer. NULL (default) uses a
+#'   built-in palette.
+#' @param shapes Vector of node shapes, one per layer. Supported values are
+#'   "circle", "square", "diamond" and "triangle"; other values are plotted as
+#'   circles. NULL (default) assigns "circle", "square", "diamond" and
+#'   "triangle" to the first four layers.
+#' @param edge_colors Vector of colors for between-layer edges, indexed by the
+#'   source layer. NULL (default) uses a built-in palette. Within-layer edges
+#'   use a darkened version of the layer color.
+#' @param within_edges Logical. Plot edges within layers. Default TRUE.
+#' @param between_edges Logical. Plot edges between adjacent layers.
 #'   Default TRUE.
-#' @param between_style Line style for between-layer edges. Default 2 (dashed).
+#' @param between_style Line type of between-layer edges. Default 2 (dashed).
 #'   Use 1 for solid, 3 for dotted.
-#' @param show_border Logical. Draw parallelogram shells around layers. Default TRUE.
-#' @param legend Logical. Whether to show legend. Default TRUE.
-#' @param legend_position Position for legend. Default "topright".
-#' @param curvature Edge curvature for within-layer edges. Default 0.15.
+#' @param show_border Logical. Plot the parallelogram shells around layers.
+#'   Default TRUE.
+#' @param legend Logical. Show the layer legend. Default TRUE.
+#' @param legend_position Position of the legend. Default "topright".
+#' @param curvature Curvature of within-layer edges. Default 0.15.
 #' @param node_size Size of nodes. Default 3.
-#' @param minimum Minimum edge weight threshold. Edges below this are hidden.
-#'   Default 0.
-#' @param scale Scaling factor for spacing parameters. Use scale > 1 for
-#'   high-resolution output (e.g., scale = 4 for 300 dpi). This multiplies
-#'   layer_spacing, layer_width, and layer_depth to maintain proper proportions
-#'   at higher resolutions. Default 1.
+#' @param minimum Edge weight threshold. Edges whose weight does not exceed
+#'   this value are not plotted. Default 0.
+#' @param scale Scaling factor for high-resolution output (e.g., scale = 4
+#'   for 300 dpi). Node sizes, line widths and text sizes are divided by
+#'   \code{sqrt(scale)}. Default 1.
 #' @param show_labels Logical. Show node labels. Default TRUE.
-#' @param nodes Node metadata. Can be:
-#'   \itemize{
-#'     \item NULL (default): Use existing nodes data from cograph_network
-#'     \item Data frame: Must have `label` column for matching; if `labels`
-#'       column exists, uses it for display text
-#'   }
-#'   Display priority: `labels` column > `label` column (identifiers).
+#' @param nodes Node metadata. NULL (default) uses the node data of a
+#'   cograph_network. A data frame replaces it and must have one row per node
+#'   in the node order of \code{model}. Display text is taken from its
+#'   \code{labels} column if present, otherwise from its \code{label} column.
 #' @param label_abbrev Label abbreviation: NULL (none), integer (max chars),
 #'   or "auto" (adaptive based on node count).
 #' @param ... Additional parameters (currently unused).
@@ -65,15 +70,9 @@
 #' @export
 #'
 #' @examples
-#' set.seed(42)
-#' m <- matrix(runif(225, 0, 0.3), 15, 15); diag(m) <- 0
-#' nodes <- paste0("N", 1:15)
-#' colnames(m) <- rownames(m) <- nodes
-#' layers <- list(Macro = nodes[1:5], Meso = nodes[6:10], Micro = nodes[11:15])
-#' plot_mlna(m, layers)
-#' \donttest{
-#' plot_mlna(m, layers, layout = "circle", between_style = 2, minimum = 0.1)
-#' }
+#' clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+#'                  Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+#' plot_mlna(regulation_net, layer_list = clusters)
 plot_mlna <- function(
     model,
     layer_list = NULL,
@@ -598,11 +597,4 @@ plot_mlna <- function(
 #' @rdname plot_mlna
 #' @return See \code{\link{plot_mlna}}.
 #' @export
-#' @examples
-#' set.seed(1)
-#' nodes <- paste0("N", 1:9)
-#' m <- matrix(runif(81, 0, 0.3), 9, 9); diag(m) <- 0
-#' colnames(m) <- rownames(m) <- nodes
-#' layers <- list(L1 = nodes[1:3], L2 = nodes[4:6], L3 = nodes[7:9])
-#' mlna(m, layers)
 mlna <- plot_mlna

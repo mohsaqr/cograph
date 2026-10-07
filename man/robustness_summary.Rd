@@ -7,13 +7,16 @@
 robustness_summary(..., x = NULL, measures = NULL, n_iter = 1000)
 }
 \arguments{
-\item{...}{Robustness results to summarize.}
+\item{...}{Robustness results from \code{\link{robustness}}. When these
+are supplied, \code{x} is ignored.}
 
-\item{x}{Network for on-the-fly computation.}
+\item{x}{Network on which vertex robustness is computed for each of
+\code{measures}. Used when \code{...} is empty.}
 
-\item{measures}{Measures to compute if x provided.}
+\item{measures}{Measures to compute when \code{x} is supplied. Default NULL
+uses c("betweenness", "degree", "random").}
 
-\item{n_iter}{Iterations for random. Default 1000.}
+\item{n_iter}{Iterations for random removal. Default 1000.}
 }
 \value{
 A data frame with one row per supplied (or computed) robustness
@@ -22,13 +25,13 @@ curve), \code{critical_50} (fraction removed when the largest component
 first falls below 50\\% of its original size) and \code{critical_10} (the
 same at 10\\%). The critical columns are 1 when the threshold is never
 crossed. All numeric columns are rounded to 4 decimal places.
+Supplying neither results nor \code{x} raises an error.
 }
 \description{
-Provides a summary comparing robustness metrics across attack strategies.
+Summarizes robustness results across attack strategies.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
+robustness_summary(x = regulation_net, measures = c("degree", "random"), n_iter = 10)
 \dontshow{\}) # examplesIf}
 }

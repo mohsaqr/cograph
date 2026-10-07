@@ -2,62 +2,50 @@
 % Please edit documentation in R/centrality-batch16.R
 \name{centrality_resistance_curvature}
 \alias{centrality_resistance_curvature}
-\title{Node resistance curvature}
+\title{Resistance Curvature}
 \usage{
 centrality_resistance_curvature(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, scores are divided by their positive maximum;
-negative values remain negative and the component-sum identity no
-longer holds. Default raw scores retain the published interpretation.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure
+uses \code{weighted} (default \code{TRUE}) and \code{normalized}
+(default \code{FALSE}), which divides by the largest score and leaves
+negative scores negative.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Devriendt and Lambiotte's node resistance curvature is
-\eqn{p_i=1-\frac{1}{2}\sum_{j\sim i}w_{ij}R_{ij}}, where weights are
-electrical conductances and R is effective resistance. Equivalently, it
-is one minus half the expected degree in a random spanning tree whose
-probability is proportional to the product of its edge conductances.
-The expectation is taken separately within each connected component.
+The node resistance curvature of Devriendt and Lambiotte (2022) is
+\deqn{p_i = 1 - \frac{1}{2} \sum_{j \sim i} w_{ij} R_{ij},}{
+  p_i = 1 - (1/2) sum_{j ~ i} w_ij R_ij,}
+where the weights \eqn{w_{ij}}{w_ij} are conductances and
+\eqn{R_{ij}}{R_ij} is the effective resistance. It equals one minus half
+the expected degree of the node in a random spanning tree of its
+component.
 }
 \details{
-Low, possibly negative, curvature characterizes tree-like junctions;
-larger curvature characterizes locally redundant connections. It is a
-geometric descriptor, not a universal ranking of influence. On a tree
-the score is one minus half the degree; on an unweighted clique or cycle
-of n vertices every node scores 1/n. Isolates score one, following the
-empty sum. Raw scores sum to the number of connected components.
-
-Uses finite nonnegative edge weights as conductances when
-\code{weighted = TRUE}; zero weights are absent connections. Without
-weights, uses the simple undirected skeleton. Self-loops are always
-removed. For weighted directed inputs, opposite arcs are added to form
-undirected conductances. The \code{simplify} argument combines parallel
-edges first; remaining weighted parallel edges are added. These input
-projections are cograph conventions for the source's undirected domain.
-\code{mode} and shortest-path weight inversion do not affect the result.
-
-Exact dense electrical systems are solved component by component, using
-Cholesky factors of grounded Laplacians. Squared triangular-solve norms
-avoid subtracting nearly equal pseudoinverse entries. Uniform rescaling
-of conductances within a component leaves curvature unchanged. Extreme
-weight ranges can still produce numerical singularity or overflow, in
-which case an error is raised. Dense factorization and edge solves cost
-up to O(n cubed + n squared times m) per component; the measure is
-excluded from the default all tier and must be requested explicitly.
+Edge weights are conductances, and \code{weighted = FALSE} uses the
+simple undirected skeleton. On a weighted directed network the two arcs
+between a pair are added. Self-loops are removed, \code{mode} has no
+effect, and negative or non-finite weights raise an error. Scores can be
+negative at tree-like junctions. On a tree the score is one minus half
+the degree, on an unweighted cycle or complete graph of \eqn{n} nodes it
+is \eqn{1/n}, and an isolated node scores 1. The raw scores sum to the
+number of components.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_resistance_curvature(igraph::make_star(5, mode = "undirected"))
-\dontshow{\}) # examplesIf}
+centrality_resistance_curvature(regulation_net)
 }
 \references{
 Devriendt, K., & Lambiotte, R. (2022). Discrete curvature on graphs from
 the effective resistance. Journal of Physics: Complexity, 3, 025008.
 \doi{10.1088/2632-072X/ac730d}.
+}
+\seealso{
+\code{\link{centrality_current_flow_closeness}},
+\code{\link{centrality_dynamical_importance}}, \code{\link{centrality}}.
 }

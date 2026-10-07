@@ -3,6 +3,7 @@
 #' @name themes-registry
 #' @return No return value, called for side effects.
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Register Built-in Themes

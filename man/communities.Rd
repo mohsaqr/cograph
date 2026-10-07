@@ -19,92 +19,98 @@ communities(
 }
 \arguments{
 \item{x}{Network input: matrix, igraph, network, CographNetwork,
-cograph_network, or tna object}
+cograph_network, or tna object.}
 
-\item{method}{Community detection algorithm. One of:
-\itemize{
-\item \code{"louvain"} - Louvain modularity optimization (default, fast)
-\item \code{"leiden"} - Leiden algorithm (improved Louvain)
-\item \code{"fast_greedy"} - Fast greedy modularity optimization
-\item \code{"walktrap"} - Random walk-based detection
-\item \code{"infomap"} - Information theoretic approach
-\item \code{"label_propagation"} - Label propagation (very fast)
-\item \code{"edge_betweenness"} - Girvan-Newman algorithm
-\item \code{"leading_eigenvector"} - Leading eigenvector method
-\item \code{"spinglass"} - Spinglass simulation
-\item \code{"optimal"} - Exact modularity optimization (slow)
-\item \code{"fluid"} - Fluid communities algorithm
-}}
+\item{method}{Community detection algorithm. One of \code{"louvain"}
+(default; Louvain modularity optimization), \code{"leiden"} (Leiden
+algorithm), \code{"fast_greedy"} (greedy modularity optimization),
+\code{"walktrap"} (random walks), \code{"infomap"} (map equation),
+\code{"label_propagation"} (label propagation),
+\code{"edge_betweenness"} (Girvan-Newman), \code{"leading_eigenvector"}
+(leading eigenvector of the modularity matrix), \code{"spinglass"}
+(spinglass model), \code{"optimal"} (exact modularity maximization) or
+\code{"fluid"} (fluid communities).}
 
 \item{community}{Optional integer or character vector. If supplied, the
 returned data frame is filtered to rows whose \code{community} column
 matches one of the given values. Default \code{NULL} (keep all communities).}
 
-\item{weights}{Edge weights. If NULL, uses edge weights from the network
-if available, otherwise unweighted. Set to NA for explicitly unweighted.}
+\item{weights}{Edge weights. \code{NULL} (default) uses the edge weights
+of the network when present and otherwise runs unweighted. \code{NA}
+runs unweighted.}
 
-\item{resolution}{Resolution parameter for modularity-based methods
-(louvain, leiden). Higher values yield more communities. Default 1.}
+\item{resolution}{Resolution parameter of the louvain and leiden methods.
+For louvain, higher values yield more communities. Default 1.}
 
-\item{directed}{Logical; whether edge-betweenness should treat the network
-as directed. Default NULL (auto-detect for edge-betweenness). Other methods
-use their own directed/undirected handling.}
+\item{directed}{Logical. Whether the edge betweenness method treats the
+network as directed. \code{NULL} (default) uses the direction of the
+network. The other methods ignore it.}
 
-\item{seed}{Random seed for reproducibility. Only applies to stochastic
-algorithms (louvain, leiden, infomap, label_propagation, spinglass).}
+\item{seed}{Random seed for reproducibility. It applies to the stochastic
+methods (louvain, leiden, infomap, label_propagation, spinglass).}
 
-\item{...}{Additional parameters passed to the specific algorithm.
-See individual functions for details.}
+\item{...}{Additional arguments passed to the \code{community_*()}
+function of the chosen method, for example \code{no.of.communities} for
+\code{"fluid"}.}
 }
 \value{
-A tidy \code{cograph_communities} data frame with columns:
+A \code{cograph_communities} data frame with one row per node and
+the columns
 \describe{
-\item{node}{Node label (character)}
-\item{community}{Community assignment (integer)}
+\item{node}{Node label (character).}
+\item{community}{Community number (numeric).}
 }
-Metadata stored as attributes: \code{"algorithm"}, \code{"modularity"},
-\code{"network"} (original input), \code{"igraph_result"}.
+The attributes \code{"algorithm"} (method name), \code{"modularity"}
+(modularity of the partition, \code{NA} when igraph does not compute
+it), \code{"network"} (the input \code{x}) and \code{"igraph_result"}
+(the igraph \code{communities} object) hold the metadata. When
+\code{community} is supplied, only the matching rows are kept.
 }
 \description{
-Detects communities/clusters in networks using various algorithms.
-Provides a unified interface to igraph's community detection functions.
+Detects communities in a network with one of the community detection
+algorithms of igraph. Each method calls the matching
+\code{community_*()} function.
 }
 \details{
-When called through this wrapper, methods that require undirected graphs
-(\code{"louvain"}, \code{"leiden"}, \code{"fast_greedy"},
-\code{"leading_eigenvector"}, and \code{"fluid"}) fall back to
-\code{"walktrap"} if the input graph is directed.
+The louvain, leiden, fast_greedy, leading_eigenvector and fluid methods
+require an undirected graph. For a directed input this function prints a
+message and runs \code{"walktrap"} instead. Called directly,
+\code{community_louvain()} and \code{community_leiden()} raise an igraph
+error on a directed graph, while \code{community_fast_greedy()},
+\code{community_leading_eigenvector()} and \code{community_fluid()}
+collapse it to an undirected graph with summed weights.
 
-\strong{Algorithm Selection Guide:}
+Negative edge weights are replaced by their absolute values for all
+methods except spinglass and optimal, which receive the weights as they
+are.
 
-\tabular{lll}{
-Algorithm \tab Best For \tab Time Complexity \cr
-louvain \tab Large networks, general use \tab O(n log n) \cr
-leiden \tab Large networks, better quality than louvain \tab O(n log n) \cr
-fast_greedy \tab Medium networks \tab O(n² log n) \cr
-walktrap \tab Networks with clear community structure \tab O(n² log n) \cr
-infomap \tab Directed networks, flow-based \tab O(E) \cr
-label_propagation \tab Very large networks, speed critical \tab O(E) \cr
-edge_betweenness \tab Small networks, hierarchical \tab O(E² n) \cr
-leading_eigenvector \tab Networks with dominant structure \tab O(n²) \cr
-spinglass \tab Small networks, allows negative weights \tab O(n³) \cr
-optimal \tab Tiny networks only (<50 nodes) \tab NP-hard \cr
-fluid \tab When k is known \tab O(E k) \cr
+\tabular{ll}{
+Method \tab Typical use \cr
+louvain \tab Large undirected networks \cr
+leiden \tab Large undirected networks, well-connected communities \cr
+fast_greedy \tab Medium-sized networks, hierarchical merges \cr
+walktrap \tab Directed or undirected networks, hierarchical merges \cr
+infomap \tab Directed networks with flow structure \cr
+label_propagation \tab Very large networks \cr
+edge_betweenness \tab Small networks, hierarchical splits \cr
+leading_eigenvector \tab Undirected networks, hierarchical splits \cr
+spinglass \tab Small connected networks, negative weights \cr
+optimal \tab Networks of at most about 50 nodes \cr
+fluid \tab Connected networks with a known number of communities \cr
 }
 }
+\section{Printing and plotting}{
+
+Printing the result shows the algorithm, the number of nodes and
+communities, the modularity, the community sizes and the node table. The
+result is itself a data frame.
+\code{plot()} on the result is documented in \code{\link{plot-results}}.
+}
+
 \examples{
-# Create a network with community structure
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Default (Louvain)
-  comm <- cograph::communities(g)
-  print(comm)
-
-  # Walktrap
-  comm2 <- cograph::communities(g, method = "walktrap")
-  print(comm2)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+communities(regulation_net, method = "walktrap")
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{community_louvain}}, \code{\link{community_leiden}},

@@ -26,40 +26,39 @@ com_wt(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Negative weights are replaced by their
+absolute values.}
 
-\item{steps}{Number of random walk steps. Default 4.}
+\item{steps}{Length of the random walks. Default 4.}
 
-\item{merges}{Logical; return merge matrix? Default TRUE.}
+\item{merges}{Logical. Whether igraph stores the merge matrix. Default
+\code{TRUE}.}
 
-\item{modularity}{Logical; return modularity scores? Default TRUE.}
+\item{modularity}{Logical. Whether igraph stores the modularity scores.
+Default \code{TRUE}.}
 
-\item{membership}{Logical; return membership vector? Default TRUE.}
+\item{membership}{Logical. Whether igraph computes the membership vector.
+Default \code{TRUE}.}
 
 \item{...}{Passed to \code{\link{to_igraph}}, whose only other argument
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Detects communities via random walks. Nodes within the same community
-tend to have short random walk distances.
+Detects communities from short random walks. Nodes in the same community
+have short random walk distances.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Default 4 steps
-  comm <- community_walktrap(g)
-
-  # More steps for larger communities
-  comm2 <- community_walktrap(g, steps = 8)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+community_walktrap(regulation_net, steps = 4)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Pons, P., & Latapy, M. (2006).

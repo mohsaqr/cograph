@@ -18,60 +18,54 @@ group_centrality(
 \item{nodes}{Integer vector of node indices (1-based) or character vector
 of node names identifying the group \eqn{C}.}
 
-\item{measure}{One of \code{"betweenness"}, \code{"closeness"},
-\code{"degree"}.}
+\item{measure}{One of \code{"betweenness"} (default), \code{"closeness"},
+or \code{"degree"}.}
 
 \item{mode}{For directed graphs with \code{measure = "degree"}: \code{"all"}
-(both directions), \code{"out"} (outgoing), or \code{"in"} (incoming).
-Ignored for undirected graphs and other measures.}
+(both directions, default), \code{"out"} (outgoing), or \code{"in"}
+(incoming). Ignored for undirected graphs and other measures.}
 
 \item{normalized}{Logical, for \code{"betweenness"} only. If \code{TRUE}
 (default), divide by \eqn{(|V| - |C|)(|V| - |C| - 1)}.}
 }
 \value{
-A single numeric scalar — the group centrality of the set
-\code{nodes}.
+Numeric scalar: the group centrality of the set \code{nodes}.
+Unknown node names and out-of-range indices raise an error.
 }
 \description{
-Group centrality measures the importance of a \emph{set} of nodes
-\eqn{C \subseteq V} rather than a single node. Three variants are
-supported:
+Computes the centrality of a set of nodes \eqn{C \subseteq V}{C subseteq V}. Distances
+are unweighted hop counts in the direction of the edges. The measures are
+defined as follows.
 }
 \details{
 \describe{
 \item{betweenness}{\eqn{GBC(C) = \sum_{s,t \in V \setminus C, s \ne t}
-    \sigma(s, t \mid C) / \sigma(s, t)}, where \eqn{\sigma(s, t)} is the
-number of shortest \eqn{s}-\eqn{t} paths and \eqn{\sigma(s, t \mid C)}
+    \sigma(s, t \mid C) / \sigma(s, t)}{GBC(C) = sum_{s,t in V setminus C, s != t} sigma(s, t mid C) / sigma(s, t)}, where \eqn{\sigma(s, t)}{sigma(s, t)} is the
+number of shortest \eqn{s}-\eqn{t} paths and \eqn{\sigma(s, t \mid C)}{sigma(s, t mid C)}
 is the number of those paths passing through at least one node in
 \eqn{C}. Normalized by \eqn{1 / ((|V| - |C|)(|V| - |C| - 1))}.}
 \item{closeness}{\eqn{GCC(C) = (|V| - |C|) / \sum_{v \in V \setminus C}
-    d(v, C)}, where \eqn{d(v, C) = \min_{c \in C} d(v, c)} is the shortest
+    d(v, C)}{GCC(C) = (|V| - |C|) / sum_{v in V setminus C} d(v, C)}, where \eqn{d(v, C) = \min_{c \in C} d(v, c)}{d(v, C) = min_{c in C} d(v, c)} is the shortest
 distance from \eqn{v} to any group member. Unreachable nodes
-contribute 0 to the denominator sum (matching NetworkX convention).
-For directed graphs, cograph uses \eqn{d(v, c)} in the original
-direction, equivalent to NetworkX's "reverse then multi-source".}
-\item{degree}{\eqn{GDC(C) = |N(C) \setminus C| / (|V| - |C|)}, the
+contribute 0 to the denominator sum. For directed graphs,
+\eqn{d(v, c)} follows the edges from \eqn{v} to \eqn{c}.}
+\item{degree}{\eqn{GDC(C) = |N(C) \setminus C| / (|V| - |C|)}{GDC(C) = |N(C) setminus C| / (|V| - |C|)}, the
 fraction of non-group nodes adjacent to at least one group member.
-\code{mode = "in"} / \code{"out"} pick the corresponding directed
-neighborhood.}
+For directed graphs, \code{mode} selects the neighborhood.}
 }
 }
-\section{Divergence from NetworkX on betweenness}{
+\section{Group betweenness}{
 
-\code{networkx.group_betweenness_centrality} uses the Puzis-Elovici-Dolev
-iterative algorithm, which produces results that diverge from the textbook
-Everett-Borgatti / Puzis 2007 "at least one node in C" definition on some
-graph topologies (verified via an independent Python brute-force). cograph
-implements the textbook formula directly; group_closeness and group_degree
-match NetworkX exactly.
+Group betweenness is computed directly from the Everett and Borgatti
+definition, counting the shortest paths that pass through at least one
+node in \eqn{C}. On some graphs the result differs from
+\code{networkx.group_betweenness_centrality}, which uses the iterative
+algorithm of Puzis, Elovici and Dolev.
 }
 
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-group_centrality(g, nodes = c(1, 2, 3), measure = "betweenness")
-group_centrality(g, nodes = c(1, 2, 3), measure = "closeness")
-group_centrality(g, nodes = c(1, 2, 3), measure = "degree")
+group_centrality(regulation_net, nodes = c("Plan", "Monitor"), measure = "betweenness")
 \dontshow{\}) # examplesIf}
 }
 \references{

@@ -14,35 +14,36 @@ to_undirected(
 \arguments{
 \item{x}{Network input.}
 
-\item{method}{How to combine \code{w[i, j]} and \code{w[j, i]}:
-\code{"max"} (default), \code{"sum"}, \code{"mean"}, \code{"min"}, or
-\code{"mutual"} (keep only reciprocated pairs, taking the minimum weight).}
+\item{method}{How to combine \code{w[i, j]} and \code{w[j, i]}. One of
+\code{"max"} (default), \code{"sum"}, \code{"mean"}, \code{"min"} or
+\code{"mutual"}. The first four combine the two weights when both arcs
+exist, and an arc without a reverse arc keeps its own weight.
+\code{"mutual"} keeps only reciprocated pairs, at the smaller of the two
+weights.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. Directedness to read the input with.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 An undirected \code{cograph_network}, or the input format when
-\code{keep_format = TRUE}. Zero is how this representation stores "no
-edge", so any pair whose combined weight is exactly zero disappears: every
-unreciprocated arc under \code{method = "mutual"}, and a cancelling pair
-under \code{"sum"}. A \code{cograph_edges_dropped} warning says how
-many.
+\code{keep_format = TRUE}. Self-loops keep their weight. A weight of zero
+means no edge, so a pair whose combined weight is exactly zero is dropped.
+Under \code{method = "mutual"} this applies to every unreciprocated arc,
+and under \code{"sum"} to a pair of opposite weights that cancel. Dropped
+edges raise a \code{cograph_edges_dropped} warning.
 }
 \description{
-Collapses each pair of opposite arcs into one undirected edge. The
-counterpart of \code{igraph::as_undirected()} and tidygraph's
-\code{to_undirected()}.
+Collapses each pair of opposite arcs into one undirected edge, as
+\code{igraph::as_undirected()} and tidygraph's \code{to_undirected()} do.
 }
 \examples{
-adj <- matrix(c(0, .5, 0,
-                .2, 0, .7,
-                0, 0, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-to_undirected(adj, method = "sum")
-to_undirected(adj, method = "mutual")
+to_undirected(regulation_net, method = "sum")
 }
 \seealso{
 \code{\link{to_directed}}, \code{\link{symmetrize}}

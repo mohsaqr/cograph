@@ -1,14 +1,13 @@
 #' @title Base R Graphics Network Plotting
-#' @description Network visualization using base R graphics (similar to qgraph).
+#' @description Plots a network with base R graphics (\code{polygon()},
+#'   \code{lines()}, \code{xspline()}). \code{splot()} uses the same
+#'   snake_case argument names as the grid-based \code{\link{soplot}()}.
+#'   Result objects of tna, Nestimate and cograph analyses are plotted by the
+#'   methods described in Details.
 #' @name splot
 NULL
 
 #' Plot Network with Base R Graphics
-#'
-#' Creates a network visualization using base R graphics functions (polygon,
-#' lines, xspline, etc.) instead of grid graphics. This provides better
-#' performance for large networks and uses the same snake_case parameter names
-#' as soplot() for consistency.
 #'
 #' @param x Network input. Can be:
 #'   - A square numeric matrix (adjacency/weight matrix)
@@ -18,6 +17,10 @@ NULL
 #'   - A tna object (from tna package)
 #'   - A group_tna object (list of tna objects from tna package).
 #'     Use parameter `i` to select a specific group, or omit to plot all groups.
+#'   - A result object handled by one of the methods: \code{net_bootstrap},
+#'     \code{net_permutation}, \code{boot_glasso}, \code{netobject},
+#'     \code{net_mlvar} and \code{wtna_mixed} from Nestimate,
+#'     \code{tna_communities} from tna, and \code{cograph_communities}.
 #' @param layout Layout algorithm: "oval" (default), "circle", "spring",
 #'   "groups", "target" (qgraph-style focal-node BFS levels; node of interest
 #'   via \code{target}), "saqr" (Start/End transition flow; \code{start}/
@@ -153,7 +156,7 @@ NULL
 #'   readability over dark edges? Default TRUE. When TRUE, overrides shadow settings.
 #' @param edge_style Line type(s): 1=solid, 2=dashed, 3=dotted, etc.
 #' @param curvature Edge curvature. 0 for straight, positive/negative for curves.
-#' @param curve_scale Reserved for future curve scaling; currently not used.
+#' @param curve_scale Not used.
 #' @param curve_shape Spline tension (-1 to 1). Default 0.
 #' @param curve_pivot Position along edge for curve control point (0-1).
 #' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges
@@ -196,8 +199,8 @@ NULL
 #' @param edge_label_p Numeric vector of p-values for edges.
 #' @param edge_label_p_diff Probability-of-difference values for the
 #'   \code{\{p_diff\}} template placeholder: a per-edge numeric vector, or a
-#'   full node-by-node matrix (indexed at each drawn edge automatically —
-#'   the safe form when \code{minimum}/\code{threshold} filter edges). A
+#'   full node-by-node matrix, which is indexed at each plotted edge and so
+#'   stays aligned when \code{minimum} or \code{threshold} remove edges. A
 #'   matrix with dimnames is aligned to the plot's node names, so it may be
 #'   supplied in any node order.
 #' @param edge_label_p_digits Decimal places for p-values. Default 3.
@@ -205,15 +208,17 @@ NULL
 #' @param edge_label_stars Stars for labels: character vector, TRUE (compute from p),
 #'   or numeric (treated as p-values).
 #'
-#' @param weight_digits Number of decimal places to round edge weights to before
-#'   plotting. Edges that round to zero are automatically removed. Default 2.
-#'   Set NULL to disable rounding.
+#' @param weight_digits Number of decimal places to which the weights of a
+#'   matrix input are rounded before plotting, so edges that round to zero are
+#'   removed. Default 2. \code{NULL} disables rounding.
 #' @param threshold Minimum absolute weight to display.
 #' @param minimum Alias for threshold (qgraph compatibility). Uses max of threshold and minimum.
 #' @param maximum Maximum weight for scaling. NULL for auto.
-#' @param edge_positive_color Color for positive weights.
+#' @param edge_positive_color Color for positive weights. The default is
+#'   \code{"#2E7D32"}, and \code{"#009900"} for \code{splot.net_permutation()}.
 #' @param positive_color Deprecated. Use `edge_positive_color` instead.
-#' @param edge_negative_color Color for negative weights.
+#' @param edge_negative_color Color for negative weights. Default
+#'   \code{"#C62828"}.
 #' @param negative_color Deprecated. Use `edge_negative_color` instead.
 #' @param edge_duplicates How to handle duplicate edges in undirected networks.
 #'   NULL (default) = stop with error listing duplicates. Options: "sum", "mean",
@@ -237,17 +242,11 @@ NULL
 #' @param align_panels Logical. If \code{TRUE}, forces a uniform symmetric
 #'   plot box (\code{c(-layout_scale, layout_scale)} on each axis) so two
 #'   networks plotted side-by-side in a \code{par(mfrow)} grid render at
-#'   identical absolute scales — useful for bootstrap panels, comparison
-#'   grids with networks of different node counts, or any case where
-#'   visual-size parity across panels matters more than canvas fill.
-#'   Default \code{FALSE} uses dynamic, layout-driven bounds (the
-#'   pre-2.1.x behavior) which renders tighter on the canvas. The fixed
-#'   box is only applied when the layout is being rescaled, so
-#'   \code{align_panels = TRUE} has no effect under
-#'   \code{rescale = FALSE}. The
-#'   per-node loop-reservation pad in \code{compute_plot_limits} runs
-#'   regardless, so networks with different self-loop patterns stay
-#'   centered consistently in either mode.
+#'   identical absolute scales, for example bootstrap panels or networks with
+#'   different numbers of nodes. Default \code{FALSE} uses bounds computed
+#'   from the layout, which fill the canvas more tightly. The fixed box is
+#'   applied only when the layout is rescaled, so \code{align_panels = TRUE}
+#'   has no effect with \code{rescale = FALSE}.
 #'
 #' @param legend Logical: show legend?
 #' @param legend_position Position: "topright", "topleft", "bottomright", "bottomleft".
@@ -286,32 +285,29 @@ NULL
 #' @param width Output width in inches.
 #' @param height Output height in inches.
 #' @param res Resolution in DPI for raster outputs (PNG, JPEG, TIFF). Default 600.
-#' @param ... Additional arguments passed to layout functions.
-#'   One ride-along worth calling out: \code{combined} (default
-#'   \code{TRUE}). When \code{x} is a multi-panel input (a
-#'   \code{group_tna}, \code{group_tna_bootstrap},
-#'   \code{group_tna_permutation}, \code{net_permutation_group}, or any
-#'   class routed to a \code{splot.*} method that draws multiple panels
-#'   such as \code{splot.net_mlvar} with \code{type = "all"}),
-#'   \code{combined = FALSE} skips the internal
-#'   \code{graphics::par(mfrow = ...)} grid so the caller can drive
-#'   layout explicitly via \code{\link{panel_layout}()} or
-#'   \code{graphics::layout()}. For single-network inputs (a single
-#'   \code{tna}, \code{netobject}, matrix, etc.) \code{combined} has no
-#'   effect — there is no panel grid to gate.
+#' @param ... For \code{splot()}, additional arguments passed to the layout
+#'   function. For the methods, additional arguments passed to
+#'   \code{splot()}, or to \code{\link{plot_mixed_network}()} for
+#'   \code{splot.wtna_mixed()} with \code{type = "overlay"}. Arguments
+#'   supplied here override the styling defaults of a method. For a
+#'   multi-panel input, such as a \code{group_tna}, \code{group_tna_bootstrap},
+#'   \code{group_tna_permutation} or \code{net_permutation_group} object,
+#'   \code{combined = TRUE} (default) arranges the panels with
+#'   \code{graphics::par(mfrow = ...)}, and \code{combined = FALSE} plots
+#'   them into a layout set up beforehand, for example with
+#'   \code{\link{panel_layout}()}. It has no effect for a single network.
 #'
 #' @details
 #' ## Edge Curve Behavior
-#' Edge curving is controlled by three parameters that interact:
+#' Edge curving is controlled by two interacting arguments:
 #' \describe{
-#'   \item{\strong{curves}}{Mode for automatic curving. \code{FALSE} = all straight,
+#'   \item{\code{curves}}{Mode for automatic curving. \code{FALSE} = all straight,
 #'     \code{TRUE} (default) = curve only reciprocal edge pairs as an ellipse,
 #'     \code{"force"} = curve all edges inward toward network center.}
-#'   \item{\strong{curvature}}{Manual curvature amount (0-1 typical). Sets the
+#'   \item{\code{curvature}}{Manual curvature amount (0-1 typical). Sets the
 #'     magnitude of curves. Default 0 uses automatic 0.175 for curved edges.
 #'     Positive values curve edges; the direction is automatically determined.
 #'   }
-#'   \item{\strong{curve_scale}}{Not currently used; reserved for future scaling.}
 #' }
 #'
 #' For reciprocal edges (A\code{->}B and B\code{->}A both exist), the edges curve
@@ -321,27 +317,27 @@ NULL
 #' ## Weight Scaling Modes (edge_scale_mode)
 #' Controls how edge weights are mapped to visual widths:
 #' \describe{
-#'   \item{\strong{linear} (default)}{Width proportional to weight. Best when
+#'   \item{\code{"linear"} (default)}{Width proportional to weight. Best when
 #'     weights are similar in magnitude.}
-#'   \item{\strong{log}}{Logarithmic scaling. Best when weights span multiple
+#'   \item{\code{"log"}}{Logarithmic scaling. Best when weights span multiple
 #'     orders of magnitude (e.g., 0.01 to 100).}
-#'   \item{\strong{sqrt}}{Square root scaling. Moderate compression, good for
+#'   \item{\code{"sqrt"}}{Square root scaling. Moderate compression, good for
 #'     moderately skewed distributions.}
 #'
-#'   \item{\strong{rank}}{Rank-based scaling. Ignores actual values; uses relative
+#'   \item{\code{"rank"}}{Rank-based scaling. Ignores actual values; uses relative
 #'     ordering. All edges get equal visual spacing regardless of weight distribution.}
 #' }
 #'
 #' ## Donut vs Pie vs Double Donut
 #' Three ways to show additional data on nodes:
 #' \describe{
-#'   \item{\strong{Donut (donut_fill)}}{Single ring showing a proportion (0-1).
+#'   \item{Donut (\code{donut_fill})}{Single ring showing a proportion (0-1).
 #'     Ideal for completion rates, probabilities, or any single metric per node.
 #'     Use \code{donut_color} for fill color and \code{donut_bg_color} for unfilled portion.}
-#'   \item{\strong{Pie (pie_values)}}{Multiple colored segments showing category
+#'   \item{Pie (\code{pie_values})}{Multiple colored segments showing category
 #'     breakdown. Ideal for composition data. Values are normalized to sum to 1.
 #'     Use \code{pie_colors} for segment colors.}
-#'   \item{\strong{Double Donut (donut2_values)}}{Two concentric rings for comparing
+#'   \item{Double donut (\code{donut2_values})}{Two concentric rings for comparing
 #'     two metrics per node. Outer ring uses \code{donut_fill}/\code{donut_color},
 #'     inner ring uses \code{donut2_values}/\code{donut2_colors}.}
 #' }
@@ -350,22 +346,22 @@ NULL
 #' Confidence interval underlays draw a wider, semi-transparent edge behind the
 #' main edge to visualize uncertainty:
 #' \describe{
-#'   \item{\strong{edge_ci}}{Vector of CI widths (0-1 scale). Larger = more uncertainty.}
-#'   \item{\strong{edge_ci_scale}}{Multiplier for underlay width relative to main edge.
+#'   \item{\code{edge_ci}}{Vector of CI widths (0-1 scale). Larger = more uncertainty.}
+#'   \item{\code{edge_ci_scale}}{Multiplier for underlay width relative to main edge.
 #'     Default 2 means underlay is twice as wide as main edge at CI=1.}
-#'   \item{\strong{edge_ci_alpha}}{Transparency of underlay (0-1). Default 0.15.}
-#'   \item{\strong{edge_ci_style}}{Line type: 1=solid, 2=dashed (default), 3=dotted.}
+#'   \item{\code{edge_ci_alpha}}{Transparency of underlay (0-1). Default 0.15.}
+#'   \item{\code{edge_ci_style}}{Line type: 1=solid, 2=dashed (default), 3=dotted.}
 #' }
 #'
 #' ## Edge Label Templates
 #' For statistical output, use templates to format complex labels:
 #' \describe{
-#'   \item{\strong{edge_label_template}}{Template string with placeholders:
+#'   \item{\code{edge_label_template}}{Template string with placeholders:
 #'     \code{\{est\}} for estimate/weight, \code{\{low\}}/\code{\{up\}} for CI bounds,
 #'     \code{\{range\}} for formatted range, \code{\{p\}} for p-value,
 #'     \code{\{p_diff\}} for the probability of the difference (Bayesian
 #'     comparisons), \code{\{stars\}} for significance stars.}
-#'   \item{\strong{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
+#'   \item{\code{edge_label_style}}{Preset styles: \code{"estimate"} (weight only),
 #'     \code{"full"} (estimate + CI), \code{"range"} (CI only), \code{"stars"} (significance).}
 #' }
 #'
@@ -382,9 +378,8 @@ NULL
 #' \describe{
 #'   \item{\code{renderer}}{Character scalar naming the cograph renderer to use.
 #'     \code{"network"} (also \code{"splot"}, \code{"default"}, or \code{"base"})
-#'     means the object follows the normal \code{splot()} path — including any
-#'     class-specific dispatch cograph already performs for it — with the
-#'     metadata defaults applied. Other values are resolved through a
+#'     means the object follows the normal \code{splot()} path, including any
+#'     class-specific method, with the metadata defaults applied. Other values are resolved through a
 #'     cograph-maintained whitelist of existing renderers, for example
 #'     \code{"difference"}, \code{"bootstrap"}, \code{"permutation"},
 #'     \code{"stability"}, \code{"mlvar"}, \code{"netobject"},
@@ -427,7 +422,14 @@ NULL
 #' )
 #' }
 #'
-#' @return Invisibly returns the cograph_network object.
+#' @return \code{splot()} returns the plotted \code{cograph_network} object
+#'   invisibly. \code{splot.net_bootstrap()}, \code{splot.netobject()},
+#'   \code{splot.boot_glasso()}, \code{splot.tna_communities()} and
+#'   \code{splot.cograph_communities()} return the \code{cograph_network}
+#'   built by \code{splot()}, and \code{splot.net_permutation()} returns it or
+#'   \code{NULL} when there is no edge to plot. \code{splot.net_mlvar()} and
+#'   \code{splot.wtna_mixed()} return \code{x}. All are called for the side
+#'   effect of plotting.
 #'
 #' @seealso
 #' \code{\link{soplot}} for grid graphics rendering (alternative engine),
@@ -439,20 +441,7 @@ NULL
 #' \code{\link{from_qgraph}} and \code{\link{from_tna}} for converting external objects
 #'
 #' @examples
-#' # Basic directed network
-#' adj <- matrix(c(0, 1, 1, 0, 0, 0, 1, 1,
-#'                 0, 0, 0, 1, 0, 0, 0, 0), 4, 4, byrow = TRUE)
-#' splot(adj, layout = "circle", labels = c("A", "B", "C", "D"))
-#'
-#' # Abbreviate long labels to a fixed maximum length
-#' splot(adj, layout = "circle",
-#'       labels = c("Orientation", "Planning", "Reading", "Submission"),
-#'       label_abbrev = 4)
-#'
-#' # Weighted network with signed edges
-#' w_adj <- matrix(c(0, .5, -.3, 0, .8, 0, .4, -.2,
-#'                   0, 0, 0, .6, 0, 0, 0, 0), 4, 4, byrow = TRUE)
-#' splot(w_adj, edge_positive_color = "darkgreen", edge_negative_color = "red")
+#' splot(regulation_net)
 #'
 #' @export
 splot <- function(

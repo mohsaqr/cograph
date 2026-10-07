@@ -13,59 +13,56 @@ centrality_renewed_coreness(x, renewed_threshold = 2, ...)
 centrality_geodesic_kpath(x, mode = "all", kpath_k = 3, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
 \item{wks_alpha, wks_beta}{Exponents of degree and strength in the
-weighted k-shell. Default 1 and 1.}
+weighted k-shell (default 1 and 1).}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The weighted
+k-shell uses \code{weighted} (use edge weights, default \code{TRUE}).}
 
-\item{renewed_threshold}{Diffusion-importance threshold. Default 2.}
+\item{renewed_threshold}{Diffusion-importance threshold for renewed
+coreness (default 2).}
 
 \item{mode}{For directed networks: \code{"all"} (default), \code{"out"}
-(distances along out-edges), or \code{"in"}.}
+or \code{"in"}.}
 
-\item{kpath_k}{Maximum path length. Default 3.}
+\item{kpath_k}{Maximum path length for geodesic k-path (default 3).}
 }
 \value{
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node
+order. The weighted k-shell and renewed coreness are integer vectors.
 }
 \description{
-\describe{
-\item{\code{weighted_kshell} (Garas, Schweitzer & Havlin 2012)}{k-shell
-decomposition on the generalized degree \eqn{k' = (k^\alpha
-    s^\beta)^{1 / (\alpha + \beta)}} (\code{wks_alpha}, \code{wks_beta},
-both 1), after the paper's weight normalization (divide by the mean,
-then by the minimum, round to the nearest integer). Integer
-thresholds label the shells, so unit weights give the k-core number
-and isolates score 0. Reproduces the paper's Figure 1 example and its
-Table 2 core size on the netscience network. Uses edge weights.}
-\item{\code{renewed_coreness} (Liu, Tang, Zhou & Do 2015)}{Each link
-gets the diffusion importance \eqn{D_{ij} = (|N(j) \setminus N[i]| +
-    |N(i) \setminus N[j]|) / 2}; links below \code{renewed_threshold}
-(paper: 2) are removed and the k-core number of the residual graph is
-the renewed coreness. A clique with no outside links collapses to 0.
-Reproduces the paper's Figure 1 and all twelve percentages of its
-supplementary Table S1; the Zoo's transcription with open
-neighborhoods is off by one.}
-\item{\code{geodesic_kpath} (Borgatti & Everett 2006)}{The number of
-shortest paths of length at most \code{kpath_k} (default 3) that
-start at the node, counted with multiplicity. Note that
-\code{centiserve::geokpath} counts nodes within \eqn{k} instead,
-which is the paper's vertex-disjoint variant and equals m-reach.}
+Three shell and path counts. The weighted k-shell (Garas, Schweitzer and
+Havlin 2012) runs the k-shell decomposition on the generalized degree
+\deqn{k'_i = \left(k_i^{\alpha} s_i^{\beta}\right)^{1 / (\alpha + \beta)},}{
+  k'_i = (k_i^alpha s_i^beta)^(1 / (alpha + beta)),}
+with strength \eqn{s_i}{s_i} after the weight normalization of the
+source. Renewed coreness (Liu, Tang, Zhou and Do 2015) gives each link
+the diffusion importance
+\eqn{D_{ij} = (|N(j) \setminus N[i]| + |N(i) \setminus N[j]|) / 2}{
+  D_ij = (|N(j) - N[i]| + |N(i) - N[j]|) / 2},
+removes the links below \code{renewed_threshold}, and returns the k-core
+number of the residual graph. Geodesic k-path centrality (Borgatti and
+Everett 2006) counts the shortest paths of length at most \code{kpath_k}
+that start at the node, with multiplicity.
 }
-\code{geodesic_kpath} follows \code{mode}; the other two ignore
-direction.
+\details{
+The weighted k-shell uses edge weights, and with unit weights it equals
+the k-core number. Isolated nodes score 0. Renewed coreness ignores
+weights, and a clique with no outside links scores 0. Both ignore
+direction. Geodesic k-path ignores weights and follows \code{mode}. The
+Centrality Zoo transcribes the diffusion importance with open
+neighborhoods, which is off by one, and the closed neighborhoods of the
+source are used here. \code{centiserve::geokpath} counts the nodes within
+\eqn{k} hops, which is the vertex-disjoint variant of Borgatti and
+Everett.
 }
 \examples{
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_weighted_kshell(adj)
-centrality_renewed_coreness(adj)
-centrality_geodesic_kpath(adj, kpath_k = 2)
+centrality_weighted_kshell(regulation_net)
+centrality_renewed_coreness(regulation_net)
+centrality_geodesic_kpath(regulation_net)
 }
 \references{
 Garas, A., Schweitzer, F., & Havlin, S. (2012). A k-shell decomposition
@@ -80,5 +77,5 @@ on centrality. Social Networks, 28(4), 466-484.
 }
 \seealso{
 \code{\link{centrality_coreness}}, \code{\link{centrality_s_shell}},
-\code{\link{centrality_kreach}}.
+\code{\link{centrality}}.
 }

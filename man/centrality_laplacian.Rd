@@ -7,24 +7,38 @@
 centrality_laplacian(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{normalized} (default \code{FALSE}).}
 }
 \value{
-Named numeric vector of Laplacian centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Energy drop from the graph Laplacian when a node is removed
-(Qi et al. 2012). Measures a node's importance to the overall
-network energy.
+Laplacian centrality (Qi et al. 2012) is the drop in the Laplacian energy
+of a network when a node is removed. Without edge weights the drop is
+\deqn{L(v) = k_v^2 + k_v + 2 \sum_{u \in N(v)} k_u.}{
+  L(v) = k_v^2 + k_v + 2 sum_{u in N(v)} k_u.}
+}
+\details{
+Edge weights are ignored, so the score is the unweighted case of the
+weighted measure of Qi et al. (2012). On a directed network \eqn{k} is the
+total degree, in plus out, and the neighbor sum runs over out-neighbors.
+A self-loop adds 2 to the degree. On undirected networks the values equal
+\code{centiserve::laplacian()}. \code{normalized = TRUE} divides the
+scores by their maximum.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_laplacian(adj)
+centrality_laplacian(regulation_net)
+}
+\references{
+Qi, X., Fuller, E., Wu, Q., Wu, Y., & Zhang, C.-Q. (2012). Laplacian
+centrality: A new centrality measure for weighted networks. Information
+Sciences, 194, 240-253. \doi{10.1016/j.ins.2011.12.027}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_degree}},
+\code{\link{centrality_semilocal}}, \code{\link{centrality}}.
 }

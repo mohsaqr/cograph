@@ -28,7 +28,8 @@ other measure \code{\link{centrality}()} computes (see
 \code{\link{list_centralities}()}). An unknown name raises a
 \code{cograph_bad_selection} error. Default \code{"degree"}.}
 
-\item{...}{Additional filter expressions to apply.}
+\item{...}{Additional filter expressions, applied after the top \code{n} nodes
+are selected.}
 
 \item{keep_edges}{How to handle edges. Default "internal".}
 
@@ -43,17 +44,7 @@ A cograph_network with the top N nodes.
 Select the top N nodes ranked by a centrality measure.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Top 2 by degree
-select_top(adj, n = 2)
-
-# Top 2 by PageRank
-select_top(adj, n = 2, by = "pagerank")
+select_top(regulation_net, n = 3, by = "pagerank")
 }
 \seealso{
 \code{\link{select_nodes}}, \code{\link{select_component}}

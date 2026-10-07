@@ -7,24 +7,40 @@
 centrality_load(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only) and \code{alpha}
+(inversion exponent, default 1).}
 }
 \value{
-Named numeric vector of load centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Fraction of all shortest paths passing through a node, similar to
-betweenness but weighting paths by 1/count (Goh et al. 2001).
+Load centrality (Goh et al. 2001) sends one unit of load from every node
+to every other node along shortest paths. At each branching the load is
+split equally among the shortest-path predecessors, and the score of a
+node is the total load that passes through it.
+}
+\details{
+Edge weights are read as distances. \code{weighted = FALSE} uses hop
+counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+distance \eqn{1/w^\alpha}{1/w^alpha}. Paths follow edge direction on a
+directed network. The values equal \code{sna::loadcent()}, which credits
+the endpoints of each path as well as the intermediate nodes, so the
+scores are larger than betweenness.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_load(adj)
+centrality_load(regulation_net)
+}
+\references{
+Goh, K.-I., Kahng, B., & Kim, D. (2001). Universal behavior of load
+distribution in scale-free networks. Physical Review Letters, 87(27),
+278701. \doi{10.1103/PhysRevLett.87.278701}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_betweenness}} for the standard variant.
+\code{\link{centrality_betweenness}},
+\code{\link{centrality_stress}}, \code{\link{centrality}}.
 }

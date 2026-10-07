@@ -2,33 +2,49 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_alpha}
 \alias{centrality_alpha}
-\title{Alpha (Katz) Centrality}
+\title{Alpha Centrality}
 \usage{
 centrality_alpha(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Accepted for a uniform interface. It has no effect. Default
+\code{"all"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed} and \code{normalized}.}
 }
 \value{
-Named numeric vector of alpha centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Influence via all paths penalized by distance. Similar to eigenvector
-centrality but includes an exogenous contribution, making it well-defined
-even for directed acyclic graphs.
+Alpha centrality (Bonacich and Lloyd 2001) gives every node an exogenous
+score of one plus the scores of the nodes that point to it:
+\deqn{x = \alpha A^{T} x + e, \qquad x = (I - \alpha A^{T})^{-1} e.}{
+  x = alpha A^T x + e, x = (I - alpha A^T)^(-1) e.}
+The attenuation is fixed at \eqn{\alpha = 1}{alpha = 1} and \eqn{e} is a
+vector of ones, the defaults of \code{igraph::alpha_centrality()}.
+}
+\details{
+\eqn{A} holds the edge weights with the diagonal set to zero. Edge weights
+are always used, and \code{weighted = FALSE} has no effect. The
+\code{alpha} argument of \code{\link{centrality}} is the weight-inversion
+exponent, which this measure does not read. The
+scores are positive when the spectral radius of \eqn{A} is below one and
+can be negative otherwise. A singular system or a negative edge weight
+raises an error of class \code{cograph_singular_system}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_alpha(adj)
+centrality_alpha(regulation_net)
+}
+\references{
+Bonacich, P., & Lloyd, P. (2001). Eigenvector-like measures of centrality
+for asymmetric relations. Social Networks, 23(3), 191-201.
+\doi{10.1016/S0378-8733(01)00038-7}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_eigenvector}} for a related measure.
+\code{\link{centrality_katz}}, \code{\link{centrality_eigenvector}},
+\code{\link{centrality}}.
 }

@@ -53,14 +53,16 @@ plot_trajectories(
 }
 \arguments{
 \item{x}{Data frame with one column per time point and one row per
-individual trajectory.}
+individual trajectory, or a \code{tna} object with sequence data.}
 
 \item{from_title}{Column titles. Default \code{NULL}, which uses the
 column names of \code{x}. Pass a character vector to override them.}
 
-\item{title}{Optional plot title. Applied via ggplot2::labs(title = title).}
+\item{title}{Optional plot title.}
 
-\item{from_colors}{Colors for left-side nodes. Default uses palette.}
+\item{from_colors}{Colors for the left-side nodes. In multi-step and
+individual-tracking plots, the colors of all states. Default NULL uses
+the built-in palette.}
 
 \item{flow_color_by}{Color trajectory lines by state. Supports
 \code{"source"}, \code{"destination"}, \code{"first"}, \code{"last"}, or
@@ -74,23 +76,25 @@ NULL. Default \code{"first"}.}
 
 \item{label_size}{Size of node labels. Default 3.5.}
 
-\item{label_position}{Position of node labels: "beside" (default), "inside", "above", "below", "outside".
-Applied to first and last columns. See \code{mid_label_position} for middle columns.}
+\item{label_position}{Position of node labels: "beside" (default),
+"inside", "above", "below", "outside". In multi-step and
+individual-tracking plots, "beside" and "outside" label the first and
+last columns only. See \code{mid_label_position} for middle columns.}
 
 \item{mid_label_position}{Position of labels for intermediate (middle)
 columns in individual-tracking plots. Same options as
-\code{label_position}. Default NULL uses \code{label_position} value.}
+\code{label_position}. Default NULL uses \code{label_position}.}
 
-\item{label_halo}{Logical: add white halo around labels for readability? Default TRUE.}
+\item{label_halo}{Logical: add a white halo around labels and column
+titles? Default TRUE.}
 
 \item{label_color}{Color of state name labels. Default "black". Applied to
-multi-step and individual-tracking plots; simple two-column aggregate plots
-use black external labels and white inside labels.}
+multi-step and individual-tracking plots. Two-column aggregate plots use
+black external labels and white inside labels.}
 
-\item{label_fontface}{Font face of state name labels ("plain", "bold", "italic",
-"bold.italic"). Default "plain". Applied to multi-step and
-individual-tracking plots; simple two-column aggregate plots use fixed
-label font faces.}
+\item{label_fontface}{Font face of state name labels ("plain", "bold",
+"italic", "bold.italic"). Default "plain". Applied to multi-step and
+individual-tracking plots.}
 
 \item{label_nudge}{Distance between node edge and label (in plot units).
 Default 0.02. Used by multi-step and individual-tracking plots.}
@@ -98,19 +102,23 @@ Default 0.02. Used by multi-step and individual-tracking plots.}
 \item{title_size}{Size of column titles. Default 5.}
 
 \item{title_color}{Color of column title text. Default "black". Applied to
-multi-step and individual-tracking plots; simple two-column aggregate plots
-use black titles.}
+multi-step and individual-tracking plots.}
 
 \item{title_fontface}{Font face of column titles. Default "bold". Applied to
 multi-step and individual-tracking plots.}
 
 \item{curve_strength}{Controls bezier curve shape (0-1). Default 0.6.}
 
-\item{line_alpha}{Alpha for individual tracking lines. Default 0.3.}
+\item{line_alpha}{Alpha for individual tracking lines. Default 0.3. When
+bundling is active, values up to 0.3 are raised to 0.9 and larger values
+are increased by 0.3, capped at 1.}
 
-\item{line_width}{Width of individual tracking lines. Default 0.5.}
+\item{line_width}{Width of individual tracking lines. Default 0.5. When
+bundling is active, widths range from \code{line_width} to twice that
+value according to the number of cases per line.}
 
-\item{jitter_amount}{Vertical jitter for individual lines (0-1). Default 0.8.}
+\item{jitter_amount}{Currently unused. Lines are spaced evenly within each
+node. Default 0.8.}
 
 \item{show_totals}{Logical: show total counts on nodes? Default FALSE.}
 
@@ -118,7 +126,8 @@ multi-step and individual-tracking plots.}
 
 \item{total_color}{Color of total labels. Default "white".}
 
-\item{total_fontface}{Font face of total labels. Default "bold".}
+\item{total_fontface}{Font face of total labels. Default "bold". Applied to
+multi-step and individual-tracking plots.}
 
 \item{show_values}{Logical: show transition counts on flows? Default FALSE.}
 
@@ -130,8 +139,8 @@ multi-step and individual-tracking plots.}
 \item{value_color}{Color of value labels. Default "black".}
 
 \item{value_halo}{Logical: add halo around flow value labels? Default NULL
-(inherits from \code{label_halo}). Applied to multi-step and
-individual-tracking plots.}
+uses \code{label_halo}. Applied to multi-step and individual-tracking
+plots.}
 
 \item{value_fontface}{Font face of flow value labels. Default "bold".
 Applied to multi-step and individual-tracking plots.}
@@ -140,32 +149,35 @@ Applied to multi-step and individual-tracking plots.}
 "origin" or "destination" positions. Default 0.03.}
 
 \item{value_min}{Minimum count to show a flow value label in multi-step and
-individual-tracking plots. Default 0 (show all). Simple two-column
-aggregate plots show all nonzero value labels when \code{show_values = TRUE}.}
+individual-tracking plots. Default 0 (show all). Two-column aggregate
+plots show every nonzero value label when \code{show_values = TRUE}.}
 
 \item{value_digits}{Number of decimal places for flow value labels and node
 totals. Default 2.}
 
 \item{column_gap}{Horizontal spread of columns (0-1) for multi-step and
-individual-tracking plots. Default 1 uses full width. Use smaller values
-(e.g., 0.6) to bring columns closer together.}
+individual-tracking plots. Default 1 uses the full width. Smaller values
+(e.g., 0.6) bring the columns closer together.}
 
 \item{proportional_nodes}{Logical: size nodes proportionally to counts in
-individual-tracking plots? Default TRUE.}
+individual-tracking plots? When FALSE, all states in a column have equal
+height. Default TRUE.}
 
-\item{node_label_format}{Format string for node labels with \code{{state}} and
-\code{{count}} placeholders in individual-tracking plots. Default NULL
-(plain state name).
-Example: \code{"{state} (n={count})"}.}
+\item{node_label_format}{Format string for node labels with \code{{state}}
+and \code{{count}} placeholders in individual-tracking plots, for
+example \code{"{state} (n={count})"}. Default NULL (plain state name).}
 
-\item{bundle_size}{Controls line bundling for large datasets. Default NULL (no bundling).
-Integer >= 2: each drawn line represents that many cases.
-Numeric in (0,1): reduce to this fraction of original lines
-(e.g., 0.15 keeps about 15 percent of lines).}
+\item{bundle_size}{Controls line bundling for large datasets in
+individual-tracking plots. Default NULL (no bundling). A value of 1 or
+more sets the number of cases each line represents. A value in (0, 1)
+sets the fraction of the original number of lines to keep (e.g., 0.15
+keeps about 15 percent). Paths with fewer than half the cases of one
+line are dropped.}
 
-\item{bundle_legend}{Logical or character: show annotation when bundling is
-active? Default TRUE shows "Each line ~ N cases" below the plot.
-Pass a string to use custom text (with \code{{n}} placeholder for count).}
+\item{bundle_legend}{Logical or character: show an annotation when
+bundling is active? Default TRUE shows "Each line ~ N cases". A string
+is used as custom text, with \code{{n}} as the placeholder for the
+number of cases.}
 
 \item{bundle_legend_size}{Size of the bundle legend text. Default 3.}
 
@@ -177,11 +189,11 @@ Pass a string to use custom text (with \code{{n}} placeholder for count).}
 or "top".}
 }
 \value{
-A ggplot2 object.
+A \code{ggplot} object.
 }
 \description{
-Creates an alluvial-style diagram where each individual's trajectory is shown
-as a separate line. This is an alias for \code{plot_transitions()} with
+Creates an alluvial-style diagram in which each individual's trajectory is
+plotted as a separate line. It calls \code{plot_transitions()} with
 \code{track_individuals = TRUE}.
 }
 \examples{

@@ -7,26 +7,37 @@
 centrality_entropy(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector of entropy centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Graph-theoretic entropy based on shortest path distribution in the residual
-graph after removing the node.
+Entropy centrality, in the form of the centiserve package, removes the node
+and measures how evenly reachability is spread over the remaining network.
+With \eqn{r_j}{r_j} the number of nodes that node \eqn{j} reaches in
+\eqn{G - v} and \eqn{P} half the total of the \eqn{r_j}{r_j},
+\deqn{H(v) = -\sum_{j} y_j \log_2 y_j, \qquad y_j = \frac{r_j}{P}.}{
+  H(v) = -sum_j y_j log2(y_j), y_j = r_j / P.}
+Terms with \eqn{y_j = 0}{y_j = 0} are dropped.
+}
+\details{
+Edge weights are ignored, and \code{mode} sets the direction of
+reachability. When the network stays strongly connected after the removal
+of any one node, every node scores \eqn{2 \log_2((n-1)/2)}{2 log2((n-1)/2)},
+as on \code{regulation_net}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_entropy(adj)
+centrality_entropy(regulation_net)
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_distance_entropy}},
+\code{\link{centrality_diversity}}, \code{\link{centrality}}.
 }

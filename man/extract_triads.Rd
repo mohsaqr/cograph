@@ -14,7 +14,7 @@ extract_triads(
 )
 }
 \arguments{
-\item{x}{A matrix, igraph object, tna, or cograph_network}
+\item{x}{A matrix, igraph object, tna, or cograph_network.}
 
 \item{type}{Character vector of MAN codes to filter by (e.g., "030T", "030C").
 Default NULL returns all types.}
@@ -22,52 +22,41 @@ Default NULL returns all types.}
 \item{involving}{Character vector of node labels. Only return triads
 involving at least one of these nodes. Default NULL returns all triads.}
 
-\item{threshold}{Minimum edge weight for an edge to be considered present.
-Type is determined by edges with weight > threshold. Default 0.}
+\item{threshold}{Edge weight threshold. An edge counts as present for the
+triad type when its weight is greater than \code{threshold}. Default 0.}
 
 \item{min_total}{Minimum total weight across all 6 edges. Excludes trivial
 triads with low overall activity. Default 5.}
 
-\item{directed}{Logical. Treat network as directed? Default auto-detected.}
+\item{directed}{Logical or NULL. Whether the network is treated as
+directed. NULL (default) detects it from the input.}
 }
 \value{
-A data frame with columns:
+A data frame with one row per triad, in node index order, and the
+columns:
 \describe{
-\item{A, B, C}{Node labels for the three nodes in the triad}
-\item{type}{MAN code (003, 012, ..., 300)}
+\item{A, B, C}{Labels of the three nodes in the triad.}
+\item{type}{MAN code (012, ..., 300). Triads of type 003 have no edge
+and are not returned.}
 \item{weight_AB, weight_BA, weight_AC, weight_CA, weight_BC, weight_CB}{
-Edge weights (frequencies) for all 6 possible directed edges}
-\item{total_weight}{Sum of all 6 edge weights}
+Edge weights of the 6 possible directed edges.}
+\item{total_weight}{Sum of the 6 edge weights.}
 }
+A network with fewer than 3 nodes gives a data frame with no rows.
 }
 \description{
-Extract all triads from a network, preserving node labels. This allows
-users to see which specific node combinations form each motif pattern.
+Lists the triads of a network that contain at least one edge, with the
+labels of their nodes, so that the node combinations forming each motif
+pattern can be identified.
 }
 \details{
-This function complements \code{\link[=motif_census]{motif_census()}} by showing the actual node
-combinations that form each motif pattern. A typical workflow is:
-\enumerate{
-\item Use \code{motif_census()} to identify over/under-represented patterns
-\item Use \code{extract_triads()} with \code{type} filter to see which nodes form those patterns
-\item Sort by \code{total_weight} to find the strongest triads
-}
-
-\strong{Type vs Weight distinction:}
-\itemize{
-\item \strong{Type} is determined by edge presence (weight > threshold)
-\item \strong{Weights} are the actual frequency counts, useful for ranking triads by strength
-}
+The function complements \code{\link[=motif_census]{motif_census()}} by showing the node combinations
+that form each motif pattern. The triad type is determined by edge presence
+(weight greater than \code{threshold}). The weight columns hold the edge
+weights themselves, which measure the strength of each triad.
 }
 \examples{
-mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-rownames(mat) <- colnames(mat) <- c("Plan", "Execute", "Monitor", "Adapt")
-net <- as_cograph(mat)
-
-# All triads, feed-forward loops, triads involving "Plan"
-head(extract_triads(net))
-extract_triads(net, type = "030T")
-extract_triads(net, involving = "Plan")
+extract_triads(regulation_net, type = "030T", min_total = 0)
 
 }
 \seealso{
@@ -78,8 +67,6 @@ Other motifs:
 \code{\link{get_edge_list}()},
 \code{\link{motif_census}()},
 \code{\link{motifs}()},
-\code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()},
 \code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }

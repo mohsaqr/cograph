@@ -25,88 +25,50 @@ calculate_neighbor_distance <- function(cg, order = 2, decay = 0.2,
   theta + Reduce(`+`, Map(function(s, k) decay^k * s, steps, seq_along(steps)))
 }
 
-#' Neighborhood centrality, and its neighbor distance special case
+#' Neighborhood Centrality
 #'
-#' Neighborhood centrality adds to a node's own benchmark centrality the
-#' benchmark centrality of the nodes its walks reach, discounted once per
-#' step:
-#' \eqn{C^n_i(\theta)=\theta_i+a\sum_{j\in\Gamma_i}\theta_j
-#' +a^2\sum_{l\in\Gamma_j\setminus i}\theta_l+\dots
-#' +a^n\sum_{s\in\Gamma_{s-1}\setminus x}\theta_s}.
-#' The sums are nested and each level excludes only the node the walk just
-#' came from, so the \eqn{k}-th term sums \eqn{\theta} over the endpoints of
-#' the **non-backtracking walks of length \eqn{k}** that start at \eqn{i},
-#' once per walk. A walk may revisit a node it passed earlier, including
-#' \eqn{i} itself; only immediate backtracking is barred. The Zoo calls the
-#' setting \code{nd_mass = "degree"}, \code{nd_order = 2},
-#' \code{nd_decay = 0.2} the *neighbor distance centrality*, and that is the
-#' default here; it is the configuration the source recommends.
+#' Neighborhood centrality (Liu et al. 2016) adds to a node's benchmark
+#' centrality \eqn{\theta}{theta} the benchmark centrality of the endpoints
+#' of its non-backtracking walks of length 1 to \eqn{n}, discounted by
+#' \eqn{a^k}{a^k} at step \eqn{k}. With the defaults (degree benchmark, two
+#' steps, \eqn{a = 0.2}) it is the neighbor distance centrality.
+#' \deqn{C_i = \theta_i + a \sum_{j \in \Gamma_i} \theta_j
+#'   + a^2 \sum_{j \in \Gamma_i} \sum_{l \in \Gamma_j \setminus i} \theta_l
+#'   + \dots}{
+#'   C_i = theta_i + a sum_{j in N(i)} theta_j
+#'   + a^2 sum_{j in N(i)} sum_{l in N(j), l != i} theta_l + ...}
 #'
-#' \strong{This is not the same as summing over distance shells.} The
-#' Centrality Zoo (section 2.279, equation 2.1) paraphrases the measure with
-#' sums over \eqn{N^{(k)}(i)}, "the set of \eqn{k}-hop neighbors", which
-#' visits each node at most once per level and never revisits a closer one.
-#' The two readings agree on trees and disagree on any graph carrying a
-#' triangle or a cycle of length at most \eqn{2n}, and the difference is a
-#' per-node offset, not a rescaling. On the triangle-plus-pendant
-#' \code{A-B, A-C, B-C, A-D} with the defaults, the walk sums of the source
-#' give \code{4.16, 3.24, 3.24, 1.76} while distance shells would give
-#' \code{4.00, 3.04, 3.04, 1.76}. cograph implements the source equation.
-#' No shell variant is offered: the shell form appears only in a secondary
-#' paraphrase, which also attributes the measure to a different paper whose
-#' text does not contain it.
-#'
-#' The source states no normalization, so raw scores grow with
-#' \code{nd_decay} and \code{nd_order}; \code{normalized = TRUE} max-scales
-#' the finished vector and is a cograph convention. \code{nd_decay} is
-#' \eqn{a\in[0,1]} in the source, which sweeps 0.1 to 0.5; cograph accepts
-#' any finite value, and a negative or larger one leaves the source's
-#' domain. \code{nd_order = 0} drops every sum and returns \eqn{\theta}
-#' itself, which is what the source says \eqn{a=0} does.
-#'
-#' Uses the simple undirected unweighted skeleton, which is the source
-#' domain: either arc creates one edge, parallel edges count once, and loops
-#' are removed, since a loop would make "the node the walk just came from"
-#' ambiguous. Edge weights, mode, cutoff and path-weight inversion are
-#' ignored. Isolates have every sum empty and score \eqn{\theta_i}, which is
-#' zero for both benchmarks; walks never leave a component, so the raw score
-#' of a node is unchanged by adding a disconnected component. Empty graphs
-#' return no scores. Core numbers follow \code{\link{centrality}}'s
-#' \code{"coreness"}, so an isolate sits in the zero-shell. Cost is
-#' \code{nd_order} dense matrix-vector products, O(n^2) each. Walk counts
-#' grow geometrically in \code{nd_order}, so a large order overflows to
-#' infinity; the source considers one to four steps.
-#'
-#' Numerical verification establishes agreement with the source equation as
-#' printed in the author preprint, not parity with author software, which
-#' does not exist, and not any claim about spreading performance.
+#' @details
+#' The measure is computed on the simple undirected skeleton of the network,
+#' so direction, weights, loops and parallel edges are ignored. Each level
+#' excludes only the node the walk came from, so a walk may revisit a node.
+#' Isolates score \eqn{\theta_i}{theta_i}, which is zero for both
+#' benchmarks, and \code{nd_order = 0} returns the benchmark itself. The
+#' source takes \eqn{a} in \eqn{[0, 1]}, and the function accepts any finite
+#' value. The Centrality Zoo paraphrases the measure with sums over distance
+#' shells, which agree with the source's walk sums on trees and differ on
+#' graphs with short cycles. The implementation follows the source.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param nd_order Number of steps \eqn{n}, a single nonnegative whole
-#'   number; default two, the source's recommended setting. The source
-#'   studies one to four steps. Zero returns the benchmark centrality.
-#' @param nd_decay Per-step decay \eqn{a}, a single finite number; default
-#'   0.2, the source's own value. The source's domain is \eqn{[0,1]}.
-#' @param nd_mass Benchmark centrality \eqn{\theta}: \code{"degree"}
-#'   (default) or \code{"coreness"}. These are the two the source uses.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param nd_order Number of steps \eqn{n}, a nonnegative whole number
+#'   (default 2).
+#' @param nd_decay Per-step decay \eqn{a}, a finite number (default 0.2).
+#' @param nd_mass Benchmark centrality \eqn{\theta}{theta}: \code{"degree"}
+#'   (default) or \code{"coreness"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} (divide by the maximum, default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Liu, Y., Tang, M., Zhou, T. and Do, Y. (2016). Identify influential
 #'   spreaders in complex networks, the role of neighborhood. Physica A:
 #'   Statistical Mechanics and its Applications, 452, 289-298.
 #'   \doi{10.1016/j.physa.2016.02.028}.
-#' @seealso \code{\link{centrality_semilocal}} and
-#'   \code{\link{centrality_extended_coreness}} for other neighborhood sums,
-#'   and \code{\link{list_centralities}} for the catalogue.
+#' @seealso \code{\link{centrality_semilocal}},
+#'   \code{\link{centrality_extended_coreness}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' # Neighbor distance centrality: degree benchmark, two steps, a = 0.2
-#' centrality_neighbor_distance(igraph::make_ring(6))
-#'
-#' # The source's other benchmark, and a wider neighborhood
-#' centrality_neighbor_distance(igraph::make_star(7, mode = "undirected"),
-#'                              nd_order = 3, nd_mass = "coreness")
+#' @examples
+#' centrality_neighbor_distance(regulation_net)
 centrality_neighbor_distance <- function(x, nd_order = 2, nd_decay = 0.2,
                                          nd_mass = "degree", ...) {
   df <- centrality(x, measures = "neighbor_distance", nd_order = nd_order,

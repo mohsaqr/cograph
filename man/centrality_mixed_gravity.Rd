@@ -2,61 +2,46 @@
 % Please edit documentation in R/centrality-batch39.R
 \name{centrality_mixed_gravity}
 \alias{centrality_mixed_gravity}
-\title{Mixed gravitational centrality}
+\title{Mixed Gravitational Centrality}
 \usage{
 centrality_mixed_gravity(x, gravity_radius = 3, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{gravity_radius}{Nonnegative hop-distance cutoff, default three.
-NULL or infinity includes every reachable partner. Fractional cutoffs
-include exactly integer hop distances not exceeding them; values below
-one give zero. The optional \code{"auto"} is a cograph heuristic:
-round half the mean finite positive distance to the nearest integer
-(ties to even), with minimum one. It is not the cited radius rule and
-can change when disconnected components are added.}
+\item{gravity_radius}{Hop-distance cutoff \eqn{r}{r}. Default 3.
+\code{NULL} or \code{Inf} includes every reachable node, and a value
+below one gives zero scores.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} (divide by the maximum, default \code{FALSE}).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Mixed gravitational centrality (MGC), also called improved gravitational
-centrality (IGC), uses the focal node's core number as its mass and the
-partner node's degree as its mass:
-\eqn{MGC_i=k_s(i)\sum_{j:0<d(i,j)\le r}k(j)/d(i,j)^2}.
-All degrees, core numbers and hop distances are measured on the original
-simple undirected graph. The masses are asymmetric even though distances
-are symmetric. This differs from using core numbers on both ends or
-degree on both ends of each interaction.
+Mixed gravitational centrality (Wang, Li and Xia 2018), also called
+improved gravitational centrality, uses the core number
+\eqn{k_s(i)}{ks(i)} of the focal node and the degree \eqn{k(j)}{k(j)} of
+each partner node as masses:
+\deqn{MGC_i = k_s(i) \sum_{j : 0 < d(i,j) \le r} \frac{k(j)}{d(i,j)^2}.}{
+  MGC_i = ks(i) sum_{j: 0 < d(i,j) <= r} k(j) / d(i,j)^2.}
 }
 \details{
-The implementation follows the explicit reproduction of Wang et al.'s
-method in Li and Huang (2022), equations 5-8, with default radius three.
-The original 2018 full equations and author software have not been
-inspected. The Zoo summary writes an immediate-neighbor inner sum;
-\code{gravity_radius = 1} reproduces that literal interpretation.
-Numerical verification establishes agreement with the cited reproduced
-definition, not parity with unavailable original software or a guarantee
-of spreading performance.
-
-Uses the simple undirected unweighted skeleton: either arc creates an
-edge, parallel edges count once and loops are removed. This projection
-is a cograph convention outside the source domain. Edge weights, mode,
-cutoff, gravity_mass and path-weight inversion are ignored. Isolates
-and singleton graphs score zero; empty graphs return no scores.
-Unreachable partners contribute zero. With a fixed radius, adding a
-disconnected component leaves existing raw scores unchanged. Optional
-maximum normalization applies to the complete result over all nodes.
-Dense all-pairs distances cost O(n cubed) time and O(n squared) memory.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored,
+and \code{gravity_mass} has no effect. The implementation follows the
+reproduction of the method in Li and Huang (2022), equations 5-8. The
+Centrality Zoo writes the inner sum over immediate neighbors, which
+corresponds to \code{gravity_radius = 1}. Isolated nodes score zero, and
+unreachable nodes contribute nothing. \code{gravity_radius = "auto"} is
+a cograph heuristic that rounds half the mean finite distance to the
+nearest integer, with a minimum of one. A negative radius raises an
+error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_mixed_gravity(igraph::make_ring(6))
-centrality_mixed_gravity(igraph::make_star(6), gravity_radius = 1)
-\dontshow{\}) # examplesIf}
+centrality_mixed_gravity(regulation_net)
 }
 \references{
 Wang, J., Li, C. and Xia, C. (2018). Improved centrality
@@ -69,5 +54,6 @@ model considering multi-characteristics of nodes. Scientific Reports, 12,
 9879. \doi{10.1038/s41598-022-14005-3}.
 }
 \seealso{
-\code{\link{centrality_extended_mixed_gravity}}.
+\code{\link{centrality_extended_mixed_gravity}},
+\code{\link{centrality_gravity}}, \code{\link{centrality}}.
 }

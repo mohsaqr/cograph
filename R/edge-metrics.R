@@ -19,15 +19,13 @@
 #' @param ... Additional arguments passed to \code{\link{edge_centrality}}.
 #'
 #' @return A data frame sorted by \code{overlap} (descending) with columns:
-#'   \code{from}, \code{to}, \code{weight} (if weighted), \code{overlap},
+#'   \code{from}, \code{to}, \code{weight}, \code{overlap},
 #'   \code{shared_neighbors}.
 #'
 #' @seealso \code{\link{edge_centrality}}, \code{\link{simmelian_strength}}
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' cograph::neighborhood_overlap(adj)
+#' cograph::neighborhood_overlap(regulation_net, top = 5)
 neighborhood_overlap <- function(x, top = NULL, directed = NULL,
                                  digits = NULL, ...) {
   df <- edge_centrality(x, measures = c("weight", "overlap"),
@@ -46,14 +44,12 @@ neighborhood_overlap <- function(x, top = NULL, directed = NULL,
 #' @inheritParams neighborhood_overlap
 #'
 #' @return A data frame sorted by \code{triangles} (descending) with columns:
-#'   \code{from}, \code{to}, \code{weight} (if weighted), \code{triangles}.
+#'   \code{from}, \code{to}, \code{weight}, \code{triangles}.
 #'
 #' @seealso \code{\link{edge_centrality}}, \code{\link{neighborhood_overlap}}
 #' @export
 #' @examples
-#' k4 <- matrix(1, 4, 4); diag(k4) <- 0
-#' rownames(k4) <- colnames(k4) <- c("A", "B", "C", "D")
-#' cograph::simmelian_strength(k4)
+#' cograph::simmelian_strength(regulation_net, top = 5)
 simmelian_strength <- function(x, top = NULL, directed = NULL,
                                digits = NULL, ...) {
   df <- edge_centrality(x, measures = c("weight", "simmelian"),
@@ -74,7 +70,7 @@ simmelian_strength <- function(x, top = NULL, directed = NULL,
 #' @return A data frame with one row per directed edge and columns
 #'   \code{from}, \code{to}, \code{weight}, \code{reciprocated} (logical),
 #'   \code{reverse_weight} (NA when not reciprocated) and \code{weight_ratio}
-#'   (\code{weight / reverse_weight}; NA when not reciprocated). Rows are
+#'   (\code{reverse_weight / weight}; NA when not reciprocated). Rows are
 #'   ordered with reciprocated edges first, then by \code{|weight_ratio|}
 #'   descending.
 #'
@@ -85,9 +81,7 @@ simmelian_strength <- function(x, top = NULL, directed = NULL,
 #' @seealso \code{\link{edge_centrality}}
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0, 0.8, 0, 0.3, 0, 0.5, 0.7, 0, 0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' cograph::edge_reciprocity(adj, directed = TRUE)
+#' cograph::edge_reciprocity(regulation_net, top = 5)
 edge_reciprocity <- function(x, top = NULL, directed = NULL,
                              digits = NULL, ...) {
   # Ensure directed — reciprocity only makes sense for directed networks

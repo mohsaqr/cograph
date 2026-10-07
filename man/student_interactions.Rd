@@ -31,23 +31,15 @@ interaction between two students. The same pair may appear multiple
 times, reflecting repeated interactions.
 }
 \details{
-The dataset includes self-loops (34 rows where \code{from == to}),
-which may represent self-directed actions. These can be removed with
-\code{subset(student_interactions, from != to)}.
+The dataset includes self-loops (34 rows where \code{from == to}).
+These can be removed with \code{subset(student_interactions, from != to)}.
 
-Because interactions repeat, this edge list naturally represents a
-multigraph when loaded into igraph with
+The 389 rows contain 226 distinct ordered pairs. Because interactions
+repeat, the edge list forms a multigraph when loaded into igraph with
 \code{igraph::graph_from_data_frame()}.
 }
 \examples{
-# Load and build network
-data(student_interactions)
-head(student_interactions)
-
-# Remove self-loops and build a network
-el <- subset(student_interactions, from != to)
-n_edges(as_cograph(el))
-n_nodes(as_cograph(el))
+as_cograph(student_interactions)
 
 }
 \keyword{datasets}

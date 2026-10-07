@@ -24,60 +24,51 @@ com_consensus(
 )
 }
 \arguments{
-\item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
+\item{x}{Network input: matrix, igraph, network, cograph_network, or tna
+object. The louvain and leiden methods require an undirected network.}
 
-\item{method}{Community detection algorithm to use. Default "louvain".
-Must be a stochastic method (louvain, leiden, infomap, label_propagation,
-spinglass).}
+\item{method}{Community detection algorithm, one of \code{"louvain"}
+(default), \code{"leiden"}, \code{"infomap"},
+\code{"label_propagation"} or \code{"spinglass"}. The current code runs
+louvain for \code{"spinglass"}.}
 
-\item{n_runs}{Number of times to run the algorithm. Default 100.}
+\item{n_runs}{Number of runs. Default 100.}
 
-\item{threshold}{Co-occurrence threshold for consensus. Default 0.5.
-Nodes that appear together in >= threshold proportion of runs are
-placed in the same community.}
+\item{threshold}{Co-occurrence threshold. Default 0.5. Pairs of nodes that
+share a community in at least this proportion of runs are linked in the
+consensus graph.}
 
 \item{seed}{Optional seed for reproducibility. If provided, the RNG state is
 initialized once before repeated runs and restored on exit.}
 
-\item{...}{Currently ignored. Each run calls the underlying
-\code{igraph::cluster_*()} function with its own defaults; no extra
-arguments are forwarded.}
+\item{...}{Ignored. Each run calls the igraph function with its own
+defaults and without weights or resolution settings. For leiden this is
+the CPM objective with resolution 1.}
 }
 \value{
 A \code{cograph_communities} data frame (columns \code{node} and
 \code{community}) holding the consensus membership. Its
 \code{"algorithm"} attribute is \code{"consensus_<method>"} and its
-\code{"modularity"} attribute is that of the final walktrap partition of
-the consensus graph, not of the original network.
+\code{"modularity"} attribute is the modularity of the final walktrap
+partition computed on the consensus graph.
 }
 \description{
-Runs a stochastic community detection algorithm multiple times and finds
-consensus communities via co-occurrence matrix thresholding. This approach
-produces more robust and stable community assignments than single runs.
+Runs a stochastic community detection algorithm repeatedly and derives
+consensus communities by thresholding the co-occurrence matrix of the
+runs.
 }
 \details{
-The algorithm works as follows:
-\enumerate{
-\item Run the specified algorithm \code{n_runs} times using the current RNG
-stream
-\item Build a co-occurrence matrix counting how often each pair of nodes
-appears in the same community
-\item Normalize to proportions (0-1)
-\item Threshold to create a consensus graph (edge if co-occurrence >= threshold)
-\item Run walktrap on the consensus graph to get final communities
-}
+The algorithm is run \code{n_runs} times on the current random number
+stream. The proportion of runs in which each pair of nodes shares a
+community forms the co-occurrence matrix. Pairs with a proportion of at
+least \code{threshold} are linked in an unweighted consensus graph, and
+walktrap on that graph gives the final communities.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Consensus from 50 Louvain runs
-  cc <- community_consensus(g, method = "louvain", n_runs = 50)
-  print(cc)
-
-  # Stricter threshold for more robust communities
-  cc2 <- community_consensus(g, threshold = 0.7, n_runs = 100)
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+community_consensus(to_undirected(regulation_net), method = "louvain",
+                    n_runs = 10, seed = 1)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Lancichinetti, A., & Fortunato, S. (2012).

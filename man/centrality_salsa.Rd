@@ -7,24 +7,37 @@
 centrality_salsa(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).
-Must be directed.}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of SALSA authority scores.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Stochastic Approach for Link-Structure Analysis. Returns authority scores.
-Requires a directed graph.
+SALSA (Lempel and Moran 2000) ranks authorities by a random walk that
+alternates between following an edge backward and forward. The authority
+score of a node is its entry in the stationary distribution of the chain
+\deqn{\tilde{A} = W_c^{T} W_r,}{A~ = t(W_c) W_r,}
+where \eqn{W_r} and \eqn{W_c} are the row-normalized and column-normalized
+adjacency matrices.
+}
+\details{
+The measure needs a directed network. On undirected input every score is
+\code{NA} with a warning that carries no condition class. Edge weights are
+ignored. The scores are scaled so that the largest is 1, and a node
+without incoming edges scores 0.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_salsa(adj)
+centrality_salsa(regulation_net)
+}
+\references{
+Lempel, R., & Moran, S. (2000). The stochastic approach for link-structure
+analysis (SALSA) and the TKC effect. Computer Networks, 33(1-6),
+387-401. \doi{10.1016/S1389-1286(00)00034-7}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_authority}} for HITS authority.
+\code{\link{centrality_authority}},
+\code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 }

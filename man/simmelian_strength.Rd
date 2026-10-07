@@ -20,16 +20,14 @@ object.}
 }
 \value{
 A data frame sorted by \code{triangles} (descending) with columns:
-\code{from}, \code{to}, \code{weight} (if weighted), \code{triangles}.
+\code{from}, \code{to}, \code{weight}, \code{triangles}.
 }
 \description{
 Convenience wrapper around \code{\link{edge_centrality}} that returns only
 the triangle count per edge, sorted descending.
 }
 \examples{
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-rownames(k4) <- colnames(k4) <- c("A", "B", "C", "D")
-cograph::simmelian_strength(k4)
+cograph::simmelian_strength(regulation_net, top = 5)
 }
 \seealso{
 \code{\link{edge_centrality}}, \code{\link{neighborhood_overlap}}

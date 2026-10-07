@@ -24,14 +24,11 @@ A \code{cograph_network} with the new nodes appended (isolated until
 edges are added), or the input format when \code{keep_format = TRUE}.
 }
 \description{
-Add Nodes to a Network
+Appends new nodes, identified by label, to a network. A label that already
+exists raises a \code{cograph_bad_selection} error.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 0), 2, 2)
-rownames(adj) <- colnames(adj) <- c("A", "B")
-
-add_nodes(adj, labels = c("C", "D"))
-add_nodes(adj, labels = "C", group = "new")
+add_nodes(regulation_net, labels = "Revise")
 }
 \seealso{
 \code{\link{remove_nodes}}, \code{\link{add_edges}},

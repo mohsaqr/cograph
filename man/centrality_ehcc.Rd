@@ -2,47 +2,37 @@
 % Please edit documentation in R/centrality-batch46.R
 \name{centrality_ehcc}
 \alias{centrality_ehcc}
-\title{Extended hybrid characteristic centrality}
+\title{Extended Hybrid Characteristic Centrality}
 \usage{
 centrality_ehcc(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}, including
-\code{hcc_delta}.}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{hcc_delta} (weight \eqn{\delta}{delta} of the node's own degree in
+the extended degree, default 0.5).}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-The extended hybrid characteristic centrality of Liu and Zheng is the
-closed-neighborhood sum of \code{\link{centrality_hcc}}:
-\eqn{EHCC(u)=HCC(u)+\sum_{v\in\phi(u)}HCC(v)}, the focal node counted
-once and each neighbor of the open 1-order neighborhood once. It
-rewards a node whose neighbors are themselves high in both the extended
-degree and the E-shell hierarchy, which a node can be without being high
-itself.
+Extended hybrid characteristic centrality (Liu and Zheng 2023) adds to a
+node's \code{\link{centrality_hcc}} score the scores of its neighbors.
+\deqn{EHCC(u) = HCC(u) + \sum_{v \in \phi(u)} HCC(v)}{
+  EHCC(u) = HCC(u) + sum_{v in N(u)} HCC(v)}
 }
 \details{
-Everything recorded on \code{\link{centrality_hcc}} carries over
-unchanged: the source's \eqn{\arg\max}/\eqn{\arg\min} typo in step 3 of
-the E-shell procedure, the original-graph reading of \eqn{k^{ex}} and
-\eqn{k^{ex}_{max}} against the residual-graph peel, the global and
-therefore not component-local normalizers, the \code{hcc_delta} domain
-\eqn{[0,1]}, the \eqn{0/0} of an edgeless graph written as zero, the
-simple undirected unweighted skeleton, and the ignored weights, mode,
-cutoff and inversion. Because HCC lies in \eqn{[0,2]}, EHCC lies in
-\eqn{[0,2(1+k_{max})]}, and an isolate scores exactly its own HCC.
+The measure inherits the conventions of \code{\link{centrality_hcc}}. It
+is computed on the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and a \code{hcc_delta} outside
+\eqn{[0, 1]} raises a \code{cograph_bad_parameter} error. Scores lie in
+\eqn{[0, 2(1 + k_{max})]}{[0, 2 (1 + k_max)]}, and an isolate scores its
+own HCC.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# On a regular graph every node scores 2, so EHCC is 2 (1 + k).
-centrality_ehcc(igraph::make_ring(6))
-
-# The star's center collects every leaf's score as well as its own.
-centrality_ehcc(igraph::make_star(6, mode = "undirected"))
-\dontshow{\}) # examplesIf}
+centrality_ehcc(regulation_net)
 }
 \references{
 Liu, J. and Zheng, J. (2023). Identifying important nodes in complex
@@ -50,6 +40,5 @@ networks based on extended degree and E-shell hierarchy decomposition.
 Scientific Reports, 13, 3197. \doi{10.1038/s41598-023-30308-5}.
 }
 \seealso{
-\code{\link{centrality_hcc}} for the summand and
-\code{\link{list_centralities}} for the catalogue.
+\code{\link{centrality_hcc}}, \code{\link{centrality}}.
 }

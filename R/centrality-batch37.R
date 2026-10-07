@@ -61,72 +61,49 @@ calculate_spectralrank <- function(cg, weights = NULL, sr_prior = 0) {
   (vector / max(vector))[seq_len(n)]
 }
 
-#' SpectralRank with optional diagonal prior information
+#' SpectralRank Centrality
 #'
-#' Xu et al.'s SpectralRank is the positive right eigenvector belonging to
-#' the largest real eigenvalue of the augmented adjacency
-#' \eqn{B = \left(\begin{smallmatrix}A+P&\mathbf{1}\\
-#' \mathbf{1}^T&0\end{smallmatrix}\right)}.
-#' A ground node connects bidirectionally to every original node with unit
-#' edge weight. The diagonal P is zero for ordinary SpectralRank; a
-#' nonnegative prior gives the paper's weighted SpectralRank family.
+#' SpectralRank (Xu et al. 2019) is the positive eigenvector of the largest
+#' eigenvalue of the adjacency matrix augmented by a ground node, which is
+#' linked in both directions to every node with unit weight:
+#' \deqn{B = \left(\begin{smallmatrix} A + P & \mathbf{1} \\
+#'   \mathbf{1}^T & 0 \end{smallmatrix}\right).}{
+#'   B = [A + P, 1; t(1), 0].}
+#' The diagonal prior \eqn{P}{P} is zero for ordinary SpectralRank, and a
+#' nonnegative prior gives the weighted SpectralRank family of the paper.
 #'
-#' Raw scores are scaled by the maximum over ALL nodes, including the
-#' ground node, which is then omitted from the output. Its score is not
-#' redistributed. Consequently the largest returned score can be below one.
-#' Optional \code{normalized = TRUE} additionally divides by the maximum
-#' over original nodes, changing this source-defined scale.
-#'
-#' The paper uses binary adjacency and outgoing neighbors: an edge i to j
-#' contributes j's score to i. The function preserves this orientation;
-#' transpose the graph to use incoming neighbors. Finite nonnegative edge
-#' weights extend the same matrix definition; they are interaction weights,
-#' separate from the diagonal-prior meaning of weighted SpectralRank.
-#' Unit ground edges stay fixed, so scaling original edge weights generally
-#' changes scores. For tiny asymmetric matrix weights, set
-#' \code{directed = TRUE} or use a directed igraph object because the shared
-#' parser otherwise uses approximate symmetry detection.
-#'
-#' Loops are removed and remaining parallel edges sum after the generic
-#' simplify rule; unweighted remaining edges count once each. Zero weights
-#' are absent. Mode, path-weight inversion and cutoff are ignored.
-#' Named vector priors are matched to node names. Scalar priors broadcast;
-#' the ground prior is always zero. Supply externally computed degree,
-#' H-index or coreness scores as a vector to select those prior families.
-#'
-#' All nodes, including isolates, receive positive spectral scores because
-#' of the ground links. Without edges or priors, each of n original nodes
-#' scores \eqn{1/\sqrt{n}}. For an edgeless graph the paper's unshifted power
-#' iteration oscillates, although the Perron eigenvector is unique. This
-#' function explicitly uses that eigenvector definition, without claiming
-#' convergence of the published iteration. A singleton scores one; an empty
-#' graph returns no scores. Adding disconnected nodes generally changes
-#' other scores because all share the ground node.
-#'
-#' For nonzero priors the implementation follows section III-A2's
-#' \eqn{B=\widetilde A+P}. Algorithm 1 constructs that matrix but its update
-#' line prints \eqn{\widetilde A}, omitting P; this inconsistency is retained
-#' in the verification audit. No author-software parity is claimed.
-#'
-#' Dense eigendecomposition takes O(n cubed) time and O(n squared) memory.
-#' Extreme weight/prior ranges or unresolved positive eigenpairs raise
-#' errors. The score defines a spectral ranking, not a spreading probability
-#' or a general guarantee of predictive performance.
+#' @details
+#' The eigenvector is divided by its maximum over all nodes including the
+#' ground node, which is then dropped, so the largest returned score can be
+#' below one. \code{normalized = TRUE} further divides by the maximum over
+#' the original nodes. An arc from \eqn{i}{i} to \eqn{j}{j} contributes the
+#' score of \eqn{j}{j} to \eqn{i}{i}. Edge weights must be finite and
+#' nonnegative, \code{weighted = FALSE} gives every edge weight one, and
+#' loops are removed. Every node, isolated nodes included, scores
+#' positive, and without edges or priors each of \eqn{n}{n} nodes scores
+#' \eqn{1/\sqrt{n}}{1/sqrt(n)}. The update line of Algorithm 1 in the paper
+#' omits \eqn{P}{P}, and the implementation follows section III-A2 with
+#' \eqn{B = \tilde{A} + P}{B = A~ + P}. An invalid \code{sr_prior} or an
+#' unresolved eigenvector raises an error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param sr_prior Nonnegative finite scalar or one value per original node.
-#'   Default zero selects SpectralRank; one selects a uniform unit prior.
-#' @param ... Additional arguments to \code{\link{centrality}}.
-#' @return Named numeric vector in input node order.
+#' @param sr_prior Diagonal prior \eqn{P}{P}, a nonnegative scalar or one
+#'   value per node. A named vector is matched to the node names. Default 0,
+#'   which gives ordinary SpectralRank.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (use edge weights, default \code{TRUE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Xu, S., Wang, P., Zhang, C.-X. and Lu, J. (2019). Spectral Learning
 #'   Algorithm Reveals Propagation Capability of Complex Networks. IEEE
 #'   Transactions on Cybernetics, 49(12), 4253-4261.
 #'   \doi{10.1109/TCYB.2018.2861568}.
+#' @seealso \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_leaderrank}}, \code{\link{centrality}}.
 #' @export
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' centrality_spectralrank(igraph::make_ring(5))
-#' centrality_spectralrank(igraph::make_star(5), sr_prior = 1)
+#' @examples
+#' centrality_spectralrank(regulation_net)
 centrality_spectralrank <- function(x, sr_prior = 0, ...) {
   df <- centrality(x, measures = "spectralrank", sr_prior = sr_prior, ...)
   stats::setNames(df$spectralrank, df$node)

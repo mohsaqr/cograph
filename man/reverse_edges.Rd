@@ -9,9 +9,14 @@ reverse_edges(x, keep_format = FALSE, directed = NULL)
 \arguments{
 \item{x}{Network input.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} with every edge reversed, or the input
@@ -19,17 +24,12 @@ format when \code{keep_format = TRUE}. An undirected network is returned
 unchanged, with a \code{cograph_no_effect} warning.
 }
 \description{
-Transposes the weight matrix, so every arc runs the other way. TNA users
-reach for this to look at where transitions came from rather than where they
-went.
+Swaps the endpoints of every edge, which transposes the weight matrix. In a
+transition network the reversed arcs show where each transition came from.
+Additional edge columns are kept.
 }
 \examples{
-adj <- matrix(c(0, .5, 0,
-                0, 0, .7,
-                0, 0, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-reverse_edges(adj)
+reverse_edges(regulation_net)
 }
 \seealso{
 \code{\link{to_directed}}, \code{\link{to_undirected}}

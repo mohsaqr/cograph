@@ -8,133 +8,152 @@ NULL
 
 #' Plot Transitions Between States
 #'
-#' Creates an elegant alluvial/Sankey diagram showing how items flow from
-#' one set of categories to another. Useful for visualizing cluster
-#' transitions, state changes, or any categorical mapping.
+#' Creates an alluvial (Sankey) diagram of how items flow from one set of
+#' categories to another, for example cluster membership changes or state
+#' changes between time points. Aggregated flows are plotted as ribbons whose
+#' width is proportional to the transition count. With
+#' \code{track_individuals = TRUE}, each row of a data frame is plotted as a
+#' separate line.
 #'
-#' @param x Input data in one of several formats:
+#' @param x Input data in one of these formats:
 #'   \itemize{
-#'     \item A transition matrix (rows = from, cols = to, values = counts)
-#'     \item Two vectors: pass \code{before} as x and \code{after} as second argument
-#'       (contingency table computed automatically, like chi-square)
-#'     \item A 2-column data frame (raw observations; table computed automatically)
-#'     \item A data frame with columns: from, to, count
-#'     \item A list of matrices for multi-step transitions
+#'     \item A transition matrix (rows = from, columns = to, values = counts).
+#'     \item A vector of "before" states, with the vector of "after" states
+#'       passed as the second argument (\code{from_title}). Both vectors must
+#'       have the same length, greater than 2, and their contingency table is
+#'       computed.
+#'     \item A data frame with two columns of raw observations, whose
+#'       contingency table is computed.
+#'     \item A data frame with three or more columns of raw observations, one
+#'       column per time point, plotted as a multi-step diagram.
+#'     \item A data frame with columns \code{from}, \code{to} and
+#'       \code{count}.
+#'     \item A list of matrices for multi-step transitions.
+#'     \item A \code{tna} object. Its sequence data are used as a data frame
+#'       of time points (rows with missing values are dropped), or its weight
+#'       matrix when no sequence data are stored.
 #'   }
-#' @param from_title Title for the left column. Default "From". For multi-step,
-#'   use a vector of titles (e.g., c("T1", "T2", "T3", "T4")).
-#' @param to_title Title for the right column. Default "To". Ignored for multi-step.
-#' @param title Optional plot title. Applied via ggplot2::labs(title = title).
-#' @param from_colors Colors for left-side nodes. Default uses palette.
-#' @param to_colors Colors for right-side nodes. Default uses palette.
+#' @param from_title Title for the left column. Default "From". For
+#'   multi-step and individual-tracking plots, a vector with one title per
+#'   column. Data frame input then uses the column names by default, and a
+#'   vector shorter than the number of columns is replaced by "T1", "T2", ...
+#' @param to_title Title for the right column. Default "To". Ignored for
+#'   multi-step plots.
+#' @param title Optional plot title.
+#' @param from_colors Colors for the left-side nodes. In multi-step and
+#'   individual-tracking plots, the colors of all states. Default NULL uses
+#'   the built-in palette.
+#' @param to_colors Colors for the right-side nodes in two-column plots.
+#'   Default NULL uses the built-in palette.
 #' @param flow_fill Fill color for flows. Default "#888888" (grey). In
-#'   multi-step and individual-tracking plots, ignored when \code{flow_color_by}
-#'   is set; simple two-column aggregate plots use \code{flow_fill}.
+#'   multi-step plots it is replaced by the state colors when
+#'   \code{flow_color_by} is set. Individual-tracking lines do not use it.
 #' @param flow_alpha Alpha transparency for flows. Default 0.4.
-#' @param flow_color_by Color flows by state. For multi-step aggregate flows,
-#'   use \code{"source"} or \code{"destination"}; for individual trajectories,
-#'   \code{"first"} and \code{"last"} are also supported. Default NULL uses
-#'   \code{flow_fill}; simple two-column aggregate plots ignore this argument.
+#' @param flow_color_by Color flows by state. Multi-step aggregate plots
+#'   accept \code{"source"} or \code{"destination"}. Individual-tracking
+#'   plots also accept \code{"first"} and \code{"last"}. Default NULL uses
+#'   \code{flow_fill}. Two-column aggregate plots ignore this argument.
 #' @param flow_border Border color for flows. Default NA (no border).
 #' @param flow_border_width Line width for flow borders. Default 0.5.
 #' @param node_width Width of node rectangles (0-1 scale). Default 0.08.
 #' @param node_border Border color for nodes. Default NA (no border).
 #' @param node_spacing Vertical spacing between nodes (0-1 scale). Default 0.02.
 #' @param label_size Size of node labels. Default 3.5.
-#' @param label_position Position of node labels: "beside" (default), "inside", "above", "below", "outside".
-#'   Applied to first and last columns. See \code{mid_label_position} for middle columns.
+#' @param label_position Position of node labels: "beside" (default),
+#'   "inside", "above", "below", "outside". In multi-step and
+#'   individual-tracking plots, "beside" and "outside" label the first and
+#'   last columns only. See \code{mid_label_position} for middle columns.
 #' @param mid_label_position Position of labels for intermediate (middle)
 #'   columns in individual-tracking plots. Same options as
-#'   \code{label_position}. Default NULL uses \code{label_position} value.
-#' @param label_halo Logical: add white halo around labels for readability? Default TRUE.
+#'   \code{label_position}. Default NULL uses \code{label_position}.
+#' @param label_halo Logical: add a white halo around labels and column
+#'   titles? Default TRUE.
 #' @param label_color Color of state name labels. Default "black". Applied to
-#'   multi-step and individual-tracking plots; simple two-column aggregate plots
-#'   use black external labels and white inside labels.
-#' @param label_fontface Font face of state name labels ("plain", "bold", "italic",
-#'   "bold.italic"). Default "plain". Applied to multi-step and
-#'   individual-tracking plots; simple two-column aggregate plots use fixed
-#'   label font faces.
+#'   multi-step and individual-tracking plots. Two-column aggregate plots use
+#'   black external labels and white inside labels.
+#' @param label_fontface Font face of state name labels ("plain", "bold",
+#'   "italic", "bold.italic"). Default "plain". Applied to multi-step and
+#'   individual-tracking plots.
 #' @param label_nudge Distance between node edge and label (in plot units).
 #'   Default 0.02. Used by multi-step and individual-tracking plots.
 #' @param title_size Size of column titles. Default 5.
 #' @param title_color Color of column title text. Default "black". Applied to
-#'   multi-step and individual-tracking plots; simple two-column aggregate plots
-#'   use black titles.
+#'   multi-step and individual-tracking plots.
 #' @param title_fontface Font face of column titles. Default "bold". Applied to
 #'   multi-step and individual-tracking plots.
 #' @param curve_strength Controls bezier curve shape (0-1). Default 0.6.
 #' @param show_values Logical: show transition counts on flows? Default FALSE.
-#' @param value_position Position of flow values: "center", "origin", "destination",
-#'   "outside_origin", "outside_destination". Default "center".
+#' @param value_position Position of flow values: "center", "origin",
+#'   "destination", "outside_origin", "outside_destination". Default
+#'   "center". Individual-tracking plots use "center", "origin" and
+#'   "destination".
 #' @param value_size Size of value labels on flows. Default 3.
 #' @param value_color Color of value labels. Default "black".
 #' @param value_halo Logical: add halo around flow value labels? Default NULL
-#'   (inherits from \code{label_halo}). Applied to multi-step and
-#'   individual-tracking plots.
+#'   uses \code{label_halo}. Applied to multi-step and individual-tracking
+#'   plots.
 #' @param value_fontface Font face of flow value labels. Default "bold".
 #'   Applied to multi-step and individual-tracking plots.
 #' @param value_nudge Distance of value labels from node edge when using
 #'   "origin" or "destination" positions. Default 0.03.
 #' @param value_min Minimum count to show a flow value label in multi-step and
-#'   individual-tracking plots. Default 0 (show all). Simple two-column
-#'   aggregate plots show all nonzero value labels when \code{show_values = TRUE}.
+#'   individual-tracking plots. Default 0 (show all). Two-column aggregate
+#'   plots show every nonzero value label when \code{show_values = TRUE}.
 #' @param show_totals Logical: show total counts on nodes? Default FALSE.
 #' @param total_size Size of total labels. Default 4.
 #' @param total_color Color of total labels. Default "white".
-#' @param total_fontface Font face of total labels. Default "bold".
-#' @param conserve_flow Logical: should left and right totals match? Default TRUE.
-#'   When FALSE, each side scales independently (allows for "lost" or "gained" items).
-#' @param min_flow Minimum flow value to display. Default 0 (show all).
-#' @param threshold Minimum edge weight to display. Flows below this value are
-#'   removed. Combined with \code{min_flow}: effective minimum is
-#'   \code{max(threshold, min_flow)}. Default 0.
+#' @param total_fontface Font face of total labels. Default "bold". Applied to
+#'   multi-step and individual-tracking plots.
+#' @param conserve_flow Logical. When TRUE (default), node heights on both
+#'   sides of a two-column plot are proportions of the same total flow. When
+#'   FALSE, each side is scaled to its own total. Ignored for multi-step and
+#'   individual-tracking plots.
+#' @param min_flow Minimum flow value to display in aggregate plots. Default
+#'   0 (show all).
+#' @param threshold Minimum flow value to display in aggregate plots. Flows
+#'   below \code{max(threshold, min_flow)} are removed. Default 0.
 #' @param value_digits Number of decimal places for flow value labels and node
 #'   totals. Default 2.
 #' @param column_gap Horizontal spread of columns (0-1) for multi-step and
-#'   individual-tracking plots. Default 1 uses full width. Use smaller values
-#'   (e.g., 0.6) to bring columns closer together.
-#' @param track_individuals Logical: draw individual lines instead of aggregated flows?
-#'   Default FALSE. When TRUE, each row in the data frame becomes a separate line.
-#' @param line_alpha Alpha for individual tracking lines. Default 0.3.
-#' @param line_width Width of individual tracking lines. Default 0.5.
-#' @param jitter_amount Vertical jitter for individual lines (0-1). Default 0.8.
+#'   individual-tracking plots. Default 1 uses the full width. Smaller values
+#'   (e.g., 0.6) bring the columns closer together.
+#' @param track_individuals Logical: plot individual lines instead of
+#'   aggregated flows? Default FALSE. When TRUE and \code{x} is a data frame
+#'   of raw observations, each row becomes a separate line.
+#' @param line_alpha Alpha for individual tracking lines. Default 0.3. When
+#'   bundling is active, values up to 0.3 are raised to 0.9 and larger values
+#'   are increased by 0.3, capped at 1.
+#' @param line_width Width of individual tracking lines. Default 0.5. When
+#'   bundling is active, widths range from \code{line_width} to twice that
+#'   value according to the number of cases per line.
+#' @param jitter_amount Currently unused. Lines are spaced evenly within each
+#'   node. Default 0.8.
 #' @param proportional_nodes Logical: size nodes proportionally to counts in
-#'   individual-tracking plots? Default TRUE.
-#' @param node_label_format Format string for node labels with \code{{state}} and
-#'   \code{{count}} placeholders in individual-tracking plots. Default NULL
-#'   (plain state name).
-#'   Example: \code{"{state} (n={count})"}.
-#' @param bundle_size Controls line bundling for large datasets. Default NULL (no bundling).
-#'   Integer >= 2: each drawn line represents that many cases.
-#'   Numeric in (0,1): reduce to this fraction of original lines
-#'   (e.g., 0.15 keeps about 15 percent of lines).
-#' @param bundle_legend Logical or character: show annotation when bundling is
-#'   active? Default TRUE shows "Each line ~ N cases" below the plot.
-#'   Pass a string to use custom text (with \code{{n}} placeholder for count).
+#'   individual-tracking plots? When FALSE, all states in a column have equal
+#'   height. Default TRUE.
+#' @param node_label_format Format string for node labels with \code{{state}}
+#'   and \code{{count}} placeholders in individual-tracking plots, for
+#'   example \code{"{state} (n={count})"}. Default NULL (plain state name).
+#' @param bundle_size Controls line bundling for large datasets in
+#'   individual-tracking plots. Default NULL (no bundling). A value of 1 or
+#'   more sets the number of cases each line represents. A value in (0, 1)
+#'   sets the fraction of the original number of lines to keep (e.g., 0.15
+#'   keeps about 15 percent). Paths with fewer than half the cases of one
+#'   line are dropped.
+#' @param bundle_legend Logical or character: show an annotation when
+#'   bundling is active? Default TRUE shows "Each line ~ N cases". A string
+#'   is used as custom text, with \code{{n}} as the placeholder for the
+#'   number of cases.
 #' @param bundle_legend_size Size of the bundle legend text. Default 3.
 #' @param bundle_legend_color Color of the bundle legend text. Default "grey50".
 #' @param bundle_legend_fontface Font face of the bundle legend text. Default "italic".
 #' @param bundle_legend_position Position of the bundle legend: "bottom" (default)
 #'   or "top".
 #'
-#' @return A ggplot2 object.
-#'
-#' @details
-#' The function creates smooth bezier curves connecting nodes from the left
-#' column to the right column. Flow width is proportional to the transition
-#' count. Nodes are sized proportionally to their total flow.
+#' @return A \code{ggplot} object.
 #'
 #' @examples
-#' # From a transition matrix
-#' mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE,
-#'               dimnames = list(c("Light","Resource","Intense"),
-#'                               c("Light","PBL","Resource")))
-#' plot_transitions(mat, from_title = "Time 1", to_title = "Time 2")
-#'
-#' # From a 2-column data frame (auto-contingency)
-#' df <- data.frame(time1 = c("A","A","B","B","C"),
-#'                  time2 = c("X","Y","X","Z","Y"))
-#' plot_transitions(df)
+#' plot_transitions(regulation_net)
 #'
 #' @import ggplot2
 #' @export
@@ -1664,19 +1683,14 @@ plot_transitions <- function(x,
 
 #' Plot Alluvial Diagram
 #'
-#' Creates an alluvial (Sankey) diagram showing aggregated flows between states.
-#' This is an alias for \code{plot_transitions()} with aggregated flows (default).
+#' Creates an alluvial (Sankey) diagram of aggregated flows between states.
+#' It calls \code{plot_transitions()} with \code{track_individuals = FALSE}.
 #'
 #' @inheritParams plot_transitions
-#' @param label_position Position of node labels: "beside" (default),
-#'   "inside", "above", "below", or "outside".
-#' @return A ggplot2 object.
+#' @return A \code{ggplot} object.
 #'
 #' @examples
-#' mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
-#' rownames(mat) <- c("A", "B")
-#' colnames(mat) <- c("X", "Y", "Z")
-#' plot_alluvial(mat)
+#' plot_alluvial(regulation_net)
 #'
 #' @seealso \code{\link{plot_transitions}}, \code{\link{plot_trajectories}}
 #' @export
@@ -1771,13 +1785,13 @@ plot_alluvial <- function(x,
 
 #' Plot Individual Trajectories
 #'
-#' Creates an alluvial-style diagram where each individual's trajectory is shown
-#' as a separate line. This is an alias for \code{plot_transitions()} with
+#' Creates an alluvial-style diagram in which each individual's trajectory is
+#' plotted as a separate line. It calls \code{plot_transitions()} with
 #' \code{track_individuals = TRUE}.
 #'
 #' @inheritParams plot_transitions
 #' @param x Data frame with one column per time point and one row per
-#'   individual trajectory.
+#'   individual trajectory, or a \code{tna} object with sequence data.
 #' @param from_title Column titles. Default \code{NULL}, which uses the
 #'   column names of \code{x}. Pass a character vector to override them.
 #' @param flow_color_by Color trajectory lines by state. Supports
@@ -1785,7 +1799,7 @@ plot_alluvial <- function(x,
 #'   NULL. Default \code{"first"}.
 #' @param value_position Position of trajectory value labels: \code{"center"},
 #'   \code{"origin"}, or \code{"destination"}. Default \code{"center"}.
-#' @return A ggplot2 object.
+#' @return A \code{ggplot} object.
 #'
 #' @examples
 #' df <- data.frame(

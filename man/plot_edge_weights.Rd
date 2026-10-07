@@ -22,9 +22,12 @@ plot_edge_weights(
 
 \item{normalize}{Logical. Show proportions. Default FALSE.}
 
-\item{bins}{Integer or NULL. Number of bins. Default NULL (auto).}
+\item{bins}{Integer or NULL. Number of equal-width bins. With the default
+NULL, integer weights spanning at most 30 units get one bin per integer
+and other weights use the Freedman-Diaconis rule.}
 
-\item{log}{Character. Log scaling. Default \code{""}.}
+\item{log}{Character. \code{"y"} or \code{"xy"} log-scales the y-axis.
+Any other value gives linear axes. Default \code{""}.}
 
 \item{directed}{Logical or NULL. Default NULL (auto-detect).}
 
@@ -39,15 +42,15 @@ plot_edge_weights(
 \item{...}{Additional arguments passed to \code{\link[graphics]{barplot}}.}
 }
 \value{
-Invisibly returns the weight vector.
+Invisibly, a numeric vector of edge weights (all 1 for an
+unweighted network).
 }
 \description{
-Histogram of edge weights in a network.
+Histogram of edge weights in a network. The number of edges and the mean
+and standard deviation of the weights are printed in the top margin.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-adj <- matrix(c(0, 2, 3, 2, 0, 1, 3, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::plot_edge_weights(adj)
+cograph::plot_edge_weights(regulation_net)
 \dontshow{\}) # examplesIf}
 }

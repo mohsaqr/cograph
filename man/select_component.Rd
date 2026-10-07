@@ -38,20 +38,7 @@ A cograph_network with nodes in the selected component.
 Select nodes belonging to a specific connected component.
 }
 \examples{
-# Create disconnected network
-adj <- matrix(0, 6, 6)
-adj[1, 2] <- adj[2, 1] <- 1
-adj[1, 3] <- adj[3, 1] <- 1
-adj[4, 5] <- adj[5, 4] <- 1
-adj[5, 6] <- adj[6, 5] <- 1
-adj[4, 6] <- adj[6, 4] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-
-# Largest component
-select_component(adj, which = "largest")
-
-# Component containing node "A"
-select_component(adj, which = "A")
+select_component(regulation_net, which = "largest")
 }
 \seealso{
 \code{\link{select_nodes}}, \code{\link{select_neighbors}}

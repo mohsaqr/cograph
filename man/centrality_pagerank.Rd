@@ -7,31 +7,48 @@
 centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{damping}{Damping factor (probability of following an edge). Default 0.85.}
+\item{damping}{Probability \eqn{d} of following an edge (default 0.85).}
 
-\item{personalized}{Named numeric vector for personalized PageRank.
-Values should sum to 1. Default \code{NULL} (uniform).}
+\item{personalized}{Reset distribution \eqn{p}, a non-negative numeric
+vector with one entry per node in input node order. The default
+\code{NULL} gives the uniform distribution.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of PageRank values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Random walk centrality measuring node importance. Simulates a random
-walker that follows edges with probability \code{damping} and jumps to a
-random node with probability \code{1 - damping}.
+PageRank (Brin and Page 1998) is the stationary distribution of a random
+walk that follows an out-edge with probability \eqn{d}, choosing edges in
+proportion to their weights, and otherwise jumps to a node drawn from the
+reset distribution \eqn{p}:
+\deqn{PR = (1 - d)\,p + d\,P^{T} PR,}{PR = (1 - d) p + d t(P) PR,}
+where \eqn{P} is the row-normalized weight matrix and \eqn{d} is
+\code{damping}.
+}
+\details{
+Edge weights are always used, and \code{weighted = FALSE} has no effect.
+A node without out-edges passes its score to the reset distribution. The
+scores sum to one and equal \code{igraph::page_rank()}. The vector
+\code{personalized} is rescaled to sum to one and matched to nodes by
+position; its names are ignored. A negative weight raises a
+\code{cograph_negative_weights} error, an invalid \code{personalized} a
+\code{cograph_bad_input} error, and a \code{damping} outside
+\eqn{[0, 1]} an error.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_pagerank(adj)
-centrality_pagerank(adj, damping = 0.9)
+centrality_pagerank(regulation_net)
+}
+\references{
+Brin, S., & Page, L. (1998). The anatomy of a large-scale hypertextual Web
+search engine. Computer Networks and ISDN Systems, 30(1-7), 107-117.
+\doi{10.1016/S0169-7552(98)00110-X}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_eigenvector}} for a related measure.
+\code{\link{centrality_eigenvector}},
+\code{\link{centrality_leaderrank}}, \code{\link{centrality}}.
 }

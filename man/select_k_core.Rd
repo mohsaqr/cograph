@@ -9,29 +9,30 @@ select_k_core(x, k, keep_format = FALSE, directed = NULL)
 \arguments{
 \item{x}{Network input.}
 
-\item{k}{Integer. The core number.}
+\item{k}{A single non-negative whole number. The core number.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} holding the k-core, or the input format
-when \code{keep_format = TRUE}. An empty network when no node reaches
-coreness \code{k}.
+when \code{keep_format = TRUE}. When no node reaches coreness \code{k},
+the result is an empty network and a warning is raised.
 }
 \description{
 The k-core is the maximal subgraph in which every node has degree at least
 \code{k}, found by repeatedly removing nodes of degree below \code{k}.
+Degree is the total degree, which is in-degree plus out-degree in a
+directed network. A self-loop adds 2 to the degree of its node.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_k_core(adj, k = 2)
+select_k_core(regulation_net, k = 2)
 }
 \references{
 Seidman, S. B. (1983). Network structure and minimum degree.

@@ -6,7 +6,7 @@
 \alias{centrality_bridging_coefficient}
 \alias{centrality_godfather}
 \alias{centrality_support}
-\title{Truss, mixed-degree decomposition and local social-capital measures}
+\title{Truss, Mixed-Degree Decomposition, Bridging Coefficient, Godfather and Support}
 \usage{
 centrality_truss(x, ...)
 
@@ -21,56 +21,48 @@ centrality_support(x, ...)
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 
-\item{mdd_lambda}{Exhausted-degree weight between 0 and 1, default 0.7.}
+\item{mdd_lambda}{Weight of the exhausted degree, between 0 and 1.
+Default 0.7, the value of the worked example of Zeng and Zhang (2013).
+A value outside that range raises an error.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Five measures with explicit definitions and numerical reference checks.
-All use the simple, unweighted, undirected skeleton: either direction
-creates an edge, parallel edges count once and self-loops are removed.
-This projection is a cograph input convention; no directed or weighted
-generalization of the published measures is claimed. All isolates score 0.
+The truss number of a node (Malliaros et al. 2016) is the largest truss
+number of an incident edge, where a k-truss requires every edge to lie
+in at least \eqn{k-2} triangles of the subgraph. Mixed-degree
+decomposition (Zeng and Zhang 2013) peels nodes by residual degree plus
+\code{mdd_lambda} times exhausted degree. The bridging coefficient
+(Hwang et al. 2008) is
+\eqn{(1/d_i) / \sum_{j \in N(i)} 1/d_j}{(1/d_i) / sum_{j in N(i)} 1/d_j}.
+The Godfather index (Jackson 2020) counts the unordered pairs of
+neighbors with no edge between them, and the support (Jackson 2020)
+counts the neighbors that share at least one common neighbor with the
+node.
 }
 \details{
-\describe{
-\item{\code{truss}}{Maximum truss number of an incident edge
-(Malliaros et al. 2016). A k-truss requires at least k-2 triangles
-per edge within the surviving subgraph, matching NetworkX. An edge
-outside any triangle has truss number 2; a complete graph on k
-vertices has node truss number k. Some sources instead label by the
-triangle threshold, producing values two smaller.}
-\item{\code{mdd}}{Mixed-degree decomposition (Zeng & Zhang 2013):
-repeatedly peel by residual degree plus \code{mdd_lambda} times
-exhausted degree. Nodes falling below the current shell threshold
-join that shell before the threshold advances. Zero recovers the
-k-core number; one recovers degree. Intermediate thresholds are
-real-valued. Default 0.7, as in the paper's worked example.}
-\item{\code{bridging_coefficient}}{Hwang et al.'s reciprocal-degree
-ratio: \eqn{(1/d_i) / \sum_{j \in N(i)} 1/d_j}. This is the
-coefficient itself, before multiplication by betweenness.}
-\item{\code{godfather}}{Jackson's Godfather index: the number of
-unordered pairs of neighbors with no edge between them. Equals
-\eqn{d_i(d_i-1)/2} minus the number of triangles containing i.}
-\item{\code{support}}{Jackson's supported relationships: the number
-of neighbors sharing at least one common neighbor with i. An
-edge is counted once even if it belongs to multiple triangles.}
-}
-
-LocalRank (Chen et al. 2012), also listed in the Centrality Zoo, is
-already available as \code{\link{centrality_semilocal}} on an
-undirected, unweighted graph; it needs no additional numerical function.
+All five measures use the simple undirected skeleton, so direction,
+weights, loops and parallel edges are ignored. Isolated nodes score 0.
+An edge outside every triangle has truss number 2, and a node of a
+complete graph on \eqn{k} nodes has truss number \eqn{k}, as in
+NetworkX. Sources that label trusses by the triangle threshold report
+values two smaller. \code{mdd_lambda = 0} gives the k-core number and
+\code{mdd_lambda = 1} gives the degree. The bridging coefficient is the
+factor that bridging centrality multiplies with betweenness. LocalRank
+(Chen et al. 2012), listed in the Centrality Zoo, is
+\code{\link{centrality_semilocal}}.
 }
 \examples{
-adj <- matrix(1, 4, 4)
-diag(adj) <- 0
-centrality_truss(adj)
-centrality_mdd(adj, mdd_lambda = 0.7)
-centrality_support(adj)
+centrality_truss(regulation_net)
+centrality_mdd(regulation_net)
+centrality_bridging_coefficient(regulation_net)
+centrality_godfather(regulation_net)
+centrality_support(regulation_net)
 }
 \references{
 Malliaros, F. D., Rossi, M. E. G., & Vazirgiannis, M. (2016).
@@ -94,6 +86,6 @@ Identifying influential nodes in complex networks. Physica A, 391,
 1777-1787. \doi{10.1016/j.physa.2011.09.017}.
 }
 \seealso{
-\code{\link{list_centralities}},
-\code{\link{centrality_coreness}}, \code{\link{centrality_bridging}}.
+\code{\link{centrality_coreness}},
+\code{\link{centrality_bridging}}, \code{\link{centrality}}.
 }

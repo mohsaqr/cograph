@@ -7,24 +7,40 @@
 centrality_voterank(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of VoteRank values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Identifies influential spreaders via an iterative voting mechanism.
-Returns normalized rank (1 = most influential). Based on
-Zhang et al. (2016).
+VoteRank (Zhang et al. 2016) elects spreaders one at a time. Every node
+votes for its neighbors with a voting ability that starts at 1, the node
+with the most votes is elected, and each neighbor of the elected node
+loses \eqn{1/\langle k \rangle}{1/<k>} of its ability, where
+\eqn{\langle k \rangle}{<k>} is the mean degree. A node elected in round
+\eqn{r} of \eqn{m} rounds scores \eqn{(m + 1 - r)/m}{(m + 1 - r) / m}, so
+the first node elected scores 1.
+}
+\details{
+Edge weights are ignored. On a directed network a node receives the votes
+of its in-neighbors, the election reduces the ability of the out-neighbors
+of the elected node, and the mean degree counts in-ties and out-ties.
+Every node is elected in turn, so on \eqn{n} nodes the scores are
+\eqn{1/n, 2/n, \ldots, 1}{1/n, 2/n, ..., 1}. A tie in votes goes to the
+node listed first.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_voterank(adj)
+centrality_voterank(regulation_net)
+}
+\references{
+Zhang, J.-X., Chen, D.-B., Dong, Q., & Zhao, Z.-D. (2016). Identifying a
+set of influential spreaders in complex networks. Scientific Reports, 6,
+27823. \doi{10.1038/srep27823}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_ncvoterank}},
+\code{\link{centrality_wvoterank}}, \code{\link{centrality}}.
 }

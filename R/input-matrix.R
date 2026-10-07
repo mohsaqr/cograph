@@ -2,6 +2,7 @@
 #' @description Functions for parsing adjacency/weight matrices.
 #' @name input-matrix
 #' @keywords internal
+#' @noRd
 NULL
 
 #' Parse Adjacency/Weight Matrix

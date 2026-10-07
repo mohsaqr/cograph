@@ -15,11 +15,14 @@ network_local_efficiency(
 \arguments{
 \item{x}{Network input: matrix, igraph, network, cograph_network, or tna object}
 
-\item{weights}{Edge weights (NULL for unweighted). Set to NA to ignore existing weights.}
+\item{weights}{Numeric vector of edge weights. Default NULL uses the
+graph's \code{weight} attribute when present. NA ignores weights when
+\code{invert_weights} is FALSE.}
 
-\item{invert_weights}{Logical or NULL. Invert weights so higher weights = shorter
-paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
-(matching igraph/sna). Set TRUE for strength/frequency weights (qgraph style).}
+\item{invert_weights}{Logical or NULL. If TRUE, weights are converted to
+distances as \eqn{1/w^{\alpha}}{1/w^{alpha}}, so stronger ties give shorter paths. If
+FALSE, weights are used as distances. Default NULL uses TRUE for tna
+objects and FALSE otherwise.}
 
 \item{alpha}{Numeric. Exponent for weight inversion. Default 1.}
 
@@ -27,32 +30,22 @@ paths? Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-Numeric average local efficiency. For unweighted simple graphs this
-is in \eqn{[0, 1]}; weighted graphs can exceed 1 when edge distances are
-below 1.
+Numeric scalar: the average local efficiency, or \code{NA} for a
+graph with fewer than two nodes. For unweighted simple graphs it lies in
+\eqn{[0, 1]}. Weighted graphs can exceed 1 when edge distances are below 1.
 }
 \description{
-Computes the average local efficiency across all nodes, delegating to
-\code{igraph::average_local_efficiency()}. igraph removes the node and
-measures the distances between its neighbors \emph{through the rest of
-the network}, so the value can exceed the one Latora & Marchiori (2001)
-define, which restricts those distances to the subgraph induced on the
-neighbors. \code{centrality(x, measures = "local_efficiency")} reports
-the induced-subgraph form, matching networkx, brainGraph and the Brain
-Connectivity Toolbox. Both measure fault tolerance and local integration;
-the two agree whenever the neighbors have no detour available.
+Computes the average local efficiency across all nodes with
+\code{igraph::average_local_efficiency()}. For each node, igraph removes
+the node and measures the distances between its neighbors through the rest
+of the network. The value can therefore exceed the Latora and Marchiori
+(2001) form, which restricts those distances to the subgraph induced on the
+neighbors. \code{centrality(x, measures = "local_efficiency")} reports the
+induced-subgraph form. The two agree when the neighbors have no path
+outside their induced subgraph.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# Complete graph: removing any node leaves complete subgraph, so local efficiency = 1
-k5 <- matrix(1, 5, 5); diag(k5) <- 0
-network_local_efficiency(k5)  # 1
-
-# Star: neighbors not connected to each other
-star <- matrix(c(0,1,1,1,1, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0, 1,0,0,0,0), 5, 5)
-network_local_efficiency(star)  # 0
-
-# Per-node values under the Latora definition
-centrality(star, measures = "local_efficiency")
+network_local_efficiency(regulation_net)
 \dontshow{\}) # examplesIf}
 }

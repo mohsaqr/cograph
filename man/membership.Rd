@@ -7,20 +7,20 @@
 membership(x)
 }
 \arguments{
-\item{x}{A cograph_communities or igraph communities object.}
+\item{x}{A \code{cograph_communities} or igraph \code{communities}
+object.}
 }
 \value{
-Named integer vector of community assignments.
+A numeric vector of community numbers named by node. For an igraph
+object it is the igraph \code{membership} vector.
 }
 \description{
-Extracts a named membership vector from a communities result.
-Works with both \code{cograph_communities} data frames and
-igraph communities objects.
+Extracts a named membership vector from a \code{cograph_communities}
+data frame or an igraph \code{communities} object.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
+comm <- community_walktrap(regulation_net)
 membership(comm)
 \dontshow{\}) # examplesIf}
 }

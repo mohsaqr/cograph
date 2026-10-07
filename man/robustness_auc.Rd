@@ -7,23 +7,20 @@
 robustness_auc(x)
 }
 \arguments{
-\item{x}{A robustness result from \code{\link{robustness}}.}
+\item{x}{A robustness result from \code{\link{robustness}}, or any data
+frame with columns \code{removed_pct} and \code{comp_pct}. Other input
+raises an error.}
 }
 \value{
-Numeric AUC value between 0 and 1.
+A single numeric AUC value between 0 and 1.
 }
 \description{
-Computes the area under the robustness curve using trapezoidal integration.
-Higher AUC indicates a more robust network. Maximum AUC is 1.0.
+Computes the area under the robustness curve (\code{comp_pct} against
+\code{removed_pct}) by trapezoidal integration. A higher AUC indicates a
+more robust network. The maximum AUC is 1.
 }
 \examples{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-
-  rob_btw <- robustness(g, measure = "betweenness")
-  rob_rnd <- robustness(g, measure = "random", n_iter = 20)
-
-  cat("Betweenness attack AUC:", round(robustness_auc(rob_btw), 3), "\n")
-  cat("Random failure AUC:", round(robustness_auc(rob_rnd), 3), "\n")
-}
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+robustness_auc(robustness(regulation_net, measure = "degree"))
+\dontshow{\}) # examplesIf}
 }

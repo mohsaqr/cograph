@@ -7,26 +7,25 @@
 #' @return A \code{CographNetwork} R6 object.
 #' @export
 #' @examples
-#' # Create network from adjacency matrix
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- CographNetwork$new(adj)
-#'
-#' # Access properties
-#' net$n_nodes
-#' net$n_edges
-#' net$is_directed
+#' CographNetwork$new(regulation_net)
 CographNetwork <- R6::R6Class(
   "CographNetwork",
   public = list(
     #' @description Create a new CographNetwork object.
-    #' @param input Network input supported by \code{parse_input},
-    #'   such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.
-    #' @param directed Logical. Force directed interpretation. NULL for auto-detect.
-    #' @param nodes Node metadata. Can be NULL or a data frame with node attributes.
-    #'   If data frame has a `label` or `labels` column, those are used for display.
+    #' @param input Network input, such as a matrix, edge list, igraph,
+    #'   statnet network, qgraph or tna object. `NULL` creates an empty object.
+    #' @param directed Logical. Forces a directed or undirected interpretation.
+    #'   `NULL` detects it from the input.
+    #' @param nodes `NULL` or a data frame of node attributes. Its rows are
+    #'   matched to the node labels by a `name`, `label` or `id` column, tried in
+    #'   that order, and the remaining columns are added to the node table. When
+    #'   no column matches and the row count equals the number of nodes, the
+    #'   columns are added in row order. A `labels` column supplies the display
+    #'   labels returned by `$node_labels`.
     #' @param simplify Logical or character. If FALSE (default), every transition
     #'   from tna sequence data is a separate edge. If TRUE or a string
-    #'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
+    #'   ("sum", "mean", "max", "min"), duplicate transitions are aggregated.
+    #'   Other inputs are not affected.
     #' @return A new CographNetwork object.
     initialize = function(input = NULL, directed = NULL, nodes = NULL,
                           simplify = FALSE) {
@@ -114,7 +113,8 @@ CographNetwork <- R6::R6Class(
       invisible(self)
     },
 
-    #' @description Clone the network with optional modifications.
+    #' @description Create a copy with the same nodes, edges, weights, layout,
+    #'   aesthetics, theme, layout information and plot parameters.
     #' @return A new CographNetwork object.
     clone_network = function() {
       new_net <- CographNetwork$new()
@@ -168,7 +168,9 @@ CographNetwork <- R6::R6Class(
     },
 
     #' @description Set layout coordinates.
-    #' @param coords Matrix or data frame with x, y columns, one row per node.
+    #' @param coords Matrix or data frame with at least two columns and one row
+    #'   per node. The first two columns are renamed `x` and `y` and are also
+    #'   written to the node table. `NULL` leaves the layout unchanged.
     #' @return The object itself, invisibly.
     set_layout_coords = function(coords) {
       if (!is.null(coords)) {
@@ -195,16 +197,18 @@ CographNetwork <- R6::R6Class(
       invisible(self)
     },
 
-    #' @description Set node aesthetics.
-    #' @param aes List of aesthetic parameters.
+    #' @description Set node aesthetics. The list is merged into the current
+    #'   node aesthetics.
+    #' @param aes Named list of aesthetic parameters.
     #' @return The object itself, invisibly.
     set_node_aes = function(aes) {
       private$.node_aes <- utils::modifyList(private$.node_aes, aes)
       invisible(self)
     },
 
-    #' @description Set edge aesthetics.
-    #' @param aes List of aesthetic parameters.
+    #' @description Set edge aesthetics. The list is merged into the current
+    #'   edge aesthetics.
+    #' @param aes Named list of aesthetic parameters.
     #' @return The object itself, invisibly.
     set_edge_aes = function(aes) {
       private$.edge_aes <- utils::modifyList(private$.edge_aes, aes)
@@ -232,7 +236,8 @@ CographNetwork <- R6::R6Class(
     },
 
     #' @description Get layout coordinates.
-    #' @return Data frame with x, y coordinates.
+    #' @return A data frame with `x` and `y` columns, or `NULL` when no layout
+    #'   is set.
     get_layout = function() {
       private$.layout
     },
@@ -250,7 +255,8 @@ CographNetwork <- R6::R6Class(
     },
 
     #' @description Get theme.
-    #' @return CographTheme object.
+    #' @return The stored theme (a CographTheme object or theme name), or
+    #'   `NULL`.
     get_theme = function() {
       private$.theme
     },
@@ -311,12 +317,13 @@ CographNetwork <- R6::R6Class(
       private$.directed
     },
 
-    #' @field has_weights Whether edges have weights.
+    #' @field has_weights `TRUE` when any edge weight differs from 1.
     has_weights = function() {
       !is.null(private$.weights) && any(private$.weights != 1)
     },
 
-    #' @field node_labels Vector of node labels (priority: labels > label).
+    #' @field node_labels Vector of node labels, taken from the `labels` column
+    #'   of the node table when present and from `label` otherwise.
     node_labels = function() {
       if (is.null(private$.nodes)) {
         NULL
@@ -437,22 +444,99 @@ is_cograph_network <- function(x) {
 # Getter Functions for cograph_network
 # =============================================================================
 
-#' Get Nodes from Cograph Network
+#' Access and Modify a Cograph Network
 #'
-#' Extracts the nodes data frame from a cograph_network object.
+#' These functions read and replace the parts of a \code{cograph_network}
+#' object created by \code{\link{as_cograph}}. The getters return the node
+#' table, the edge table, the node labels, the node groups, the source type,
+#' the stored estimation data, the metadata list, and the counts of nodes and
+#' edges. The setters return a modified copy of the network.
 #'
-#' @param x A cograph_network object.
-#' @return A node metadata data frame, usually with \code{id} and \code{label}
-#'   columns, plus layout or other metadata columns when present.
+#' @param x A \code{cograph_network} object. \code{is_directed()} also accepts
+#'   a \code{\link{CographNetwork}} or an igraph object.
+#' @param nodes_df A data frame of node information. A missing \code{id}
+#'   column is filled with row numbers and a missing \code{label} column with
+#'   the ids. The stored weight matrix is rebuilt from the new node table.
+#' @param edges_df A data frame with columns \code{from} and \code{to}
+#'   (integer row numbers into the node table) and an optional \code{weight}
+#'   column, which defaults to 1. Extra columns are kept. Each edge may appear
+#'   once, and an undirected network counts A-B and B-A as the same edge.
+#' @param layout_df A data frame with \code{x} and \code{y} columns, or a
+#'   matrix whose first two columns are used, with one row per node.
+#' @param groups Node groupings in one of these formats:
+#'   \itemize{
+#'     \item A character string naming a community detection method of
+#'       \code{\link{detect_communities}} (\code{"louvain"},
+#'       \code{"walktrap"}, \code{"fast_greedy"}, \code{"label_prop"},
+#'       \code{"infomap"}, \code{"leiden"}), which requires the igraph
+#'       package.
+#'     \item A named list mapping each group name to a vector of node labels,
+#'       for example \code{list(A = c("N1", "N2"), B = c("N3", "N4"))}.
+#'     \item An unnamed vector with one group assignment per node, in node order.
+#'     \item A data frame with a \code{node} (or \code{nodes}) column and one of
+#'       \code{layer}, \code{cluster} or \code{group} (plural forms are accepted
+#'       and normalized to the singular).
+#'     \item \code{NULL}, in which case \code{nodes} and one of \code{layers} or
+#'       \code{clusters} supply the grouping.
+#'   }
+#' @param type Group type stored by \code{set_groups()}. One of
+#'   \code{"group"} (default), \code{"cluster"} or \code{"layer"}. It is ignored
+#'   when \code{layers} or \code{clusters} is given, since the type then follows
+#'   from the argument used.
+#' @param nodes Character vector of node labels, used with \code{layers} or
+#'   \code{clusters} to give groupings as vectors. When \code{NULL}, the
+#'   assignments follow the node order of the network.
+#' @param layers Character or factor vector of layer assignments, the same
+#'   length as \code{nodes}.
+#' @param clusters Character or factor vector of cluster assignments, the same
+#'   length as \code{nodes}.
 #'
-#' @seealso \code{\link{as_cograph}}, \code{\link{n_nodes}}, \code{\link{get_edges}}
+#' @return
+#' \describe{
+#'   \item{\code{get_nodes()}, \code{nodes()}}{The node table, with \code{id}
+#'     and \code{label} columns plus layout coordinates or other metadata
+#'     columns when present. \code{nodes()} is a deprecated alias of
+#'     \code{get_nodes()}.}
+#'   \item{\code{get_edges()}}{A data frame with one row per edge and columns
+#'     \code{from} and \code{to} (integer row numbers into the node table),
+#'     \code{weight}, and any extra edge columns. An undirected network stores
+#'     one row per unordered pair. \code{\link[=as_cograph]{as.data.frame}()}
+#'     returns the same table with node labels as endpoints.}
+#'   \item{\code{get_labels()}}{A character vector of node labels.}
+#'   \item{\code{get_groups()}}{A data frame with a \code{node} column and one
+#'     of \code{layer}, \code{cluster} or \code{group}, or \code{NULL} when no
+#'     groups are set.}
+#'   \item{\code{get_source()}}{A character string naming the input type (for
+#'     example \code{"matrix"}, \code{"tna"}, \code{"igraph"},
+#'     \code{"edgelist"}), or \code{"unknown"}.}
+#'   \item{\code{get_data()}}{The original estimation data (for example the
+#'     sequence data of a tna model), or \code{NULL} when none is stored.}
+#'   \item{\code{get_meta()}}{A list with component \code{source} (input
+#'     type). Networks built from a tna model also carry \code{tna} (type,
+#'     group name and group index).}
+#'   \item{\code{n_nodes()}, \code{n_edges()}}{An integer count. Each
+#'     undirected edge counts once.}
+#'   \item{\code{is_directed()}}{A single logical value.}
+#'   \item{\code{set_nodes()}, \code{set_edges()}, \code{set_layout()},
+#'     \code{set_groups()}}{The modified \code{cograph_network}.
+#'     \code{set_layout()} writes the coordinates into the \code{x} and
+#'     \code{y} columns of the node table. \code{set_groups()} stores the
+#'     grouping as \code{node_groups} for use by the group-aware plot
+#'     functions. It stops with an error when a node is assigned twice, when
+#'     a node is missing from the assignment or unknown to the network, and
+#'     when fewer than two groups result. \code{set_edges()} raises an error
+#'     of class \code{cograph_bad_selection} for endpoints outside the node
+#'     table and for duplicated edges.}
+#' }
+#'
+#' @seealso \code{\link{as_cograph}}, \code{\link{splot}},
+#'   \code{\link{detect_communities}}
 #'
 #' @export
 #'
 #' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_nodes(net)
+#' net <- as_cograph(regulation_net)
+#' get_edges(net)
 get_nodes <- function(x) {
   if (inherits(x, "cograph_network")) {
     # Unified format: nodes stored as list element
@@ -463,26 +547,8 @@ get_nodes <- function(x) {
   stop("Cannot extract nodes from this object", call. = FALSE)
 }
 
-#' Get Edges from Cograph Network
-#'
-#' Extracts the edges data frame from a cograph_network object.
-#'
-#' @param x A cograph_network object.
-#' @return A data frame with one row per edge and columns \code{from} and
-#'   \code{to} (integer row numbers into the node table, \emph{not} labels) and
-#'   \code{weight}, plus any extra edge columns the network carries. An
-#'   undirected network stores one row per unordered pair. Use
-#'   \code{\link{as.data.frame.cograph_network}} or \code{\link{to_df}} for the
-#'   same table with the endpoints given as node labels.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_edges(net)
 get_edges <- function(x) {
   if (inherits(x, "cograph_network")) {
     # Edges stored as data frame
@@ -495,21 +561,8 @@ get_edges <- function(x) {
   stop("Cannot extract edges from this object", call. = FALSE)
 }
 
-#' Get Labels from Cograph Network
-#'
-#' Extracts the node labels vector from a cograph_network object.
-#'
-#' @param x A cograph_network object.
-#' @return A character vector of node labels.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_labels(net)
 get_labels <- function(x) {
 
   if (inherits(x, "cograph_network")) {
@@ -526,22 +579,8 @@ get_labels <- function(x) {
   stop("Cannot extract labels from this object", call. = FALSE)
 }
 
-#' Get Source Type from Cograph Network
-#'
-#' Extracts the source type string from a cograph_network object's metadata.
-#'
-#' @param x A cograph_network object.
-#' @return A character string indicating the input type (e.g., "matrix", "tna",
-#'   "igraph", "edgelist"), or "unknown" if not set.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_meta}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_source(net)  # "matrix"
 get_source <- function(x) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -549,23 +588,8 @@ get_source <- function(x) {
   x$meta$source %||% "unknown"
 }
 
-#' Get Original Data from Cograph Network
-#'
-#' Extracts the original estimation data stored in a cograph_network object.
-#' This is the raw input data (e.g., sequence matrix from tna, edge list
-#' data frame) preserved for reference.
-#'
-#' @param x A cograph_network object.
-#' @return The original data object, or NULL if not stored.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_meta}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_data(net)  # NULL (matrices don't store raw data)
 get_data <- function(x) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -573,27 +597,8 @@ get_data <- function(x) {
   x$data
 }
 
-#' Get Metadata from Cograph Network
-#'
-#' Extracts the consolidated metadata list from a cograph_network object.
-#' The metadata contains source type, layout info, and TNA metadata.
-#'
-#' @param x A cograph_network object.
-#' @return A list with components:
-#'   \describe{
-#'     \item{\code{source}}{Character string indicating input type}
-#'     \item{\code{layout}}{List with layout name and seed, or NULL}
-#'     \item{\code{tna}}{List with TNA metadata (type, group_name, group_index), or NULL}
-#'   }
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_source}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_meta(net)
 get_meta <- function(x) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -605,24 +610,8 @@ get_meta <- function(x) {
 # Setter Functions for cograph_network
 # =============================================================================
 
-#' Set Nodes in Cograph Network
-#'
-#' Replaces the nodes data frame in a cograph_network object.
-#'
-#' @param x A cograph_network object.
-#' @param nodes_df A data frame with node information (id, label columns expected).
-#' @return The modified cograph_network object.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}, \code{\link{set_edges}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' new_nodes <- data.frame(id = 1:3, label = c("A", "B", "C"))
-#' net <- set_nodes(net, new_nodes)
-#' get_labels(net)
 set_nodes <- function(x, nodes_df) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -649,25 +638,8 @@ set_nodes <- function(x, nodes_df) {
   x
 }
 
-#' Set Edges in Cograph Network
-#'
-#' Replaces the edges in a cograph_network object.
-#' Expects a data frame with from, to, and optionally weight columns.
-#'
-#' @param x A cograph_network object.
-#' @param edges_df A data frame with columns: from, to, and optionally weight.
-#' @return The modified cograph_network object.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_edges}}, \code{\link{set_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' new_edges <- data.frame(from = c(1, 2), to = c(2, 3), weight = c(0.5, 0.8))
-#' net <- set_edges(net, new_edges)
-#' get_edges(net)
 set_edges <- function(x, edges_df) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -724,25 +696,8 @@ set_edges <- function(x, edges_df) {
   x
 }
 
-#' Set Layout in Cograph Network
-#'
-#' Sets the layout coordinates in a cograph_network object.
-#' Updates the x and y columns in the nodes data frame.
-#'
-#' @param x A cograph_network object.
-#' @param layout_df A data frame with x and y columns, or a matrix with 2 columns.
-#' @return The modified cograph_network object.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{get_nodes}}, \code{\link{sn_layout}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' layout <- data.frame(x = c(0, 1, 0.5), y = c(0, 0, 1))
-#' net <- set_layout(net, layout)
-#' get_nodes(net)
 set_layout <- function(x, layout_df) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -779,75 +734,89 @@ set_layout <- function(x, layout_df) {
 
 #' Convert to Cograph Network
 #'
-#' Creates a lightweight cograph_network object from various network inputs.
-#' The resulting object is a named list with all data accessible via \code{$}.
+#' \code{as_cograph()} creates a \code{cograph_network} object from a matrix,
+#' an edge list, or a network object of another package. \code{to_cograph()}
+#' is an alias. The object is a named list that every cograph function
+#' accepts.
 #'
-#' @param x Network input. Can be:
-#'   - A square numeric matrix (adjacency/weight matrix)
-#'   - A data frame with edge list (from, to, optional weight columns)
-#'   - An igraph object
-#'   - A statnet network object
-#'   - A qgraph object
-#'   - A tna object
-#'   - An existing cograph_network object (returned as-is)
-#' @param directed Logical. Force directed interpretation. NULL for auto-detect.
-#' @param simplify Logical or character. If FALSE (default), every transition
-#'   from tna sequence data is a separate edge. If TRUE or a string
-#'   ("sum", "mean", "max", "min"), duplicate edges are aggregated.
-#' @param ... Additional arguments (currently unused).
+#' @param x Network input. One of a square numeric weight matrix, a data frame
+#'   edge list, an igraph object, a statnet network object, a qgraph object, a
+#'   tna object, or an existing \code{cograph_network}, which is returned as
+#'   it is. In an edge list the endpoint columns are found by name, ignoring
+#'   case (\code{from}, \code{source}, \code{src}, \code{v1}, \code{node1}
+#'   or \code{i}, and \code{to}, \code{target}, \code{tgt}, \code{v2},
+#'   \code{node2} or \code{j}), and otherwise the first two columns are
+#'   used. An optional weight column is found by the names \code{weight},
+#'   \code{w}, \code{value} or \code{strength}. For \code{as.data.frame()},
+#'   a \code{cograph_network}.
+#' @param directed Logical. Forces a directed or undirected interpretation.
+#'   \code{NULL} (default) detects it from the input.
+#' @param simplify Logical or character. If \code{FALSE} (default), every
+#'   transition from tna sequence data is a separate edge. If \code{TRUE}
+#'   (equivalent to \code{"sum"}) or one of \code{"sum"}, \code{"mean"},
+#'   \code{"max"}, \code{"min"}, duplicate transitions are aggregated with that
+#'   function. Other inputs are not affected.
+#' @param row.names \code{NULL} or a character vector of row names, as for
+#'   \code{\link[base]{as.data.frame}}.
+#' @param optional Logical, as for \code{\link[base]{as.data.frame}}. It is
+#'   ignored, and the column names are always the documented ones.
+#' @param what Which table \code{as.data.frame()} returns, \code{"edges"}
+#'   (default) or \code{"nodes"}.
+#' @param ... Passed from \code{to_cograph()} to \code{as_cograph()};
+#'   otherwise unused.
 #'
-#' @return A cograph_network object: a named list with components:
+#' @return \code{as_cograph()} and \code{to_cograph()} return a
+#'   \code{cograph_network} object, a named list with components:
 #'   \describe{
-#'     \item{\code{nodes}}{Data frame with id, label, and optional layout or metadata columns}
-#'     \item{\code{edges}}{Data frame with from, to, weight columns}
-#'     \item{\code{directed}}{Logical indicating if network is directed}
-#'     \item{\code{weights}}{Full n×n weight matrix when available for matrix/TNA round-trips, or NULL}
-#'     \item{\code{data}}{Original estimation data (sequence matrix, edge list, etc.), or NULL}
-#'     \item{\code{meta}}{Consolidated metadata list with sub-fields:
-#'       \code{source} (input type string),
-#'       \code{layout} (layout info list or NULL),
-#'       \code{tna} (TNA metadata or NULL), and optionally
-#'       \code{splot} (producer-supplied rendering hints read by
-#'       \code{\link{splot}})}
-#'     \item{\code{node_groups}}{Optional node groupings data frame}
+#'     \item{\code{nodes}}{Data frame with \code{id}, \code{label}, and optional
+#'       layout or metadata columns.}
+#'     \item{\code{edges}}{Data frame with integer \code{from} and \code{to}
+#'       columns (row numbers into \code{nodes}), \code{weight}, and extra
+#'       columns such as \code{session} and \code{time} for tna input. Repeated
+#'       rows of an edge list are kept as separate edges.}
+#'     \item{\code{directed}}{Logical. Whether the network is directed.}
+#'     \item{\code{weights}}{The n x n weight matrix for matrix and tna input,
+#'       or \code{NULL} (for example for an edge list).}
+#'     \item{\code{data}}{The original estimation data (sequence data, edge
+#'       list), or \code{NULL}.}
+#'     \item{\code{meta}}{Metadata list with \code{source} (input type), a
+#'       \code{tna} entry for tna input (type, group name and group index)
+#'       and, optionally, \code{splot} (rendering hints read by
+#'       \code{\link{splot}}).}
+#'     \item{\code{node_groups}}{Optional data frame of node groupings.}
 #'   }
 #'
+#'   \code{as.data.frame()} returns a base data frame. For
+#'   \code{what = "edges"} it has one row per edge with columns \code{from} and
+#'   \code{to} (node labels), \code{weight}, and any extra edge columns the
+#'   network carries, such as \code{session} or columns computed by
+#'   \code{\link{mutate_edges}}. For \code{what = "nodes"} it has one row per
+#'   node with the node table columns (\code{id}, \code{label}, layout
+#'   coordinates and any custom columns). \code{\link{to_df}} returns only
+#'   \code{from}, \code{to} and \code{weight}.
+#'
 #' @details
-#' The cograph_network format is designed to be:
-#' - Lean: Only essential data stored, computed values derived on demand
-#' - Modern: Uses named list elements instead of attributes for clean \code{$} access
-#' - Compatible: Works seamlessly with splot() and other cograph functions
+#' A \code{cograph_network} prints a short description of its nodes, edges and
+#' source, \code{summary()} reports counts and edge weight statistics,
+#' \code{plot()} plots it with \code{\link{sn_render}}, and
+#' \code{as.data.frame()} returns its edge or node table.
+#' The accessor and setter functions are documented in \code{\link{get_nodes}}.
 #'
-#' Producer packages may attach optional plotting hints under
-#' \code{meta$splot}. The recognized fields are \code{renderer} (which cograph
-#' renderer to use), \code{weight} (the edge column or matrix to render as
-#' \code{weight}), and \code{defaults} (a named list of renderer arguments).
-#' Entries in \code{defaults} are defaults only — user-supplied arguments to
-#' \code{\link{splot}} always override them. \code{renderer} and \code{weight}
-#' define which view is rendered and are not overridden by plot arguments.
+#' Producer packages may attach plotting hints under \code{meta$splot}. The
+#' recognized fields are \code{renderer} (the cograph renderer to use),
+#' \code{weight} (the edge column or matrix plotted as \code{weight}), and
+#' \code{defaults} (a named list of renderer arguments). Entries in
+#' \code{defaults} are defaults only, and arguments passed to \code{\link{splot}}
+#' override them. \code{renderer} and \code{weight} define which view is plotted
+#' and are not overridden by plot arguments.
 #'
-#' Use getter functions for programmatic access:
-#' \code{\link{get_nodes}}, \code{\link{get_edges}}, \code{\link{get_labels}},
-#' \code{\link{n_nodes}}, \code{\link{n_edges}}
-#'
-#' Use setter functions to modify:
-#' \code{\link{set_nodes}}, \code{\link{set_edges}}, \code{\link{set_layout}}
-#'
-#' @seealso
-#' \code{\link{get_nodes}} to extract the nodes data frame,
-#' \code{\link{get_edges}} to extract edges as a data frame,
-#' \code{\link{n_nodes}} and \code{\link{n_edges}} for counts,
-#' \code{\link{is_directed}} to check directedness,
-#' \code{\link{splot}} for plotting
+#' @seealso \code{\link{get_nodes}}, \code{\link{splot}}, \code{\link{to_df}}
 #'
 #' @export
 #'
 #' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' get_nodes(net)
-#' get_edges(net)
-#' splot(net)
+#' net <- as_cograph(regulation_net)
+#' as.data.frame(net, what = "edges")
 as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
   # Return as-is if already a cograph_network
 
@@ -916,62 +885,13 @@ as_cograph <- function(x, directed = NULL, simplify = FALSE, ...) {
 }
 
 #' @rdname as_cograph
-#' @return A \code{cograph_network} object. See \code{\link{as_cograph}}.
 #' @export
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- to_cograph(mat)
 to_cograph <- function(x, directed = NULL, ...) {
   as_cograph(x, directed = directed, ...)
 }
 
-#' Set Node Groups
-#'
-#' Assigns node groupings to a cograph_network object. Groups are stored as
-#' metadata with a type column ("layer", "cluster", or "group") for use by
-#' specialized plot functions.
-#'
-#' @param x A cograph_network object.
-#' @param groups Node groupings in one of these formats:
-#'   \itemize{
-#'     \item Character string: Community detection method ("louvain", "walktrap",
-#'       "fast_greedy", "label_prop", "infomap", "leiden")
-#'     \item Named list: Group name -> node vector mapping
-#'       (e.g., \code{list(A = c("N1","N2"), B = c("N3","N4"))})
-#'     \item Unnamed vector: Group assignment per node (same order as nodes)
-#'     \item Data frame: Must have "node"/"nodes" column plus one of
-#'       "layer"/"layers", "cluster"/"clusters", or "group"/"groups"
-#'       (plural forms are automatically normalized to singular)
-#'     \item NULL: Use \code{nodes} + one of \code{layers}/\code{clusters} vectors
-#'   }
-#' @param type Group type. One of \code{"group"} (default), \code{"cluster"},
-#'   or \code{"layer"}. Ignored when using \code{layers} or \code{clusters}
-#'   vector arguments since the type is inferred from which argument is provided.
-#' @param nodes Character vector of node labels. Use with \code{layers}, \code{clusters},
-#'   to specify groupings via vectors instead of a data frame.
-#' @param layers Character/factor vector of layer assignments (same length as \code{nodes}).
-#' @param clusters Character/factor vector of cluster assignments (same length as \code{nodes}).
-#'
-#' @return The modified cograph_network object with \code{node_groups} set.
-#'
-#' @seealso \code{\link{get_groups}}, \code{\link{splot}}, \code{\link{detect_communities}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' set.seed(1)
-#' mat <- matrix(runif(100), 10, 10)
-#' mat <- (mat + t(mat)) / 2; diag(mat) <- 0
-#' rownames(mat) <- colnames(mat) <- paste0("N", 1:10)
-#' net <- as_cograph(mat)
-#'
-#' # Named list -> layers
-#' net <- set_groups(net, list(
-#'   Macro = paste0("N", 1:3),
-#'   Meso  = paste0("N", 4:7),
-#'   Micro = paste0("N", 8:10)
-#' ), type = "layer")
-#' get_groups(net)
 set_groups <- function(x, groups = NULL, type = c("group", "cluster", "layer"),
                        nodes = NULL, layers = NULL, clusters = NULL) {
   if (!inherits(x, "cograph_network")) {
@@ -1115,29 +1035,8 @@ set_groups <- function(x, groups = NULL, type = c("group", "cluster", "layer"),
   x
 }
 
-#' Get Node Groups from Cograph Network
-#'
-#' Extracts the node groupings from a cograph_network object.
-#'
-#' @param x A cograph_network object.
-#'
-#' @return A data frame with node groupings, or NULL if not set. The data frame
-#'   has columns:
-#'   \itemize{
-#'     \item \code{node}: Node labels
-#'     \item One of \code{layer}, \code{cluster}, or \code{group}: Group assignment
-#'   }
-#'
-#' @seealso \code{\link{set_groups}}, \code{\link{splot}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(runif(25), 5, 5)
-#' rownames(mat) <- colnames(mat) <- LETTERS[1:5]
-#' net <- as_cograph(mat)
-#' net <- set_groups(net, list(G1 = c("A", "B"), G2 = c("C", "D", "E")))
-#' get_groups(net)
 get_groups <- function(x) {
   if (!inherits(x, "cograph_network")) {
     stop("x must be a cograph_network object", call. = FALSE)
@@ -1145,50 +1044,16 @@ get_groups <- function(x) {
   x$node_groups
 }
 
-#' Get Nodes from Cograph Network (Deprecated)
-#'
-#' Extracts the nodes data frame from a cograph_network object.
-#' \strong{Deprecated}: Use \code{\link{get_nodes}} instead.
-#'
-#' @param x A cograph_network object.
-#' @return A node metadata data frame, usually with \code{id} and \code{label}
-#'   columns, plus layout or other metadata columns when present.
-#'
-#' @seealso \code{\link{get_nodes}}, \code{\link{as_cograph}}, \code{\link{n_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' nodes(net)  # Deprecated, use get_nodes(net) instead
 nodes <- function(x) {
   # Soft deprecation warning
   # .Deprecated("get_nodes")
   get_nodes(x)
 }
 
-#' Check if Network is Directed
-#'
-#' Checks whether a cograph_network is directed.
-#'
-#' @param x A cograph_network object.
-#' @return Logical: TRUE if directed, FALSE if undirected.
-#'
-#' @seealso \code{\link{as_cograph}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' # Symmetric matrix -> undirected
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' cograph::is_directed(net)  # FALSE
-#'
-#' # Asymmetric matrix -> directed
-#' mat2 <- matrix(c(0, 1, 0, 0, 0, 1, 0, 0, 0), nrow = 3)
-#' net2 <- as_cograph(mat2)
-#' cograph::is_directed(net2)  # TRUE
 is_directed <- function(x) {
   if (inherits(x, "CographNetwork")) {
     return(x$is_directed)
@@ -1208,21 +1073,8 @@ is_directed <- function(x) {
   stop("Cannot determine directedness for this object", call. = FALSE)
 }
 
-#' Get Number of Nodes
-#'
-#' Returns the number of nodes in a cograph_network.
-#'
-#' @param x A cograph_network object.
-#' @return Integer: number of nodes.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{n_edges}}, \code{\link{get_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' n_nodes(net)  # 3
 n_nodes <- function(x) {
   if (inherits(x, "cograph_network")) {
     # Compute from nodes data frame
@@ -1234,21 +1086,8 @@ n_nodes <- function(x) {
   stop("Cannot count nodes for this object", call. = FALSE)
 }
 
-#' Get Number of Edges
-#'
-#' Returns the number of edges in a cograph_network.
-#'
-#' @param x A cograph_network object.
-#' @return Integer: number of edges.
-#'
-#' @seealso \code{\link{as_cograph}}, \code{\link{n_nodes}}
-#'
+#' @rdname get_nodes
 #' @export
-#'
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- as_cograph(mat)
-#' n_edges(net)  # 3
 n_edges <- function(x) {
   if (inherits(x, "cograph_network")) {
     # Compute from edges data frame
@@ -1260,46 +1099,8 @@ n_edges <- function(x) {
   stop("Cannot count edges for this object", call. = FALSE)
 }
 
-#' Cograph Network as a Data Frame
-#'
-#' The tidy accessor for a \code{cograph_network}: one row per edge (or per
-#' node), with endpoints given as labels rather than internal indices, so no
-#' caller has to reach into the object with \code{$} or translate integer ids
-#' by hand.
-#'
-#' @param x A \code{cograph_network} object.
-#' @param row.names \code{NULL} or a character vector of row names, as for
-#'   \code{\link[base]{as.data.frame}}.
-#' @param optional Logical, as for \code{\link[base]{as.data.frame}}. Ignored;
-#'   the column names of the returned table are always the documented ones.
-#' @param ... Unused, for compatibility with the generic.
-#' @param what Which table to return. \code{"edges"} (default) or
-#'   \code{"nodes"}.
-#'
-#' @return A base data frame. For \code{what = "edges"}, one row per edge with
-#'   columns \code{from} and \code{to} (node labels), \code{weight}, and any
-#'   extra edge columns the network carries (for example \code{session}). For
-#'   \code{what = "nodes"}, one row per node with the node metadata columns
-#'   (\code{id}, \code{label}, layout coordinates, and any custom columns).
-#'
-#'   This is the accessor, so it hands back everything the object holds,
-#'   including columns \code{\link{mutate_edges}} computed.
-#'   \code{\link{to_df}} is the narrower conversion verb: it returns
-#'   \code{from}, \code{to} and \code{weight} only.
-#'
-#' @seealso \code{\link{to_df}}, \code{\link{get_edges}}, \code{\link{get_nodes}}
-#'
+#' @rdname as_cograph
 #' @export
-#' @examples
-#' adj <- matrix(c(0, .5, .8, 0,
-#'                 .5, 0, .3, .6,
-#'                 .8, .3, 0, .4,
-#'                  0, .6, .4, 0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' net <- as_cograph(adj)
-#'
-#' as.data.frame(net)
-#' as.data.frame(net, what = "nodes")
 as.data.frame.cograph_network <- function(x, row.names = NULL, optional = FALSE,
                                           ..., what = c("edges", "nodes")) {
   what <- match.arg(what)

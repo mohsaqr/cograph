@@ -7,26 +7,46 @@
 centrality_centroid(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}. The measure uses
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+exponent, default 1) and \code{cutoff} (largest path length considered,
+default -1 for no limit).}
 }
 \value{
-Named numeric vector of centroid values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Minimum difference between own and competitor's closer-node count.
-Measures how much a node is at the center of the graph.
+The centroid value (Koschuetzki et al. 2005) compares a node with every
+other node by the number of nodes each one is closer to. With
+\eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes strictly closer to
+\eqn{v} than to \eqn{u},
+\deqn{CV(v) = \min_{u} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
+  CV(v) = min_u [gamma(v, u) - gamma(u, v)].}
+The minimum includes \eqn{u = v}, so the score is at most 0, and values
+closer to 0 mark more central nodes.
+}
+\details{
+Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+\eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+counts hops. \code{mode} sets the direction of the paths.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_centroid(adj)
+centrality_centroid(regulation_net)
+}
+\references{
+Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
+D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
+Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.
+16-61). Springer. \doi{10.1007/978-3-540-31955-9_3}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_closeness}},
+\code{\link{centrality_closeness_vitality}}, \code{\link{centrality}}.
 }

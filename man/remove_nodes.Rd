@@ -20,13 +20,11 @@ A \code{cograph_network} without those nodes and without any edge
 that touched them, or the input format when \code{keep_format = TRUE}.
 }
 \description{
-Remove Nodes from a Network
+Deletes nodes and every edge incident to them. A node that is not in the
+network raises a \code{cograph_bad_selection} error.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-remove_nodes(adj, nodes = "B")
+remove_nodes(regulation_net, nodes = "Share")
 }
 \seealso{
 \code{\link{add_nodes}}, \code{\link{filter_nodes}},

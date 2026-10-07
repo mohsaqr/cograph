@@ -15,12 +15,19 @@ to_directed(
 \item{x}{Network input.}
 
 \item{mode}{\code{"mutual"} (default) creates an arc in both directions for
-every undirected edge; \code{"arbitrary"} keeps one arc per edge, running
-from the lower node index to the higher.}
+every undirected edge. \code{"arbitrary"} keeps one arc per edge, running
+from the lower node index to the higher. For a directed input,
+\code{"mutual"} gives both arcs of a pair the larger of the two weights,
+and \code{"arbitrary"} drops every arc from a higher to a lower index.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. Directedness to read the input with.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A directed \code{cograph_network}, or the input format when
@@ -30,13 +37,7 @@ A directed \code{cograph_network}, or the input format when
 Convert an Undirected Network to Directed
 }
 \examples{
-adj <- matrix(c(0, 1, 0,
-                1, 0, 1,
-                0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-to_directed(adj)
-to_directed(adj, mode = "arbitrary")
+to_directed(to_undirected(regulation_net))
 }
 \seealso{
 \code{\link{to_undirected}}, \code{\link{reverse_edges}}

@@ -26,7 +26,8 @@ transitions.}
 the raw data. Otherwise falls back to \code{\link{csum}}.}
 \item{cograph_network}{If \code{x$data} is non-NULL, detects edge list
 vs sequence data. Otherwise falls back to \code{\link{csum}}.}
-\item{cluster_summary}{Returns as-is.}
+\item{group_tna}{Converted as by \code{\link{as_mcml}}.}
+\item{mcml or cluster_summary}{Returned unchanged.}
 \item{square numeric matrix}{Falls back to \code{\link{csum}}.}
 \item{non-square or character matrix}{Treated as sequence data.}
 }}
@@ -53,10 +54,11 @@ column containing cluster labels. The mapping is built from unique
 "median", "max", "min", "density", "geomean". Default "sum".}
 
 \item{type}{Post-processing: "tna" (row-normalize), "frequency" or "raw"
-(no normalization), "cooccurrence" (symmetrize), or "semi_markov".
-Default "tna".}
+(no normalization), "cooccurrence" (symmetrize), or "semi_markov"
+(row-normalize, identical to "tna"). Default "tna".}
 
-\item{directed}{Logical. Treat as directed network? Default TRUE.}
+\item{directed}{Logical. Default \code{TRUE}. The value is recorded in
+\code{meta$directed}; the weights are not modified.}
 
 \item{compute_within}{Logical. Compute within-cluster matrices? Default TRUE.}
 }
@@ -69,30 +71,15 @@ results include \code{meta$source = "transitions"} and are compatible with
 \description{
 Builds a Multi-Cluster Multi-Level (MCML) model from raw transition data
 (edge lists or sequences) by recoding node labels to cluster labels and
-counting actual transitions. Unlike \code{\link{csum}} which
-aggregates a pre-computed weight matrix, this function works from the
-original transition data to produce the TRUE Markov chain over cluster states.
+counting the observed transitions. The macro network is then the Markov
+chain over cluster states. Weight matrices are passed to
+\code{\link{csum}}, which aggregates them.
 }
 \examples{
-# Edge list with clusters
-edges <- data.frame(
-  from = c("A", "A", "B", "C", "C", "D"),
-  to   = c("B", "C", "A", "D", "D", "A"),
-  weight = c(1, 2, 1, 3, 1, 2)
-)
-clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"))
-cs <- summarize_clusters(edges, clusters)
-cs$macro$weights
-
-# Sequence data with clusters
-seqs <- data.frame(
-  T1 = c("A", "C", "B"),
-  T2 = c("B", "D", "A"),
-  T3 = c("C", "C", "D"),
-  T4 = c("D", "A", "C")
-)
-cs <- summarize_clusters(seqs, clusters, type = "raw")
-cs$macro$weights
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+summarize_clusters(regulation_net, clusters = clusters, method = "mean")
 }
 \seealso{
 \code{\link{csum}} for matrix-based aggregation,

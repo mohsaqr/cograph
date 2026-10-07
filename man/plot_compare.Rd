@@ -15,18 +15,12 @@ plot_compare(x, ...)
 Invisibly, the value of \code{\link{plot_difference}}.
 }
 \description{
-\code{plot_compare()} is an alias of \code{\link{plot_difference}()}. It is
-\strong{not deprecated}: \code{tna::plot_compare()} delegates to it by name
-(\code{cograph::plot_compare(x, y, ...)}), so the alias is part of the
-tna integration and must keep working. New cograph code may prefer the
-\code{plot_difference()} name; both call the same implementation.
+\code{plot_compare()} is an alias of \code{\link{plot_difference}()} and
+calls the same implementation. \code{tna::plot_compare()} calls it by name.
+\code{plot_difference()} is the preferred name.
 }
 \examples{
-m1 <- matrix(stats::runif(25), 5, 5)
-m2 <- matrix(stats::runif(25), 5, 5)
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_compare(m1, m2)
+plot_compare(regulation_net, t(regulation_net))
 }
 \seealso{
 \code{\link{plot_difference}}

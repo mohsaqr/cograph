@@ -33,17 +33,7 @@ A cograph_network with edges involving the specified nodes.
 Select edges where at least one endpoint is in the specified node set.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Edges involving A
-select_edges_involving(adj, nodes = "A")
-
-# Edges involving A or B
-select_edges_involving(adj, nodes = c("A", "B"))
+select_edges_involving(regulation_net, nodes = "Plan", keep_isolates = FALSE)
 }
 \seealso{
 \code{\link{select_edges}}, \code{\link{select_edges_between}}

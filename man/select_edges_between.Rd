@@ -36,14 +36,8 @@ A cograph_network with edges between the two node sets.
 Select edges connecting two specified node sets.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Edges between {A, B} and {C, D}
-select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
+select_edges_between(regulation_net, set1 = c("Plan", "Monitor"),
+                     set2 = c("Adapt", "Reflect"), keep_isolates = FALSE)
 }
 \seealso{
 \code{\link{select_edges}}, \code{\link{select_edges_involving}}

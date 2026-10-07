@@ -7,25 +7,37 @@
 centrality_eigenvector(x, ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{directed}.}
 }
 \value{
-Named numeric vector of eigenvector centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Influence-based centrality where a node's score depends on the scores
-of its neighbors. Nodes connected to other high-scoring nodes get
-higher scores.
+Eigenvector centrality (Bonacich 1972) scores a node by the scores of the
+nodes that point to it. The scores form the dominant eigenvector of the
+transposed weight matrix:
+\deqn{\lambda x = A^{T} x.}{lambda x = A^T x.}
+The vector is scaled to a maximum of one.
+}
+\details{
+\eqn{A} holds the edge weights. Edge weights are always used, and
+\code{weighted = FALSE} has no effect. On a directed network a node gains
+standing from its incoming edges. The scores lie between 0 and 1. A
+network without edges gives every node a score of one.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_eigenvector(adj)
+centrality_eigenvector(regulation_net)
+}
+\references{
+Bonacich, P. (1972). Factoring and weighting approaches to status scores
+and clique identification. Journal of Mathematical Sociology, 2(1),
+113-120. \doi{10.1080/0022250X.1972.9989806}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once,
-\code{\link{centrality_pagerank}} for a random walk variant.
+\code{\link{centrality_pagerank}}, \code{\link{centrality_alpha}},
+\code{\link{centrality_authority}}, \code{\link{centrality}}.
 }

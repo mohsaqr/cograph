@@ -25,7 +25,8 @@ select_top_edges(
 \code{"from_strength"}, \code{"to_strength"}, \code{"weight_rank"}.
 Any other name raises a \code{cograph_bad_selection} error.}
 
-\item{...}{Additional filter expressions.}
+\item{...}{Additional filter expressions, applied after the top \code{n} edges
+are selected.}
 
 \item{keep_isolates}{Keep nodes that end up with no edges? Default TRUE.}
 
@@ -40,17 +41,7 @@ A cograph_network with the top N edges.
 Select the top N edges ranked by weight or another metric.
 }
 \examples{
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Top 3 edges by weight
-select_top_edges(adj, n = 3)
-
-# Top 2 by edge betweenness
-select_top_edges(adj, n = 2, by = "edge_betweenness")
+select_top_edges(regulation_net, n = 5, keep_isolates = FALSE)
 }
 \seealso{
 \code{\link{select_edges}}, \code{\link{select_top}}

@@ -111,149 +111,153 @@ centrality(
 }
 \arguments{
 \item{x}{Network input (matrix, edge-list data frame, igraph, network,
-cograph_network, tna object)}
+cograph_network, tna object).}
 
 \item{type}{Character scalar selecting a curated tier of measures when
 \code{measures} is not supplied. One of:
 \describe{
-\item{\code{"basic"}}{(default) 6 canonical measures: \code{degree},
+\item{\code{"basic"}}{The default. Six measures: \code{degree},
 \code{strength}, \code{closeness}, \code{betweenness},
 \code{eigenvector}, \code{pagerank}.}
-\item{\code{"extended"}}{Basic plus commonly-reported second-tier
-measures: harmonic, coreness, eccentricity, radiality,
-lin, decay, load, stress, katz, alpha, power, authority, leverage,
-constraint, effective_size, bridging, transitivity, subgraph,
-diffusion, laplacian, kreach, current_flow_betweenness,
-current_flow_closeness.}
-\item{\code{"all"}}{Every measure except the costly ones, which are
-held back (see \code{include} and \code{\link{list_centralities}}).}
+\item{\code{"extended"}}{The basic tier plus harmonic, coreness,
+eccentricity, radiality, lin, decay, load, stress, katz, alpha,
+power, authority, leverage, constraint, effective_size, bridging,
+transitivity, subgraph, diffusion, laplacian, kreach,
+current_flow_betweenness and current_flow_closeness.}
+\item{\code{"all"}}{Every measure except the costly ones (see
+\code{include} and \code{\link{list_centralities}}).}
 }
 Passing \code{measures} explicitly overrides \code{type}.}
 
-\item{measures}{Character vector of specific measure names to compute.
-When \code{NULL} (default) the tier selected by \code{type} is used.
-Accepts \code{"all"} as a shortcut for \code{type = "all"}, i.e. every
-measure except the costly ones. Any custom vector of valid measure names
-is also accepted, and naming a costly measure there always computes it.
-\strong{Core} (igraph-backed): "degree", "strength", "betweenness", "closeness",
-"eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
-"constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
-\strong{Native}: "diffusion", "leverage", "kreach", "laplacian", "load",
-"current_flow_closeness", "current_flow_betweenness", "voterank",
-"percolation".
-\strong{Distance-based}: "radiality", "lin", "decay", "residual_closeness",
-"dangalchev", "generalized_closeness", "harary", "average_distance",
-"barycenter", "wiener", "closeness_vitality".
-\strong{Spectral/walk}: "communicability", "communicability_betweenness",
-"random_walk".
-\strong{Path-based}: "stress", "flow_betweenness".
-\strong{Local/neighborhood}: "lobby", "entropy", "semilocal", "clusterrank",
-"bottleneck", "centroid", "mnc", "dmnc", "lac", "topological_coefficient",
-"bridging", "local_bridging", "effective_size", "diversity",
-"cross_clique", "markov".
-\strong{Influence}: "integration", "expected", "gilschmidt".
-\strong{Directed-only}: "salsa", "leaderrank", "trophic_level", "pairwisedis",
-"prestige_domain", "prestige_domain_proximity".
-\strong{Community-aware} (require \code{membership}): "participation",
-"within_module_z", "gateway", "brokerage_coordinator",
+\item{measures}{Character vector of measure names to compute. When
+\code{NULL} (default) the tier selected by \code{type} is used.
+\code{"all"} is a shortcut for \code{type = "all"}. Unknown names raise
+an error. \code{\link{list_centralities}} returns every valid name
+together with its orientation, mode support, partition requirement,
+weight use and cost. The measures fall into these groups:
+\describe{
+\item{Core}{"degree", "strength", "betweenness", "closeness",
+"eigenvector", "pagerank", "authority", "hub", "eccentricity",
+"coreness", "constraint", "transitivity", "harmonic", "alpha",
+"power", "subgraph".}
+\item{Flow and spreading}{"diffusion", "leverage", "kreach",
+"laplacian", "load", "current_flow_closeness",
+"current_flow_betweenness", "voterank", "percolation".}
+\item{Distance-based}{"radiality", "lin", "decay",
+"residual_closeness", "dangalchev", "generalized_closeness",
+"harary", "average_distance", "barycenter", "wiener",
+"closeness_vitality".}
+\item{Spectral and walk-based}{"communicability",
+"communicability_betweenness", "random_walk".}
+\item{Path-based}{"stress", "flow_betweenness".}
+\item{Local and neighborhood}{"lobby", "entropy", "semilocal",
+"clusterrank", "bottleneck", "centroid", "mnc", "dmnc", "lac",
+"topological_coefficient", "bridging", "local_bridging",
+"effective_size", "diversity", "cross_clique", "markov".}
+\item{Influence}{"integration", "expected", "gilschmidt".}
+\item{Directed only}{"salsa", "leaderrank", "trophic_level",
+"pairwisedis", "prestige_domain", "prestige_domain_proximity".}
+\item{Community-aware (require \code{membership})}{"participation",
+"within_module_z", "gateway", "modularity_vitality" (Magelinski et
+al. 2021), "community_hub_bridge" (Ghalmane et al. 2019),
+"community_based" (Zhao et al. 2015), "comm_centrality" (Gupta et
+al. 2016), "community_mediator" (Tulu et al. 2018), and the
+Gould-Fernandez roles "brokerage_coordinator",
 "brokerage_itinerant", "brokerage_representative",
-"brokerage_gatekeeper", "brokerage_liaison" (the last 5 also require
-a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
-\strong{Zoo (batch 2)}: "gravity", "collective_influence", "local_hindex",
-"hindex_strength", "onion", "second_order", "infection", "nonbacktracking",
-"spanning_tree".
-\strong{Classical (batch 3, reference-validated)}: "katz" (Katz 1953),
-"hubbell" (Hubbell 1965), "information" (Stephenson-Zelen 1989),
-"reaching_local" (Mones et al. 2012). See \code{\link{centrality_katz}},
-\code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
-\code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
-\strong{Psychometric (signed-weight)}: "expected_influence_1",
-"expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
-influence keeps signed edge contributions, which is important when edges
-can be negative (partial-correlation, glasso, signed correlation networks).
-\strong{Zoo (batch 7, lowest rank-redundancy with the rest of the package per
-the Centrality Zoo comparison)}: "distance_entropy" (Stella & De
+"brokerage_gatekeeper", "brokerage_liaison", which also require a
+directed graph. See \code{\link{centrality_modularity_vitality}}
+and \code{\link{centrality_brokerage_coordinator}}.}
+\item{Spreader identification}{"gravity", "collective_influence",
+"local_hindex", "hindex_strength", "onion", "second_order",
+"infection", "nonbacktracking", "spanning_tree". See
+\code{\link{centrality_gravity}}.}
+\item{Classical}{"katz" (Katz 1953), "hubbell" (Hubbell 1965),
+"information" (Stephenson and Zelen 1989), "reaching_local" (Mones
+et al. 2012). See \code{\link{centrality_katz}},
+\code{\link{centrality_hubbell}},
+\code{\link{centrality_information}},
+\code{\link{centrality_pairwisedis}} and
+\code{\link{centrality_reaching_local}}.}
+\item{Psychometric}{"expected_influence_1", "expected_influence_2"
+(Robinaugh, Millner and McNally 2016). Expected influence keeps the
+sign of each edge, which matters in networks with negative edges
+such as partial-correlation and glasso networks.}
+\item{Scaling and dimension}{"distance_entropy" (Stella and De
 Domenico 2018), "local_dimension" (Pu et al. 2014),
-"local_information_dimension" (Wen & Deng 2020),
-"neighborhood_connectivity" (Maslov & Sneppen 2002), and
-"modularity_vitality" (Magelinski et al. 2021; requires
-\code{membership}). The first three are hop-count measures and ignore
-edge weights. See \code{\link{centrality_distance_entropy}},
+"local_information_dimension" (Wen and Deng 2020),
+"neighborhood_connectivity" (Maslov and Sneppen 2002),
+"local_dimension_fixed" (Silva and Costa 2013),
+"fuzzy_local_dimension" (Wen and Jiang 2019),
+"local_volume_dimension" (Li and Deng 2021). See
+\code{\link{centrality_distance_entropy}},
 \code{\link{centrality_local_dimension}},
 \code{\link{centrality_local_information_dimension}},
-\code{\link{centrality_neighborhood_connectivity}},
-\code{\link{centrality_modularity_vitality}}.
-\strong{Zoo (batch 8, the measures the Zoo comparison left "on the way")}:
-"shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
-2013), "access_information", "hide_information" (Rosvall et al. 2005),
-"rumor" (Shah & Zaman 2011), "community_hub_bridge" (Ghalmane et al.
-2019; requires \code{membership}), "entropy_variation_degree",
-"entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al. 2017),
-"degree_discount", "single_discount" (Chen, Wang & Yang 2009),
-"ncvoterank" (Kumar & Panda 2020). All are hop-count or topology-only
-measures; edge weights are ignored. See the per-measure pages, e.g.
-\code{\link{centrality_shapley_game1}},
+\code{\link{centrality_neighborhood_connectivity}} and
+\code{\link{centrality_local_dimension_fixed}}.}
+\item{Games, information and seed selection}{"shapley_game1",
+"shapley_game2", "shapley_game3" (Michalak et al. 2013),
+"access_information", "hide_information" (Rosvall et al. 2005),
+"rumor" (Shah and Zaman 2011), "entropy_variation_degree",
+"entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al.
+2017), "degree_discount", "single_discount" (Chen, Wang and Yang
+2009). See \code{\link{centrality_shapley_game1}},
 \code{\link{centrality_access_information}},
 \code{\link{centrality_rumor}},
 \code{\link{centrality_community_hub_bridge}},
 \code{\link{centrality_entropy_variation}},
 \code{\link{centrality_s_shell}},
-\code{\link{centrality_degree_discount}},
-\code{\link{centrality_ncvoterank}}.
-\strong{Zoo (batch 9, the remaining measures with a pinned definition)}:
-community-aware "community_based" (Zhao et al. 2015), "comm_centrality"
-(Gupta et al. 2016), "community_mediator" (Tulu et al. 2018), all
-requiring \code{membership}; dimension family "local_dimension_fixed"
-(Silva & Costa 2013), "fuzzy_local_dimension" (Wen & Jiang 2019),
-"local_volume_dimension" (Li & Deng 2021); VoteRank family
+\code{\link{centrality_degree_discount}} and
+\code{\link{centrality_community_based}}.}
+\item{VoteRank family}{"ncvoterank" (Kumar and Panda 2020),
 "wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
-"voterank_plus" (Liu et al. 2021); "node_contraction",
-"node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
-"two_way_rw" (Curado et al. 2022); local measures "heatmap"
-(Duron 2020), "flow_coefficient" (Honey et al. 2007), "local_entropy"
-(Nie et al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
-(Burt 1992); "weighted_kshell" (Garas et al. 2012),
-"renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti &
-Everett 2006). Only "wvoterank", "two_way_rw" and "weighted_kshell"
-use edge weights. See \code{\link{centrality_community_based}},
-\code{\link{centrality_local_dimension_fixed}},
-\code{\link{centrality_wvoterank}},
-\code{\link{centrality_node_contraction}},
-\code{\link{centrality_two_way_rw}}, \code{\link{centrality_heatmap}},
-\code{\link{centrality_weighted_kshell}}.
-
-Batch 10 closes the gaps other centrality packages had and cograph did
-not: "local_efficiency" (Latora & Marchiori 2001), "s_core" (Eidsaa &
-Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
-"epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
-\code{type = "all"} holds them back. See
-\code{\link{centrality_local_efficiency}}.
-
-Batch 11 tunes families cograph already had: "length_scaled_betweenness"
-(Brandes 2008), "delta_betweenness" and "delta_closeness" (Agneessens
-et al. 2017), "ego_betweenness" (Everett & Borgatti 2005). "gravity"
-gained \code{gravity_mass} and \code{gravity_radius}, and its formula
-was corrected -- see \code{\link{centrality_gravity}}. Bounded-distance
-("k-") betweenness needs no measure of its own: it is
+"voterank_plus" (Liu et al. 2021). See
+\code{\link{centrality_ncvoterank}} and
+\code{\link{centrality_wvoterank}}.}
+\item{Contraction, walks and local structure}{"node_contraction",
+"node_contraction_improved" (Tan et al. 2006; Wang et al. 2011),
+"two_way_rw" (Curado et al. 2022), "heatmap" (Duron 2020),
+"flow_coefficient" (Honey et al. 2007), "local_entropy" (Nie et
+al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
+(Burt 1992), "weighted_kshell" (Garas et al. 2012),
+"renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti
+and Everett 2006). See \code{\link{centrality_node_contraction}},
+\code{\link{centrality_two_way_rw}},
+\code{\link{centrality_heatmap}} and
+\code{\link{centrality_weighted_kshell}}.}
+\item{Efficiency, cores and percolation}{"local_efficiency" (Latora
+and Marchiori 2001), "s_core" (Eidsaa and Almaas 2013),
+"fragmentation" (Borgatti 2006), "kpath" (Sade 1989), "epc" (Lin
+et al. 2008). See \code{\link{centrality_local_efficiency}}.}
+\item{Betweenness and closeness variants}{"length_scaled_betweenness"
+(Brandes 2008), "delta_betweenness" and "delta_closeness"
+(Agneessens et al. 2017), "ego_betweenness" (Everett and Borgatti
+2005). Bounded-distance (k-) betweenness is betweenness with
 \code{cutoff = k}. See
 \code{\link{centrality_length_scaled_betweenness}}.}
+}
+The remaining measures are described under Details.}
 
-\item{include}{Character vector of costly measures to add back to a tier,
-or \code{"costly"} for all of them. \code{type = "all"} holds back the
-measures whose cost grows steeply with network size (see
-\code{\link{list_centralities}}), so that one call cannot take minutes
-by accident. Naming a measure in \code{measures} always computes it,
-whatever its cost. Default \code{NULL}.}
+\item{include}{Character vector of costly measures to add to a tier, or
+\code{"costly"} for all of them. \code{type = "all"} holds back the
+measures whose cost grows steeply with network size (the \code{costly}
+column of \code{\link{list_centralities}}). A measure named in
+\code{measures} is always computed, whatever its cost. Unknown names
+raise a \code{cograph_unknown_measure} error. Default \code{NULL}.}
 
-\item{mode}{For directed networks: "all", "in", or "out". Affects measures
-whose output columns carry a mode suffix, including degree, strength,
-closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
-distance-based measures, community-aware measures, and expected influence.}
+\item{mode}{For directed networks: "all" (default), "in", or "out".
+Affects the mode-aware measures, whose output columns carry a mode
+suffix. These include degree, strength, closeness, eccentricity,
+coreness, harmonic, diffusion, leverage, kreach, the distance-based
+measures, most community-aware measures, and expected influence (the
+\code{mode_aware} column of \code{\link{list_centralities}}).}
 
-\item{normalized}{Logical. Normalize values by dividing by max. Most measures
-are scaled to 0-1; signed expected-influence measures can retain negative
-values under psychometric normalization. For closeness, this is passed
-directly to igraph.}
+\item{normalized}{Logical. If \code{TRUE}, each measure is divided by its
+maximum, which scales non-negative measures to 0-1. A measure whose
+maximum is not positive is left unchanged. Closeness follows igraph's
+normalization instead, multiplying each value by the number of nodes
+the node reaches. Under \code{psych_network = TRUE} expected influence
+is divided by its maximum absolute value and keeps its sign. Default
+\code{FALSE}.}
 
 \item{weighted}{Logical. Use edge weights if available. Default TRUE.}
 
@@ -261,36 +265,39 @@ directly to igraph.}
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
 \item{loops}{Logical. If TRUE (default), keep self-loops. Set to FALSE to
-remove them before calculation.}
+remove them before calculation. \code{tna_network = TRUE} changes the
+default to FALSE.}
 
 \item{simplify}{How to combine multiple edges between the same node pair
 (possible only from edge-list, cograph_network or igraph input).
 Options: "sum" (default), "mean", "max", "min". \code{FALSE} and
-\code{"none"} also sum them: the network is held as a dense weight
-matrix, which cannot carry parallel edges.}
+\code{"none"} also sum them, because the network is held as a dense
+weight matrix, which cannot carry parallel edges.}
 
 \item{digits}{Integer or NULL. Round all numeric columns to this many
 decimal places. Default NULL (no rounding).}
 
 \item{sort_by}{Character or NULL. Column name to sort results by
-(descending order). Default NULL (original node order).}
+(descending order). Default NULL (original node order). A name that is
+not a column of the result raises an error.}
 
 \item{cutoff}{Maximum path length to consider for betweenness, closeness,
 harmonic centrality and the distance-based closeness variants (radiality,
 lin, decay, residual_closeness, dangalchev, generalized_closeness,
 harary, average_distance, barycenter, wiener, centroid,
 closeness_vitality, delta_closeness).
-Default -1 (no limit). Set to a positive value for faster computation
-on large networks at the cost of accuracy.}
+Default -1 (no limit). A positive value ignores longer paths, which
+shortens computation on large networks and changes the values.}
 
-\item{invert_weights}{Logical or NULL. For path- and distance-based measures
-(for example betweenness, closeness, harmonic, eccentricity, k-reach,
-radiality, decay, stress, flow betweenness, and related variants), should
-weights be inverted so that higher weights mean shorter paths? Default
-NULL auto-detects: TRUE for tna objects (transition probabilities), FALSE
-otherwise (matching igraph/sna). Set explicitly to TRUE for
-strength/frequency weights (qgraph style) or FALSE for distance/cost
-weights.}
+\item{invert_weights}{Logical or NULL. Whether path- and distance-based
+measures (for example betweenness, closeness, harmonic, k-reach,
+radiality, decay, stress, flow betweenness and related variants) invert
+the weights, so that higher weights mean shorter paths. A message reports
+the inversion. Eccentricity always reads the raw edge weights as
+distances. The default \code{NULL} is TRUE for tna objects (transition
+probabilities) and FALSE otherwise, as in igraph and sna. TRUE suits
+strength or frequency weights (the qgraph convention) and FALSE suits
+distance or cost weights.}
 
 \item{alpha}{Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
 Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
@@ -298,20 +305,23 @@ increase the influence of weight differences on path lengths.}
 
 \item{damping}{PageRank damping factor. Default 0.85. Must be between 0 and 1.}
 
-\item{personalized}{Named numeric vector for personalized PageRank.
-Default NULL (standard PageRank). Values should sum to 1.}
+\item{personalized}{Non-negative numeric vector of reset probabilities
+for personalized PageRank, one value per node in node order. Names are
+not used for matching. The vector is rescaled to sum to 1. Default
+NULL (standard PageRank).}
 
 \item{transitivity_type}{Type of transitivity to calculate: "local" (default),
 "global", "undirected", "localundirected", "barrat" (weighted),
-"weighted", or "onnela". The first six dispatch to
-\code{igraph::transitivity()}; \code{"onnela"} computes the Onnela /
-Holme weighted clustering coefficient on the symmetrized matrix
-(\code{wcc(x + t(x))}) and matches \code{tna::centralities(., "Clustering")}
-byte-for-byte. Auto-set to \code{"onnela"} when \code{tna_network = TRUE}
-and the user did not pass an explicit value.}
+"weighted", or "onnela". The first six follow the conventions of
+\code{igraph::transitivity()}. \code{"global"} and \code{"undirected"}
+give one graph-level value, repeated on every row. \code{"onnela"}
+computes the Onnela weighted clustering coefficient on the symmetrized
+matrix \code{x + t(x)} and matches
+\code{tna::centralities(x, "Clustering")}. \code{tna_network = TRUE}
+changes the default to \code{"onnela"}.}
 
-\item{isolates}{How to handle isolate nodes in transitivity calculation:
-"nan" (default) returns NaN, "zero" returns 0.}
+\item{isolates}{Value of local transitivity at nodes where it is
+undefined: "nan" (default) returns NaN, "zero" returns 0.}
 
 \item{lambda}{Diffusion scaling factor for diffusion centrality. Default 1.
 Only used when \code{diffusion_method = "kandhway_kuri"}.}
@@ -319,39 +329,45 @@ Only used when \code{diffusion_method = "kandhway_kuri"}.}
 \item{diffusion_method}{Character or NULL. Selects the diffusion-centrality
 formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
 1-hop binary-degree neighborhood sum
-\eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}. \code{"power_series"}
-computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}
+\eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}{lambda d_v + lambda sum_{u in N(v)} d_u}. \code{"power_series"}
+computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)}
 on the (optionally diagonal-zeroed) weighted matrix and matches
 \code{tna::centralities(., measures = "Diffusion")} when
 \code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}
 for tna objects (transition probabilities), \code{"kandhway_kuri"}
 otherwise.}
 
-\item{k}{Path length parameter for geodesic k-path centrality. Default 3.}
+\item{k}{Distance bound for \code{"kreach"}, the number of nodes reachable
+within \code{k} steps. Default 3.}
 
-\item{states}{Named numeric vector of percolation states (0-1) for percolation
-centrality. Each value represents how "activated" or "infected" a node is.
-Default NULL (all nodes get state 1, equivalent to betweenness).}
+\item{states}{Numeric vector of percolation states for percolation
+centrality, one per node. Each value represents how "activated" or
+"infected" a node is. A named vector is matched to the node labels,
+missing nodes get state 1, and values are clipped to 0-1. Default NULL
+gives every node state 1, which makes percolation equal to betweenness
+divided by \eqn{(n-1)(n-2)}.}
 
 \item{decay_parameter}{Numeric. Decay parameter for decay and generalized
-closeness centrality. Default 0.5. Must be between 0 and 1.}
+closeness centrality. A value between 0 and 1 discounts distant nodes.
+Default 0.5.}
 
 \item{dmnc_epsilon}{Numeric. Epsilon exponent for DMNC (Density of Maximum
-Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
-centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.}
+Neighborhood Component). Default 1.7, as recommended by Lin et al.
+(2008). centiserve uses 1.67.}
 
 \item{membership}{Integer vector of community assignments (one per node) for
-community-aware measures: participation, within_module_z, gateway,
-modularity_vitality, and the Gould-Fernandez brokerage roles. Default
-NULL. Required when requesting
-these measures.}
+the community-aware measures listed under \code{measures}. Default NULL.
+Without it those measures warn and return \code{NA}.
+\code{"map_equation"} uses it when supplied.}
 
-\item{katz_alpha}{Attenuation factor for Katz centrality. Must satisfy
-\eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
-conventions). Only used when \code{"katz"} is in \code{measures}.}
+\item{katz_alpha}{Attenuation factor for Katz centrality. The Katz series
+converges only for \eqn{\alpha < 1 / \rho(A)}{alpha < 1 / rho(A)}. Otherwise the measure
+raises a \code{cograph_katz_diverged} warning. Default 0.1, the
+centiserve and NetworkX convention. Only used when \code{"katz"} is in
+\code{measures}.}
 
 \item{hubbell_weight}{Weight factor \eqn{w} for Hubbell centrality. Must be
-positive and satisfy \eqn{w \cdot \rho(W) < 1} for solvability; otherwise
+positive and satisfy \eqn{w \cdot \rho(W) < 1}{w * rho(W) < 1} for solvability; otherwise
 the measure warns and returns \code{NA}. Default 0.5. Only used when
 \code{"hubbell"} is in \code{measures}.}
 
@@ -382,7 +398,7 @@ single number of at least 1; default 2.}
 \item{voterank_lambda}{Suppression factor for \code{"voterank_plus"}.
 Default 0.1.}
 
-\item{contraction_rho}{\eqn{\alpha / \beta} for
+\item{contraction_rho}{\eqn{\alpha / \beta}{alpha / beta} for
 \code{"node_contraction_improved"}. Default 5.}
 
 \item{wks_alpha, wks_beta}{Degree and strength exponents for
@@ -403,9 +419,10 @@ Default 0.5.}
 \item{epc_runs}{Number of percolation realizations for \code{"epc"}.
 Default 1000.}
 
-\item{epc_seed}{Random seed for \code{"epc"}. Default \code{NULL},
-which leaves the caller's stream alone and lets the estimate vary
-between calls.}
+\item{epc_seed}{Random seed for \code{"epc"}. Default \code{NULL} draws
+from the session's random number stream, so the estimate varies between
+calls. A seed makes the estimate reproducible, and the caller's random
+number state is restored afterwards.}
 
 \item{betweenness_delta}{Decay exponent for \code{"delta_betweenness"}.
 Default 1; 0 gives ordinary betweenness.}
@@ -414,16 +431,16 @@ Default 1; 0 gives ordinary betweenness.}
 Default 1, which is \code{harmonic} over \eqn{n - 1}.}
 
 \item{gravity_mass}{Mass in \code{"gravity"}: \code{"kshell"} (default,
-Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"}
-for cograph's pre-2.4.8 form.}
+Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"},
+which uses a unit focal mass and a partner mass equal to degree times
+k-shell index.}
 
 \item{gravity_radius}{Largest distance each gravity source reaches in
 \code{"gravity"}, \code{"extended_gravity"},
 \code{"mixed_gravity"} or \code{"extended_mixed_gravity"}: a
 number (default 3), \code{"auto"} for half the mean distance, or
-\code{NULL} for the whole graph.
-The auto radius uses finite positive distances, rounds to the nearest
-integer (ties to even), and has minimum 1; these are cograph conventions.}
+\code{NULL} for the whole graph. The automatic radius averages the
+finite positive distances, rounds half to even, and is at least 1.}
 
 \item{mdd_lambda}{Exhausted-degree weight for \code{"mdd"}, between
 0 and 1. Default 0.7. See \code{\link{centrality_truss}}.}
@@ -433,7 +450,8 @@ a nonnegative integer or \code{Inf}, default 2. Degrees are measured
 in the full simple undirected graph. See \code{\link{centrality_volume}}.}
 
 \item{diffusion_q}{Multiplier between 0 and 1 for \code{"diffusion_centrality"},
-default 1. Independent of the existing \code{lambda} argument.}
+default 1. It is separate from \code{lambda}, which scales
+\code{"diffusion"}.}
 
 \item{diffusion_steps}{Nonnegative integer horizon for
 \code{"diffusion_centrality"}, default 3. See
@@ -537,9 +555,9 @@ absolute change between iterates, a positive finite number, default
 \code{1e-6} as in the source.}
 
 \item{ira_max_iter}{Iteration bound for \code{"ira"}, a whole number of
-at least one, default 1000. Reaching it raises
-\code{cograph_no_converge}, which a bipartite component with unequal
-vertex classes always does. See \code{\link{centrality_ira}}.}
+at least one, default 1000. Reaching it raises a
+\code{cograph_no_converge} warning, which always happens on a bipartite
+component with unequal vertex classes. See \code{\link{centrality_ira}}.}
 
 \item{iira_beta}{Spreading rate for \code{"iira"}, a number in
 \eqn{(0,1]}, default 0.2 as in the source.}
@@ -550,61 +568,55 @@ resource. See \code{\link{centrality_iira}}.}
 
 \item{hcc_delta}{Weight on a node's own degree in the extended degree
 used by \code{"hcc"} and \code{"ehcc"}, a single number in
-\eqn{[0,1]}, default 0.5 as in the source; one recovers the classical
-degree and zero drops the node's own degree entirely. Values outside
-\eqn{[0,1]} are refused. See \code{\link{centrality_hcc}}.}
+\eqn{[0,1]}, default 0.5 as in the source. A value of one gives the
+classical degree and zero drops the node's own degree. Values outside
+\eqn{[0,1]} raise an error. See \code{\link{centrality_hcc}}.}
 
-\item{lhc_radius}{Radius of the ball \eqn{\Phi(v)} summed over by
+\item{lhc_radius}{Radius of the ball \eqn{\Phi(v)}{Phi(v)} summed over by
 \code{"lhc"}, the \eqn{d} of the source's equation (1); a single whole
-number of at least one, default 2 as the source sets it. The source
-sweeps it and reports 2-3 as optimal. At one the ball collapses to the
-neighbors; at or above the diameter the score stops moving. Values
-below one and non-integers are refused. See
-\code{\link{centrality_lhc}}.}
+number of at least one, default 2 as in the source, which reports 2-3
+as optimal. At one the ball contains only the neighbors. At or above the
+diameter the score no longer changes. Values below one and non-integers
+raise an error. See \code{\link{centrality_lhc}}.}
 
 \item{tpr_alpha}{Jump probability of the trust-PageRank iteration used
 by \code{"trust_pagerank"}, a single number strictly between zero and
 one, default 0.85 as the source sets it below its equation (7). See
 \code{\link{centrality_trust_pagerank}}.}
 
-\item{tpr_k}{Weight the trust-value puts on the degree ratio rather than
-the similarity ratio in \code{"trust_pagerank"}, the \eqn{k} of the
-source's equation (6); a single number in \eqn{[0,1]}, default 0.85,
-the value the source's section 3.3 selects from a Kendall-against-SIR
-sweep. One drops the similarity entirely and zero drops the degree.}
+\item{tpr_k}{Weight of the degree ratio in the trust value of
+\code{"trust_pagerank"}, the \eqn{k} of the source's equation (6). The
+similarity ratio receives weight \eqn{1-k}. A single number in
+\eqn{[0,1]}, default 0.85, the value selected in section 3.3 of the
+source. One drops the similarity and zero drops the degree.}
 
 \item{tpr_decay}{Attenuation factor of the similarity recursion used by
 \code{"trust_pagerank"}, the \eqn{C} of the source's equation (4); a
-single number in \eqn{(0,1]}, default 1 as the source fixes it. The
-source's claim that \eqn{C} does not affect the result holds only for a
-homogeneous recursion and not for this one; see
-\code{\link{centrality_trust_pagerank}}.}
+single number in \eqn{(0,1]}, default 1 as in the source. \eqn{C}
+changes the result. See \code{\link{centrality_trust_pagerank}}.}
 
-\item{tpr_tol}{Convergence tolerance on the largest \emph{relative}
-change of either trust-PageRank recursion, a single positive number,
-default \code{1e-14}. The source fixes no iteration count because it
-does not need one: both recursions have unique fixed points. The test
-is relative rather than absolute because the similarities on one graph
-span many orders of magnitude; see
+\item{tpr_tol}{Convergence tolerance on the largest relative change of
+either trust-PageRank recursion, a single positive number, default
+\code{1e-14}. The tolerance is relative because the similarities on one
+graph span many orders of magnitude. See
 \code{\link{centrality_trust_pagerank}}.}
 
 \item{tpr_max_iter}{Iteration bound for both trust-PageRank recursions, a
-whole number of at least one, default 1000. Reaching it raises
-\code{cograph_no_converge}.}
+whole number of at least one, default 1000. Reaching it raises a
+\code{cograph_no_converge} warning.}
 
 \item{rsp_beta}{Inverse temperature of the randomized-shortest-paths
 model used by \code{"rsp_betweenness"}, a single finite number strictly
-above zero, default 0.01. The source fixes no default; 0.01 is the
-value \code{NetworkToolbox::rspbc()} recommends, and it sits near the
-random-walk limit, so raise it towards 1 and beyond to move the reading
-towards shortest paths. See
+above zero, default 0.01, the value \code{NetworkToolbox::rspbc()}
+recommends. Small values approach the random-walk limit. Values of 1
+and above move the measure towards shortest paths. See
 \code{\link{centrality_rsp_betweenness}}.}
 
 \item{rsp_cost}{How an edge weight becomes a traversal cost for
 \code{"rsp_betweenness"}: \code{"inverse"} (default) for \eqn{C=1/w},
 reading a weight as an affinity, or \code{"weight"} for \eqn{C=w},
-reading it as a distance. The source leaves the cost matrix free; both
-settings give unit cost per arc on a binary graph. See
+reading it as a distance. Both settings give unit cost per arc on a
+binary graph. See
 \code{\link{centrality_rsp_betweenness}}.}
 
 \item{re_indexes}{Constituent indexes integrated by
@@ -617,22 +629,22 @@ for the source's own declarations. See
 \code{\link{centrality_relative_entropy}}.}
 
 \item{tna_network}{Logical or NULL. Umbrella switch that forces tna-style
-conventions across all measures. \code{NULL} (default) auto-detects
-from the input class — TRUE iff \code{x} is a \code{tna} or related
-sequence-network object. \code{TRUE} forces tna conventions even on
-raw matrices: \code{invert_weights = TRUE}, \code{loops = FALSE},
-\code{diffusion_method = "power_series"}, \code{transitivity_type
-  = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
-inputs, giving the cograph defaults verbatim. Precedence: any arg
-the user passes explicitly always wins over \code{tna_network}.}
+conventions across all measures. \code{NULL} (default) is TRUE when
+\code{x} is a \code{tna}, \code{group_tna}, \code{ctna}, \code{ftna}
+or \code{atna} object (or a group of these) and FALSE otherwise.
+\code{TRUE} applies the tna conventions to any input, setting
+\code{invert_weights = TRUE}, \code{loops = FALSE},
+\code{diffusion_method = "power_series"} and
+\code{transitivity_type = "onnela"}. \code{FALSE} keeps the cograph
+defaults for tna inputs as well. An argument passed explicitly always
+takes precedence over \code{tna_network}.}
 
 \item{psych_network}{Logical or NULL. Switch for signed psychometric
 network conventions. \code{NULL} (default) auto-detects TRUE when a
 signed weighted network is evaluated with expected-influence measures.
 When \code{TRUE}, normalized expected influence is divided by the maximum
-absolute expected-influence value, preserving sign and bounding the result from
--1 to 1.
-\code{FALSE} keeps the generic cograph normalization convention.}
+absolute expected-influence value, which keeps its sign and bounds it
+between -1 and 1. \code{FALSE} keeps the generic cograph normalization.}
 
 \item{...}{Additional arguments (currently unused)}
 }
@@ -665,45 +677,54 @@ The following centrality measures are available:
 \item{pagerank}{Random walk centrality (supports damping and personalization)}
 \item{authority}{HITS authority score}
 \item{hub}{HITS hub score}
-\item{eccentricity}{Maximum distance to other nodes (supports mode)}
+\item{eccentricity}{Maximum distance to other nodes (supports mode).
+Distances use the raw edge weights, whatever \code{weighted} and
+\code{invert_weights} say.}
 \item{coreness}{K-core membership (supports mode: in/out/all)}
 \item{constraint}{Burt's constraint (structural holes)}
 \item{transitivity}{Local clustering coefficient (supports multiple types)}
-\item{harmonic}{Harmonic centrality - handles disconnected graphs better
-than closeness (supports mode: in/out/all)}
-\item{diffusion}{Diffusion degree centrality - sum of scaled degrees of
-node and its neighbors (supports mode: in/out/all, lambda scaling)}
-\item{leverage}{Leverage centrality - measures influence over neighbors
-based on relative degree differences (supports mode: in/out/all)}
-\item{kreach}{Geodesic k-path centrality - count of nodes reachable
-within distance k (supports mode: in/out/all, k parameter)}
-\item{alpha}{Alpha/Katz centrality - influence via paths, penalized by
-distance. Similar to eigenvector but includes exogenous contribution}
-\item{power}{Bonacich power centrality - measures influence based on
-connections to other influential nodes}
-\item{subgraph}{Subgraph centrality - participation in closed loops/walks,
-weighting shorter loops more heavily}
-\item{laplacian}{Laplacian centrality using Qi et al. (2012) local formula.
-Matches NetworkX and centiserve::laplacian()}
-\item{load}{Load centrality - fraction of all shortest paths through node,
-similar to betweenness but weights paths by 1/count}
-\item{current_flow_closeness}{Information centrality - closeness based on
-electrical current flow (requires connected graph)}
-\item{current_flow_betweenness}{Random walk betweenness - betweenness based
-on current flow rather than shortest paths (requires connected graph)}
-\item{voterank}{VoteRank - identifies influential spreaders via iterative
-voting mechanism. Returns normalized rank (1 = most influential)}
-\item{percolation}{Percolation centrality - importance for spreading processes.
-Uses node states (0-1) to weight paths. When all states equal, equivalent
-to betweenness. Useful for epidemic/information spreading analysis.}
+\item{harmonic}{Harmonic centrality, the sum of inverse distances. It
+stays finite on disconnected graphs (supports mode: in/out/all)}
+\item{diffusion}{Diffusion degree centrality. With
+\code{diffusion_method = "kandhway_kuri"} it is the scaled degree of
+the node plus the scaled degrees of its neighbors (supports mode:
+in/out/all, lambda scaling)}
+\item{leverage}{Leverage centrality. Influence over neighbors based on
+relative degree differences (supports mode: in/out/all)}
+\item{kreach}{K-reach centrality. Number of nodes reachable within
+\code{k} steps (supports mode: in/out/all)}
+\item{alpha}{Alpha centrality. Influence through paths, attenuated by
+length, with a unit exogenous contribution at every node}
+\item{power}{Bonacich power centrality. Influence based on connections
+to other influential nodes}
+\item{subgraph}{Subgraph centrality. Participation in closed walks,
+with shorter walks weighted more heavily}
+\item{laplacian}{Laplacian centrality with the local formula of Qi et
+al. (2012). Matches NetworkX and \code{centiserve::laplacian()}}
+\item{load}{Load centrality. Share of shortest-path load passing
+through the node, with load split evenly at each branching point}
+\item{current_flow_closeness}{Information centrality. Closeness based on
+electrical current flow (requires a connected graph)}
+\item{current_flow_betweenness}{Random-walk betweenness. Betweenness
+based on electrical current flow (requires a connected graph)}
+\item{voterank}{VoteRank. Influential spreaders selected by iterative
+voting. The value is the election order rescaled so that the first
+elected node scores 1 and the last scores \eqn{1/n}}
+\item{percolation}{Percolation centrality. Shortest-path betweenness
+weighted by the node states in \code{states}. With equal states it is
+betweenness divided by \eqn{(n-1)(n-2)}}
 \item{radiality}{Radiality centrality (centiserve). Sum of (diam + 1 - d)
 normalized by n-1.}
 \item{lin}{Lin's centrality. Reachable nodes squared divided by sum of
 distances.}
-\item{decay}{Decay centrality. Sum of delta^d for parameter delta.}
-\item{residual_closeness}{Residual closeness. Sum of 1/2^d.}
-\item{dangalchev}{Dangalchev closeness (alias for residual closeness).}
-\item{generalized_closeness}{Generalized closeness. Sum of alpha^d.}
+\item{decay}{Decay centrality. Sum of \eqn{\delta^d}{delta^d} over all nodes,
+the node itself included, with \eqn{\delta}{delta} = \code{decay_parameter}.}
+\item{residual_closeness}{Residual closeness. Sum of \eqn{1/2^d} over
+all nodes, the node itself included.}
+\item{dangalchev}{Dangalchev closeness. Same values as
+\code{residual_closeness}.}
+\item{generalized_closeness}{Generalized closeness. Same formula as
+\code{decay}, using \code{decay_parameter}.}
 \item{harary}{Harary centrality. Sum of 1/d^2 for all reachable pairs.}
 \item{average_distance}{Average distance (centiserve). Sum of distances /
 (n+1).}
@@ -754,27 +775,28 @@ connectivity (requires \code{membership}).}
 \item{gateway}{Gateway coefficient. Inter-community brokerage weighted by
 centrality (requires \code{membership}).}
 \item{distance_entropy}{Normalized Shannon entropy of a node's
-hop-distance profile; 1 = distances spread evenly, 0 = all at one
-distance.}
+hop-distance profile. It is 1 when the distances are spread evenly
+and 0 when all lie at one distance.}
 \item{local_dimension}{Growth exponent of the ball around a node
-(slope of \eqn{\ln B_i(r)} on \eqn{\ln r}); lower = more
-influential.}
+(slope of \eqn{\ln B_i(r)}{ln B_i(r)} on \eqn{\ln r}{ln r}). Lower values mark more
+influential nodes.}
 \item{local_information_dimension}{Entropy-weighted local dimension
-over boxes up to half the node's eccentricity; higher = more
-influential.}
+over boxes up to half the node's eccentricity. Higher values mark
+more influential nodes.}
 \item{neighborhood_connectivity}{Mean degree of a node's neighbors
 (average neighbor degree); isolates score 0.}
 \item{modularity_vitality}{Drop in modularity when the node is removed
-under a fixed partition; positive = community hub, negative = bridge
-(requires \code{membership}).}
+under a fixed partition. Positive values mark community hubs and
+negative values mark bridges (requires \code{membership}).}
 \item{shapley_game1, shapley_game2, shapley_game3}{Shapley value of the
 node in the coverage games of Michalak et al. (2013): one-hop
 coverage, \code{shapley_k}-neighbor coverage, and coverage within
 \code{shapley_cutoff} hops. Values sum to the node count.}
 \item{access_information}{Mean bits needed to reach every other node
-along shortest paths without a map; low = well connected.}
-\item{hide_information}{Mean bits others need to find the node;
-high = hidden.}
+along shortest paths without a map. Low values mark well-connected
+nodes.}
+\item{hide_information}{Mean bits others need to find the node. High
+values mark hidden nodes.}
 \item{rumor}{Log rumor centrality on the node's BFS tree: log of the
 number of spreading orders that could start there.}
 \item{community_hub_bridge}{Community size times intra-community
@@ -798,8 +820,9 @@ link distribution over communities times degree share (all require
 \code{membership}).}
 \item{local_dimension_fixed, fuzzy_local_dimension,
 local_volume_dimension}{Silva-Costa estimator at \code{ld_radius};
-slope of the fuzzy ball (higher = more influential); slope of the
-degree volume (lower = more important).}
+slope of the fuzzy ball, where higher values mark more influential
+nodes; slope of the degree volume, where lower values mark more
+important nodes.}
 \item{wvoterank, enrenew, voterank_plus}{Election orders of the
 weighted, entropy-based (\code{enrenew_depth}) and degree-weighted
 (\code{voterank_lambda}) VoteRank variants, scored like
@@ -810,26 +833,26 @@ the improved form adds the same score of its edges on the line graph
 (\code{contraction_rho}).}
 \item{two_way_rw}{Number of node pairs whose most likely two-way
 random-walk route passes through the node.}
-\item{heatmap}{Farness minus mean neighbor farness; lower = more
-central.}
+\item{heatmap}{Farness minus mean neighbor farness. Lower values mark
+more central nodes.}
 \item{flow_coefficient}{Share of neighbor pairs linked through the
 node but not directly.}
-\item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}; lower = more
-central.}
+\item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}{-sum_{j in N(i)} k_j ln k_j}. Lower values
+mark more central nodes.}
 \item{weighted_h_index}{h-index over topological link weights
 \eqn{k_i k_j} repeated \eqn{k_j} times.}
 \item{redundancy}{Mean degree of the neighbors inside the ego
 network; degree minus effective size.}
 \item{weighted_kshell}{k-shell on \eqn{(k^\alpha s^\beta)^{1/(\alpha
-    + \beta)}} after Garas' weight normalization (\code{wks_alpha},
+    + \beta)}}{(k^alpha s^beta)^{1/(alpha + beta)}} after Garas' weight normalization (\code{wks_alpha},
 \code{wks_beta}).}
 \item{renewed_coreness}{k-core of the graph after removing links whose
 diffusion importance is below \code{renewed_threshold}.}
 \item{geodesic_kpath}{Number of shortest paths of length at most
 \code{kpath_k} starting at the node.}
 \item{local_efficiency}{Global efficiency of the subgraph induced on
-the node's neighbors, the node itself removed. Note that
-\code{igraph::local_efficiency()} instead measures the distances
+the node's neighbors, the node itself removed. This differs from
+\code{igraph::local_efficiency()}, which measures the distances
 between those neighbors through the rest of the network.}
 \item{s_core}{Largest strength threshold whose s-core still contains
 the node; the k-core number when weights are absent.}
@@ -839,13 +862,14 @@ after deleting the node. Higher means a more disruptive removal.}
 \code{kpath_len} that the node lies on, endpoints included.}
 \item{epc}{Edge percolated component: mean size of the node's
 component over \code{epc_runs} bond-percolation realizations, as a
-share of the network. A Monte Carlo estimate.}
+share of the network. A Monte Carlo estimate; \code{epc_seed} makes
+it reproducible.}
 \item{length_scaled_betweenness}{Betweenness with each separated pair
 weighted by \eqn{1 / d(s,t)}.}
 \item{delta_betweenness}{Betweenness with the pair weight
-\eqn{(d(s,t) - 1)^{-\delta}} (\code{betweenness_delta}).}
+\eqn{(d(s,t) - 1)^{-\delta}}{(d(s,t) - 1)^{-delta}} (\code{betweenness_delta}).}
 \item{ego_betweenness}{Betweenness inside the node's own ego network.}
-\item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
+\item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}{sum_j d_{ij}^{-delta} / (n-1)}
 (\code{closeness_delta}).}
 \item{truss, mdd}{Node truss number (k-2 triangles convention) and
 mixed-degree shell threshold (\code{mdd_lambda}). Both use the
@@ -859,7 +883,7 @@ neighborhood on the simple undirected skeleton.}
 incident maximal cliques of size at least two. Costly; see
 \code{\link{centrality_mcc}} for isolate and precision conventions.}
 \item{diffusion_centrality}{Finite-horizon weighted outgoing walks:
-\eqn{\sum_{t=1}^{T}(qA)^t\mathbf{1}}, with \code{diffusion_q} and
+\eqn{\sum_{t=1}^{T}(qA)^t\mathbf{1}}{sum_{t=1}^{T}(qA)^t 1}, with \code{diffusion_q} and
 \code{diffusion_steps}. Distinct from diffusion degree.}
 \item{dynamical_importance}{Relative spectral-radius loss on vertex
 deletion, evaluated by repeated eigendecomposition. Costly; see
@@ -878,8 +902,7 @@ equivalently the squared simple adjacency times core numbers.}
 \item{dkgm}{Gravity with the degree k-shell index as the mass at both
 ends, default radius two; see \code{\link{centrality_dkgm}}.}
 \item{neighbor_distance}{Benchmark centrality plus its decayed sums
-over non-backtracking walks of up to \code{nd_order} steps; the
-Zoo's neighbor distance centrality at the defaults. See
+over non-backtracking walks of up to \code{nd_order} steps. See
 \code{\link{centrality_neighbor_distance}}.}
 \item{ira}{Steady state of a unit resource repeatedly reallocated to
 neighbors in proportion to their \code{ira_mass}; conserved, so the
@@ -887,7 +910,7 @@ scores of a component sum to its size. Warns
 \code{cograph_no_converge} where no steady state exists. See
 \code{\link{centrality_ira}}.}
 \item{iira}{The same recursion with each share scaled by
-\eqn{1-(1-\beta)^{k_i}} for the \code{iira_beta} spreading rate,
+\eqn{1-(1-\beta)^{k_i}}{1-(1-beta)^{k_i}} for the \code{iira_beta} spreading rate,
 run \code{iira_steps} times.
 Decays geometrically, so only the order is meaningful. See
 \code{\link{centrality_iira}}.}
@@ -896,11 +919,11 @@ binomial own-contribution factor \eqn{(1-1/d_i)^{d_i-1}} times the
 neighbors' degree sum over \eqn{n-1}. Parameter-free; raw scores
 depend on the whole graph's order. See \code{\link{centrality_lnc}}.}
 \item{ked}{KED method: the degree times one plus the normalized
-entropy of the neighbors' degrees times \eqn{\exp(K_i/N)} for the
+entropy of the neighbors' degrees times \eqn{\exp(K_i/N)}{exp(K_i/N)} for the
 neighbor-degree sum \eqn{K_i} and the whole graph's order
 \eqn{N}. Parameter-free. See \code{\link{centrality_ked}}.}
 \item{hcc}{Hybrid characteristic centrality: the extended degree
-\eqn{\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j} over its maximum,
+\eqn{\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j}{delta k_i+(1-delta)sum_{j in N(i)}k_j} over its maximum,
 plus the E-shell peeling round in which the node leaves over the
 number of rounds. Raw scores lie in \eqn{[0,2]} and are not
 component-local. See \code{\link{centrality_hcc}}.}
@@ -908,17 +931,17 @@ component-local. See \code{\link{centrality_hcc}}.}
 closed-neighborhood sum of \code{hcc}, the focal node counted once.
 See \code{\link{centrality_ehcc}}.}
 \item{lhc}{Lhc index: the degree-and-triangle-share influence
-\eqn{C(v)=\sum_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)} over the ball of
+\eqn{C(v)=\sum_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)}{C(v)=sum_{u in Phi(v)}k_u(1+TP(u))/d^2(uv)} over the ball of
 radius \code{lhc_radius}, summed over the open neighborhood. The
-triangle share is normalized by \eqn{TNTS=\sum_u NTS(u)}, three
+triangle share is normalized by \eqn{TNTS=\sum_u NTS(u)}{TNTS=sum_u NTS(u)}, three
 times the number of distinct triangles, and is written as zero on a
 triangle-free graph. Raw scores are not component-local. See
 \code{\link{centrality_lhc}}.}
 \item{iec}{Immediate effects centrality: the reciprocal mean length
 of the influence sequences that end at a node,
-\eqn{(n-1)/\sum_{i\neq j}m_{ij}} for the mean first passage times
-\eqn{M=(I-Z+EZ_{dg})\mathrm{diag}(1/c)} of the influence chain
-\eqn{W=A/\mathrm{rowSums}(A)} built with \eqn{a_{ii}=1}.
+\eqn{(n-1)/\sum_{i\neq j}m_{ij}}{(n-1)/sum_{i!= j}m_{ij}} for the mean first passage times
+\eqn{M=(I-Z+EZ_{dg})\mathrm{diag}(1/c)}{M=(I-Z+EZ_{dg})diag(1/c)} of the influence chain
+\eqn{W=A/\mathrm{rowSums}(A)}{W=A/rowSums(A)} built with \eqn{a_{ii}=1}.
 Direction-sensitive and costly (one eigenproblem and two dense
 solves). \code{NA} at every node when the chain is reducible or the
 graph has one node. Not the same measure as \code{markov}. See
@@ -926,14 +949,14 @@ graph has one node. Not the same measure as \code{markov}. See
 \item{dil}{Degree and importance of lines: the degree plus the share
 of each incident line's importance \eqn{I_e=(k_m-p-1)(k_n-p-1)/
     (p/2+1)} that the node's own degree claims,
-\eqn{k_i+\sum_{j\in\Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}, with
+\eqn{k_i+\sum_{j\in\Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}{k_i+sum_{j in Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}, with
 \eqn{p} the number of triangles on the line. Two-hop local and
 component-local; never below the node's degree. See
 \code{\link{centrality_dil}}.}
 \item{trust_pagerank}{Trust-PageRank: a damped PageRank whose split of
 a node's score among its neighbors is the column-stochastic
 trust-value \eqn{T(i,j)=(1-k)s(i,j)/\sum_{l\in N_j}s(j,l)+
-    k\,d_i/\sum_{l\in N_j}d_l}, with \eqn{s} the fixed point of SimRank
+    k\,d_i/\sum_{l\in N_j}d_l}{T(i,j)=(1-k)s(i,j)/sum_{l in N_j}s(j,l)+ k d_i/sum_{l in N_j}d_l}, with \eqn{s} the fixed point of SimRank
 restricted to the lines of the graph. Scores sum to one when no node
 is isolated. \code{NA} at every node of a component that has lines
 but no triangle, where the similarity vanishes and the ratio is
@@ -1008,42 +1031,20 @@ determined by original H-indices using \code{alr_h_mode}.}
 }
 }
 \section{Measures without a value on a given input}{
- A few measures are
-undefined on some graphs -- the community-partition measures without
-\code{membership}, or \code{"relative_entropy"} when one of its
-constituent indexes is zero at every node. Naming such a measure in
-\code{measures} or \code{include} raises a classed condition, because
-you asked for that measure. When a tier (\code{type = "basic"},
-\code{"extended"} or \code{"all"}) supplied it, the condition becomes a
-\code{cograph_undefined_measure} warning and the column is \code{NA},
-so one undefined measure does not take the rest of the tier with it.
+ The community-aware
+measures warn and return an all-\code{NA} column when
+\code{membership} is missing, and the brokerage roles do the same on an
+undirected graph. \code{"relative_entropy"} has no value when one of
+its constituent indexes is zero at every node. Named in
+\code{measures} or \code{include}, it then raises a
+\code{cograph_undefined_index} error. Supplied by a tier, it gives a
+\code{cograph_undefined_measure} warning and an all-\code{NA} column,
+and the other measures of the tier are still computed.
+\code{"flow_betweenness"} requires the igraph package. Without igraph,
+naming it raises a \code{cograph_needs_igraph} error, and a tier gives
+the same warning and all-\code{NA} column.
 }
 
 \examples{
-# Built-in edge-list data
-data(student_interactions)
-centrality(student_interactions)
-
-# Matrix input also works
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality(adj)
-
-# Specific measures
-centrality(adj, measures = c("degree", "betweenness"))
-
-# Directed network with normalization
-centrality(adj, mode = "in", normalized = TRUE)
-
-# Sort by pagerank
-centrality(adj, sort_by = "pagerank", digits = 3)
-
-# PageRank with custom damping
-centrality(adj, measures = "pagerank", damping = 0.9)
-
-# Harmonic centrality (better for disconnected graphs)
-centrality(adj, measures = "harmonic")
-
-# Global transitivity
-centrality(adj, measures = "transitivity", transitivity_type = "global")
+centrality(regulation_net)
 }

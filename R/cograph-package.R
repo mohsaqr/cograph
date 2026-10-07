@@ -3,12 +3,14 @@
 #' @description
 #' A modern, extensible network visualization package that provides high-quality
 #' static network plots and ggplot2 conversions. cograph accepts adjacency
-#' matrices, edge lists, or igraph objects and offers customizable layouts,
-#' node shapes, edge styles, and themes.
+#' matrices, edge lists, igraph, statnet network, qgraph and tna objects and
+#' offers customizable layouts, node shapes, edge styles, and themes.
 #'
 #' @section Main Functions:
 #' \itemize{
-#'   \item \code{\link{cograph}}: Main entry point for creating network visualizations
+#'   \item \code{\link{splot}}: Plot a network with base R graphics
+#'   \item \code{\link{soplot}}: Plot a network with grid graphics
+#'   \item \code{\link{cograph}}: Create a network object for the builder functions
 #'   \item \code{\link{sn_layout}}: Apply layout algorithms
 #'   \item \code{\link{sn_nodes}}: Customize node aesthetics
 #'   \item \code{\link{sn_edges}}: Customize edge aesthetics
@@ -39,28 +41,22 @@
 #' }
 #'
 #' @section Weight conventions:
-#' cograph's analytic functions follow a single convention for edge weights:
-#' \itemize{
-#'   \item \strong{Semantics.} A weight is a \emph{strength}: higher weight
-#'     means a stronger connection (larger transition probability, thicker
-#'     correlation, stronger tie). This matches the qgraph / \pkg{tna}
-#'     convention and the intuition of most user-facing inputs.
-#'   \item \strong{Path-based measures} (betweenness, closeness, harmonic,
-#'     eccentricity, stress, load, radiality, etc.) invert weights to
-#'     \emph{distances} via \code{1 / weight ^ alpha}. The \code{alpha}
-#'     argument (default 1) tunes how strongly weight differences compress
-#'     paths. Controlled by the \code{invert_weights} argument, which
-#'     auto-detects to \code{TRUE} for tna objects and \code{FALSE} for
-#'     matrices/igraph (matching native igraph / \pkg{sna} defaults).
-#'   \item \strong{Non-path measures} (degree, strength, eigenvector,
-#'     PageRank, transitivity, modularity, ...) use the raw weights as-is
-#'     without inversion.
-#'   \item \strong{Unweighted override.} Passing \code{weights = NA} to any
-#'     analytic function forces unweighted behavior regardless of what is
-#'     attached to the graph.
-#' }
-#' Individual functions may document exceptions in their own help pages.
-#' Any deviation from this convention is a bug — please report.
+#' In the analytic functions an edge weight is a strength. A higher weight
+#' means a stronger connection, such as a larger transition probability or a
+#' stronger correlation. This follows the convention of qgraph and \pkg{tna}.
+#'
+#' Path-based measures such as betweenness, closeness, harmonic centrality and
+#' eccentricity can convert weights to distances as \code{1 / weight^alpha}.
+#' The \code{invert_weights} argument of \code{\link{centrality}} controls
+#' this conversion. Its default is \code{TRUE} for tna objects and
+#' \code{FALSE} for other inputs, which matches igraph and \pkg{sna}. The
+#' \code{alpha} argument (default 1) sets the exponent.
+#'
+#' Measures that do not use paths, such as degree, strength, eigenvector
+#' centrality, PageRank and transitivity, use the weights as given. Functions
+#' with a \code{weights} argument, such as \code{\link{shortest_paths}},
+#' compute unweighted results when \code{weights = NA}. Individual help pages
+#' document exceptions.
 #'
 #' @docType package
 #' @name cograph-package

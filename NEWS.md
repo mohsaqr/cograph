@@ -1,3 +1,21 @@
+# cograph 2.7.4
+
+## Documentation
+
+* Help pages for print, summary and plot methods no longer stand alone. The
+  methods are described on the page of the function that creates the object,
+  and plot methods with their own arguments are documented together in
+  `?plot-results`. Network accessors, themes, palettes, shapes and the layout
+  registry each share one page.
+* Every `centrality_*()` page follows one layout: definition, the arguments of
+  `centrality()` that tune the measure with their defaults, how direction and
+  weights are read, when the result is `NA` and which condition is raised,
+  references and one example on `regulation_net`.
+* The help pages were checked against the code, and statements that did not
+  match the behaviour of the functions were corrected.
+* Formulas print in readable plain text in the console help.
+* Examples are shorter and use the bundled data.
+
 # cograph 2.7.3
 
 ## Bug fixes

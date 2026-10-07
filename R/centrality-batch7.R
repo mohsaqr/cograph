@@ -70,45 +70,40 @@ calculate_neighborhood_connectivity <- function(cg, mode = "all") {
 
 #' Distance Entropy
 #'
-#' Shannon entropy of the distribution of hop distances from a node to every
-#' node it can reach (Stella & De Domenico 2018), normalized so that a
-#' uniform spread over the node's distance range scores 1:
-#' \deqn{h(i) = -\frac{1}{\log(M_i - m_i + 1)} \sum_{k = m_i}^{M_i}
-#'   p_k^{(i)} \log p_k^{(i)}, \qquad p_k^{(i)} = n_k^{(i)} / R_i,}
-#' where \eqn{n_k^{(i)}} is the number of nodes at distance \eqn{k} from
-#' \eqn{i}, \eqn{R_i} the number of reachable nodes, and \eqn{m_i, M_i} the
-#' minimum and maximum distance. High values mark nodes whose reach is
-#' spread evenly across many network layers; a node whose reachable nodes
-#' all sit at one distance scores 0. Closeness summarizes the mean of the
-#' same distribution; distance entropy summarizes its spread.
+#' Distance entropy (Stella and De Domenico 2018) is the Shannon entropy of
+#' the distribution of hop distances from a node to the nodes it reaches,
+#' scaled by the logarithm of the number of distance values in its range.
+#' With \eqn{p_k}{p_k} the share of reachable nodes at distance \eqn{k}, and
+#' \eqn{m_i}{m_i} and \eqn{M_i}{M_i} the smallest and largest distance,
+#' \deqn{h_i = -\frac{1}{\log(M_i - m_i + 1)}
+#'   \sum_{k = m_i}^{M_i} p_k \log p_k.}{
+#'   h_i = -1 / log(M_i - m_i + 1) sum_{k = m_i}^{M_i} p_k log p_k.}
 #'
-#' Distances are hop counts (edge weights are ignored). The original paper
-#' normalizes by \eqn{\log(M_i - m_i)}, which is undefined when only two
-#' distinct distances occur; \eqn{\log(M_i - m_i + 1)} is used here so the
-#' index is bounded by 1 for a uniform distribution.
+#' @details
+#' Distances are hop counts, so edge weights are ignored. On a directed
+#' network \code{mode} sets the direction of the paths. Scores lie between 0
+#' and 1. A node whose reachable nodes all lie at one distance scores 0, and
+#' a node that reaches no other node returns \code{NaN}. The source divides
+#' by \eqn{\log(M_i - m_i)}{log(M_i - m_i)}, which is zero when the range
+#' holds two distances. The implementation divides by
+#' \eqn{\log(M_i - m_i + 1)}{log(M_i - m_i + 1)}, so a uniform distribution
+#' scores 1.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna
-#'   object).
+#' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"}
-#'   (distances along out-edges), or \code{"in"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector, one value per node, in \[0, 1\].
-#'   \code{NaN} for a node that reaches no other node.
-#'
+#'   or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references Stella, M., & De Domenico, M. (2018). Distance entropy
 #'   cartography characterises centrality in complex networks. Entropy,
 #'   20(4), 268.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_local_dimension}} for the growth-rate view of the
-#'   same distance profile.
-#'
+#' @seealso \code{\link{centrality_local_dimension}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' path4 <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-#' rownames(path4) <- colnames(path4) <- c("A", "B", "C", "D")
-#' centrality_distance_entropy(path4)
+#' centrality_distance_entropy(regulation_net)
 centrality_distance_entropy <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "distance_entropy", mode = mode, ...)
   stats::setNames(df[[paste0("distance_entropy_", mode)]], df$node)
@@ -116,27 +111,31 @@ centrality_distance_entropy <- function(x, mode = "all", ...) {
 
 #' Local Dimension
 #'
-#' Growth exponent of the ball around a node (Silva & Costa 2013; Pu et al.
-#' 2014). Let \eqn{B_i(r)} be the number of nodes within \eqn{r} hops of
-#' \eqn{i}, the node itself included. The local dimension is the slope of
-#' \eqn{\ln B_i(r)} on \eqn{\ln r} over \eqn{r = 1, \ldots, d_{\max}(i)}:
-#' \deqn{D_i = \frac{d \ln B_i(r)}{d \ln r}.}
-#' A node that reaches most of the network in a few hops has a small
-#' exponent, so **lower values mark more influential nodes**. When a node
-#' has a single radius (it reaches every other node in one hop) the
-#' regression is undefined and the discretized derivative
-#' \eqn{r\, n_i(r) / B_i(r)} at \eqn{r = 1} is reported, where
-#' \eqn{n_i(r)} counts the nodes at distance exactly \eqn{r}.
+#' The local dimension (Silva and Costa 2013; Pu et al. 2014) is the growth
+#' exponent of the ball around a node. With \eqn{B_i(r)}{B_i(r)} the number
+#' of nodes within \eqn{r} hops of \eqn{i}, the node itself included, it is
+#' the least-squares slope of \eqn{\ln B_i(r)}{ln B_i(r)} on
+#' \eqn{\ln r}{ln r} over
+#' \eqn{r = 1, \ldots, d_{\max}(i)}{r = 1, ..., d_max(i)}:
+#' \deqn{D_i = \frac{d \ln B_i(r)}{d \ln r}.}{D_i = d ln B_i(r) / d ln r.}
 #'
-#' The implementation reproduces the worked example in Wen & Jiang (2019),
-#' which reports 0.9231 for ring sizes 4, 5, 4, 4. Distances are hop counts;
-#' edge weights are ignored.
+#' @details
+#' Distances are hop counts, so edge weights are ignored. On a directed
+#' network \code{mode} sets the direction of the paths. A node that reaches
+#' most of the network in a few hops has a small exponent, so lower values
+#' mark more influential nodes. A node with a single radius returns the
+#' discretized derivative
+#' \eqn{r\, n_i(r) / B_i(r)}{r n_i(r) / B_i(r)} at \eqn{r = 1}, where
+#' \eqn{n_i(r)}{n_i(r)} counts the nodes at distance exactly \eqn{r}. A node
+#' that reaches no other node returns \code{NaN}.
 #'
-#' @inheritParams centrality_distance_entropy
-#'
-#' @return Named numeric vector, one value per node. \code{NaN} for a node
-#'   that reaches no other node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"}
+#'   or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Silva, F. N., & Costa, L. da F. (2013). Local dimension of complex
 #'   networks. arXiv:1209.2476.
@@ -147,16 +146,12 @@ centrality_distance_entropy <- function(x, mode = "all", ...) {
 #' Wen, T., & Jiang, W. (2019). Identifying influential nodes based on fuzzy
 #'   local dimension in complex networks. Chaos, Solitons & Fractals, 119,
 #'   332-342.
-#'
-#' @seealso \code{\link{centrality_local_information_dimension}} for the
-#'   entropy-weighted variant, \code{\link{centrality_distance_entropy}}.
-#'
+#' @seealso \code{\link{centrality_local_information_dimension}},
+#'   \code{\link{centrality_local_dimension_fixed}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' star5 <- matrix(0, 5, 5)
-#' star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-#' rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-#' centrality_local_dimension(star5)
+#' centrality_local_dimension(regulation_net)
 centrality_local_dimension <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "local_dimension", mode = mode, ...)
   stats::setNames(df[[paste0("local_dimension_", mode)]], df$node)
@@ -164,36 +159,41 @@ centrality_local_dimension <- function(x, mode = "all", ...) {
 
 #' Local Information Dimensionality
 #'
-#' Entropy-weighted local dimension (Wen & Deng 2020). With
-#' \eqn{p_i(l) = B_i(l) / N} the share of the network inside the box of
-#' \eqn{l} hops around \eqn{i} (node included), the box information is
-#' \eqn{I_i(l) = -p_i(l) \ln p_i(l)} and
-#' \deqn{D^I_i = -\frac{d I_i(l)}{d \ln l},}
-#' estimated as minus the least-squares slope of \eqn{I_i(l)} on
-#' \eqn{\ln l} for \eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}.
-#' **Higher values mark more influential nodes.** When only one box size is
-#' available the discretized derivative of the source paper,
-#' \eqn{l (1 + \ln p_i(l))\, n_i(l) / N}, is reported.
+#' Local information dimensionality (Wen and Deng 2020) weights the local
+#' dimension by information. With \eqn{p_i(l) = B_i(l) / N}{p_i(l) = B_i(l) / N}
+#' the share of the network within \eqn{l} hops of \eqn{i}, the node
+#' included, and box information
+#' \eqn{I_i(l) = -p_i(l) \ln p_i(l)}{I_i(l) = -p_i(l) ln p_i(l)}, the measure
+#' is minus the least-squares slope of \eqn{I_i(l)}{I_i(l)} on
+#' \eqn{\ln l}{ln l} for
+#' \eqn{l = 1, \ldots, \lceil d_{\max}(i) / 2 \rceil}{
+#'   l = 1, ..., ceiling(d_max(i) / 2)}:
+#' \deqn{D^I_i = -\frac{d I_i(l)}{d \ln l}.}{DI_i = -d I_i(l) / d ln l.}
 #'
-#' Distances are hop counts; edge weights are ignored.
+#' @details
+#' Distances are hop counts, so edge weights are ignored. On a directed
+#' network \code{mode} sets the direction of the paths. Higher values mark
+#' more influential nodes. A node with a single box size returns the
+#' discretized derivative of the source,
+#' \eqn{l (1 + \ln p_i(l))\, n_i(l) / N}{l (1 + ln p_i(l)) n_i(l) / N}. A
+#' node that reaches no other node returns \code{NaN}.
 #'
-#' @inheritParams centrality_distance_entropy
-#'
-#' @return Named numeric vector, one value per node. \code{NaN} for a node
-#'   that reaches no other node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"}
+#'   or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references Wen, T., & Deng, Y. (2020). Identification of influencers in
 #'   complex networks by local information dimensionality. Information
 #'   Sciences, 512, 549-562.
-#'
-#' @seealso \code{\link{centrality_local_dimension}}.
-#'
+#' @seealso \code{\link{centrality_local_dimension}},
+#'   \code{\link{centrality_local_dimension_fixed}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' path5 <- matrix(0, 5, 5)
-#' path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-#' rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-#' centrality_local_information_dimension(path5)
+#' centrality_local_information_dimension(regulation_net)
 centrality_local_information_dimension <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "local_information_dimension", mode = mode,
                    ...)
@@ -203,50 +203,43 @@ centrality_local_information_dimension <- function(x, mode = "all", ...) {
 
 #' Modularity Vitality
 #'
-#' Contribution of a node to the modularity of a fixed partition
-#' (Magelinski, Bartulovic & Carley 2021):
-#' \deqn{V_Q(i) = Q(G, C) - Q(G - i,\; C \setminus \{i\}),}
-#' the drop in Newman modularity when node \eqn{i} is deleted and the
-#' remaining nodes keep their communities. Positive values mark community
-#' hubs (removing them weakens the modular structure); negative values mark
-#' bridges (removing them sharpens it). Weighted graphs use edge weights;
-#' directed graphs use the Leicht-Newman directed modularity, as igraph
-#' does.
+#' Modularity vitality (Magelinski, Bartulovic and Carley 2021) is the drop
+#' in Newman modularity of a fixed partition \eqn{C} when a node is deleted
+#' and the remaining nodes keep their communities:
+#' \deqn{V_Q(i) = Q(G, C) - Q(G - i, C \setminus \{i\}).}{
+#'   V_Q(i) = Q(G, C) - Q(G - i, C without i).}
+#' Positive values mark community hubs and negative values mark bridges
+#' between communities.
 #'
-#' All \eqn{n} vitalities are computed in closed form from one matrix
-#' product, without recomputing modularity \eqn{n} times.
+#' @details
+#' Edge weights are used. A directed network uses the Leicht-Newman
+#' directed modularity, and the values equal those obtained by deleting
+#' each node and recomputing \code{igraph::modularity()}. Self-loops enter
+#' the modularity, and \code{loops = FALSE} drops them. A node whose deletion
+#' leaves a graph with no edges returns \code{NaN}. Without
+#' \code{membership} the function raises an unclassed warning and returns
+#' \code{NA} for every node. A \code{membership} that is not one
+#' non-missing label per node raises an error of class
+#' \code{cograph_bad_membership}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna
-#'   object).
-#' @param membership Community labels, one per node (integer, factor, or
-#'   character). Required; without it the function warns and returns
-#'   \code{NA}. Obtain one from \code{\link{detect_communities}}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector, one value per node. \code{NaN} where
-#'   deleting the node leaves a graph with no edges.
-#'
-#' @section Conditions:
-#' Raises an error of class \code{cograph_bad_membership} when
-#' \code{membership} is not one non-missing label per node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Community labels, one per node (integer, factor or
+#'   character), for example from \code{\link{detect_communities}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure
+#'   uses \code{weighted} (use edge weights, default \code{TRUE}) and
+#'   \code{loops} (keep self-loops, default \code{TRUE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references Magelinski, T., Bartulovic, M., & Carley, K. M. (2021).
 #'   Measuring node contribution to community structure with modularity
 #'   vitality. IEEE Transactions on Network Science and Engineering, 8(1),
 #'   707-723.
-#'
 #' @seealso \code{\link{centrality_participation}},
-#'   \code{\link{centrality_within_module_z}},
-#'   \code{\link{detect_communities}}.
-#'
+#'   \code{\link{centrality_within_module_z}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Two triangles joined by one bridge edge (C -- D)
-#' adj <- matrix(0, 6, 6)
-#' adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-#' adj <- adj + t(adj)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-#' centrality_modularity_vitality(adj, membership = c(1, 1, 1, 2, 2, 2))
+#' centrality_modularity_vitality(regulation_net,
+#'                                membership = rep(1:2, each = 5))
 centrality_modularity_vitality <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "modularity_vitality",
                    membership = membership, ...)
@@ -255,29 +248,32 @@ centrality_modularity_vitality <- function(x, membership = NULL, ...) {
 
 #' Neighborhood Connectivity
 #'
-#' Mean degree of a node's neighbors (Maslov & Sneppen 2002), the
-#' "average neighbor degree" reported by Cytoscape:
-#' \deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}
-#' High values mark nodes attached to hubs. Isolates score 0. Under
-#' \code{mode = "out"} the out-neighbors' out-degrees are averaged, under
-#' \code{"in"} the in-neighbors' in-degrees.
+#' Neighborhood connectivity (Maslov and Sneppen 2002) is the mean degree of
+#' the neighbors of a node, the average neighbor degree reported by
+#' Cytoscape:
+#' \deqn{C_{NC}(i) = \frac{1}{k_i} \sum_{j \in N(i)} k_j.}{
+#'   C_NC(i) = (1 / k_i) sum_{j in N(i)} k_j.}
 #'
-#' @inheritParams centrality_distance_entropy
+#' @details
+#' Edge weights are ignored. Under \code{mode = "out"} the out-degrees of the
+#' out-neighbors are averaged, and under \code{mode = "in"} the in-degrees of
+#' the in-neighbors. Self-loops change the degrees, and \code{loops = FALSE}
+#' drops them. Isolated nodes score 0. High values mark nodes attached to
+#' hubs.
 #'
-#' @return Named numeric vector, one value per node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"}
+#'   or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure
+#'   uses \code{loops} (keep self-loops, default \code{TRUE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references Maslov, S., & Sneppen, K. (2002). Specificity and stability
 #'   in topology of protein networks. Science, 296(5569), 910-913.
-#'
-#' @seealso \code{\link{centrality_degree}}, and \code{igraph::knn()} for
-#'   the Barrat weighted generalization.
-#'
+#' @seealso \code{\link{centrality_degree}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' star5 <- matrix(0, 5, 5)
-#' star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-#' rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-#' centrality_neighborhood_connectivity(star5)
+#' centrality_neighborhood_connectivity(regulation_net)
 centrality_neighborhood_connectivity <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "neighborhood_connectivity", mode = mode, ...)
   stats::setNames(df[[paste0("neighborhood_connectivity_", mode)]], df$node)

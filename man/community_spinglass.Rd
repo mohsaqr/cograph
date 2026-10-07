@@ -40,16 +40,19 @@ com_sg(
 )
 }
 \arguments{
-\item{x}{Network input}
+\item{x}{Network input.}
 
-\item{weights}{Edge weights. NULL uses network weights, NA for unweighted.}
+\item{weights}{Edge weights. \code{NULL} uses the network weights and
+\code{NA} runs unweighted. Weights are passed unchanged.}
 
-\item{vertex}{Vertex to find community for (single community mode).
-NULL for full partitioning.}
+\item{vertex}{Vertex whose community is searched (single community mode).
+\code{NULL} (default) partitions the whole network.}
 
-\item{spins}{Number of spins (maximum communities). Default 25.}
+\item{spins}{Number of spins, the upper limit on the number of
+communities. Default 25.}
 
-\item{parupdate}{Parallel update mode. Default FALSE.}
+\item{parupdate}{Logical. Whether spins are updated in parallel. Default
+\code{FALSE}.}
 
 \item{start.temp}{Starting temperature. Default 1.}
 
@@ -57,13 +60,16 @@ NULL for full partitioning.}
 
 \item{cool.fact}{Cooling factor. Default 0.99.}
 
-\item{update.rule}{Update rule: "config" (default), "random", or "simple".}
+\item{update.rule}{Null model of the update rule, one of \code{"config"}
+(default), \code{"random"} or \code{"simple"}.}
 
-\item{gamma}{Gamma parameter for modularity. Default 1.}
+\item{gamma}{Weight of the null model term. Default 1.}
 
-\item{implementation}{"orig" (default) or "neg" (for negative weights).}
+\item{implementation}{\code{"orig"} (default) or \code{"neg"}, the
+implementation that supports negative weights.}
 
-\item{gamma.minus}{Gamma for negative weights in "neg" implementation.}
+\item{gamma.minus}{Weight of the null model term for negative edges in
+the \code{"neg"} implementation. Default 1.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -71,23 +77,20 @@ NULL for full partitioning.}
 is \code{directed}; anything else raises an "unused argument" error.}
 }
 \value{
-A \code{cograph_communities} object
-
-A \code{cograph_communities} object. See \code{\link{detect_communities}}.
+A \code{cograph_communities} data frame with columns
+\code{node} and \code{community}. See \code{\link{communities}} for its
+attributes.
 }
 \description{
-Statistical mechanics approach using simulated annealing.
-Can handle negative edge weights.
+Community detection based on the spinglass model of statistical
+mechanics, optimized by simulated annealing. Negative edge weights are
+supported with \code{implementation = "neg"}. A disconnected graph raises
+a warning and only its largest component is partitioned, so the result
+has one row per node of that component.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-g <- igraph::make_graph("Zachary")
-comm <- community_spinglass(g)
-membership(comm)
-\dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_sg(net)
+community_spinglass(regulation_net, seed = 1)
 \dontshow{\}) # examplesIf}
 }
 \references{

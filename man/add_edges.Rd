@@ -29,7 +29,8 @@ when \code{keep_format = TRUE}. An edge that already exists has its weight
 replaced, and a \code{cograph_edges_replaced} warning says how many.
 }
 \description{
-Add Edges to a Network
+Appends edges between existing nodes. An endpoint that is not a node of the
+network raises a \code{cograph_bad_selection} error.
 }
 \note{
 When the igraph package is attached it masks this function with
@@ -37,10 +38,7 @@ When the igraph package is attached it masks this function with
 \code{cograph::add_edges()} to be explicit.
 }
 \examples{
-adj <- matrix(0, 3, 3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
-adj["A", "B"] <- adj["B", "A"] <- 1
-
-add_edges(adj, from = "B", to = "C", weight = 0.5)
+add_edges(regulation_net, from = "Share", to = "Explore", weight = 0.5)
 }
 \seealso{
 \code{\link{remove_edges}}, \code{\link{add_nodes}},

@@ -2,50 +2,48 @@
 % Please edit documentation in R/centrality-batch21.R
 \name{centrality_global_structure}
 \alias{centrality_global_structure}
-\title{Global structure model centrality}
+\title{Global Structure Model Centrality}
 \usage{
 centrality_global_structure(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}.
-\code{normalized = TRUE} divides final scores by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-The Global Structure Model (GSM) of Ullah et al. (2021) is
-\eqn{GSM(i)=\exp(k_s(i)/N)\sum_{j\ne i}k_s(j)/d_{ij}}, where
-k_s denotes original graph core numbers and d denotes hop distances.
-It combines a focal coreness factor with distance-discounted coreness
-of other nodes. N is the total original node count, including isolates.
+The global structure model (GSM; Ullah et al. 2021) multiplies a
+coreness factor of the node by the coreness of all other nodes, each
+discounted by its hop distance:
+\deqn{GSM(i) = \exp\left(\frac{k_s(i)}{N}\right) \sum_{j \ne i}
+  \frac{k_s(j)}{d_{ij}}.}{
+  GSM(i) = exp(k_s(i) / N) sum_{j != i} k_s(j) / d_ij.}
+Here \eqn{k_s}{k_s} is the core number and \eqn{N} the number of nodes,
+isolated nodes included.
 }
 \details{
-Both GSM and \code{\link{centrality_hybrid_global_structure}} use the
-simple undirected skeleton, ignoring weights, mode, path inversion and
-distance cutoffs. Loops are removed and parallel connections count once.
-Only reachable partners contribute; this is an explicit disconnected-graph
-extension. Isolates and singletons score zero, empty input returns an
-empty vector. Other components can affect results through the global
-node count and, for H-GSM, its global mean. These are not independent
-per-component calculations.
-
-Production uses native coreness and all-pairs distance kernels, with
-worst-case O(N^3) time and O(N^2) memory. Numerical verification uses
-independent NetworkX cores/distances and exhaustive small-graph oracles.
-Agreement with a numerical definition does not establish author-software
-parity or superior epidemic-spreading predictions.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and \code{mode} has no effect.
+Only reachable nodes contribute to the sum, which extends the measure to
+disconnected networks. Other components still affect the scores through
+\eqn{N}. An isolated node scores 0.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_global_structure(igraph::make_ring(4))
-\dontshow{\}) # examplesIf}
+centrality_global_structure(regulation_net)
 }
 \references{
 Ullah, A., Wang, B., Sheng, J., Long, J., Khan, N., & Sun, Z. (2021).
 Identification of nodes influence based on global structure model in
 complex networks. Scientific Reports, 11, 6173.
 \doi{10.1038/s41598-021-84684-x}.
+}
+\seealso{
+\code{\link{centrality_hybrid_global_structure}},
+\code{\link{centrality_improved_global_structure}},
+\code{\link{centrality}}.
 }

@@ -7,13 +7,14 @@
 
 #' Aggregate Edge Weights
 #'
-#' Aggregates a vector of edge weights using various methods.
-#' Compatible with igraph's edge.attr.comb parameter.
+#' Aggregates a vector of edge weights into a single value. The method names
+#' follow those of igraph's \code{edge.attr.comb} argument.
 #'
 #' @param w Numeric vector of edge weights. \code{NA} and zero entries are
 #'   dropped before aggregation.
 #' @param method Aggregation method: "sum", "mean", "median", "max", "min",
 #'   "prod", "density", "geomean". Default "sum". Any other value is an error.
+#'   \code{"geomean"} uses only the positive weights.
 #' @param n_possible Number of possible edges (used only by
 #'   \code{method = "density"}; when NULL or not positive, the number of
 #'   surviving weights is used as the denominator instead).
@@ -21,10 +22,7 @@
 #'   remains.
 #' @export
 #' @examples
-#' w <- c(0.5, 0.8, 0.3, 0.9)
-#' aggregate_weights(w, "sum")   # 2.5
-#' aggregate_weights(w, "mean")  # 0.625
-#' aggregate_weights(w, "max")   # 0.9
+#' aggregate_weights(regulation_net, method = "mean")
 aggregate_weights <- function(w, method = "sum", n_possible = NULL) {
   # Remove NA and zero weights
   w <- w[!is.na(w) & w != 0]
@@ -60,35 +58,36 @@ wagg <- aggregate_weights
 
 #' Cluster Summary Statistics
 #'
-#' Aggregates node-level network weights to cluster-level summaries. Computes
-#' both macro (cluster-to-cluster) transitions and per-cluster transitions
-#' (how nodes connect inside each cluster).
+#' Aggregates node-level network weights to cluster-level summaries. The
+#' result holds the macro (cluster-to-cluster) network and one network of
+#' within-cluster connections per cluster.
 #'
-#' This is the core function for Multi-Cluster Multi-Level (MCML) analysis.
-#' Use \code{\link{as_tna}} to convert results to tna objects for further
-#' analysis with the tna package.
+#' The function is the matrix-based entry point to Multi-Cluster Multi-Level
+#' (MCML) analysis. \code{\link{as_tna}} converts the result to tna models.
 #'
 #' @param x Network input. Accepts multiple formats:
 #'   \describe{
 #'     \item{matrix}{Numeric adjacency/weight matrix. Row and column names are
 #'       used as node labels. Values represent edge weights (e.g., transition
 #'       counts, co-occurrence frequencies, or probabilities).}
-#'     \item{cograph_network}{A cograph network object. The function extracts
-#'       the weight matrix from \code{x$weights} or converts via
-#'       \code{to_matrix()}. Clusters can be auto-detected from node attributes.}
-#'     \item{tna}{A tna object from the tna package. Extracts \code{x$weights}.}
-#'     \item{cluster_summary}{If already a cluster_summary, returns unchanged.}
+#'     \item{cograph_network}{A cograph network object. Its weight matrix is
+#'       used, and clusters can be auto-detected from node attributes.}
+#'     \item{tna}{A tna object from the tna package. Its weight matrix is used
+#'       and its sequence data are kept in \code{macro$data}.}
+#'     \item{cluster_summary}{Returned unchanged.}
 #'   }
 #'
 #' @param clusters Cluster/group assignments for nodes. Accepts multiple formats:
 #'   \describe{
-#'     \item{NULL}{(default) Auto-detect from cograph_network. Looks for columns
-#'       named 'clusters', 'cluster', 'groups', or 'group' in \code{x$nodes}.
-#'       Throws an error if no cluster column is found.
-#'       This option only works when \code{x} is a cograph_network.}
+#'     \item{NULL}{(default) Auto-detect from a cograph_network. The first
+#'       node column named 'clusters', 'cluster', 'groups' or 'group' is used,
+#'       then a 'cluster', 'group' or 'layer' column of the node groups.
+#'       An error is raised when none is found, and for any other input
+#'       \code{clusters} must be supplied.}
 #'     \item{vector}{Cluster membership for each node, in the same order as the
 #'       matrix rows/columns. Can be numeric (1, 2, 3) or character ("A", "B").
-#'       Cluster names will be derived from unique values.
+#'       Cluster names are the unique values, sorted for a numeric vector and
+#'       in order of appearance for a character vector or factor.
 #'       Example: \code{c(1, 1, 2, 2, 3, 3)} assigns first two nodes to cluster 1.}
 #'     \item{data.frame}{A data frame where the first column contains node names
 #'       and the second column contains group/cluster names.
@@ -100,19 +99,19 @@ wagg <- aggregate_weights
 #'   }
 #'
 #' @param method Aggregation method for combining edge weights within/between
-#'   clusters. Controls how multiple node-to-node edges are summarized:
+#'   clusters. Zero and \code{NA} weights are dropped before aggregation
+#'   (see \code{\link{aggregate_weights}}):
 #'   \describe{
-#'     \item{"sum"}{(default) Sum of all edge weights. Best for count data
-#'       (e.g., transition frequencies). Preserves total flow.}
-#'     \item{"mean"}{Average edge weight. Best when cluster sizes differ and
-#'       you want to control for size. Note: when input is already a transition
-#'       matrix (rows sum to 1), "mean" avoids size bias.
-#'       Example: cluster with 5 nodes won't have 5x the weight of cluster with 1 node.}
+#'     \item{"sum"}{(default) Sum of the edge weights. Suited to count data
+#'       such as transition frequencies, because it preserves the total flow.}
+#'     \item{"mean"}{Mean edge weight. Suited to inputs that are already
+#'       transition probabilities, because the result does not grow with
+#'       cluster size.}
 #'     \item{"median"}{Median edge weight. Robust to outliers.}
 #'     \item{"max"}{Maximum edge weight. Captures strongest connection.}
 #'     \item{"min"}{Minimum edge weight. Captures weakest connection.}
-#'     \item{"density"}{Sum divided by number of possible edges. Normalizes
-#'       by cluster size combinations.}
+#'     \item{"density"}{Sum divided by the number of possible edges
+#'       (\eqn{n_i n_j} for clusters of sizes \eqn{n_i} and \eqn{n_j}).}
 #'     \item{"geomean"}{Geometric mean of positive weights. Useful for
 #'       multiplicative processes.}
 #'   }
@@ -120,30 +119,23 @@ wagg <- aggregate_weights
 #' @param type Post-processing applied to aggregated weights. Determines the
 #'   interpretation of the resulting matrices:
 #'   \describe{
-#'     \item{"tna"}{(default) Row-normalize so each row sums to 1. Creates
-#'       transition probabilities suitable for Markov chain analysis.
-#'       Interpretation: "Given I'm in cluster A, what's the probability
-#'       of transitioning to cluster B?"
-#'       Required for use with tna package functions.
-#'       Diagonal is zero; per-cluster data is in \code{$clusters}.}
-#'     \item{"raw"}{No normalization. Returns aggregated counts/weights as-is.
-#'       Use for frequency analysis or when you need raw counts.
-#'       Compatible with igraph's contract + simplify output.}
-#'     \item{"cooccurrence"}{Symmetrize the matrix: (A + t(A)) / 2.
-#'       For undirected co-occurrence analysis.}
-#'     \item{"semi_markov"}{Row-normalize with duration weighting.
-#'       For semi-Markov process analysis.}
+#'     \item{"tna"}{(default) Row-normalize so each row sums to 1, which gives
+#'       transition probabilities. Rows that sum to zero are left at zero.}
+#'     \item{"raw"}{No normalization. The aggregated weights are returned
+#'       as computed.}
+#'     \item{"cooccurrence"}{Symmetrize the matrix as (A + t(A)) / 2.}
+#'     \item{"semi_markov"}{Row-normalize, identical to \code{"tna"}.}
 #'   }
 #'
-#' @param directed Logical. If \code{TRUE} (default), treat network as directed.
-#'   A->B and B->A are separate edges. If \code{FALSE}, edges are undirected
-#'   and the matrix is symmetrized before processing.
+#' @param directed Logical. Default \code{TRUE}. The value is recorded in
+#'   \code{meta$directed} and does not change the weights. With
+#'   \code{type = "cooccurrence"} the weights are symmetrized and
+#'   \code{meta$directed} is \code{FALSE} whatever this value is.
 #'
 #' @param compute_within Logical. If \code{TRUE} (default), compute per-cluster
-#'   transition matrices for each cluster. Each cluster gets its own n_i x n_i
-#'   matrix showing internal node-to-node transitions.
-#'   Set to \code{FALSE} to skip this computation for better performance when
-#'   only the macro (cluster-level) summary is needed.
+#'   matrices, one \eqn{n_i \times n_i}{n_i x n_i} matrix of internal node-to-node
+#'   weights per cluster. \code{FALSE} skips this step when only the macro
+#'   summary is needed.
 #'
 #' @return A \code{cluster_summary} object (S3 class) containing:
 #'   \describe{
@@ -151,19 +143,23 @@ wagg <- aggregate_weights
 #'       \describe{
 #'         \item{weights}{k x k matrix of cluster-to-cluster weights, where k is
 #'           the number of clusters. Row i, column j contains the aggregated
-#'           weight from cluster i to cluster j. Diagonal contains aggregated
-#'           intra-cluster weight (retention / self-loops). Processing depends on \code{type}.}
-#'         \item{inits}{Numeric vector of length k. Initial state distribution
-#'           across clusters, computed from column sums of the original matrix.
-#'           Represents the proportion of incoming edges to each cluster.}
+#'           weight from cluster i to cluster j. The diagonal contains the
+#'           aggregated within-cluster weight, node self-loops included.
+#'           Processing depends on \code{type}.}
+#'         \item{inits}{Named numeric vector of length k, the column sums of
+#'           the aggregated cluster matrix (before \code{type} processing)
+#'           divided by their total. It is uniform when all weights are zero.}
+#'         \item{labels}{Cluster names.}
+#'         \item{data}{Sequence data of a tna input, otherwise \code{NULL}.}
 #'       }
 #'     }
-#'     \item{clusters}{Named list with one element per cluster. Each element is
-#'       a tna object containing:
+#'     \item{clusters}{A \code{group_tna} list with one tna object per
+#'       cluster, each containing:
 #'       \describe{
 #'         \item{weights}{n_i x n_i matrix for nodes inside that cluster.
 #'           Shows internal transitions between nodes in the same cluster.}
-#'         \item{inits}{Initial distribution for the cluster.}
+#'         \item{inits}{Column sums of the within-cluster weights divided by
+#'           their total.}
 #'       }
 #'       NULL if \code{compute_within = FALSE}.}
 #'     \item{cluster_members}{Named list mapping cluster names to their member node labels.
@@ -185,38 +181,27 @@ wagg <- aggregate_weights
 #' @details
 #' ## Workflow
 #'
-#' Typical MCML analysis workflow:
+#' A typical MCML analysis computes the summary, then plots it with
+#' \code{\link{plot_mcml}} or converts it to tna models with
+#' \code{\link{as_tna}}:
 #' \preformatted{
-#' # 1. Create network
-#' net <- cograph(edges, nodes = nodes)
-#' net$nodes$clusters <- group_assignments
-#'
-#' # 2. Compute cluster summary
-#' cs <- csum(net, type = "tna")
-#'
-#' # 3. Convert to tna models
-#' tna_models <- as_tna(cs)
-#'
-#' # 4. Analyze/visualize
-#' plot(tna_models$macro)
-#' tna::centralities(tna_models$macro)
+#' cs <- csum(net, clusters = clusters, type = "tna")
+#' plot_mcml(cs)
+#' as_tna(cs)
 #' }
 #'
 #' ## Between-Cluster Matrix Structure
 #'
-#' The \code{macro$weights} matrix has clusters as both rows and columns:
-#' \itemize{
-#'   \item Off-diagonal (row i, col j): Aggregated weight from cluster i to cluster j
-#'   \item Diagonal (row i, col i): Per-cluster total (sum of internal edges in cluster i)
-#' }
-#'
-#' When \code{type = "tna"}, rows sum to 1 and diagonal values represent
-#' "retention rate" - the probability of staying inside the same cluster.
+#' The macro weight matrix has clusters as both rows and columns. An
+#' off-diagonal cell (i, j) holds the aggregated weight from cluster i to
+#' cluster j. A diagonal cell (i, i) holds the aggregated weight of the edges
+#' inside cluster i. When \code{type = "tna"}, rows sum to 1 and the diagonal
+#' is the probability of staying inside the same cluster.
 #'
 #' ## Choosing method and type
 #'
 #' \tabular{lll}{
-#'   \strong{Input data} \tab \strong{Recommended} \tab \strong{Reason} \cr
+#'   Input data \tab Recommended \tab Reason \cr
 #'   Edge counts \tab method="sum", type="tna" \tab Preserves total flow, normalizes to probabilities \cr
 #'   Transition matrix \tab method="mean", type="tna" \tab Avoids cluster size bias \cr
 #'   Frequencies \tab method="sum", type="raw" \tab Keep raw counts for analysis \cr
@@ -230,17 +215,10 @@ wagg <- aggregate_weights
 #'   \code{\link{plot_mtna}} for flat cluster visualization
 #'
 #' @examples
-#' mat <- matrix(runif(100), 10, 10); diag(mat) <- 0
-#' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-#'
-#' # Membership vector
-#' cs <- csum(mat, c(1,1,1,2,2,2,3,3,3,3))
-#' cs$macro$weights      # 3x3 cluster transition matrix
-#'
-#' # Named list of clusters, TNA-normalized
-#' clusters <- list(Alpha = LETTERS[1:3], Beta = LETTERS[4:6], Gamma = LETTERS[7:10])
-#' cs <- csum(mat, clusters, type = "tna")
-#' rowSums(cs$macro$weights)  # all 1 (TNA probabilities)
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' csum(regulation_net, clusters = clusters, type = "tna")
 csum <- function(x,
                  clusters = NULL,
                  method = c("sum", "mean", "median", "max",
@@ -480,9 +458,9 @@ cluster_summary <- csum
 #'
 #' Builds a Multi-Cluster Multi-Level (MCML) model from raw transition data
 #' (edge lists or sequences) by recoding node labels to cluster labels and
-#' counting actual transitions. Unlike \code{\link{csum}} which
-#' aggregates a pre-computed weight matrix, this function works from the
-#' original transition data to produce the TRUE Markov chain over cluster states.
+#' counting the observed transitions. The macro network is then the Markov
+#' chain over cluster states. Weight matrices are passed to
+#' \code{\link{csum}}, which aggregates them.
 #'
 #' @param x Input data. Accepts multiple formats:
 #'   \describe{
@@ -496,7 +474,8 @@ cluster_summary <- csum
 #'       the raw data. Otherwise falls back to \code{\link{csum}}.}
 #'     \item{cograph_network}{If \code{x$data} is non-NULL, detects edge list
 #'       vs sequence data. Otherwise falls back to \code{\link{csum}}.}
-#'     \item{cluster_summary}{Returns as-is.}
+#'     \item{group_tna}{Converted as by \code{\link{as_mcml}}.}
+#'     \item{mcml or cluster_summary}{Returned unchanged.}
 #'     \item{square numeric matrix}{Falls back to \code{\link{csum}}.}
 #'     \item{non-square or character matrix}{Treated as sequence data.}
 #'   }
@@ -522,9 +501,10 @@ cluster_summary <- csum
 #' @param method Aggregation method for combining edge weights: "sum", "mean",
 #'   "median", "max", "min", "density", "geomean". Default "sum".
 #' @param type Post-processing: "tna" (row-normalize), "frequency" or "raw"
-#'   (no normalization), "cooccurrence" (symmetrize), or "semi_markov".
-#'   Default "tna".
-#' @param directed Logical. Treat as directed network? Default TRUE.
+#'   (no normalization), "cooccurrence" (symmetrize), or "semi_markov"
+#'   (row-normalize, identical to "tna"). Default "tna".
+#' @param directed Logical. Default \code{TRUE}. The value is recorded in
+#'   \code{meta$directed}; the weights are not modified.
 #' @param compute_within Logical. Compute within-cluster matrices? Default TRUE.
 #'
 #' @return Usually an \code{mcml} object. Existing \code{mcml} or
@@ -538,25 +518,10 @@ cluster_summary <- csum
 #'   \code{\link{plot_mcml}} for visualization
 #'
 #' @examples
-#' # Edge list with clusters
-#' edges <- data.frame(
-#'   from = c("A", "A", "B", "C", "C", "D"),
-#'   to   = c("B", "C", "A", "D", "D", "A"),
-#'   weight = c(1, 2, 1, 3, 1, 2)
-#' )
-#' clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"))
-#' cs <- summarize_clusters(edges, clusters)
-#' cs$macro$weights
-#'
-#' # Sequence data with clusters
-#' seqs <- data.frame(
-#'   T1 = c("A", "C", "B"),
-#'   T2 = c("B", "D", "A"),
-#'   T3 = c("C", "C", "D"),
-#'   T4 = c("D", "A", "C")
-#' )
-#' cs <- summarize_clusters(seqs, clusters, type = "raw")
-#' cs$macro$weights
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' summarize_clusters(regulation_net, clusters = clusters, method = "mean")
 summarize_clusters <- function(x,
                        clusters = NULL,
                        method = c("sum", "mean", "median", "max",
@@ -1259,62 +1224,37 @@ summarize_clusters <- function(x,
 
 #' Convert cluster_summary to tna Objects
 #'
-#' Converts a \code{cluster_summary} object to proper tna objects that can be
-#' used with all functions from the tna package. Creates a macro (cluster-level)
-#' tna model and per-cluster tna models (internal transitions within each
-#' cluster), returned as a flat \code{group_tna} object.
+#' Converts a \code{cluster_summary} or \code{mcml} object to tna models that
+#' can be used with the functions of the tna package. The result holds a macro
+#' (cluster-level) model and one model of the internal transitions of each
+#' cluster, as a flat \code{group_tna} object.
 #'
-#' This is the final step in the MCML workflow, enabling full integration with
-#' the tna package for centrality analysis, bootstrap validation, permutation
-#' tests, and visualization.
+#' @param x A \code{cluster_summary} object created by \code{\link{csum}}, or
+#'   an \code{mcml} object created by \code{\link{summarize_clusters}}. A tna
+#'   object is returned unchanged, and any other input is an error. The
+#'   weights are passed to \code{tna::tna()}, which row-normalizes them, so a
+#'   summary computed with \code{type = "raw"} gives the same transition
+#'   probabilities as one computed with \code{type = "tna"}.
 #'
-#' @param x A \code{cluster_summary} object created by \code{\link{csum}}.
-#'   The cluster_summary should typically be created with \code{type = "tna"} to
-#'   ensure row-normalized transition probabilities. If created with
-#'   \code{type = "raw"}, the raw counts will be passed to \code{tna::tna()}
-#'   which will normalize them.
-#'
-#' @return A \code{group_tna} object (S3 class) -- a flat named list of tna
-#'   objects. The first element is named \code{"macro"} and represents the
-#'   cluster-level transitions. Subsequent elements are named by cluster name
-#'   and represent internal transitions within each cluster.
+#' @return A \code{group_tna} object, a flat named list of tna objects. The
+#'   first element is named \code{"macro"} and holds the cluster-level
+#'   transitions. The remaining elements are named by cluster and hold the
+#'   internal transitions of each cluster.
 #'   \describe{
-#'     \item{macro}{A tna object representing cluster-level transitions.
-#'       Contains \code{$weights} (k x k transition matrix), \code{$inits}
-#'       (initial distribution), and \code{$labels} (cluster names).
-#'       Use this for analyzing how learners/entities move between high-level
-#'       groups or phases.}
-#'     \item{<cluster_name>}{Per-cluster tna objects, one per cluster. Each tna
-#'       object represents internal transitions within that cluster. Contains
-#'       \code{$weights} (n_i x n_i matrix), \code{$inits} (initial distribution),
-#'       and \code{$labels} (node labels). A cluster that cannot become a tna
+#'     \item{macro}{A tna object of cluster-level transitions, with
+#'       \code{weights} (k x k transition matrix), \code{inits} (initial
+#'       distribution) and \code{labels} (cluster names).}
+#'     \item{<cluster_name>}{One tna object per cluster, with \code{weights}
+#'       (n_i x n_i matrix), \code{inits} (initial distribution) and
+#'       \code{labels} (node labels). A cluster that cannot become a tna
 #'       model is left out with a warning (see Excluded Clusters).}
 #'   }
 #'
 #' @details
 #' ## Requirements
 #'
-#' The tna package must be installed. If not available, the function throws
-#' an error with installation instructions.
-#'
-#' ## Workflow
-#'
-#' \preformatted{
-#' # Full MCML workflow
-#' net <- cograph(edges, nodes = nodes)
-#' net$nodes$clusters <- group_assignments
-#' cs <- csum(net, type = "tna")
-#' tna_models <- as_tna(cs)
-#'
-#' # Now use tna package functions
-#' plot(tna_models$macro)
-#' tna::centralities(tna_models$macro)
-#' tna::bootstrap(tna_models$macro, iter = 1000)
-#'
-#' # Analyze per-cluster patterns
-#' plot(tna_models$ClusterA)
-#' tna::centralities(tna_models$ClusterA)
-#' }
+#' The tna package must be installed. Without it, the function raises an
+#' error.
 #'
 #' ## Excluded Clusters
 #'
@@ -1339,10 +1279,7 @@ summarize_clusters <- function(x,
 #' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
 #'                  C2 = c("Plan", "Create", "Share"),
 #'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
-#' cs <- csum(regulation_net, clusters, type = "tna")
-#' tna_models <- as_tna(cs)
-#' names(tna_models)          # "macro", "C1", "C2", "C3"
-#' splot(tna_models$macro)    # cograph renderer avoids tna's plot deps
+#' as_tna(csum(regulation_net, clusters = clusters, type = "tna"))
 as_tna <- function(x) {
   UseMethod("as_tna")
 }
@@ -1456,10 +1393,12 @@ as_tna.default <- function(x) {
 
 #' Convert to mcml
 #'
-#' Convert various objects to the \code{mcml} class -- a clean, tna-independent
-#' representation of a multilayer cluster network.
+#' Converts an object to the \code{mcml} class, a representation of a
+#' multi-cluster network that does not depend on the tna package.
 #'
-#' @param x Object to convert.
+#' @param x A \code{cluster_summary}, \code{group_tna} or \code{mcml} object.
+#'   Any other input is an error; \code{\link{summarize_clusters}} builds an
+#'   \code{mcml} object from raw data.
 #' @param ... Additional arguments passed to methods.
 #' @return An \code{mcml} object with components \code{macro}, \code{clusters},
 #'   \code{cluster_members}, and \code{meta}.
@@ -1467,16 +1406,10 @@ as_tna.default <- function(x) {
 #' @export
 #'
 #' @examples
-#' # From cluster_summary
-#' mat <- matrix(c(0.5, 0.2, 0.3,
-#'                 0.1, 0.6, 0.3,
-#'                 0.4, 0.1, 0.5), 3, 3, byrow = TRUE,
-#'               dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-#' clusters <- list(G1 = c("A", "B"), G2 = c("C"))
-#' cs <- csum(mat, clusters, type = "tna")
-#' m <- as_mcml(cs)
-#' m$macro$weights
-#'
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' as_mcml(csum(regulation_net, clusters = clusters, type = "tna"))
 as_mcml <- function(x, ...) {
   UseMethod("as_mcml")
 }
@@ -1497,7 +1430,7 @@ as_mcml.cluster_summary <- function(x, ...) {
 #' @param directed Logical; whether the network is directed (default \code{TRUE}).
 #' @return An \code{mcml} object. When \code{clusters} is provided,
 #'   \code{macro$data} contains the cluster assignments and \code{macro$weights}
-#'   is \code{NULL} (the macro is the sequence of clusters, not a summary).
+#'   is \code{NULL}.
 #' @export
 as_mcml.group_tna <- function(x, clusters = NULL, method = "sum",
                                type = "tna", directed = TRUE, ...) {
@@ -1604,13 +1537,10 @@ as_mcml.default <- function(x, ...) {
 #'     that is internal to some cluster) and \code{n_clusters}.}
 #' @export
 #' @examples
-#' mat <- matrix(runif(100), 10, 10)
-#' diag(mat) <- 0
-#' clusters <- c(1,1,1,2,2,2,3,3,3,3)
-#'
-#' q <- cluster_quality(mat, clusters)
-#' q$per_cluster   # Per-cluster metrics
-#' q$global        # Modularity, coverage
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' cluster_quality(regulation_net, clusters = clusters)
 cluster_quality <- function(x,
                             clusters,
                             weighted = TRUE,
@@ -1732,10 +1662,6 @@ cluster_quality <- function(x,
 #' @rdname cluster_quality
 #' @return See \code{\link{cluster_quality}}.
 #' @export
-#' @examples
-#' mat <- matrix(runif(100), 10, 10)
-#' diag(mat) <- 0
-#' cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
 cqual <- cluster_quality
 
 #' Compute modularity
@@ -1779,21 +1705,17 @@ cqual <- cluster_quality
 #'   distribution. Default 100.
 #' @param method Null model type:
 #'   \describe{
-#'     \item{"configuration"}{Preserves degree sequence (default). More
-#'       stringent test.}
-#'     \item{"gnm"}{Erdos-Renyi model with same number of edges. Tests against
-#'       random baseline.}
+#'     \item{"configuration"}{(default) Undirected configuration model
+#'       that preserves the total degree of each node.}
+#'     \item{"gnm"}{Erdos-Renyi G(n, m) model with the same number of nodes
+#'       and edges and the same directedness.}
 #'   }
 #' @param null Which null question to answer. Default \code{"detect"}:
 #'   \describe{
-#'     \item{"detect"}{Null is the modularity of the \emph{best partition
-#'       found by community detection} on each null graph. Answers "is the
-#'       observed partition stronger than what community detection would
-#'       recover on similar random graphs?" — the historical behavior.}
-#'     \item{"fixed"}{Null is the modularity of the supplied
-#'       \code{communities} membership \emph{evaluated on each null graph}.
-#'       Answers "does the supplied partition itself explain more structure
-#'       than it would on similar random graphs?" — the conservative test.}
+#'     \item{"detect"}{The null value is the modularity of the partition
+#'       found by community detection on each null graph.}
+#'     \item{"fixed"}{The null value is the modularity of the supplied
+#'       \code{communities} membership evaluated on each null graph.}
 #'   }
 #' @param seed Random seed for reproducibility. Default NULL.
 #'
@@ -1802,9 +1724,11 @@ cqual <- cluster_quality
 #'     \item{observed_modularity}{Modularity of the input communities}
 #'     \item{null_mean}{Mean modularity of random networks}
 #'     \item{null_sd}{Standard deviation of null modularity}
-#'     \item{z_score}{Standardized score: (observed - null_mean) / null_sd}
-#'     \item{p_value}{One-sided p-value (probability of observing equal or
-#'       higher modularity by chance)}
+#'     \item{z_score}{Standardized score (observed - null_mean) / null_sd,
+#'       or \code{NA} when \code{null_sd} is zero}
+#'     \item{p_value}{One-sided upper-tail p-value of \code{z_score} under
+#'       the standard normal distribution; \code{NA} when \code{null_sd} is
+#'       zero}
 #'     \item{null_values}{Vector of modularity values from null distribution}
 #'     \item{method}{Null model method used}
 #'     \item{null}{Which null question was asked ("detect" or "fixed")}
@@ -1812,18 +1736,18 @@ cqual <- cluster_quality
 #'   }
 #'
 #' @details
-#' Two null models are supported. The default, \code{null = "detect"},
-#' generates \code{n_random} random networks, runs community detection
-#' (Louvain, with fast-greedy fallback) on each, and records the resulting
-#' modularity. Low p-value means the observed partition beats what
-#' detection would return on similar random graphs. \code{null = "fixed"}
-#' instead evaluates the user-supplied membership on each null graph, so
-#' low p-value means the partition itself is stronger than it would be on
-#' similar random graphs — a tighter question that isolates the
-#' partition's quality from any detector's behavior.
+#' The function generates \code{n_random} random networks from the null model.
+#' With \code{null = "detect"}, community detection (Louvain, or fast greedy
+#' when Louvain fails) is run on each null network and its modularity is
+#' recorded. A low p-value then indicates that the observed partition is
+#' stronger than the partitions detection recovers on random networks. With
+#' \code{null = "fixed"}, the supplied membership is evaluated on each null
+#' network. A low p-value then indicates that the partition explains more
+#' structure in the observed network than in random networks, independently
+#' of any detection algorithm.
 #'
-#' A significant result (low p-value) indicates that the community structure
-#' is stronger than expected by chance for networks with similar properties.
+#' The observed modularity is computed with the edge weights of \code{x}. The
+#' null networks are unweighted.
 #'
 #' @references
 #' Reichardt, J., & Bornholdt, S. (2006).
@@ -1833,11 +1757,14 @@ cqual <- cluster_quality
 #' @export
 #' @seealso \code{\link{communities}}, \code{\link{cluster_quality}}
 #'
+#' @section Printing and plotting:
+#' Printing the result shows the null model, the observed and null modularity,
+#' the z-score and the p-value. \code{plot()} on the result plots a histogram
+#' of the null modularity values with the observed value marked.
+#'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
-#' sig <- cluster_significance(g, comm, n_random = 20, seed = 123)
-#' print(sig)
+#' comm <- communities(regulation_net, method = "walktrap")
+#' cluster_significance(regulation_net, comm, n_random = 20, seed = 1)
 cluster_significance <- function(x,
                                   communities,
                                   n_random = 100,
@@ -1942,14 +1869,7 @@ cluster_significance <- function(x,
 }
 
 #' @rdname cluster_significance
-#' @return See \code{\link{cluster_significance}}.
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::make_graph("Zachary")
-#'   comm <- community_louvain(g)
-#'   csig(g, comm, n_random = 20, seed = 1)
-#' }
 csig <- cluster_significance
 
 #' @noRd
@@ -1979,18 +1899,7 @@ print.cograph_cluster_significance <- function(x, ...) {
   invisible(x)
 }
 
-#' Plot Cluster Significance
-#'
-#' Creates a histogram of the null distribution with the observed value marked.
-#'
-#' @param x A \code{cograph_cluster_significance} object
-#' @param ... Additional arguments passed to \code{hist}
-#' @return Invisibly returns x
-#' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::make_graph("Zachary")
-#' comm <- community_louvain(g)
-#' sig <- cluster_significance(g, comm, n_random = 20, seed = 42)
-#' plot(sig)
+#' @noRd
 #' @export
 plot.cograph_cluster_significance <- function(x, ...) {
   # Create histogram of null distribution
@@ -2042,29 +1951,26 @@ plot.cograph_cluster_significance <- function(x, ...) {
 #' Computes similarity between two network layers.
 #'
 #' @param A1 First adjacency matrix
-#' @param A2 Second adjacency matrix
+#' @param A2 Second adjacency matrix, with the same dimensions as \code{A1}
 #' @param method Comparison method: "jaccard" (default), "overlap", "hamming",
 #'   "cosine" or "pearson"
 #' @return A single numeric value. All methods except \code{"hamming"} return a
-#'   similarity (higher = more alike); \code{"hamming"} returns a
-#'   \emph{distance} - the number of matrix cells whose edge presence differs
-#'   between the two layers - so lower means more alike and the value is not
-#'   bounded by 1. \code{NA} is returned when the denominator is undefined
+#'   similarity, where higher values mean more alike layers. \code{"hamming"}
+#'   returns a distance, the number of matrix cells whose edge presence
+#'   differs between the two layers. Lower values then mean more alike layers,
+#'   and the value is not bounded by 1. \code{NA} is returned when the
+#'   denominator is undefined
 #'   (\code{"jaccard"} with no edges in either layer, \code{"overlap"} with an
 #'   empty layer, \code{"cosine"} with an all-zero layer).
 #'
 #' @details
 #' \code{"jaccard"}, \code{"overlap"} and \code{"hamming"} compare edge
-#' \emph{presence} (\code{A > 0}) and therefore ignore weights;
-#' \code{"cosine"} and \code{"pearson"} are computed on the raw cell values.
-#' The two matrices must have identical dimensions.
+#' presence (\code{A > 0}) and ignore weights. \code{"cosine"} and
+#' \code{"pearson"} are computed on the cell values, diagonal included.
+#' Matrices of different dimensions raise an error.
 #' @export
 #' @examples
-#' A1 <- matrix(c(0,1,1,0, 1,0,0,1, 1,0,0,1, 0,1,1,0), 4, 4)
-#' A2 <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-#'
-#' layer_similarity(A1, A2, "jaccard")  # Edge overlap
-#' layer_similarity(A1, A2, "cosine")   # Weight similarity
+#' layer_similarity(regulation_net, t(regulation_net), method = "cosine")
 layer_similarity <- function(A1, A2,
                              method = c("jaccard", "overlap", "hamming",
                                         "cosine", "pearson")) {
@@ -2109,25 +2015,20 @@ lsim <- layer_similarity
 
 #' Pairwise Layer Similarities
 #'
-#' Computes similarity matrix for all pairs of layers.
+#' Computes the similarity of every pair of layers with
+#' \code{\link{layer_similarity}}.
 #'
 #' @param layers Named list of adjacency matrices (one per layer); at least two
 #'   are required.
 #' @param method Comparison method: "jaccard" (default), "overlap", "cosine" or
-#'   "pearson". Note that \code{"hamming"}, accepted by
-#'   \code{\link{layer_similarity}}, is \emph{not} available here because it is
-#'   a distance rather than a similarity.
-#' @return A symmetric L x L matrix of pairwise similarities with the layer
-#'   names as dimnames and 1 on the diagonal.
+#'   "pearson". The \code{"hamming"} distance is not accepted.
+#' @return A symmetric L x L matrix of pairwise similarities with 1 on the
+#'   diagonal. The dimnames are the layer names, or \code{"Layer1"},
+#'   \code{"Layer2"}, ... for an unnamed list.
 #' @export
 #' @examples
-#' nodes <- c("A", "B", "C")
-#' t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-#' t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-#' layers <- list(T1 = t1, T2 = t2)
-#'
-#' layer_similarity_matrix(layers, "cosine")
-#' layer_similarity_matrix(layers, "jaccard")
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
+#' layer_similarity_matrix(layers, method = "cosine")
 layer_similarity_matrix <- function(layers,
                                     method = c("jaccard", "overlap", "cosine",
                                                "pearson")) {
@@ -2162,15 +2063,18 @@ lsim_matrix <- layer_similarity_matrix
 
 #' Degree Correlation Between Layers
 #'
-#' Measures hub consistency across layers via degree correlation.
+#' Measures the consistency of hubs across layers as the Pearson correlation
+#' of node degrees between layers.
 #'
-#' @param layers List of adjacency matrices
-#' @param mode Degree type: "total", "in", "out"
-#' @return Correlation matrix between layer degree sequences
+#' @param layers List of adjacency matrices of the same dimensions
+#' @param mode Degree type: "total" (default, row plus column sums), "in"
+#'   (column sums) or "out" (row sums). The sums use the edge weights, so on
+#'   a weighted layer the degree is the node strength.
+#' @return An L x L Pearson correlation matrix of the layer degree sequences,
+#'   with the layer names (or \code{"Layer1"}, \code{"Layer2"}, ...) as
+#'   dimnames.
 #' @examples
-#' mat1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' mat2 <- matrix(c(0, 0, 1, 1, 0, 0, 0, 1, 0), 3, 3)
-#' layers <- list(L1 = mat1, L2 = mat2)
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
 #' layer_degree_correlation(layers, mode = "total")
 #' @export
 layer_degree_correlation <- function(layers, mode = c("total", "in", "out")) {
@@ -2203,12 +2107,18 @@ ldegcor <- layer_degree_correlation
 
 #' Supra-Adjacency Matrix
 #'
-#' Builds the supra-adjacency matrix for multilayer networks.
-#' Diagonal blocks = intra-layer, off-diagonal = inter-layer.
+#' Builds the supra-adjacency matrix of a multilayer network. The diagonal
+#' blocks hold the intra-layer adjacencies and the off-diagonal blocks the
+#' inter-layer coupling.
 #'
 #' @param layers List of adjacency matrices (same dimensions)
-#' @param omega Inter-layer coupling coefficient (scalar or L x L matrix)
-#' @param coupling Coupling type: "diagonal", "full", or "custom"
+#' @param omega Inter-layer coupling coefficient, a scalar or an L x L matrix.
+#'   Default 1. For a matrix, entry \code{[a, b]} with \code{a < b} sets the
+#'   coupling of layers a and b.
+#' @param coupling Coupling type. \code{"diagonal"} (default) couples each
+#'   node to its own copy in the other layers with weight \code{omega}.
+#'   \code{"full"} couples every node to every node of the other layers with
+#'   weight \code{omega}. \code{"custom"} uses \code{interlayer_matrices}.
 #' @param interlayer_matrices For \code{coupling = "custom"}, a list of
 #'   inter-layer matrices. Accepted shapes:
 #'   \itemize{
@@ -2217,13 +2127,13 @@ ldegcor <- layer_degree_correlation
 #'     \item Unnamed list of length \code{choose(L, 2)} giving every pair
 #'       in upper-triangle row-major order: \code{(1,2), (1,3), ..., (1,L),
 #'       (2,3), ..., (L-1,L)}.
-#'     \item Unnamed list of length \code{L-1} giving adjacent pairs only
-#'       (legacy chain layout): entry \code{i} is the coupling for
-#'       \code{(i, i+1)}. Non-adjacent pairs use \code{omega[a,b] * I}.
+#'     \item Unnamed list of length \code{L-1} giving adjacent pairs only.
+#'       Entry \code{i} is the coupling for \code{(i, i+1)}.
 #'   }
-#'   If no entry matches a pair and no legacy chain layout applies, a
-#'   warning is emitted and the diagonal default \code{omega[a,b] * I}
-#'   is used (previously this happened silently).
+#'   The block of layers b and a is the transpose of the block of a and b.
+#'   A pair with no matching entry receives the diagonal coupling
+#'   \code{omega[a,b] * I} with a warning. A \code{NULL} value with
+#'   \code{coupling = "custom"} is an error.
 #' @return A supra-adjacency matrix of dimension (N*L) x (N*L) with class
 #'   \code{c("supra_adjacency", "matrix")}. Diagonal N x N blocks hold the
 #'   intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
@@ -2233,15 +2143,8 @@ ldegcor <- layer_degree_correlation
 #'   \code{\link{supra_interlayer}()}.
 #' @export
 #' @examples
-#' nodes <- c("A", "B", "C")
-#' l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-#' l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-#' layers <- list(L1 = l1, L2 = l2)
-#'
-#' # 3 nodes x 2 layers gives a 6 x 6 supra-adjacency matrix.
-#' s <- supra_adjacency(layers, omega = 0.5)
-#' dim(s)
-#' s
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
+#' supra_adjacency(layers, omega = 0.5)
 supra_adjacency <- function(layers,
                             omega = 1,
                             coupling = c("diagonal", "full", "custom"),
@@ -2365,15 +2268,15 @@ supra <- supra_adjacency
 
 #' Extract Layer from Supra-Adjacency Matrix
 #'
-#' @param x Supra-adjacency matrix
-#' @param layer Layer index to extract
-#' @return Intra-layer adjacency matrix
+#' @param x Supra-adjacency matrix from \code{\link{supra_adjacency}}
+#' @param layer Integer index of the layer to extract
+#' @return The N x N intra-layer adjacency matrix, with the node names as
+#'   dimnames. An index outside \code{1:L} raises an error.
 #' @export
 #' @examples
-#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-#' supra_layer(S, 1)
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
+#' supra <- supra_adjacency(layers, omega = 0.5)
+#' supra_layer(supra, layer = 2)
 supra_layer <- function(x, layer) {
   n <- attr(x, "n_nodes")
   L <- attr(x, "n_layers")
@@ -2393,25 +2296,21 @@ supra_layer <- function(x, layer) {
 
 #' @rdname supra_layer
 #' @export
-#' @examples
-#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-#' extract_layer(S, 2)
 extract_layer <- supra_layer
 
 #' Extract Inter-Layer Block
 #'
-#' @param x Supra-adjacency matrix
-#' @param from Source layer index
-#' @param to Target layer index
-#' @return Inter-layer adjacency matrix
+#' @param x Supra-adjacency matrix from \code{\link{supra_adjacency}}
+#' @param from Integer index of the source layer
+#' @param to Integer index of the target layer
+#' @return The N x N inter-layer block, with the supra-matrix labels
+#'   (\code{"<layer>_<node>"}) as dimnames. An index outside \code{1:L}
+#'   raises an error.
 #' @export
 #' @examples
-#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-#' supra_interlayer(S, 1, 2)
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
+#' supra <- supra_adjacency(layers, omega = 0.5)
+#' supra_interlayer(supra, from = 1, to = 2)
 supra_interlayer <- function(x, from, to) {
   n <- attr(x, "n_nodes")
   L <- attr(x, "n_layers")
@@ -2428,11 +2327,6 @@ supra_interlayer <- function(x, from, to) {
 
 #' @rdname supra_interlayer
 #' @export
-#' @examples
-#' L1 <- matrix(c(0,.5,.3,.5,0,.4,.3,.4,0), 3, 3)
-#' L2 <- matrix(c(0,.2,.6,.2,0,.1,.6,.1,0), 3, 3)
-#' S <- supra_adjacency(list(L1 = L1, L2 = L2), omega = 0.5)
-#' extract_interlayer(S, 1, 2)
 extract_interlayer <- supra_interlayer
 
 # ==============================================================================
@@ -2443,21 +2337,20 @@ extract_interlayer <- supra_interlayer
 #'
 #' Combines multiple network layers into a single network.
 #'
-#' @param layers List of adjacency matrices
-#' @param method Aggregation: "sum", "mean", "max", "min", "union", "intersection"
-#' @param weights Optional layer weights (for weighted sum)
-#' @return Aggregated adjacency matrix
+#' @param layers List of adjacency matrices of the same dimensions
+#' @param method Aggregation: "sum" (default), "mean", "max", "min", "union"
+#'   or "intersection". \code{"union"} and \code{"intersection"} return a
+#'   binary matrix of the cells with a positive weight in any or in every
+#'   layer.
+#' @param weights Optional numeric vector of layer weights, one per layer,
+#'   used only by \code{method = "sum"} to compute a weighted sum.
+#' @return The aggregated adjacency matrix, with the dimnames of the first
+#'   layer. A list with a single layer is returned unchanged for every
+#'   \code{method}.
 #' @export
 #' @examples
-#' nodes <- c("A", "B", "C")
-#' l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-#' l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-#' layers <- list(L1 = l1, L2 = l2)
-#'
-#' aggregate_layers(layers, "sum")           # total edge weight
-#' aggregate_layers(layers, "mean")          # average edge weight
-#' aggregate_layers(layers, "union")         # edge present in any layer
-#' aggregate_layers(layers, "intersection")  # edge present in every layer
+#' layers <- list(forward = regulation_net, backward = t(regulation_net))
+#' aggregate_layers(layers, method = "mean")
 aggregate_layers <- function(layers,
                              method = c("sum", "mean", "max", "min",
                                         "union", "intersection"),
@@ -2519,16 +2412,20 @@ lagg <- aggregate_layers
 
 #' Verify Against igraph
 #'
-#' Confirms numerical match with igraph's contract_vertices + simplify.
+#' Compares the macro weights of \code{\link{csum}} with the result of
+#' contracting the clusters in igraph (\code{igraph::contract()} followed by
+#' \code{igraph::simplify()}).
 #'
 #' @param x Adjacency matrix
 #' @param clusters Cluster specification (see \code{\link{csum}})
 #' @param method Aggregation method. Default "sum".
-#' @param type Normalization type. Defaults to "raw" for igraph compatibility.
+#' @param type Normalization type passed to \code{\link{csum}}. Default
+#'   "raw", the only type whose values igraph reproduces.
 #' @return A list with components \code{our_result} (cograph's macro weight
 #'   matrix), \code{igraph_result} (igraph's
-#'   \code{contract()} + \code{simplify()} matrix), \code{matches} (logical:
-#'   do the off-diagonals agree to within 1e-10?) and \code{difference} (the
+#'   \code{contract()} + \code{simplify()} matrix, diagonal set to zero),
+#'   \code{matches} (logical, whether the off-diagonal cells agree to within
+#'   1e-10) and \code{difference} (the
 #'   \code{all.equal()} report when they do not, otherwise NULL). Returns
 #'   \code{NULL} with a message if igraph is not installed.
 #' @export
@@ -2583,14 +2480,11 @@ verify_with_igraph <- function(x, clusters, method = "sum", type = "raw") {
 
 #' @rdname verify_with_igraph
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   mat <- matrix(runif(100), 10, 10)
-#'   diag(mat) <- 0
-#'   rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-#'   clusters <- c(1,1,1,2,2,2,3,3,3,3)
-#'   verify_igraph(mat, clusters)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' verify_with_igraph(regulation_net, clusters = clusters)
 verify_igraph <- verify_with_igraph
 
 # ==============================================================================
@@ -2674,50 +2568,38 @@ print.cluster_quality <- function(x, ...) {
 #'
 #' Creates a summary network where each cluster becomes a single node.
 #' Edge weights are aggregated from the original network using the specified
-#' method. Returns a cograph_network object ready for plotting.
+#' method, without normalization.
 #'
 #' @param x A weight matrix, tna object, or cograph_network.
 #' @param cluster_list Cluster specification:
 #'   \itemize{
 #'     \item Named list of node vectors (e.g., \code{list(A = c("n1", "n2"), B = c("n3", "n4"))})
-#'     \item String column name from nodes data (e.g., "clusters", "groups")
-#'     \item NULL to auto-detect from common column names
+#'     \item A membership vector or a data frame, as in \code{\link{csum}}
+#'     \item A single string naming a column of the node table of a
+#'       cograph_network (e.g., "clusters", "groups")
+#'     \item NULL (default) to use the first node column named "clusters",
+#'       "cluster", "groups", "group", "community" or "module" of a
+#'       cograph_network, with a message naming the column
 #'   }
 #' @param method Aggregation method for edge weights: "sum", "mean", "max",
 #'   "min", "median", "density", "geomean". Default "sum".
-#' @param directed Logical. Treat network as directed. Default TRUE.
+#' @param directed Logical. Whether the summary network is directed.
+#'   Default TRUE.
 #'
-#' @return A cograph_network object with:
-#'   \itemize{
-#'     \item One node per cluster (named by cluster)
-#'     \item Edge weights = aggregated between-cluster weights
-#'     \item nodes$size = cluster sizes (number of original nodes)
-#'   }
+#' @return A cograph_network object with one node per cluster, labelled by
+#'   cluster name. The edge weights are the aggregated between-cluster
+#'   weights, and the diagonal holds the aggregated within-cluster weights.
+#'   The node table has a \code{size} column with the number of original
+#'   nodes in each cluster.
 #'
 #' @export
 #' @seealso \code{\link{csum}}, \code{\link{plot_mcml}}
 #'
 #' @examples
-#' # Create a network with clusters
-#' mat <- matrix(runif(100), 10, 10)
-#' diag(mat) <- 0
-#' rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-#'
-#' # Define clusters
-#' clusters <- list(
-#'   Group1 = c("A", "B", "C"),
-#'   Group2 = c("D", "E", "F"),
-#'   Group3 = c("G", "H", "I", "J")
-#' )
-#'
-#' # Create summary network
-#' summary_net <- summarize_network(mat, clusters)
-#' splot(summary_net)
-#'
-#' # With cograph_network (auto-detect clusters column)
-#' Net <- cograph(mat)
-#' Net$nodes$clusters <- rep(c("A", "B", "C"), c(3, 3, 4))
-#' summary_net <- summarize_network(Net)  # Auto-detects 'clusters'
+#' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+#'                  C2 = c("Plan", "Create", "Share"),
+#'                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+#' summarize_network(regulation_net, cluster_list = clusters)
 summarize_network <- function(x,
                                cluster_list = NULL,
                                method = c("sum", "mean", "max", "min",

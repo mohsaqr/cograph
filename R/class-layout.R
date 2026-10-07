@@ -6,20 +6,16 @@
 #' @return A \code{CographLayout} R6 object.
 #' @export
 #' @examples
-#' # Create a circular layout
 #' layout <- CographLayout$new("circle")
-#'
-#' # Apply to network
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' net <- CographNetwork$new(adj)
-#' coords <- layout$compute(net)
+#' layout$compute(CographNetwork$new(regulation_net))
 CographLayout <- R6::R6Class(
 
   "CographLayout",
   public = list(
     #' @description Create a new CographLayout object.
-    #' @param type Layout type (e.g., "circle", "spring", "groups").
-    #' @param ... Additional parameters for the layout algorithm.
+    #' @param type Layout name. One of the names returned by
+    #'   [list_layouts()], or `"custom"` together with a `coords` argument.
+    #' @param ... Additional parameters stored and passed to the layout function.
     #' @return A new CographLayout object.
     initialize = function(type = "circle", ...) {
       private$.type <- type
@@ -29,8 +25,10 @@ CographLayout <- R6::R6Class(
 
     #' @description Compute layout coordinates for a network.
     #' @param network A CographNetwork or cograph_network object.
-    #' @param ... Additional parameters passed to the layout function.
-    #' @return Data frame with x, y coordinates.
+    #' @param ... Additional parameters passed to the layout function. They
+    #'   override parameters given to `$new()`.
+    #' @return A data frame with columns `x` and `y`, one row per node, rescaled
+    #'   by `$normalize_coords()`.
     compute = function(network, ...) {
       if (!is_cograph_network(network) && !inherits(network, "CographNetwork")) {
         stop("network must be a CographNetwork object", call. = FALSE)
@@ -61,10 +59,13 @@ CographLayout <- R6::R6Class(
       self$normalize_coords(coords)
     },
 
-    #' @description Normalize coordinates to 0-1 range with padding.
-    #' @param coords Matrix or data frame with x, y columns.
-    #' @param padding Numeric. Padding around edges (default 0.1).
-    #' @return Normalized coordinates.
+    #' @description Rescale coordinates into the unit square. Both axes are
+    #'   scaled by the same factor, so the larger spread spans
+    #'   `[padding, 1 - padding]` and the layout is centered at 0.5.
+    #' @param coords Matrix or data frame. Columns `x` and `y` are used, or the
+    #'   first two columns when these names are absent.
+    #' @param padding Numeric. Margin left on each side of the larger spread.
+    #' @return A data frame with rescaled `x` and `y` columns.
     normalize_coords = function(coords, padding = 0.1) {
       if (is.matrix(coords)) {
         coords <- as.data.frame(coords)
@@ -94,13 +95,13 @@ CographLayout <- R6::R6Class(
     },
 
     #' @description Get layout type.
-    #' @return Character string.
+    #' @return A character string.
     get_type = function() {
       private$.type
     },
 
     #' @description Get layout parameters.
-    #' @return List of parameters.
+    #' @return A list of the parameters given to `$new()`.
     get_params = function() {
       private$.params
     },

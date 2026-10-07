@@ -9,18 +9,16 @@
 #' @noRd
 NULL
 
-#' Plot a Nestimate netobject
+#' @details
+#' \code{splot.netobject()} plots a \code{netobject} from Nestimate. Networks
+#' estimated by a transition-type method (\code{"relative"},
+#' \code{"frequency"}, \code{"attention"}, \code{"co_occurrence"},
+#' \code{"wtna"}, \code{"wtna_cooccurrence"}, \code{"entropy"}) get
+#' \code{tna_styling = TRUE}, and other methods, such as correlation and
+#' partial correlation networks, get \code{psych_styling = TRUE}. When the
+#' method is not recorded, directed networks get the TNA styling. Arguments
+#' supplied by the caller override these defaults.
 #'
-#' Applies TNA-compatible styling defaults before delegating to \code{splot()}:
-#' directed networks get oval layout, colored nodes, and sized arrows;
-#' undirected networks get spring layout with no arrows or dashes.
-#' All parameters can be overridden by the caller.
-#'
-#' @param x A \code{netobject} (from Nestimate).
-#' @param ... Additional arguments passed to \code{splot()}.
-#'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.netobject <- function(x, ...) {
@@ -82,26 +80,21 @@ splot.netobject <- function(x, ...) {
   do.call(splot, c(list(x = x$weights), args))
 }
 
-#' Plot Nestimate GLASSO Bootstrap Results
+#' @details
+#' \code{splot.boot_glasso()} plots the partial-correlation network of a
+#' \code{boot_glasso} object from Nestimate, with the bootstrap inclusion
+#' probability of each edge mapped to its opacity.
 #'
-#' Visualizes \code{boot_glasso} objects from the Nestimate package.
-#' Plots a partial-correlation network with edge inclusion probabilities
-#' mapped to edge transparency.
+#' @param use_thresholded Logical. Plot \code{$thresholded_pcor} of a
+#'   \code{boot_glasso} object, or \code{$original_pcor} when \code{FALSE}.
+#'   Default \code{TRUE}.
+#' @param show_inclusion Logical. Map the inclusion probability of each edge
+#'   of a \code{boot_glasso} object to its opacity, from 0.2 to 1. Default
+#'   \code{TRUE}.
+#' @param inclusion_threshold Numeric. Minimum inclusion probability of a
+#'   plotted \code{boot_glasso} edge. \code{NULL} (default) uses
+#'   \code{1 - x$alpha}, or 0.95 when \code{x$alpha} is absent.
 #'
-#' @param x A \code{boot_glasso} object (from Nestimate).
-#' @param use_thresholded Logical: use \code{$thresholded_pcor}? If FALSE, uses
-#'   \code{$original_pcor}. Default TRUE.
-#' @param show_inclusion Logical: scale edge alpha by inclusion probability?
-#'   Default TRUE.
-#' @param inclusion_threshold Numeric: minimum inclusion probability to show an edge.
-#'   Default \code{NULL}, which uses \code{1 - x$alpha} (i.e. the complement of
-#'   the alpha level, falling back to \code{1 - 0.05} when \code{$alpha} is absent).
-#' @param edge_positive_color Color for positive partial correlations. Default \code{"#2E7D32"}.
-#' @param edge_negative_color Color for negative partial correlations. Default \code{"#C62828"}.
-#' @param ... Additional arguments passed to \code{splot()}.
-#'
-#' @return Invisibly returns the \code{cograph_network} object built by
-#'   \code{\link{splot}()}. Called for the side effect of drawing.
 #' @rdname splot
 #' @export
 splot.boot_glasso <- function(x,
@@ -165,20 +158,20 @@ splot.boot_glasso <- function(x,
 }
 
 
-#' Plot a Mixed Window TNA Object
+#' @details
+#' \code{splot.wtna_mixed()} plots a \code{wtna_mixed} object from
+#' \code{Nestimate::wtna(..., method = "both")}, either as one overlaid
+#' network or as two panels.
 #'
-#' Plot a \code{wtna_mixed} object either as a single overlaid network or as
-#' two separate group panels.
+#' @param type For a \code{net_mlvar} object, the network to plot:
+#'   \code{"temporal"} or \code{"t"} (default), \code{"contemporaneous"} or
+#'   \code{"c"}, \code{"between"} or \code{"b"}, or \code{"all"} or
+#'   \code{"a"} for a 1 x 3 panel, matched without regard to case. For a
+#'   \code{wtna_mixed} object, \code{"overlay"} (default) plots both
+#'   networks on one canvas with \code{\link{plot_mixed_network}}, the
+#'   co-occurrences as straight undirected edges and the transitions as curved
+#'   directed edges, and \code{"group"} plots each network in its own panel.
 #'
-#' @param x A \code{wtna_mixed} object (from Nestimate \code{wtna(..., method = "both")}).
-#' @param type Character. \code{"overlay"} (default) renders both networks on a
-#'   single canvas via \code{\link{plot_mixed_network}} — co-occurrence as straight
-#'   undirected edges, transitions as curved directed arrows.
-#'   \code{"group"} plots each component as a separate panel.
-#' @param ... Additional arguments passed to \code{\link{plot_mixed_network}}
-#'   (\code{type = "overlay"}) or \code{\link{splot}} (\code{type = "group"}).
-#'
-#' @return Invisibly returns \code{x}.
 #' @rdname splot
 #' @export
 splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
@@ -204,32 +197,7 @@ splot.wtna_mixed <- function(x, type = c("overlay", "group"), ...) {
 }
 
 
-#' Plot a Group of Nestimate netobjects
-#'
-#' Creates a multi-panel plot for a \code{netobject_group} list, one panel per group.
-#' Mirrors \code{plot_group_permutation()} in structure.
-#'
-#' @param x A \code{netobject_group} object (named list of netobjects).
-#' @param nrow Integer: number of rows in the panel grid. Auto-computed if NULL.
-#' @param ncol Integer: number of columns in the panel grid. Auto-computed if NULL.
-#' @param common_scale Logical: use the same maximum weight across all panels? Default TRUE.
-#' @param title_prefix Character: optional prefix added before each group name in panel titles.
-#' @param combined Logical: when TRUE (default), arrange the panels in an
-#'   internal grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw
-#'   each panel into the active device without altering \code{par()}, e.g.
-#'   when laying panels out yourself with \code{\link{panel_layout}()}.
-#' @param ... Additional arguments passed to \code{splot()}.
-#'
-#' @return Invisibly returns \code{x}. With a single group the
-#'   \code{\link{splot}()} result for that panel (a \code{cograph_network})
-#'   is returned instead, and with an empty group list \code{NULL}.
-#' @examples
-#' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-#' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
-#' net1 <- as_cograph(mat)
-#' net2 <- as_cograph(mat * 0.5)
-#' grp <- structure(list(G1 = net1, G2 = net2), class = c("netobject_group", "list"))
-#' plot_netobject_group(grp)
+#' @rdname plot-results
 #' @export
 plot_netobject_group <- function(x,
                                  nrow         = NULL,
@@ -282,35 +250,12 @@ plot_netobject_group <- function(x,
   invisible(x)
 }
 
-#' @rdname plot_netobject_group
+#' @noRd
 #' @export
 plot.netobject_group <- function(x, ...) plot_netobject_group(x, ...)
 
 
-#' Plot a Multilevel Nestimate netobject
-#'
-#' Creates a side-by-side plot for a \code{netobject_ml} object, showing the
-#' between-person and within-person networks.
-#'
-#' @param x A \code{netobject_ml} object with \code{$between} and \code{$within} networks.
-#' @param layout Character: layout algorithm. Default \code{NULL}, which
-#'   resolves to \code{"oval"} (deterministic).
-#' @param common_scale Logical: use the same maximum weight for both panels? Default TRUE.
-#' @param titles Character vector of length 2: panel titles. Default
-#'   \code{c("Between-person", "Within-person")}.
-#' @param combined Logical: when TRUE (default), draws both panels in an
-#'   internal 1 x 2 grid. Set to FALSE to render into a layout the caller
-#'   already configured (e.g. via \code{\link{panel_layout}()}).
-#' @param ... Additional arguments passed to \code{splot()}.
-#'
-#' @return Invisibly returns \code{x}.
-#' @examples
-#' mat <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-#' colnames(mat) <- rownames(mat) <- c("A", "B", "C")
-#' btw <- as_cograph(mat)
-#' wth <- as_cograph(mat * 0.6)
-#' ml <- structure(list(between = btw, within = wth), class = c("netobject_ml", "list"))
-#' plot_netobject_ml(ml)
+#' @rdname plot-results
 #' @export
 plot_netobject_ml <- function(x,
                               layout       = NULL,
@@ -347,40 +292,13 @@ plot_netobject_ml <- function(x,
   invisible(x)
 }
 
-#' @rdname plot_netobject_ml
+#' @noRd
 #' @export
 plot.netobject_ml <- function(x, ...) plot_netobject_ml(x, ...)
 
 
-#' Plot a Group Bootstrap Result
-#'
-#' Plots each cluster's \code{net_bootstrap} in a grid, routing every panel
-#' through \code{splot.net_bootstrap} so significance styling (solid vs
-#' dashed edges) is preserved. Earlier versions extracted \code{bs$original}
-#' per cluster and handed plain netobjects to \code{splot()}, which
-#' dispatches to \code{splot.netobject} — that path has no concept of
-#' significance, so every edge rendered identically.
-#'
-#' @param x A \code{net_bootstrap_group} object (list of \code{net_bootstrap}).
-#' @param nrow,ncol Grid dimensions. Defaults to auto-computed square layout.
-#' @param common_scale Logical: use the same maximum weight across panels? Default TRUE.
-#' @param combined Logical: when TRUE (default), arrange panels in an internal
-#'   grid via \code{graphics::par(mfrow=...)}. Set to FALSE to draw into a
-#'   layout the caller already configured (e.g. via \code{\link{panel_layout}()}).
-#' @param ... Additional arguments passed to \code{splot.net_bootstrap}
-#'   (e.g. \code{display = "significant"}, \code{show_stars = FALSE}).
-#'
-#' @return Invisibly returns \code{x}. With a single group the
-#'   \code{\link{splot}()} result for that panel (a \code{cograph_network})
-#'   is returned instead, and with an empty group list \code{NULL}.
+#' @rdname plot-results
 #' @export
-#' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
-#' set.seed(1)
-#' seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
-#'                    T2 = sample(c("A","B","C"), 30, replace = TRUE))
-#' grp <- Nestimate::cluster_network(seqs, k = 2)
-#' gbs <- Nestimate::bootstrap_network(grp, iter = 10)
-#' plot_net_bootstrap_group(gbs)
 plot_net_bootstrap_group <- function(x,
                                      nrow         = NULL,
                                      ncol         = NULL,
@@ -426,28 +344,13 @@ plot_net_bootstrap_group <- function(x,
   invisible(x)
 }
 
-#' @rdname plot_net_bootstrap_group
+#' @noRd
 #' @export
 plot.net_bootstrap_group <- function(x, ...) plot_net_bootstrap_group(x, ...)
 
 
-#' Plot Centrality Stability Results
-#'
-#' Visualizes the centrality stability analysis from a \code{net_stability}
-#' object. Shows how centrality correlations drop as cases are removed.
-#'
-#' @param x A \code{net_stability} object (from \code{Nestimate::centrality_stability}).
-#' @param ... Additional graphical arguments.
-#'
-#' @return Invisibly returns \code{x}.
+#' @rdname plot-results
 #' @export
-#' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
-#' set.seed(1)
-#' seqs <- data.frame(T1 = sample(c("A","B","C"), 30, replace = TRUE),
-#'                    T2 = sample(c("A","B","C"), 30, replace = TRUE))
-#' net <- Nestimate::build_network(seqs, method = "tna")
-#' cs <- Nestimate::centrality_stability(net, iter = 10)
-#' plot_net_stability(cs)
 plot_net_stability <- function(x, ...) {
   measures   <- x$measures
   drop_prop  <- x$drop_prop

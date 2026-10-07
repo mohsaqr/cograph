@@ -16,38 +16,42 @@ contract_nodes(
 \arguments{
 \item{x}{Network input.}
 
-\item{groups}{Group assignment. Either a vector with one entry per node (in
-node order), or a named list mapping group name to node labels.}
+\item{groups}{Group assignment. Either a vector with one entry per node, in
+node order, or a named list mapping each group name to node labels. A list
+must assign every node. Malformed input raises a
+\code{cograph_bad_selection} error.}
 
 \item{weight}{How to aggregate the weights of the edges that fall between
-two groups: \code{"sum"} (default), \code{"mean"}, \code{"max"} or
-\code{"min"}.}
+two groups. One of \code{"sum"} (default), \code{"mean"}, \code{"max"}
+or \code{"min"}. Within-group edges are aggregated the same way when
+\code{loops = TRUE}.}
 
 \item{loops}{Logical. Keep the within-group edges as self-loops on the
 contracted node. Default FALSE.}
 
-\item{keep_format}{Logical. Return the input format when TRUE.}
+\item{keep_format}{Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a \code{cograph_network} with a
+\code{cograph_no_format_roundtrip} warning. Default FALSE returns a
+\code{cograph_network}.}
 
-\item{directed}{Logical or NULL. If NULL (default), auto-detect.}
+\item{directed}{Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.}
 }
 \value{
 A \code{cograph_network} with one node per group, labeled by group
-name, or the input format when \code{keep_format = TRUE}.
+name, or the input format when \code{keep_format = TRUE}. The groups
+follow the factor levels of a vector (sorted for a character vector) or
+the order of a list.
 }
 \description{
 Replaces each group of nodes with a single node whose edges aggregate the
-edges of its members. The counterpart of \code{igraph::contract()} and
-tidygraph's \code{to_contracted()}, and the network form of what
-\code{\link{summarize_clusters}()} computes inside an analysis object.
+edges of its members. The operation corresponds to \code{igraph::contract()}
+and tidygraph's \code{to_contracted()}, and it is the network form of the
+aggregation computed by \code{\link{summarize_clusters}()}.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 0,
-                1, 0, 0, 1,
-                1, 0, 0, 1,
-                0, 1, 1, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-contract_nodes(adj, groups = c("left", "left", "right", "right"))
+contract_nodes(regulation_net, groups = rep(c("Plan", "Act"), each = 5))
 }
 \seealso{
 \code{\link{summarize_clusters}}, \code{\link{detect_communities}},

@@ -77,51 +77,45 @@ calculate_gravity <- function(cg, mode = "all", mass = "kshell",
 # Exported verbs
 # ---------------------------------------------------------------------------
 
-#' Betweenness and closeness variants that carry a tuning parameter
+#' Length-Scaled, Delta and Ego Betweenness, and Delta Closeness
 #'
-#' Four measures that reweight, rescope or re-tune a measure
-#' \code{\link{centrality}} already computes. Each is a thin wrapper on
-#' \code{centrality()}.
+#' Length-scaled betweenness (Borgatti and Everett 2006; Brandes 2008)
+#' weights each pair \eqn{s,t} in the betweenness sum by \eqn{1/d(s,t)}.
+#' Delta betweenness (Agneessens et al. 2017) uses the pair weight
+#' \eqn{(d(s,t)-1)^{-\delta}}{(d(s,t) - 1)^(-delta)}, so \eqn{\delta = 0}{delta = 0}
+#' gives ordinary betweenness. Ego betweenness (Everett and Borgatti 2005)
+#' is the betweenness of a node inside its own ego network. Delta closeness
+#' (Agneessens et al. 2017, eq. 2) is
+#' \deqn{C_\delta(i) = \frac{1}{n-1} \sum_{j \ne i} d_{ij}^{-\delta}.}{
+#'   C_delta(i) = sum_{j != i} d_ij^(-delta) / (n - 1).}
 #'
-#' \describe{
-#'   \item{\code{length_scaled_betweenness} (Borgatti & Everett 2006;
-#'     Brandes 2008, Algorithm 5)}{Betweenness with each separated pair
-#'     weighted by \eqn{1 / d(s,t)}, so brokering between nearby nodes
-#'     counts for more than brokering across the graph.}
-#'   \item{\code{delta_betweenness} (Agneessens, Borgatti & Everett
-#'     2017)}{Betweenness with the pair weight \eqn{(d(s,t) - 1)^{-\delta}}
-#'     (\code{betweenness_delta}, default 1). At \eqn{\delta = 0} it is
-#'     ordinary betweenness; raising it concentrates the score on locally
-#'     brokered pairs.}
-#'   \item{\code{ego_betweenness} (Everett & Borgatti 2005)}{Betweenness
-#'     computed inside the node's own ego network rather than the whole
-#'     graph. A node with fewer than two neighbors scores 0. It is close
-#'     to, but not a function of, \code{effective_size}.}
-#'   \item{\code{delta_closeness} (Agneessens, Borgatti & Everett 2017,
-#'     eq. 2)}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
-#'     (\code{closeness_delta}, default 1). One exponent spans the
-#'     closeness family: \eqn{\delta = 1} is \code{harmonic} over
-#'     \eqn{n-1}, \eqn{\delta = 2} is \code{harary} over \eqn{n-1}, a large
-#'     \eqn{\delta} approaches degree, and \eqn{\delta = 0} counts the
-#'     reachable set.}
-#' }
+#' @details
+#' On a directed network the three betweenness measures count directed
+#' paths. Length-scaled and delta betweenness and delta closeness read edge
+#' weights as distances, and \code{invert_weights = TRUE} converts weights
+#' to distances \eqn{1/w^\alpha}{1/w^alpha}. Delta betweenness counts only
+#' pairs at distance greater than one, so on a network whose weighted
+#' distances are all below one every score is 0. \code{weighted = FALSE}
+#' uses hop counts. Ego betweenness ignores weights, and a node with fewer
+#' than two neighbors scores 0. Delta closeness follows \code{mode} and
+#' \code{cutoff}. On hop distances \eqn{\delta = 1}{delta = 1} gives harmonic
+#' closeness divided by \eqn{n-1} and \eqn{\delta = 0}{delta = 0} gives the share of
+#' nodes reached. Bounded-distance betweenness, listed in the Centrality
+#' Zoo as k-betweenness, is \code{centrality_betweenness(x, cutoff = k)}.
 #'
-#' Bounded-distance betweenness, which the Centrality Zoo lists as
-#' "k-betweenness", needs no separate measure: it is
-#' \code{centrality(x, measures = "betweenness", cutoff = k)}.
-#'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna
-#'   object.
-#' @param mode Direction: \code{"all"}, \code{"out"} or \code{"in"}.
-#' @param betweenness_delta Decay exponent for
-#'   \code{centrality_delta_betweenness}. Default 1.
-#' @param closeness_delta Distance exponent for
-#'   \code{centrality_delta_closeness}. Default 1.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector, one value per node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The weighted
+#'   measures use \code{weighted} (default \code{TRUE}),
+#'   \code{invert_weights} (default \code{NULL}, which inverts for tna input
+#'   only) and \code{alpha} (inversion exponent, default 1). Delta
+#'   closeness also uses \code{cutoff} (default -1, no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
+#' Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective
+#'   on centrality. Social Networks, 28(4), 466-484.
+#'   \doi{10.1016/j.socnet.2005.11.005}.
+#'
 #' Agneessens, F., Borgatti, S. P., & Everett, M. G. (2017). Geodesic based
 #'   centrality: Unifying the local and the global. Social Networks, 49,
 #'   12-26.
@@ -131,26 +125,22 @@ calculate_gravity <- function(cg, mode = "all", mass = "kshell",
 #'
 #' Everett, M., & Borgatti, S. P. (2005). Ego network betweenness. Social
 #'   Networks, 27(1), 31-38.
-#'
 #' @seealso \code{\link{centrality_betweenness}},
-#'   \code{\link{centrality_harmonic}}, \code{\link{centrality_gravity}}.
-#'
+#'   \code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(0, 6, 6)
-#' adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-#' adj <- adj + t(adj)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-#' centrality_length_scaled_betweenness(adj)
-#' centrality_delta_betweenness(adj, betweenness_delta = 2)
-#' centrality_ego_betweenness(adj)
-#' centrality_delta_closeness(adj, closeness_delta = 2)
+#' centrality_length_scaled_betweenness(regulation_net)
+#' centrality_delta_betweenness(regulation_net, weighted = FALSE)
+#' centrality_ego_betweenness(regulation_net)
+#' centrality_delta_closeness(regulation_net, closeness_delta = 2)
 centrality_length_scaled_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "length_scaled_betweenness", ...)
   stats::setNames(df$length_scaled_betweenness, df$node)
 }
 
 #' @rdname centrality_length_scaled_betweenness
+#' @param betweenness_delta Decay exponent \eqn{\delta}{delta} of delta
+#'   betweenness. Default 1.
 #' @export
 centrality_delta_betweenness <- function(x, betweenness_delta = 1, ...) {
   df <- centrality(x, measures = "delta_betweenness",
@@ -166,6 +156,10 @@ centrality_ego_betweenness <- function(x, ...) {
 }
 
 #' @rdname centrality_length_scaled_betweenness
+#' @param mode Direction for delta closeness: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param closeness_delta Distance exponent \eqn{\delta}{delta} of delta
+#'   closeness. Default 1.
 #' @export
 centrality_delta_closeness <- function(x, mode = "all", closeness_delta = 1,
                                        ...) {
@@ -174,46 +168,41 @@ centrality_delta_closeness <- function(x, mode = "all", closeness_delta = 1,
   stats::setNames(df[[paste0("delta_closeness_", mode)]], df$node)
 }
 
-#' Gravity centrality
+#' Gravity Centrality
 #'
-#' \eqn{G(i) = \sum_j m_i m_j / d_{ij}^{2}}, optionally truncated at
-#' \code{gravity_radius}. The published members of the family differ only in
-#' the mass and the reach:
+#' Gravity centrality (Ma et al. 2016) treats node masses as attracting
+#' each other with a force that falls with the squared hop distance, summed
+#' over the nodes within a radius \eqn{r}:
+#' \deqn{G(i) = \sum_{j:\, 0 < d_{ij} \le r} \frac{m_i m_j}{d_{ij}^2}.}{
+#'   G(i) = sum_{j: 0 < d_ij <= r} m_i m_j / d_ij^2.}
+#' The default uses the k-shell index as mass and \eqn{r = 3} (Ma et al.
+#' 2016). Degree mass without truncation is the gravity model of Li et al.
+#' (2019, eq. 1), and degree mass with \code{gravity_radius = "auto"} is
+#' their local gravity model (eq. 2).
 #'
-#' \describe{
-#'   \item{Gravity centrality (Ma, Ma, Zhang & Wang 2016)}{k-shell mass,
-#'     radius 3 -- the default.}
-#'   \item{Gravity model (Li, Ren, Ma, Liu, Zhang & Zhou 2019, eq. 1)}{
-#'     \code{gravity_mass = "degree"}, \code{gravity_radius = NULL}.}
-#'   \item{Local gravity model (same paper, eq. 2)}{
-#'     \code{gravity_mass = "degree"}, \code{gravity_radius = "auto"},
-#'     which uses their empirical half-mean-distance heuristic (eq. 5).
-#'     cograph rounds to the nearest integer (ties to even), with minimum
-#'     1, using finite positive distances on disconnected graphs. These
-#'     rounding and disconnected-graph rules are cograph conventions.}
-#' }
+#' @details
+#' Distances are hop counts, so edge weights are ignored. \code{mode} sets
+#' the direction of both the distances and the degree or k-shell masses,
+#' and \code{mode = "all"} treats edges as undirected. The \code{"auto"}
+#' radius is half the mean finite positive distance, rounded to the nearest
+#' integer with a minimum of 1 (Li et al. 2019, eq. 5). A radius below 1
+#' gives a score of 0 for every node. \code{gravity_mass = "legacy"} with
+#' \code{gravity_radius = NULL} computes
+#' \eqn{\sum_j k_j s_j / d_{ij}^2}{sum_j k_j s_j / d_ij^2}, with \eqn{k_j}
+#' the degree, \eqn{s_j} the k-shell index and no mass on the focal node.
+#' This form differs from the formula of Li et al. (2019).
 #'
-#' @section Change in 2.4.8:
-#' Before 2.4.8 this measure computed \eqn{\sum_j k_j s_j / d_{ij}^2}: the
-#' product of degree and k-shell on the partner, no mass at all on the focal
-#' node, and no truncation. That is not the formula of Li et al. (2019) that
-#' its help page cited, and dropping the focal mass changes the ranking
-#' rather than the scale. The default is now Ma et al. (2016).
-#' \code{gravity_mass = "legacy"} with \code{gravity_radius = NULL}
-#' reproduces the earlier values exactly.
-#'
-#' @param x Network input: matrix, igraph, network, cograph_network, or tna
-#'   object.
-#' @param mode Direction: \code{"all"}, \code{"out"} or \code{"in"}.
-#' @param gravity_mass \code{"kshell"} (default), \code{"degree"}, or
-#'   \code{"legacy"}.
-#' @param gravity_radius Largest distance to include: a number,
-#'   \code{"auto"} for half the mean distance, or \code{NULL} for the whole
-#'   graph. Default 3.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector, one value per node.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param gravity_mass Node mass: \code{"kshell"} (default),
+#'   \code{"degree"} or \code{"legacy"}.
+#' @param gravity_radius Largest hop distance included: a number (default
+#'   3), \code{"auto"}, or \code{NULL} for the whole network.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Ma, L.-L., Ma, C., Zhang, H.-F., & Wang, B.-H. (2016). Identifying
 #'   influential spreaders in complex networks based on gravity formula.
@@ -222,18 +211,11 @@ centrality_delta_closeness <- function(x, mode = "all", closeness_delta = 1,
 #' Li, Z., Ren, T., Ma, X., Liu, S., Zhang, Y., & Zhou, T. (2019).
 #'   Identifying influential spreaders by gravity model. Scientific
 #'   Reports, 9, 8387.
-#'
-#' @seealso \code{\link{centrality_coreness}},
-#'   \code{\link{centrality_kreach}}, \code{\link{centrality}}.
-#'
+#' @seealso \code{\link{centrality_extended_gravity}},
+#'   \code{\link{centrality_coreness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(0, 6, 6)
-#' adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-#' adj <- adj + t(adj)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-#' centrality_gravity(adj)
-#' centrality_gravity(adj, gravity_mass = "degree", gravity_radius = NULL)
+#' centrality_gravity(regulation_net)
 centrality_gravity <- function(x, mode = "all", gravity_mass = "kshell",
                                gravity_radius = 3, ...) {
   df <- centrality(x, measures = "gravity", mode = mode,

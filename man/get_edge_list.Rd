@@ -7,7 +7,7 @@
 get_edge_list(x, by_individual = TRUE, drop_zeros = TRUE)
 }
 \arguments{
-\item{x}{A tna object created by \code{\link[tna:build_model]{tna::tna()}}}
+\item{x}{A tna object created by \code{\link[tna:build_model]{tna::tna()}}. Other inputs raise an error.}
 
 \item{by_individual}{Logical. If TRUE (default), returns edge list with
 individual IDs. If FALSE, aggregates across all individuals.}
@@ -17,25 +17,21 @@ individual IDs. If FALSE, aggregates across all individuals.}
 \value{
 A data frame with columns:
 \describe{
-\item{id}{Individual identifier (only if \code{by_individual = TRUE})}
-\item{from}{Source state label}
-\item{to}{Target state label}
-\item{count}{Number of transitions}
+\item{id}{Row number of the individual in the sequence data (only if
+\code{by_individual = TRUE}).}
+\item{from}{Source state label.}
+\item{to}{Target state label.}
+\item{count}{Number of transitions.}
 }
+With \code{by_individual = FALSE}, the rows are sorted by decreasing count.
 }
 \description{
-Extract individual-level transition counts as an edge list from a tna object.
+Extracts the individual-level transition counts of a tna object as an edge
+list.
 }
 \examples{
 \dontshow{if (requireNamespace("tna", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-Mod <- tna::tna(head(tna::group_regulation, 100))
-
-# Get edge list by individual
-edges <- get_edge_list(Mod)
-head(edges)
-
-# Aggregate across individuals
-agg_edges <- get_edge_list(Mod, by_individual = FALSE)
+get_edge_list(tna::tna(coding))
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -46,8 +42,6 @@ Other motifs:
 \code{\link{extract_triads}()},
 \code{\link{motif_census}()},
 \code{\link{motifs}()},
-\code{\link{plot.cograph_motif_analysis}()},
-\code{\link{plot.cograph_motifs}()},
 \code{\link{subgraphs}()},
 \code{\link{triad_census}()}
 }

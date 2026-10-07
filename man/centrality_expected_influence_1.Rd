@@ -2,42 +2,49 @@
 % Please edit documentation in R/centrality.R
 \name{centrality_expected_influence_1}
 \alias{centrality_expected_influence_1}
-\title{Expected Influence (one-step)}
+\title{One-Step Expected Influence}
 \usage{
 centrality_expected_influence_1(x, mode = "out", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna
-object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{One of "all", "in", "out" for directed graphs. Default "out".}
+\item{mode}{For directed networks: \code{"out"} (default), \code{"in"} or
+\code{"all"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}}.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized} and \code{psych_network}.}
 }
 \value{
-Named numeric vector of expected-influence values (signed).
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
-The appropriate centrality for networks with positive \emph{and} negative
-edges (partial-correlation, glasso, signed correlation networks) where
-treating negative edges as positive magnitudes can be misleading.
+One-step expected influence (Robinaugh, Millner and McNally 2016) sums the
+signed weights of a node's edges:
+\deqn{EI_1(i) = \sum_{j} w_{ij}.}{EI1(i) = sum_j w_ij.}
+Negative edges lower the score, which makes the measure suited to
+partial-correlation and other signed networks.
+}
+\details{
+\code{mode = "out"} (the default here) sums the outgoing weights,
+\code{mode = "in"} the incoming weights and \code{mode = "all"} both, with
+a self-loop counted once. On an undirected network \code{"out"} and
+\code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
+are always used, and \code{weighted = FALSE} has no effect. On an
+unweighted input the score is the degree in the chosen mode. When the
+network has a negative edge, \code{normalized = TRUE} divides by the
+largest absolute score and keeps the sign.
 }
 \examples{
-# Signed weight matrix (partial correlations, for example)
-W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-               0.5,  0.0,  0.4, -0.1,
-              -0.3,  0.4,  0.0,  0.6,
-               0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-centrality_expected_influence_1(W)
+centrality_expected_influence_1(regulation_net)
 }
 \references{
-Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
-highly influential nodes in the complicated grief network.
-\emph{Journal of Abnormal Psychology}, 125(6), 747-757.
+Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+highly influential nodes in the complicated grief network. Journal of
+Abnormal Psychology, 125(6), 747-757. \doi{10.1037/abn0000181}.
 }
 \seealso{
-\code{\link{centrality_expected_influence_2}} for the two-step
-variant, \code{\link{centrality_strength}} for the weighted-degree analogue.
+\code{\link{centrality_expected_influence_2}},
+\code{\link{centrality_strength}}, \code{\link{centrality}}.
 }

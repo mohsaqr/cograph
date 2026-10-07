@@ -2,42 +2,35 @@
 % Please edit documentation in R/centrality-batch13.R
 \name{centrality_mcc}
 \alias{centrality_mcc}
-\title{Maximal clique centrality}
+\title{Maximal Clique Centrality}
 \usage{
 centrality_mcc(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-For every maximal clique C containing a vertex, add \eqn{(|C|-1)!}.
-Only maximal cliques count: a clique contained in a larger clique is
-excluded. This is Chin et al.'s MCC, not a count of all cliques.
+Maximal clique centrality (MCC; Chin et al. 2014) sums
+\eqn{(|C|-1)!} over the maximal cliques \eqn{C} that contain the node.
+A clique contained in a larger clique does not count.
 }
 \details{
-Uses the simple undirected, unweighted skeleton: either direction creates
-an edge, parallel edges count once, and self-loops are removed. Singleton
-cliques are excluded, so isolates score zero. This is an explicit cograph
-convention consistent with the paper's degree reduction when neighbors
-have no edges between them. Reading the printed sum literally with
-singleton cliques would instead assign isolates \eqn{0! = 1}.
-
-Maximal clique enumeration has exponential worst-case cost. MCC is held
-back from \code{centrality(type = "all")}; select it explicitly or use
-\code{include = "mcc"}. Scores use double precision; overflow raises an
-error, including any clique with more than 171 vertices. Normalization
-happens after raw calculation and does not bypass this limit.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Single-node cliques are excluded,
+so an isolated node scores 0. A node whose neighbors share no edge
+scores its degree. Maximal clique enumeration has exponential worst-case
+cost. A score beyond double precision, which includes any clique with
+more than 171 nodes, raises an error.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_mcc(igraph::make_full_graph(5))
-\dontshow{\}) # examplesIf}
+centrality_mcc(regulation_net)
 }
 \references{
 Chin, C. H., et al. (2014). cytoHubba: identifying hub objects and
@@ -46,5 +39,5 @@ S11. \doi{10.1186/1752-0509-8-S4-S11}.
 }
 \seealso{
 \code{\link{centrality_cross_clique}},
-\code{\link{list_centralities}}.
+\code{\link{centrality_epc}}, \code{\link{centrality}}.
 }

@@ -22,8 +22,8 @@ weights.}
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
 
-\item{...}{Currently unused; \code{directed} is already an explicit
-argument above and \code{\link{to_igraph}} accepts no others.}
+\item{...}{Not used. Any argument supplied here raises an
+\code{"unused argument"} error.}
 }
 \value{
 Depends on the query:
@@ -44,13 +44,9 @@ Computes shortest path distances between nodes in a network. Supports
 all-pairs, single-source, and point-to-point queries.
 }
 \details{
-Uses \code{igraph::distances()} internally. For weighted networks, edge
-weights are used as distances by default. Pass \code{weights = NA} to
-ignore weights and treat all edges as having unit distance.
-
-Note: \code{igraph::distances()} with \code{weights = NULL} automatically
-uses edge weight attributes if present. To force unweighted computation,
-pass \code{weights = NA} explicitly.
+Distances are computed with \code{igraph::distances()}. For weighted
+networks, edge weights are used as distances by default. With
+\code{weights = NA}, every edge has unit distance.
 
 igraph also exports a \code{shortest_paths()} with a different signature and
 return value; when both packages are attached, qualify the call as
@@ -58,21 +54,7 @@ return value; when both packages are attached, qualify the call as
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-# All-pairs distances
-adj <- matrix(c(
-  0, 1, 0, 0,
-  1, 0, 1, 0,
-  0, 1, 0, 1,
-  0, 0, 1, 0
-), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::shortest_paths(adj)
-
-# Single source to all
-cograph::shortest_paths(adj, from = "A")
-
-# Point-to-point
-cograph::shortest_paths(adj, from = "A", to = "D")
+cograph::shortest_paths(regulation_net, from = "Plan")
 \dontshow{\}) # examplesIf}
 }
 \seealso{

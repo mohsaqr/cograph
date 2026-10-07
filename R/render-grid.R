@@ -1,12 +1,13 @@
 #' @title Grid Rendering
-#' @description Main grid-based rendering functions.
+#' @description The grid rendering engine. \code{\link{soplot}} plots a
+#'   network with grid graphics, and \code{\link{sn_ggplot}} converts a network
+#'   into a ggplot2 object.
 #' @name render-grid
 #' @return See individual functions: \code{\link{soplot}} returns a
 #'   \code{cograph_network} object invisibly; \code{\link{sn_ggplot}} returns a
 #'   ggplot2 object.
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' soplot(adj)
+#' soplot(regulation_net)
 NULL
 
 # Copy aesthetic/theme state from an S3 cograph_network or R6 CographNetwork
@@ -37,11 +38,13 @@ NULL
 
 #' Plot Cograph Network
 #'
-#' Main plotting function for Cograph networks. Renders the network visualization
-#' using grid graphics. Accepts all node and edge aesthetic parameters.
+#' Plots a network with grid graphics. Node and edge aesthetics can be passed
+#' as arguments or set beforehand with \code{\link{sn_nodes}} and
+#' \code{\link{sn_edges}}.
 #'
-#' @param network A cograph_network object, matrix, data.frame, or igraph object.
-#'   Matrices and other inputs are auto-converted.
+#' @param network A cograph_network object, matrix, data.frame, igraph or tna
+#'   object. Other inputs are converted with \code{as_cograph()}; tna objects
+#'   are converted with \code{from_tna()}.
 #' @param title Optional plot title.
 #' @param title_size Title font size.
 #' @param margins Plot margins as c(bottom, left, top, right).
@@ -51,12 +54,15 @@ NULL
 #'   "random", "star", "bipartite". igraph (2-letter): "kk" (Kamada-Kawai),
 #'   "fr" (Fruchterman-Reingold), "drl", "mds", "ni" (nicely), "tr" (tree), etc.
 #'   Can also pass a coordinate matrix or igraph layout function directly.
+#'   NULL (default) keeps the layout stored in a cograph_network and uses
+#'   "oval" for inputs without stored coordinates.
 #' @param theme Theme name: "classic", "dark", "minimal", etc.
 #' @param seed Random seed for deterministic layouts. Default 42. Set NULL for random.
 #' @param labels Node labels. Can be a character vector to set custom labels.
-#' @param weight_digits Number of decimal places to round edge weights to before
-#'   plotting. Edges that round to zero are automatically removed. Default 2.
-#'   Set NULL to disable rounding.
+#' @param weight_digits Number of decimal places to which a matrix input is
+#'   rounded before conversion, so that entries rounding to zero are not
+#'   plotted as edges. Other inputs are not rounded. Default 2. Set NULL to
+#'   disable rounding.
 #' @param threshold Minimum absolute edge weight to display. Edges with
 #'   abs(weight) < threshold are hidden. Similar to qgraph's threshold.
 #' @param maximum Maximum edge weight for width scaling. Weights above this
@@ -90,7 +96,8 @@ NULL
 #'   single color for fill, or c(fill, background) for both.
 #' @param donut_colors Deprecated. Use donut_color instead.
 #' @param donut_shape Base shape for donut: "circle", "square", "hexagon", "triangle",
-#'   "diamond", "pentagon". Default inherits from node_shape.
+#'   "diamond", "pentagon". The default "circle" takes the base shape from
+#'   \code{node_shape} when that is one of these shapes.
 #' @param donut_value_fontface Font face for donut center value: "plain", "bold",
 #'   "italic", "bold.italic". Default "bold".
 #' @param donut_value_fontfamily Font family for donut center value. Default "sans".
@@ -102,21 +109,23 @@ NULL
 #' @param donut2_inner_ratio Inner radius ratio for inner donut ring. Default 0.4.
 #'
 #' @param edge_width Edge width. If NULL, scales by weight using edge_size and edge_width_range.
-#' @param edge_size Base edge size for weight scaling. NULL (default) uses adaptive sizing
-#'   based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values = thicker edges.
+#' @param edge_size Maximum edge width for weight scaling. It replaces the upper
+#'   bound of \code{edge_width_range}. NULL (default) uses
+#'   \code{edge_width_range} unchanged.
 #' @param esize Deprecated. Use `edge_size` instead.
 #' @param edge_width_range Output width range as c(min, max) for weight-based scaling.
 #'   Default c(0.5, 4). Edges are scaled to fit within this range.
 #' @param edge_scale_mode Scaling mode for edge weights: "linear" (default),
 #'   "log" (for wide weight ranges), "sqrt" (moderate compression),
 #'   or "rank" (equal visual spacing).
-#' @param edge_cutoff Two-tier cutoff for edge width scaling. NULL (default) = auto 75th percentile.
-#'   0 = disabled. Positive number = manual threshold.
+#' @param edge_cutoff Accepted for compatibility with \code{splot()}. The grid
+#'   renderer keeps width scaling continuous and does not use the value.
 #' @param cut Deprecated. Use `edge_cutoff` instead.
 #' @param edge_width_scale Scale factor for edge widths. Values > 1 make edges thicker.
 #' @param edge_color Edge color.
 #' @param edge_alpha Edge transparency (0-1).
-#' @param edge_style Line style: "solid", "dashed", "dotted".
+#' @param edge_style Line style: "solid", "dashed", "dotted", "longdash",
+#'   "twodash".
 #' @param curvature Edge curvature amount.
 #' @param arrow_size Size of arrow heads.
 #' @param show_arrows Logical. Show arrows?
@@ -141,56 +150,44 @@ NULL
 #' @param loop_rotation Angle in radians for self-loop direction (default: pi/2 = top).
 #' @param curve_shape Spline tension for curved edges (-1 to 1, default: 0).
 #' @param curve_pivot Pivot position along edge for curve control point (0-1, default: 0.5).
-#' @param curves Curve mode: TRUE (default) = single edges straight, reciprocal edges
-#'   curve as ellipse (two opposing curves); FALSE = all straight; "force" = all curved.
+#' @param curves Curve mode. NULL (default) or "mutual" keeps single edges
+#'   straight and curves reciprocal edges as two opposing arcs; FALSE plots all
+#'   edges straight; "force" curves all edges. \code{TRUE} is rejected with an
+#'   error.
 #' @param node_names Alternative names for legend (separate from display labels).
 #' @param legend Logical. Show legend?
 #' @param legend_position Legend position: "topright", "topleft", "bottomright", "bottomleft".
 #' @param scaling Scaling mode: "default" for qgraph-matched scaling where node_size=6
-#'   looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0 behavior.
+#'   looks similar to qgraph vsize=6, or "legacy" for the
+#'   earlier cograph scaling constants.
 #' @param background Background color for the plot. Default "white".
 #'
 #' @details
-#' ## soplot vs splot
-#' \code{soplot()} uses grid graphics while \code{splot()} uses base R graphics.
-#' Both accept the same parameters and produce visually similar output. Choose based on:
-#' \itemize{
-#'   \item \strong{soplot}: Better for integration with ggplot2, combining plots,
-#'     and publication-quality vector graphics.
-#'   \item \strong{splot}: Better for large networks (faster rendering), interactive
-#'     exploration, and traditional R workflows.
-#' }
+#' ## soplot and splot
+#' \code{soplot()} uses grid graphics and \code{splot()} uses base R graphics.
+#' The two functions share argument names for the common aesthetics, and
+#' \code{splot()} has a larger set of arguments.
 #'
 #' ## Edge Curve Behavior
-#' Edge curving is controlled by the \code{curves} and \code{curvature} parameters:
-#' \describe{
-#'   \item{\strong{curves = FALSE}}{All edges are straight lines.}
-#'   \item{\strong{curves = TRUE}}{(Default) Reciprocal edge pairs (A\code{->}B and
-#'     B\code{->}A) curve in opposite directions to form a visual ellipse. Single
-#'     edges remain straight.}
-#'   \item{\strong{curves = "force"}}{All edges curve inward toward the network center.}
-#' }
+#' With the default \code{curves}, reciprocal edge pairs (A\code{->}B and
+#' B\code{->}A) curve in opposite directions and single edges remain straight.
+#' \code{curves = FALSE} plots all edges as straight lines, and
+#' \code{curves = "force"} curves every edge.
 #'
-#' ## Weight Scaling Modes (edge_scale_mode)
-#' Controls how edge weights map to visual widths:
-#' \describe{
-#'   \item{\strong{linear}}{Width proportional to weight. Best for similar-magnitude weights.}
-#'   \item{\strong{log}}{Logarithmic scaling. Best for weights spanning orders of magnitude.}
-#'   \item{\strong{sqrt}}{Square root scaling. Moderate compression for skewed data.}
-#'   \item{\strong{rank}}{Rank-based scaling. Equal visual spacing regardless of values.}
-#' }
+#' ## Weight Scaling Modes
+#' \code{edge_scale_mode} sets how edge weights map to widths. \code{"linear"}
+#' makes width proportional to weight, \code{"log"} compresses weights that
+#' span orders of magnitude, \code{"sqrt"} gives moderate compression, and
+#' \code{"rank"} spaces widths evenly by weight rank.
 #'
 #' ## Donut Visualization
-#' The donut system visualizes proportions (0-1) as filled rings around nodes:
-#' \describe{
-#'   \item{\strong{donut_fill}}{Proportion filled (0-1). Can be scalar or per-node vector.}
-#'   \item{\strong{donut_color}}{Fill color. Single color, c(fill, bg), or per-node vector.}
-#'   \item{\strong{donut_shape}}{Base shape: "circle", "square", "hexagon", etc.}
-#'   \item{\strong{donut_show_value}}{Show numeric value in center.}
-#' }
+#' Donuts show proportions (0-1) as filled rings around nodes.
+#' \code{donut_fill} sets the filled proportion per node, \code{donut_color}
+#' sets the fill color (or fill and background), \code{donut_shape} sets the
+#' base shape and \code{donut_show_value} prints the value in the center.
 #'
-#' @return The updated \code{cograph_network} object, invisibly. Called
-#'   primarily for the side effect of drawing.
+#' @return The updated \code{cograph_network} object, invisibly. The function
+#'   is called for the plot it produces.
 #'
 #' @seealso
 #' \code{\link{splot}} for base R graphics rendering (alternative engine),
@@ -203,17 +200,7 @@ NULL
 #' @export
 #'
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' # With cograph()
-#' cograph(adj) |> soplot()
-#'
-#' # Direct matrix input with all options
-#' adj |> soplot(
-#'   layout = "circle",
-#'   node_fill = "steelblue",
-#'   node_size = 0.08,
-#'   edge_width = 2
-#' )
+#' soplot(regulation_net, layout = "circle")
 soplot <- function(network, title = NULL, title_size = 14,
                       margins = c(0.05, 0.05, 0.1, 0.05),
                       layout_margin = 0.15,
@@ -935,10 +922,7 @@ render_legend_grid <- function(network, position = "topright") {
 }
 
 #' @rdname soplot
-#' @return The updated \code{cograph_network} object, invisibly. Called
-#'   primarily for the side effect of drawing.
+#' @return The updated \code{cograph_network} object, invisibly. The function
+#'   is called for the plot it produces.
 #' @export
-#' @examples
-#' mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-#' sn_render(mat)
 sn_render <- soplot

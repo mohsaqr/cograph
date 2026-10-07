@@ -7,25 +7,42 @@
 centrality_integration(x, mode = "all", ...)
 }
 \arguments{
-\item{x}{Network input (matrix, igraph, network, cograph_network, tna object).}
+\item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{For directed networks: \code{"all"} (default), \code{"in"}, or
-\code{"out"}.}
+\item{mode}{Direction for directed networks: \code{"all"} (default),
+\code{"out"} or \code{"in"}.}
 
-\item{...}{Additional arguments passed to \code{\link{centrality}} (e.g.,
-\code{normalized}, \code{weighted}, \code{directed}).}
+\item{...}{Further arguments to \code{\link{centrality}}.}
 }
 \value{
-Named numeric vector of integration centrality values.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-Distance-based influence: sum of 1 - (d-1)/max(d) over all nodes.
+Integration centrality (Valente and Foreman 1998) scores each distance
+against the diameter \eqn{D}, the largest finite hop distance, and sums:
+\deqn{I(i) = \sum_{j} \left(1 - \frac{d_{ij} - 1}{D}\right),}{
+  I(i) = sum_j (1 - (d_ij - 1) / D),}
+where an unreachable node contributes 0.
+}
+\details{
+Distances are hop counts, so edge weights are ignored. The sum includes
+the node itself, which contributes \eqn{1 + 1/D}, and is not divided by
+\eqn{n - 1}; the values equal \code{tidygraph::centrality_integration()}.
+\code{mode = "all"} treats edges as undirected, \code{"out"} uses
+distances from the node and \code{"in"} distances to it. On a network
+without edges every node scores \eqn{n}.
 }
 \examples{
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_integration(adj)
+centrality_integration(regulation_net)
+}
+\references{
+Valente, T. W., & Foreman, R. K. (1998). Integration and radiality:
+Measuring the extent of an individual's connectedness and reachability
+in a network. Social Networks, 20(1), 89-105.
+\doi{10.1016/S0378-8733(97)00007-5}.
 }
 \seealso{
-\code{\link{centrality}} for computing multiple measures at once.
+\code{\link{centrality_radiality}},
+\code{\link{centrality_closeness}}, \code{\link{centrality}}.
 }

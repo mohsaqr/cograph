@@ -2,41 +2,43 @@
 % Please edit documentation in R/centrality-batch15.R
 \name{centrality_malatya}
 \alias{centrality_malatya}
-\title{Malatya centrality}
+\title{Malatya Centrality}
 \usage{
 centrality_malatya(x, ...)
 }
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{...}{Additional arguments to \code{\link{centrality}}. With
-\code{normalized = TRUE}, positive scores are divided by their maximum.}
+\item{...}{Further arguments to \code{\link{centrality}}, such as
+\code{normalized}.}
 }
 \value{
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node
+order.
 }
 \description{
-The static Malatya score of a node is the sum of its degree divided by
-each neighbor's degree: \eqn{M(i)=\sum_{j\in N(i)}d_i/d_j}.
-Computes the score on the original graph. On nonisolated vertices it is
-exactly the reciprocal of \code{\link{centrality_bridging_coefficient}};
-this relationship follows from their definitions, not rank correlation.
+The Malatya centrality of a node (Karci et al. 2022) is the sum of its
+degree divided by the degree of each neighbor,
+\eqn{M(i) = \sum_{j \in N(i)} d_i / d_j}{M(i) = sum_{j in N(i)} d_i / d_j}.
+High scores mark nodes with many neighbors of low degree.
 }
 \details{
-Uses the simple undirected unweighted skeleton: either direction creates
-an edge, parallel edges count once and self-loops are removed. This is an
-explicit projection of other inputs to the source's domain. The empty
-neighbor sum assigns isolates zero. On a regular graph the score equals
-degree. High scores favor nodes with many neighbors of low degree.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Isolated nodes score 0. On a
+regular network the score equals the degree. On every node with at least
+one neighbor it is the reciprocal of
+\code{\link{centrality_bridging_coefficient}}.
 }
 \examples{
-\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-centrality_malatya(igraph::make_star(5, mode = "undirected"))
-\dontshow{\}) # examplesIf}
+centrality_malatya(regulation_net)
 }
 \references{
 Karci, A., Yakut, S., & Oztemiz, F. (2022). A New Approach Based on
 Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
 Centrality Algorithm. Journal of Computer Science, 7(2), 81-88.
 \doi{10.53070/bbd.1195501}.
+}
+\seealso{
+\code{\link{centrality_bridging_coefficient}},
+\code{\link{centrality_degree}}, \code{\link{centrality}}.
 }

@@ -20,18 +20,20 @@ robustness(
 
 \item{type}{Character string; either "vertex" or "edge" removals. Default: "vertex"}
 
-\item{measure}{Character string; sort by "betweenness", "degree", or "random".
-Default: "betweenness"}
+\item{measure}{Character string; rank by "betweenness", "degree", or remove
+in "random" order. Default: "betweenness". "degree" is not available for
+edge removals and raises an error.}
 
-\item{strategy}{Character string; "sequential" (default) recalculates centrality
-after each removal. "static" computes centrality once on the original network
-and removes nodes in that fixed order (brainGraph-style). Only affects targeted
-attacks; random removal is unaffected.}
+\item{strategy}{Character string. "sequential" (default) recomputes the
+centrality after each removal. "static" computes the centrality once on the
+original network and removes elements in that fixed order, as in brainGraph.
+The argument applies to targeted attacks only.}
 
-\item{n_iter}{Integer; number of iterations for random analysis. Default: 1000
-(matching brainGraph convention)}
+\item{n_iter}{Integer; number of random removal sequences averaged when
+\code{measure = "random"}. Default: 1000.}
 
-\item{mode}{For directed networks: "all", "in", or "out". Default "all".}
+\item{mode}{Degree mode for directed networks: "all", "in", or "out".
+Default "all". Used only when \code{measure = "degree"}.}
 
 \item{seed}{Random seed for reproducibility. Default NULL.}
 
@@ -49,71 +51,42 @@ step, from zero removed through all removed (\code{n + 1} rows, where
 \item{comp_pct}{Ratio of component size to original maximum}
 \item{measure}{The \code{measure} argument: "betweenness", "degree", or
 "random"}
-\item{type}{A human-readable label for the analysis, one of
+\item{type}{A label for the analysis, one of
 "Targeted vertex attack", "Targeted edge attack",
-"Random vertex removal" or "Random edge removal" - not the bare
-\code{type} argument}
+"Random vertex removal" or "Random edge removal"}
 }
-The original number of vertices/edges (\code{"n_original"}) and the original
-largest-component size (\code{"orig_max"}) are stored as attributes.
+The last row always has \code{comp_size = 0}. The original number of
+vertices or edges (\code{"n_original"}) and the original largest-component
+size (\code{"orig_max"}) are stored as attributes.
 }
 \description{
-Performs a targeted attack or random failure analysis on a network,
-calculating the size of the largest connected component after sequential
+Performs a targeted attack or random failure analysis on a network and
+computes the size of the largest (weakly) connected component after each
 vertex or edge removal.
 
-In a targeted attack, vertices are sorted by degree or betweenness centrality
-(or edges by betweenness), and successively removed from highest to lowest.
-In a random failure analysis, vertices/edges are removed in random order.
+In a targeted attack, vertices are ranked by degree or betweenness
+centrality (edges by edge betweenness) and removed from highest to lowest.
+In a random failure analysis, vertices or edges are removed in random order.
 }
 \details{
-Three attack strategies are available:
+A betweenness attack removes the vertices or edges that lie on the most
+shortest paths, which bridge different regions of the network. A degree
+attack removes the most connected vertices first. Random failure removes
+vertices or edges in random order and averages the component sizes over
+\code{n_iter} sequences. Betweenness is computed with igraph, which treats
+edge weights as distances.
 
-\strong{Targeted Attack - Betweenness (default):}
-Vertices/edges are sorted by betweenness centrality and removed from
-highest to lowest. This targets nodes that bridge different network regions.
+The sequential strategy updates the ranking after every removal, so the
+attack follows the vertices that become new bridges or hubs. The static
+strategy ranks once on the original network, as in Albert et al. (2000).
 
-\strong{Targeted Attack - Degree:}
-Vertices are sorted by degree and removed from highest to lowest.
-This targets highly connected hub nodes. Note: for edge attacks, degree
-is not available; use betweenness instead.
-
-\strong{Random Failure:}
-Vertices/edges are removed in random order, averaged over n_iter iterations.
-This simulates random component failures.
-
-\strong{Strategy:}
-The \code{strategy} parameter controls how targeted attacks work:
-\itemize{
-\item \code{"sequential"} (default): Recalculates centrality after each
-removal. This is a stronger attack because removing a hub changes which
-nodes become the new bridges/hubs.
-\item \code{"static"}: Computes centrality once on the original network and
-removes nodes in that fixed order (as in brainGraph). This matches the
-original Albert et al. (2000) method.
-}
-
-Scale-free networks are typically robust to random failures but vulnerable
-to targeted attacks, while random networks degrade more uniformly.
+Scale-free networks are typically robust to random failures and vulnerable
+to targeted attacks. Random networks degrade more uniformly.
 }
 \examples{
-# Create a scale-free network
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-
-  # Targeted attack by betweenness
-  rob_btw <- robustness(g, measure = "betweenness")
-
-  # Targeted attack by degree
-  rob_deg <- robustness(g, measure = "degree")
-
-  # Random failure
-  rob_rnd <- robustness(g, measure = "random", n_iter = 50)
-
-  # View results
-  head(rob_btw)
-}
-
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+robustness(regulation_net, measure = "betweenness")
+\dontshow{\}) # examplesIf}
 }
 \references{
 Albert, R., Jeong, H., & Barabasi, A.L. (2000). Error and attack tolerance

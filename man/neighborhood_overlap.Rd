@@ -20,7 +20,7 @@ object.}
 }
 \value{
 A data frame sorted by \code{overlap} (descending) with columns:
-\code{from}, \code{to}, \code{weight} (if weighted), \code{overlap},
+\code{from}, \code{to}, \code{weight}, \code{overlap},
 \code{shared_neighbors}.
 }
 \description{
@@ -28,9 +28,7 @@ Convenience wrapper around \code{\link{edge_centrality}} that returns only
 the overlap measure sorted by overlap descending.
 }
 \examples{
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::neighborhood_overlap(adj)
+cograph::neighborhood_overlap(regulation_net, top = 5)
 }
 \seealso{
 \code{\link{edge_centrality}}, \code{\link{simmelian_strength}}

@@ -1,25 +1,27 @@
 #' Network Robustness Analysis
 #'
 #' @description
-#' Performs a targeted attack or random failure analysis on a network,
-#' calculating the size of the largest connected component after sequential
+#' Performs a targeted attack or random failure analysis on a network and
+#' computes the size of the largest (weakly) connected component after each
 #' vertex or edge removal.
 #'
-#' In a targeted attack, vertices are sorted by degree or betweenness centrality
-#' (or edges by betweenness), and successively removed from highest to lowest.
-#' In a random failure analysis, vertices/edges are removed in random order.
+#' In a targeted attack, vertices are ranked by degree or betweenness
+#' centrality (edges by edge betweenness) and removed from highest to lowest.
+#' In a random failure analysis, vertices or edges are removed in random order.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param type Character string; either "vertex" or "edge" removals. Default: "vertex"
-#' @param measure Character string; sort by "betweenness", "degree", or "random".
-#'   Default: "betweenness"
-#' @param strategy Character string; "sequential" (default) recalculates centrality
-#'   after each removal. "static" computes centrality once on the original network
-#'   and removes nodes in that fixed order (brainGraph-style). Only affects targeted
-#'   attacks; random removal is unaffected.
-#' @param n_iter Integer; number of iterations for random analysis. Default: 1000
-#'   (matching brainGraph convention)
-#' @param mode For directed networks: "all", "in", or "out". Default "all".
+#' @param measure Character string; rank by "betweenness", "degree", or remove
+#'   in "random" order. Default: "betweenness". "degree" is not available for
+#'   edge removals and raises an error.
+#' @param strategy Character string. "sequential" (default) recomputes the
+#'   centrality after each removal. "static" computes the centrality once on the
+#'   original network and removes elements in that fixed order, as in brainGraph.
+#'   The argument applies to targeted attacks only.
+#' @param n_iter Integer; number of random removal sequences averaged when
+#'   \code{measure = "random"}. Default: 1000.
+#' @param mode Degree mode for directed networks: "all", "in", or "out".
+#'   Default "all". Used only when \code{measure = "degree"}.
 #' @param seed Random seed for reproducibility. Default NULL.
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
 #'   is \code{directed}; anything else raises an "unused argument" error.
@@ -34,43 +36,28 @@
 #'   \item{comp_pct}{Ratio of component size to original maximum}
 #'   \item{measure}{The \code{measure} argument: "betweenness", "degree", or
 #'     "random"}
-#'   \item{type}{A human-readable label for the analysis, one of
+#'   \item{type}{A label for the analysis, one of
 #'     "Targeted vertex attack", "Targeted edge attack",
-#'     "Random vertex removal" or "Random edge removal" - not the bare
-#'     \code{type} argument}
+#'     "Random vertex removal" or "Random edge removal"}
 #' }
-#' The original number of vertices/edges (\code{"n_original"}) and the original
-#' largest-component size (\code{"orig_max"}) are stored as attributes.
+#' The last row always has \code{comp_size = 0}. The original number of
+#' vertices or edges (\code{"n_original"}) and the original largest-component
+#' size (\code{"orig_max"}) are stored as attributes.
 #'
 #' @details
-#' Three attack strategies are available:
+#' A betweenness attack removes the vertices or edges that lie on the most
+#' shortest paths, which bridge different regions of the network. A degree
+#' attack removes the most connected vertices first. Random failure removes
+#' vertices or edges in random order and averages the component sizes over
+#' \code{n_iter} sequences. Betweenness is computed with igraph, which treats
+#' edge weights as distances.
 #'
-#' \strong{Targeted Attack - Betweenness (default):}
-#' Vertices/edges are sorted by betweenness centrality and removed from
-#' highest to lowest. This targets nodes that bridge different network regions.
+#' The sequential strategy updates the ranking after every removal, so the
+#' attack follows the vertices that become new bridges or hubs. The static
+#' strategy ranks once on the original network, as in Albert et al. (2000).
 #'
-#' \strong{Targeted Attack - Degree:}
-#' Vertices are sorted by degree and removed from highest to lowest.
-#' This targets highly connected hub nodes. Note: for edge attacks, degree
-#' is not available; use betweenness instead.
-#'
-#' \strong{Random Failure:}
-#' Vertices/edges are removed in random order, averaged over n_iter iterations.
-#' This simulates random component failures.
-#'
-#' \strong{Strategy:}
-#' The \code{strategy} parameter controls how targeted attacks work:
-#' \itemize{
-#'   \item \code{"sequential"} (default): Recalculates centrality after each
-#'     removal. This is a stronger attack because removing a hub changes which
-#'     nodes become the new bridges/hubs.
-#'   \item \code{"static"}: Computes centrality once on the original network and
-#'     removes nodes in that fixed order (as in brainGraph). This matches the
-#'     original Albert et al. (2000) method.
-#' }
-#'
-#' Scale-free networks are typically robust to random failures but vulnerable
-#' to targeted attacks, while random networks degrade more uniformly.
+#' Scale-free networks are typically robust to random failures and vulnerable
+#' to targeted attacks. Random networks degrade more uniformly.
 #'
 #' @references
 #' Albert, R., Jeong, H., & Barabasi, A.L. (2000). Error and attack tolerance
@@ -78,23 +65,8 @@
 #' \doi{10.1038/35019019}
 #'
 #' @export
-#' @examples
-#' # Create a scale-free network
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-#'
-#'   # Targeted attack by betweenness
-#'   rob_btw <- robustness(g, measure = "betweenness")
-#'
-#'   # Targeted attack by degree
-#'   rob_deg <- robustness(g, measure = "degree")
-#'
-#'   # Random failure
-#'   rob_rnd <- robustness(g, measure = "random", n_iter = 50)
-#'
-#'   # View results
-#'   head(rob_btw)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' robustness(regulation_net, measure = "betweenness")
 #'
 #' @seealso \code{\link{plot_robustness}}, \code{\link{robustness_auc}}
 robustness <- function(x,
@@ -295,42 +267,36 @@ robustness_edge_attack <- function(g, measure, n_iter, orig_max, n,
 
 #' Plot Network Robustness
 #'
-#' Creates a visualization of network robustness showing the fraction of
-#' remaining nodes in the largest connected component during sequential
-#' node/edge removal. Supports comparison of multiple attack strategies.
+#' Plots the fraction of nodes remaining in the largest connected component
+#' against the fraction of nodes or edges removed, with one line per attack
+#' strategy, in base graphics.
 #'
-#' @param ... One or more robustness results from \code{\link{robustness}},
-#'   or named arguments to pass networks for on-the-fly computation.
-#' @param x Network for computing robustness on-the-fly.
-#' @param measures Character vector of attack strategies to compare.
-#'   Default c("betweenness", "degree", "random").
-#' @param colors Named vector of colors. Default: green=Degree, red=Betweenness,
-#'   blue=Random (matching Nature paper style).
+#' @param ... One or more robustness results from \code{\link{robustness}}.
+#'   When these are supplied, \code{x} is ignored.
+#' @param x Network on which robustness is computed for each of
+#'   \code{measures}. Used when \code{...} is empty.
+#' @param measures Character vector of attack strategies to compare when
+#'   \code{x} is supplied. Default c("betweenness", "degree", "random").
+#' @param colors Vector of colors named by measure (\code{"betweenness"},
+#'   \code{"degree"}, \code{"random"}). Default NULL uses red for betweenness,
+#'   green for degree and blue for random. Unmatched measures are gray.
 #' @param title Plot title. Default "Network Robustness: sequential removal of nodes".
 #' @param xlab X-axis label. Default "Fraction of removed nodes".
 #' @param ylab Y-axis label. Default "Fraction of remaining nodes".
 #' @param lwd Line width. Default 1.5.
 #' @param legend_pos Legend position. Default "topright".
-#' @param n_iter Number of iterations for random. Default 1000.
+#' @param n_iter Number of iterations for random removal when \code{x} is
+#'   supplied. Default 1000.
 #' @param seed Random seed. Default NULL.
-#' @param type Removal type. Default "vertex".
+#' @param type Removal type, "vertex" or "edge", when \code{x} is supplied.
+#'   Default "vertex". With "edge", \code{measures} must not include "degree".
 #'
-#' @return Invisibly returns combined data frame of all robustness results.
+#' @return Invisibly, a \code{cograph_robustness} data frame that stacks the
+#'   plotted results (columns as in \code{\link{robustness}}).
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-#'
-#'   # Quick comparison of all strategies
-#'   plot_robustness(x = g, n_iter = 20)
-#'
-#'   # Or compute separately
-#'   rob1 <- robustness(g, measure = "betweenness")
-#'   rob2 <- robustness(g, measure = "degree")
-#'   rob3 <- robustness(g, measure = "random", n_iter = 20)
-#'   plot_robustness(rob1, rob2, rob3)
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' plot_robustness(x = regulation_net, n_iter = 20, seed = 1)
 plot_robustness <- function(...,
                             x = NULL,
                             measures = c("betweenness", "degree", "random"),
@@ -423,39 +389,30 @@ plot_robustness <- function(...,
 
 #' Compare Network Robustness (ggplot2)
 #'
-#' Creates a ggplot2 faceted visualization comparing robustness across
-#' multiple networks. Produces publication-quality figures similar to
-#' those in Nature Scientific Reports.
+#' Plots robustness curves for one or more networks with ggplot2, with one
+#' facet per network and one line per attack strategy.
 #'
-#' @param ... Named arguments: network names as names, network objects as values.
-#' @param networks Named list of networks (alternative to ...).
+#' @param ... Networks, with network names as argument names. Unnamed
+#'   networks are labelled "Network 1", "Network 2", and so on.
+#' @param networks Named list of networks, used when \code{...} is empty.
 #' @param measures Attack strategies to compare. Default c("betweenness", "degree", "random").
-#' @param colors Named vector of colors for measures.
+#' @param colors Vector of colors named "Betweenness", "Degree" and "Random".
+#'   Default NULL uses red, green and blue.
 #' @param strategy Character string; "sequential" (default) recalculates centrality
 #'   after each removal, "static" uses initial centrality ranking throughout.
-#' @param title Overall title. Default NULL.
+#' @param title Overall title. Default NULL. With a single network the title
+#'   is replaced by "<name>: sequential removal of nodes".
 #' @param n_iter Iterations for random. Default 1000.
 #' @param seed Random seed. Default NULL.
 #' @param type Removal type. Default "vertex".
 #' @param ncol Columns in facet. Default NULL (auto).
 #' @param free_y If TRUE, allow different y-axis scales per facet. Default FALSE.
 #'
-#' @return A ggplot2 object.
+#' @return A ggplot object.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE) &&
-#'     requireNamespace("ggplot2", quietly = TRUE)) {
-#'
-#'   g1 <- igraph::sample_pa(40, m = 2, directed = FALSE)
-#'   g2 <- igraph::sample_gnp(40, 0.15)
-#'
-#'   ggplot_robustness(
-#'     "Teaching network" = g1,
-#'     "Collaborative network" = g2,
-#'     n_iter = 20
-#'   )
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' ggplot_robustness(regulation = regulation_net, n_iter = 20, seed = 1)
 ggplot_robustness <- function(...,
                               networks = NULL,
                               measures = c("betweenness", "degree", "random"),
@@ -570,24 +527,19 @@ ggplot_robustness <- function(...,
 
 #' Calculate Area Under Robustness Curve (AUC)
 #'
-#' Computes the area under the robustness curve using trapezoidal integration.
-#' Higher AUC indicates a more robust network. Maximum AUC is 1.0.
+#' Computes the area under the robustness curve (\code{comp_pct} against
+#' \code{removed_pct}) by trapezoidal integration. A higher AUC indicates a
+#' more robust network. The maximum AUC is 1.
 #'
-#' @param x A robustness result from \code{\link{robustness}}.
+#' @param x A robustness result from \code{\link{robustness}}, or any data
+#'   frame with columns \code{removed_pct} and \code{comp_pct}. Other input
+#'   raises an error.
 #'
-#' @return Numeric AUC value between 0 and 1.
+#' @return A single numeric AUC value between 0 and 1.
 #'
 #' @export
-#' @examples
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-#'
-#'   rob_btw <- robustness(g, measure = "betweenness")
-#'   rob_rnd <- robustness(g, measure = "random", n_iter = 20)
-#'
-#'   cat("Betweenness attack AUC:", round(robustness_auc(rob_btw), 3), "\n")
-#'   cat("Random failure AUC:", round(robustness_auc(rob_rnd), 3), "\n")
-#' }
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
+#' robustness_auc(robustness(regulation_net, measure = "degree"))
 robustness_auc <- function(x) {
   if (!all(c("removed_pct", "comp_pct") %in% names(x))) {
     stop("Input must have 'removed_pct' and 'comp_pct' columns", call. = FALSE)
@@ -604,12 +556,15 @@ robustness_auc <- function(x) {
 
 #' Summary of Robustness Analysis
 #'
-#' Provides a summary comparing robustness metrics across attack strategies.
+#' Summarizes robustness results across attack strategies.
 #'
-#' @param ... Robustness results to summarize.
-#' @param x Network for on-the-fly computation.
-#' @param measures Measures to compute if x provided.
-#' @param n_iter Iterations for random. Default 1000.
+#' @param ... Robustness results from \code{\link{robustness}}. When these
+#'   are supplied, \code{x} is ignored.
+#' @param x Network on which vertex robustness is computed for each of
+#'   \code{measures}. Used when \code{...} is empty.
+#' @param measures Measures to compute when \code{x} is supplied. Default NULL
+#'   uses c("betweenness", "degree", "random").
+#' @param n_iter Iterations for random removal. Default 1000.
 #'
 #' @return A data frame with one row per supplied (or computed) robustness
 #'   result and columns \code{measure}, \code{auc} (area under the robustness
@@ -617,10 +572,10 @@ robustness_auc <- function(x) {
 #'   first falls below 50\% of its original size) and \code{critical_10} (the
 #'   same at 10\%). The critical columns are 1 when the threshold is never
 #'   crossed. All numeric columns are rounded to 4 decimal places.
+#'   Supplying neither results nor \code{x} raises an error.
 #'
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-#' robustness_summary(x = g, measures = c("degree", "random"), n_iter = 10)
+#' robustness_summary(x = regulation_net, measures = c("degree", "random"), n_iter = 10)
 #' @export
 robustness_summary <- function(..., x = NULL, measures = NULL, n_iter = 1000) {
 

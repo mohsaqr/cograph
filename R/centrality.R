@@ -5,218 +5,234 @@
 #' cograph_network, or tna objects.
 #'
 #' @param x Network input (matrix, edge-list data frame, igraph, network,
-#'   cograph_network, tna object)
+#'   cograph_network, tna object).
 #' @param type Character scalar selecting a curated tier of measures when
 #'   \code{measures} is not supplied. One of:
 #'   \describe{
-#'     \item{\code{"basic"}}{(default) 6 canonical measures: \code{degree},
+#'     \item{\code{"basic"}}{The default. Six measures: \code{degree},
 #'       \code{strength}, \code{closeness}, \code{betweenness},
 #'       \code{eigenvector}, \code{pagerank}.}
-#'     \item{\code{"extended"}}{Basic plus commonly-reported second-tier
-#'       measures: harmonic, coreness, eccentricity, radiality,
-#'       lin, decay, load, stress, katz, alpha, power, authority, leverage,
-#'       constraint, effective_size, bridging, transitivity, subgraph,
-#'       diffusion, laplacian, kreach, current_flow_betweenness,
-#'       current_flow_closeness.}
-#'     \item{\code{"all"}}{Every measure except the costly ones, which are
-#'       held back (see \code{include} and \code{\link{list_centralities}}).}
+#'     \item{\code{"extended"}}{The basic tier plus harmonic, coreness,
+#'       eccentricity, radiality, lin, decay, load, stress, katz, alpha,
+#'       power, authority, leverage, constraint, effective_size, bridging,
+#'       transitivity, subgraph, diffusion, laplacian, kreach,
+#'       current_flow_betweenness and current_flow_closeness.}
+#'     \item{\code{"all"}}{Every measure except the costly ones (see
+#'       \code{include} and \code{\link{list_centralities}}).}
 #'   }
 #'   Passing \code{measures} explicitly overrides \code{type}.
-#' @param include Character vector of costly measures to add back to a tier,
-#'   or \code{"costly"} for all of them. \code{type = "all"} holds back the
-#'   measures whose cost grows steeply with network size (see
-#'   \code{\link{list_centralities}}), so that one call cannot take minutes
-#'   by accident. Naming a measure in \code{measures} always computes it,
-#'   whatever its cost. Default \code{NULL}.
-#' @param measures Character vector of specific measure names to compute.
-#'   When \code{NULL} (default) the tier selected by \code{type} is used.
-#'   Accepts \code{"all"} as a shortcut for \code{type = "all"}, i.e. every
-#'   measure except the costly ones. Any custom vector of valid measure names
-#'   is also accepted, and naming a costly measure there always computes it.
-#'   **Core** (igraph-backed): "degree", "strength", "betweenness", "closeness",
-#'   "eigenvector", "pagerank", "authority", "hub", "eccentricity", "coreness",
-#'   "constraint", "transitivity", "harmonic", "alpha", "power", "subgraph".
-#'   **Native**: "diffusion", "leverage", "kreach", "laplacian", "load",
-#'   "current_flow_closeness", "current_flow_betweenness", "voterank",
-#'   "percolation".
-#'   **Distance-based**: "radiality", "lin", "decay", "residual_closeness",
-#'   "dangalchev", "generalized_closeness", "harary", "average_distance",
-#'   "barycenter", "wiener", "closeness_vitality".
-#'   **Spectral/walk**: "communicability", "communicability_betweenness",
-#'   "random_walk".
-#'   **Path-based**: "stress", "flow_betweenness".
-#'   **Local/neighborhood**: "lobby", "entropy", "semilocal", "clusterrank",
-#'   "bottleneck", "centroid", "mnc", "dmnc", "lac", "topological_coefficient",
-#'   "bridging", "local_bridging", "effective_size", "diversity",
-#'   "cross_clique", "markov".
-#'   **Influence**: "integration", "expected", "gilschmidt".
-#'   **Directed-only**: "salsa", "leaderrank", "trophic_level", "pairwisedis",
-#'   "prestige_domain", "prestige_domain_proximity".
-#'   **Community-aware** (require \code{membership}): "participation",
-#'   "within_module_z", "gateway", "brokerage_coordinator",
-#'   "brokerage_itinerant", "brokerage_representative",
-#'   "brokerage_gatekeeper", "brokerage_liaison" (the last 5 also require
-#'   a directed graph; see \code{\link{centrality_brokerage_coordinator}}).
-#'   **Zoo (batch 2)**: "gravity", "collective_influence", "local_hindex",
-#'   "hindex_strength", "onion", "second_order", "infection", "nonbacktracking",
-#'   "spanning_tree".
-#'   **Classical (batch 3, reference-validated)**: "katz" (Katz 1953),
-#'   "hubbell" (Hubbell 1965), "information" (Stephenson-Zelen 1989),
-#'   "reaching_local" (Mones et al. 2012). See \code{\link{centrality_katz}},
-#'   \code{\link{centrality_hubbell}}, \code{\link{centrality_information}},
-#'   \code{\link{centrality_pairwisedis}}, \code{\link{centrality_reaching_local}}.
-#'   **Psychometric (signed-weight)**: "expected_influence_1",
-#'   "expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
-#'   influence keeps signed edge contributions, which is important when edges
-#'   can be negative (partial-correlation, glasso, signed correlation networks).
-#'   **Zoo (batch 7, lowest rank-redundancy with the rest of the package per
-#'   the Centrality Zoo comparison)**: "distance_entropy" (Stella & De
-#'   Domenico 2018), "local_dimension" (Pu et al. 2014),
-#'   "local_information_dimension" (Wen & Deng 2020),
-#'   "neighborhood_connectivity" (Maslov & Sneppen 2002), and
-#'   "modularity_vitality" (Magelinski et al. 2021; requires
-#'   \code{membership}). The first three are hop-count measures and ignore
-#'   edge weights. See \code{\link{centrality_distance_entropy}},
-#'   \code{\link{centrality_local_dimension}},
-#'   \code{\link{centrality_local_information_dimension}},
-#'   \code{\link{centrality_neighborhood_connectivity}},
-#'   \code{\link{centrality_modularity_vitality}}.
-#'   **Zoo (batch 8, the measures the Zoo comparison left "on the way")**:
-#'   "shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
-#'   2013), "access_information", "hide_information" (Rosvall et al. 2005),
-#'   "rumor" (Shah & Zaman 2011), "community_hub_bridge" (Ghalmane et al.
-#'   2019; requires \code{membership}), "entropy_variation_degree",
-#'   "entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al. 2017),
-#'   "degree_discount", "single_discount" (Chen, Wang & Yang 2009),
-#'   "ncvoterank" (Kumar & Panda 2020). All are hop-count or topology-only
-#'   measures; edge weights are ignored. See the per-measure pages, e.g.
-#'   \code{\link{centrality_shapley_game1}},
-#'   \code{\link{centrality_access_information}},
-#'   \code{\link{centrality_rumor}},
-#'   \code{\link{centrality_community_hub_bridge}},
-#'   \code{\link{centrality_entropy_variation}},
-#'   \code{\link{centrality_s_shell}},
-#'   \code{\link{centrality_degree_discount}},
-#'   \code{\link{centrality_ncvoterank}}.
-#'   **Zoo (batch 9, the remaining measures with a pinned definition)**:
-#'   community-aware "community_based" (Zhao et al. 2015), "comm_centrality"
-#'   (Gupta et al. 2016), "community_mediator" (Tulu et al. 2018), all
-#'   requiring \code{membership}; dimension family "local_dimension_fixed"
-#'   (Silva & Costa 2013), "fuzzy_local_dimension" (Wen & Jiang 2019),
-#'   "local_volume_dimension" (Li & Deng 2021); VoteRank family
-#'   "wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
-#'   "voterank_plus" (Liu et al. 2021); "node_contraction",
-#'   "node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
-#'   "two_way_rw" (Curado et al. 2022); local measures "heatmap"
-#'   (Duron 2020), "flow_coefficient" (Honey et al. 2007), "local_entropy"
-#'   (Nie et al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
-#'   (Burt 1992); "weighted_kshell" (Garas et al. 2012),
-#'   "renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti &
-#'   Everett 2006). Only "wvoterank", "two_way_rw" and "weighted_kshell"
-#'   use edge weights. See \code{\link{centrality_community_based}},
-#'   \code{\link{centrality_local_dimension_fixed}},
-#'   \code{\link{centrality_wvoterank}},
-#'   \code{\link{centrality_node_contraction}},
-#'   \code{\link{centrality_two_way_rw}}, \code{\link{centrality_heatmap}},
-#'   \code{\link{centrality_weighted_kshell}}.
-#'
-#'   Batch 10 closes the gaps other centrality packages had and cograph did
-#'   not: "local_efficiency" (Latora & Marchiori 2001), "s_core" (Eidsaa &
-#'   Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
-#'   "epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
-#'   \code{type = "all"} holds them back. See
-#'   \code{\link{centrality_local_efficiency}}.
-#'
-#'   Batch 11 tunes families cograph already had: "length_scaled_betweenness"
-#'   (Brandes 2008), "delta_betweenness" and "delta_closeness" (Agneessens
-#'   et al. 2017), "ego_betweenness" (Everett & Borgatti 2005). "gravity"
-#'   gained \code{gravity_mass} and \code{gravity_radius}, and its formula
-#'   was corrected -- see \code{\link{centrality_gravity}}. Bounded-distance
-#'   ("k-") betweenness needs no measure of its own: it is
-#'   \code{cutoff = k}. See
-#'   \code{\link{centrality_length_scaled_betweenness}}.
-#' @param mode For directed networks: "all", "in", or "out". Affects measures
-#'   whose output columns carry a mode suffix, including degree, strength,
-#'   closeness, eccentricity, coreness, harmonic, diffusion, leverage, k-reach,
-#'   distance-based measures, community-aware measures, and expected influence.
-#' @param normalized Logical. Normalize values by dividing by max. Most measures
-#'   are scaled to 0-1; signed expected-influence measures can retain negative
-#'   values under psychometric normalization. For closeness, this is passed
-#'   directly to igraph.
+#' @param include Character vector of costly measures to add to a tier, or
+#'   \code{"costly"} for all of them. \code{type = "all"} holds back the
+#'   measures whose cost grows steeply with network size (the \code{costly}
+#'   column of \code{\link{list_centralities}}). A measure named in
+#'   \code{measures} is always computed, whatever its cost. Unknown names
+#'   raise a \code{cograph_unknown_measure} error. Default \code{NULL}.
+#' @param measures Character vector of measure names to compute. When
+#'   \code{NULL} (default) the tier selected by \code{type} is used.
+#'   \code{"all"} is a shortcut for \code{type = "all"}. Unknown names raise
+#'   an error. \code{\link{list_centralities}} returns every valid name
+#'   together with its orientation, mode support, partition requirement,
+#'   weight use and cost. The measures fall into these groups:
+#'   \describe{
+#'     \item{Core}{"degree", "strength", "betweenness", "closeness",
+#'       "eigenvector", "pagerank", "authority", "hub", "eccentricity",
+#'       "coreness", "constraint", "transitivity", "harmonic", "alpha",
+#'       "power", "subgraph".}
+#'     \item{Flow and spreading}{"diffusion", "leverage", "kreach",
+#'       "laplacian", "load", "current_flow_closeness",
+#'       "current_flow_betweenness", "voterank", "percolation".}
+#'     \item{Distance-based}{"radiality", "lin", "decay",
+#'       "residual_closeness", "dangalchev", "generalized_closeness",
+#'       "harary", "average_distance", "barycenter", "wiener",
+#'       "closeness_vitality".}
+#'     \item{Spectral and walk-based}{"communicability",
+#'       "communicability_betweenness", "random_walk".}
+#'     \item{Path-based}{"stress", "flow_betweenness".}
+#'     \item{Local and neighborhood}{"lobby", "entropy", "semilocal",
+#'       "clusterrank", "bottleneck", "centroid", "mnc", "dmnc", "lac",
+#'       "topological_coefficient", "bridging", "local_bridging",
+#'       "effective_size", "diversity", "cross_clique", "markov".}
+#'     \item{Influence}{"integration", "expected", "gilschmidt".}
+#'     \item{Directed only}{"salsa", "leaderrank", "trophic_level",
+#'       "pairwisedis", "prestige_domain", "prestige_domain_proximity".}
+#'     \item{Community-aware (require \code{membership})}{"participation",
+#'       "within_module_z", "gateway", "modularity_vitality" (Magelinski et
+#'       al. 2021), "community_hub_bridge" (Ghalmane et al. 2019),
+#'       "community_based" (Zhao et al. 2015), "comm_centrality" (Gupta et
+#'       al. 2016), "community_mediator" (Tulu et al. 2018), and the
+#'       Gould-Fernandez roles "brokerage_coordinator",
+#'       "brokerage_itinerant", "brokerage_representative",
+#'       "brokerage_gatekeeper", "brokerage_liaison", which also require a
+#'       directed graph. See \code{\link{centrality_modularity_vitality}}
+#'       and \code{\link{centrality_brokerage_coordinator}}.}
+#'     \item{Spreader identification}{"gravity", "collective_influence",
+#'       "local_hindex", "hindex_strength", "onion", "second_order",
+#'       "infection", "nonbacktracking", "spanning_tree". See
+#'       \code{\link{centrality_gravity}}.}
+#'     \item{Classical}{"katz" (Katz 1953), "hubbell" (Hubbell 1965),
+#'       "information" (Stephenson and Zelen 1989), "reaching_local" (Mones
+#'       et al. 2012). See \code{\link{centrality_katz}},
+#'       \code{\link{centrality_hubbell}},
+#'       \code{\link{centrality_information}},
+#'       \code{\link{centrality_pairwisedis}} and
+#'       \code{\link{centrality_reaching_local}}.}
+#'     \item{Psychometric}{"expected_influence_1", "expected_influence_2"
+#'       (Robinaugh, Millner and McNally 2016). Expected influence keeps the
+#'       sign of each edge, which matters in networks with negative edges
+#'       such as partial-correlation and glasso networks.}
+#'     \item{Scaling and dimension}{"distance_entropy" (Stella and De
+#'       Domenico 2018), "local_dimension" (Pu et al. 2014),
+#'       "local_information_dimension" (Wen and Deng 2020),
+#'       "neighborhood_connectivity" (Maslov and Sneppen 2002),
+#'       "local_dimension_fixed" (Silva and Costa 2013),
+#'       "fuzzy_local_dimension" (Wen and Jiang 2019),
+#'       "local_volume_dimension" (Li and Deng 2021). See
+#'       \code{\link{centrality_distance_entropy}},
+#'       \code{\link{centrality_local_dimension}},
+#'       \code{\link{centrality_local_information_dimension}},
+#'       \code{\link{centrality_neighborhood_connectivity}} and
+#'       \code{\link{centrality_local_dimension_fixed}}.}
+#'     \item{Games, information and seed selection}{"shapley_game1",
+#'       "shapley_game2", "shapley_game3" (Michalak et al. 2013),
+#'       "access_information", "hide_information" (Rosvall et al. 2005),
+#'       "rumor" (Shah and Zaman 2011), "entropy_variation_degree",
+#'       "entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al.
+#'       2017), "degree_discount", "single_discount" (Chen, Wang and Yang
+#'       2009). See \code{\link{centrality_shapley_game1}},
+#'       \code{\link{centrality_access_information}},
+#'       \code{\link{centrality_rumor}},
+#'       \code{\link{centrality_community_hub_bridge}},
+#'       \code{\link{centrality_entropy_variation}},
+#'       \code{\link{centrality_s_shell}},
+#'       \code{\link{centrality_degree_discount}} and
+#'       \code{\link{centrality_community_based}}.}
+#'     \item{VoteRank family}{"ncvoterank" (Kumar and Panda 2020),
+#'       "wvoterank" (Sun et al. 2019), "enrenew" (Guo et al. 2020),
+#'       "voterank_plus" (Liu et al. 2021). See
+#'       \code{\link{centrality_ncvoterank}} and
+#'       \code{\link{centrality_wvoterank}}.}
+#'     \item{Contraction, walks and local structure}{"node_contraction",
+#'       "node_contraction_improved" (Tan et al. 2006; Wang et al. 2011),
+#'       "two_way_rw" (Curado et al. 2022), "heatmap" (Duron 2020),
+#'       "flow_coefficient" (Honey et al. 2007), "local_entropy" (Nie et
+#'       al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy"
+#'       (Burt 1992), "weighted_kshell" (Garas et al. 2012),
+#'       "renewed_coreness" (Liu et al. 2015), "geodesic_kpath" (Borgatti
+#'       and Everett 2006). See \code{\link{centrality_node_contraction}},
+#'       \code{\link{centrality_two_way_rw}},
+#'       \code{\link{centrality_heatmap}} and
+#'       \code{\link{centrality_weighted_kshell}}.}
+#'     \item{Efficiency, cores and percolation}{"local_efficiency" (Latora
+#'       and Marchiori 2001), "s_core" (Eidsaa and Almaas 2013),
+#'       "fragmentation" (Borgatti 2006), "kpath" (Sade 1989), "epc" (Lin
+#'       et al. 2008). See \code{\link{centrality_local_efficiency}}.}
+#'     \item{Betweenness and closeness variants}{"length_scaled_betweenness"
+#'       (Brandes 2008), "delta_betweenness" and "delta_closeness"
+#'       (Agneessens et al. 2017), "ego_betweenness" (Everett and Borgatti
+#'       2005). Bounded-distance (k-) betweenness is betweenness with
+#'       \code{cutoff = k}. See
+#'       \code{\link{centrality_length_scaled_betweenness}}.}
+#'   }
+#'   The remaining measures are described under Details.
+#' @param mode For directed networks: "all" (default), "in", or "out".
+#'   Affects the mode-aware measures, whose output columns carry a mode
+#'   suffix. These include degree, strength, closeness, eccentricity,
+#'   coreness, harmonic, diffusion, leverage, kreach, the distance-based
+#'   measures, most community-aware measures, and expected influence (the
+#'   \code{mode_aware} column of \code{\link{list_centralities}}).
+#' @param normalized Logical. If \code{TRUE}, each measure is divided by its
+#'   maximum, which scales non-negative measures to 0-1. A measure whose
+#'   maximum is not positive is left unchanged. Closeness follows igraph's
+#'   normalization instead, multiplying each value by the number of nodes
+#'   the node reaches. Under \code{psych_network = TRUE} expected influence
+#'   is divided by its maximum absolute value and keeps its sign. Default
+#'   \code{FALSE}.
 #' @param weighted Logical. Use edge weights if available. Default TRUE.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param loops Logical. If TRUE (default), keep self-loops. Set to FALSE to
-#'   remove them before calculation.
+#'   remove them before calculation. \code{tna_network = TRUE} changes the
+#'   default to FALSE.
 #' @param simplify How to combine multiple edges between the same node pair
 #'   (possible only from edge-list, cograph_network or igraph input).
 #'   Options: "sum" (default), "mean", "max", "min". \code{FALSE} and
-#'   \code{"none"} also sum them: the network is held as a dense weight
-#'   matrix, which cannot carry parallel edges.
+#'   \code{"none"} also sum them, because the network is held as a dense
+#'   weight matrix, which cannot carry parallel edges.
 #' @param digits Integer or NULL. Round all numeric columns to this many
 #'   decimal places. Default NULL (no rounding).
 #' @param sort_by Character or NULL. Column name to sort results by
-#'   (descending order). Default NULL (original node order).
+#'   (descending order). Default NULL (original node order). A name that is
+#'   not a column of the result raises an error.
 #' @param cutoff Maximum path length to consider for betweenness, closeness,
 #'   harmonic centrality and the distance-based closeness variants (radiality,
 #'   lin, decay, residual_closeness, dangalchev, generalized_closeness,
 #'   harary, average_distance, barycenter, wiener, centroid,
 #'   closeness_vitality, delta_closeness).
-#'   Default -1 (no limit). Set to a positive value for faster computation
-#'   on large networks at the cost of accuracy.
-#' @param invert_weights Logical or NULL. For path- and distance-based measures
-#'   (for example betweenness, closeness, harmonic, eccentricity, k-reach,
-#'   radiality, decay, stress, flow betweenness, and related variants), should
-#'   weights be inverted so that higher weights mean shorter paths? Default
-#'   NULL auto-detects: TRUE for tna objects (transition probabilities), FALSE
-#'   otherwise (matching igraph/sna). Set explicitly to TRUE for
-#'   strength/frequency weights (qgraph style) or FALSE for distance/cost
-#'   weights.
+#'   Default -1 (no limit). A positive value ignores longer paths, which
+#'   shortens computation on large networks and changes the values.
+#' @param invert_weights Logical or NULL. Whether path- and distance-based
+#'   measures (for example betweenness, closeness, harmonic, k-reach,
+#'   radiality, decay, stress, flow betweenness and related variants) invert
+#'   the weights, so that higher weights mean shorter paths. A message reports
+#'   the inversion. Eccentricity always reads the raw edge weights as
+#'   distances. The default \code{NULL} is TRUE for tna objects (transition
+#'   probabilities) and FALSE otherwise, as in igraph and sna. TRUE suits
+#'   strength or frequency weights (the qgraph convention) and FALSE suits
+#'   distance or cost weights.
 #' @param alpha Numeric. Exponent for weight transformation when \code{invert_weights = TRUE}.
 #'   Distance is computed as \code{1 / weight^alpha}. Default 1. Higher values
 #'   increase the influence of weight differences on path lengths.
 #' @param damping PageRank damping factor. Default 0.85. Must be between 0 and 1.
-#' @param personalized Named numeric vector for personalized PageRank.
-#'   Default NULL (standard PageRank). Values should sum to 1.
+#' @param personalized Non-negative numeric vector of reset probabilities
+#'   for personalized PageRank, one value per node in node order. Names are
+#'   not used for matching. The vector is rescaled to sum to 1. Default
+#'   NULL (standard PageRank).
 #' @param transitivity_type Type of transitivity to calculate: "local" (default),
 #'   "global", "undirected", "localundirected", "barrat" (weighted),
-#'   "weighted", or "onnela". The first six dispatch to
-#'   \code{igraph::transitivity()}; \code{"onnela"} computes the Onnela /
-#'   Holme weighted clustering coefficient on the symmetrized matrix
-#'   (\code{wcc(x + t(x))}) and matches \code{tna::centralities(., "Clustering")}
-#'   byte-for-byte. Auto-set to \code{"onnela"} when \code{tna_network = TRUE}
-#'   and the user did not pass an explicit value.
-#' @param isolates How to handle isolate nodes in transitivity calculation:
-#'   "nan" (default) returns NaN, "zero" returns 0.
+#'   "weighted", or "onnela". The first six follow the conventions of
+#'   \code{igraph::transitivity()}. \code{"global"} and \code{"undirected"}
+#'   give one graph-level value, repeated on every row. \code{"onnela"}
+#'   computes the Onnela weighted clustering coefficient on the symmetrized
+#'   matrix \code{x + t(x)} and matches
+#'   \code{tna::centralities(x, "Clustering")}. \code{tna_network = TRUE}
+#'   changes the default to \code{"onnela"}.
+#' @param isolates Value of local transitivity at nodes where it is
+#'   undefined: "nan" (default) returns NaN, "zero" returns 0.
 #' @param lambda Diffusion scaling factor for diffusion centrality. Default 1.
 #'   Only used when \code{diffusion_method = "kandhway_kuri"}.
 #' @param diffusion_method Character or NULL. Selects the diffusion-centrality
 #'   formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
 #'   1-hop binary-degree neighborhood sum
-#'   \eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}. \code{"power_series"}
-#'   computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}
+#'   \eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}{lambda d_v + lambda sum_{u in N(v)} d_u}. \code{"power_series"}
+#'   computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)}
 #'   on the (optionally diagonal-zeroed) weighted matrix and matches
 #'   \code{tna::centralities(., measures = "Diffusion")} when
 #'   \code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}
 #'   for tna objects (transition probabilities), \code{"kandhway_kuri"}
 #'   otherwise.
-#' @param k Path length parameter for geodesic k-path centrality. Default 3.
-#' @param states Named numeric vector of percolation states (0-1) for percolation
-#'   centrality. Each value represents how "activated" or "infected" a node is.
-#'   Default NULL (all nodes get state 1, equivalent to betweenness).
+#' @param k Distance bound for \code{"kreach"}, the number of nodes reachable
+#'   within \code{k} steps. Default 3.
+#' @param states Numeric vector of percolation states for percolation
+#'   centrality, one per node. Each value represents how "activated" or
+#'   "infected" a node is. A named vector is matched to the node labels,
+#'   missing nodes get state 1, and values are clipped to 0-1. Default NULL
+#'   gives every node state 1, which makes percolation equal to betweenness
+#'   divided by \eqn{(n-1)(n-2)}.
 #' @param decay_parameter Numeric. Decay parameter for decay and generalized
-#'   closeness centrality. Default 0.5. Must be between 0 and 1.
+#'   closeness centrality. A value between 0 and 1 discounts distant nodes.
+#'   Default 0.5.
 #' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC (Density of Maximum
-#'   Neighborhood Component). Default 1.7 as recommended by Lin et al. (2008).
-#'   centiserve uses 1.67 (four-community assumption). Must be between 1 and 2.
+#'   Neighborhood Component). Default 1.7, as recommended by Lin et al.
+#'   (2008). centiserve uses 1.67.
 #' @param membership Integer vector of community assignments (one per node) for
-#'   community-aware measures: participation, within_module_z, gateway,
-#'   modularity_vitality, and the Gould-Fernandez brokerage roles. Default
-#'   NULL. Required when requesting
-#'   these measures.
-#' @param katz_alpha Attenuation factor for Katz centrality. Must satisfy
-#'   \eqn{\alpha < 1 / \rho(A)}. Default 0.1 (matches centiserve and NetworkX
-#'   conventions). Only used when \code{"katz"} is in \code{measures}.
+#'   the community-aware measures listed under \code{measures}. Default NULL.
+#'   Without it those measures warn and return \code{NA}.
+#'   \code{"map_equation"} uses it when supplied.
+#' @param katz_alpha Attenuation factor for Katz centrality. The Katz series
+#'   converges only for \eqn{\alpha < 1 / \rho(A)}{alpha < 1 / rho(A)}. Otherwise the measure
+#'   raises a \code{cograph_katz_diverged} warning. Default 0.1, the
+#'   centiserve and NetworkX convention. Only used when \code{"katz"} is in
+#'   \code{measures}.
 #' @param shapley_k Neighbor threshold \eqn{k} for \code{"shapley_game2"}.
 #'   Default 2. See \code{\link{centrality_shapley_game2}}.
 #' @param shapley_cutoff Hop cutoff for \code{"shapley_game3"}. Default 2.
@@ -235,7 +251,7 @@
 #' @param enrenew_depth Renewal radius for \code{"enrenew"}. Default 2.
 #' @param voterank_lambda Suppression factor for \code{"voterank_plus"}.
 #'   Default 0.1.
-#' @param contraction_rho \eqn{\alpha / \beta} for
+#' @param contraction_rho \eqn{\alpha / \beta}{alpha / beta} for
 #'   \code{"node_contraction_improved"}. Default 5.
 #' @param wks_alpha,wks_beta Degree and strength exponents for
 #'   \code{"weighted_kshell"}. Default 1 and 1.
@@ -249,30 +265,32 @@
 #'   Default 0.5.
 #' @param epc_runs Number of percolation realizations for \code{"epc"}.
 #'   Default 1000.
-#' @param epc_seed Random seed for \code{"epc"}. Default \code{NULL},
-#'   which leaves the caller's stream alone and lets the estimate vary
-#'   between calls.
+#' @param epc_seed Random seed for \code{"epc"}. Default \code{NULL} draws
+#'   from the session's random number stream, so the estimate varies between
+#'   calls. A seed makes the estimate reproducible, and the caller's random
+#'   number state is restored afterwards.
 #' @param betweenness_delta Decay exponent for \code{"delta_betweenness"}.
 #'   Default 1; 0 gives ordinary betweenness.
 #' @param closeness_delta Distance exponent for \code{"delta_closeness"}.
 #'   Default 1, which is \code{harmonic} over \eqn{n - 1}.
 #' @param gravity_mass Mass in \code{"gravity"}: \code{"kshell"} (default,
-#'   Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"}
-#'   for cograph's pre-2.4.8 form.
+#'   Ma et al. 2016), \code{"degree"} (Li et al. 2019) or \code{"legacy"},
+#'   which uses a unit focal mass and a partner mass equal to degree times
+#'   k-shell index.
 #' @param gravity_radius Largest distance each gravity source reaches in
 #'   \code{"gravity"}, \code{"extended_gravity"},
 #'   \code{"mixed_gravity"} or \code{"extended_mixed_gravity"}: a
 #'   number (default 3), \code{"auto"} for half the mean distance, or
-#'   \code{NULL} for the whole graph.
-#'   The auto radius uses finite positive distances, rounds to the nearest
-#'   integer (ties to even), and has minimum 1; these are cograph conventions.
+#'   \code{NULL} for the whole graph. The automatic radius averages the
+#'   finite positive distances, rounds half to even, and is at least 1.
 #' @param mdd_lambda Exhausted-degree weight for \code{"mdd"}, between
 #'   0 and 1. Default 0.7. See \code{\link{centrality_truss}}.
 #' @param volume_radius Closed neighborhood radius for \code{"volume"}:
 #'   a nonnegative integer or \code{Inf}, default 2. Degrees are measured
 #'   in the full simple undirected graph. See \code{\link{centrality_volume}}.
 #' @param diffusion_q Multiplier between 0 and 1 for \code{"diffusion_centrality"},
-#'   default 1. Independent of the existing \code{lambda} argument.
+#'   default 1. It is separate from \code{lambda}, which scales
+#'   \code{"diffusion"}.
 #' @param diffusion_steps Nonnegative integer horizon for
 #'   \code{"diffusion_centrality"}, default 3. See
 #'   \code{\link{centrality_diffusion_centrality}} for its weighted-walk
@@ -305,16 +323,6 @@
 #'   example; NULL or infinity includes all reachable nodes and "auto"
 #'   applies the paper's half-mean-distance rule with cograph rounding.
 #'   See \code{\link{centrality_dkgm}}.
-#' @section Measures without a value on a given input: A few measures are
-#'   undefined on some graphs -- the community-partition measures without
-#'   \code{membership}, or \code{"relative_entropy"} when one of its
-#'   constituent indexes is zero at every node. Naming such a measure in
-#'   \code{measures} or \code{include} raises a classed condition, because
-#'   you asked for that measure. When a tier (\code{type = "basic"},
-#'   \code{"extended"} or \code{"all"}) supplied it, the condition becomes a
-#'   \code{cograph_undefined_measure} warning and the column is \code{NA},
-#'   so one undefined measure does not take the rest of the tier with it.
-#'
 #' @param re_indexes Constituent indexes integrated by
 #'   \code{"relative_entropy"}, default the source's four distinctiveness
 #'   indexes; the vocabulary also holds \code{"n_components"} and
@@ -338,9 +346,9 @@
 #'   absolute change between iterates, a positive finite number, default
 #'   \code{1e-6} as in the source.
 #' @param ira_max_iter Iteration bound for \code{"ira"}, a whole number of
-#'   at least one, default 1000. Reaching it raises
-#'   \code{cograph_no_converge}, which a bipartite component with unequal
-#'   vertex classes always does. See \code{\link{centrality_ira}}.
+#'   at least one, default 1000. Reaching it raises a
+#'   \code{cograph_no_converge} warning, which always happens on a bipartite
+#'   component with unequal vertex classes. See \code{\link{centrality_ira}}.
 #' @param iira_beta Spreading rate for \code{"iira"}, a number in
 #'   \eqn{(0,1]}, default 0.2 as in the source.
 #' @param iira_steps Iterations for \code{"iira"}, a nonnegative whole
@@ -348,53 +356,47 @@
 #'   resource. See \code{\link{centrality_iira}}.
 #' @param hcc_delta Weight on a node's own degree in the extended degree
 #'   used by \code{"hcc"} and \code{"ehcc"}, a single number in
-#'   \eqn{[0,1]}, default 0.5 as in the source; one recovers the classical
-#'   degree and zero drops the node's own degree entirely. Values outside
-#'   \eqn{[0,1]} are refused. See \code{\link{centrality_hcc}}.
-#' @param lhc_radius Radius of the ball \eqn{\Phi(v)} summed over by
+#'   \eqn{[0,1]}, default 0.5 as in the source. A value of one gives the
+#'   classical degree and zero drops the node's own degree. Values outside
+#'   \eqn{[0,1]} raise an error. See \code{\link{centrality_hcc}}.
+#' @param lhc_radius Radius of the ball \eqn{\Phi(v)}{Phi(v)} summed over by
 #'   \code{"lhc"}, the \eqn{d} of the source's equation (1); a single whole
-#'   number of at least one, default 2 as the source sets it. The source
-#'   sweeps it and reports 2-3 as optimal. At one the ball collapses to the
-#'   neighbors; at or above the diameter the score stops moving. Values
-#'   below one and non-integers are refused. See
-#'   \code{\link{centrality_lhc}}.
+#'   number of at least one, default 2 as in the source, which reports 2-3
+#'   as optimal. At one the ball contains only the neighbors. At or above the
+#'   diameter the score no longer changes. Values below one and non-integers
+#'   raise an error. See \code{\link{centrality_lhc}}.
 #' @param tpr_alpha Jump probability of the trust-PageRank iteration used
 #'   by \code{"trust_pagerank"}, a single number strictly between zero and
 #'   one, default 0.85 as the source sets it below its equation (7). See
 #'   \code{\link{centrality_trust_pagerank}}.
-#' @param tpr_k Weight the trust-value puts on the degree ratio rather than
-#'   the similarity ratio in \code{"trust_pagerank"}, the \eqn{k} of the
-#'   source's equation (6); a single number in \eqn{[0,1]}, default 0.85,
-#'   the value the source's section 3.3 selects from a Kendall-against-SIR
-#'   sweep. One drops the similarity entirely and zero drops the degree.
+#' @param tpr_k Weight of the degree ratio in the trust value of
+#'   \code{"trust_pagerank"}, the \eqn{k} of the source's equation (6). The
+#'   similarity ratio receives weight \eqn{1-k}. A single number in
+#'   \eqn{[0,1]}, default 0.85, the value selected in section 3.3 of the
+#'   source. One drops the similarity and zero drops the degree.
 #' @param tpr_decay Attenuation factor of the similarity recursion used by
 #'   \code{"trust_pagerank"}, the \eqn{C} of the source's equation (4); a
-#'   single number in \eqn{(0,1]}, default 1 as the source fixes it. The
-#'   source's claim that \eqn{C} does not affect the result holds only for a
-#'   homogeneous recursion and not for this one; see
-#'   \code{\link{centrality_trust_pagerank}}.
-#' @param tpr_tol Convergence tolerance on the largest \emph{relative}
-#'   change of either trust-PageRank recursion, a single positive number,
-#'   default \code{1e-14}. The source fixes no iteration count because it
-#'   does not need one: both recursions have unique fixed points. The test
-#'   is relative rather than absolute because the similarities on one graph
-#'   span many orders of magnitude; see
+#'   single number in \eqn{(0,1]}, default 1 as in the source. \eqn{C}
+#'   changes the result. See \code{\link{centrality_trust_pagerank}}.
+#' @param tpr_tol Convergence tolerance on the largest relative change of
+#'   either trust-PageRank recursion, a single positive number, default
+#'   \code{1e-14}. The tolerance is relative because the similarities on one
+#'   graph span many orders of magnitude. See
 #'   \code{\link{centrality_trust_pagerank}}.
 #' @param tpr_max_iter Iteration bound for both trust-PageRank recursions, a
-#'   whole number of at least one, default 1000. Reaching it raises
-#'   \code{cograph_no_converge}.
+#'   whole number of at least one, default 1000. Reaching it raises a
+#'   \code{cograph_no_converge} warning.
 #' @param rsp_beta Inverse temperature of the randomized-shortest-paths
 #'   model used by \code{"rsp_betweenness"}, a single finite number strictly
-#'   above zero, default 0.01. The source fixes no default; 0.01 is the
-#'   value \code{NetworkToolbox::rspbc()} recommends, and it sits near the
-#'   random-walk limit, so raise it towards 1 and beyond to move the reading
-#'   towards shortest paths. See
+#'   above zero, default 0.01, the value \code{NetworkToolbox::rspbc()}
+#'   recommends. Small values approach the random-walk limit. Values of 1
+#'   and above move the measure towards shortest paths. See
 #'   \code{\link{centrality_rsp_betweenness}}.
 #' @param rsp_cost How an edge weight becomes a traversal cost for
 #'   \code{"rsp_betweenness"}: \code{"inverse"} (default) for \eqn{C=1/w},
 #'   reading a weight as an affinity, or \code{"weight"} for \eqn{C=w},
-#'   reading it as a distance. The source leaves the cost matrix free; both
-#'   settings give unit cost per arc on a binary graph. See
+#'   reading it as a distance. Both settings give unit cost per arc on a
+#'   binary graph. See
 #'   \code{\link{centrality_rsp_betweenness}}.
 #' @param sr_prior SpectralRank diagonal prior, default zero; scalar or one
 #'   value per node. See \code{\link{centrality_spectralrank}}.
@@ -419,23 +421,23 @@
 #' @param alr_h_mode H-index convention for \code{"adaptive_leaderrank"}:
 #'   all (default), out or in. See \code{\link{centrality_adaptive_leaderrank}}.
 #' @param tna_network Logical or NULL. Umbrella switch that forces tna-style
-#'   conventions across all measures. \code{NULL} (default) auto-detects
-#'   from the input class — TRUE iff \code{x} is a \code{tna} or related
-#'   sequence-network object. \code{TRUE} forces tna conventions even on
-#'   raw matrices: \code{invert_weights = TRUE}, \code{loops = FALSE},
-#'   \code{diffusion_method = "power_series"}, \code{transitivity_type
-#'   = "onnela"}. \code{FALSE} suppresses all tna defaults even for tna
-#'   inputs, giving the cograph defaults verbatim. Precedence: any arg
-#'   the user passes explicitly always wins over \code{tna_network}.
+#'   conventions across all measures. \code{NULL} (default) is TRUE when
+#'   \code{x} is a \code{tna}, \code{group_tna}, \code{ctna}, \code{ftna}
+#'   or \code{atna} object (or a group of these) and FALSE otherwise.
+#'   \code{TRUE} applies the tna conventions to any input, setting
+#'   \code{invert_weights = TRUE}, \code{loops = FALSE},
+#'   \code{diffusion_method = "power_series"} and
+#'   \code{transitivity_type = "onnela"}. \code{FALSE} keeps the cograph
+#'   defaults for tna inputs as well. An argument passed explicitly always
+#'   takes precedence over \code{tna_network}.
 #' @param psych_network Logical or NULL. Switch for signed psychometric
 #'   network conventions. \code{NULL} (default) auto-detects TRUE when a
 #'   signed weighted network is evaluated with expected-influence measures.
 #'   When \code{TRUE}, normalized expected influence is divided by the maximum
-#'   absolute expected-influence value, preserving sign and bounding the result from
-#'   -1 to 1.
-#'   \code{FALSE} keeps the generic cograph normalization convention.
+#'   absolute expected-influence value, which keeps its sign and bounds it
+#'   between -1 and 1. \code{FALSE} keeps the generic cograph normalization.
 #' @param hubbell_weight Weight factor \eqn{w} for Hubbell centrality. Must be
-#'   positive and satisfy \eqn{w \cdot \rho(W) < 1} for solvability; otherwise
+#'   positive and satisfy \eqn{w \cdot \rho(W) < 1}{w * rho(W) < 1} for solvability; otherwise
 #'   the measure warns and returns \code{NA}. Default 0.5. Only used when
 #'   \code{"hubbell"} is in \code{measures}.
 #' @param ... Additional arguments (currently unused)
@@ -463,45 +465,54 @@
 #'   \item{pagerank}{Random walk centrality (supports damping and personalization)}
 #'   \item{authority}{HITS authority score}
 #'   \item{hub}{HITS hub score}
-#'   \item{eccentricity}{Maximum distance to other nodes (supports mode)}
+#'   \item{eccentricity}{Maximum distance to other nodes (supports mode).
+#'     Distances use the raw edge weights, whatever \code{weighted} and
+#'     \code{invert_weights} say.}
 #'   \item{coreness}{K-core membership (supports mode: in/out/all)}
 #'   \item{constraint}{Burt's constraint (structural holes)}
 #'   \item{transitivity}{Local clustering coefficient (supports multiple types)}
-#'   \item{harmonic}{Harmonic centrality - handles disconnected graphs better
-#'     than closeness (supports mode: in/out/all)}
-#'   \item{diffusion}{Diffusion degree centrality - sum of scaled degrees of
-#'     node and its neighbors (supports mode: in/out/all, lambda scaling)}
-#'   \item{leverage}{Leverage centrality - measures influence over neighbors
-#'     based on relative degree differences (supports mode: in/out/all)}
-#'   \item{kreach}{Geodesic k-path centrality - count of nodes reachable
-#'     within distance k (supports mode: in/out/all, k parameter)}
-#'   \item{alpha}{Alpha/Katz centrality - influence via paths, penalized by
-#'     distance. Similar to eigenvector but includes exogenous contribution}
-#'   \item{power}{Bonacich power centrality - measures influence based on
-#'     connections to other influential nodes}
-#'   \item{subgraph}{Subgraph centrality - participation in closed loops/walks,
-#'     weighting shorter loops more heavily}
-#'   \item{laplacian}{Laplacian centrality using Qi et al. (2012) local formula.
-#'     Matches NetworkX and centiserve::laplacian()}
-#'   \item{load}{Load centrality - fraction of all shortest paths through node,
-#'     similar to betweenness but weights paths by 1/count}
-#'   \item{current_flow_closeness}{Information centrality - closeness based on
-#'     electrical current flow (requires connected graph)}
-#'   \item{current_flow_betweenness}{Random walk betweenness - betweenness based
-#'     on current flow rather than shortest paths (requires connected graph)}
-#'   \item{voterank}{VoteRank - identifies influential spreaders via iterative
-#'     voting mechanism. Returns normalized rank (1 = most influential)}
-#'   \item{percolation}{Percolation centrality - importance for spreading processes.
-#'     Uses node states (0-1) to weight paths. When all states equal, equivalent
-#'     to betweenness. Useful for epidemic/information spreading analysis.}
+#'   \item{harmonic}{Harmonic centrality, the sum of inverse distances. It
+#'     stays finite on disconnected graphs (supports mode: in/out/all)}
+#'   \item{diffusion}{Diffusion degree centrality. With
+#'     \code{diffusion_method = "kandhway_kuri"} it is the scaled degree of
+#'     the node plus the scaled degrees of its neighbors (supports mode:
+#'     in/out/all, lambda scaling)}
+#'   \item{leverage}{Leverage centrality. Influence over neighbors based on
+#'     relative degree differences (supports mode: in/out/all)}
+#'   \item{kreach}{K-reach centrality. Number of nodes reachable within
+#'     \code{k} steps (supports mode: in/out/all)}
+#'   \item{alpha}{Alpha centrality. Influence through paths, attenuated by
+#'     length, with a unit exogenous contribution at every node}
+#'   \item{power}{Bonacich power centrality. Influence based on connections
+#'     to other influential nodes}
+#'   \item{subgraph}{Subgraph centrality. Participation in closed walks,
+#'     with shorter walks weighted more heavily}
+#'   \item{laplacian}{Laplacian centrality with the local formula of Qi et
+#'     al. (2012). Matches NetworkX and \code{centiserve::laplacian()}}
+#'   \item{load}{Load centrality. Share of shortest-path load passing
+#'     through the node, with load split evenly at each branching point}
+#'   \item{current_flow_closeness}{Information centrality. Closeness based on
+#'     electrical current flow (requires a connected graph)}
+#'   \item{current_flow_betweenness}{Random-walk betweenness. Betweenness
+#'     based on electrical current flow (requires a connected graph)}
+#'   \item{voterank}{VoteRank. Influential spreaders selected by iterative
+#'     voting. The value is the election order rescaled so that the first
+#'     elected node scores 1 and the last scores \eqn{1/n}}
+#'   \item{percolation}{Percolation centrality. Shortest-path betweenness
+#'     weighted by the node states in \code{states}. With equal states it is
+#'     betweenness divided by \eqn{(n-1)(n-2)}}
 #'   \item{radiality}{Radiality centrality (centiserve). Sum of (diam + 1 - d)
 #'     normalized by n-1.}
 #'   \item{lin}{Lin's centrality. Reachable nodes squared divided by sum of
 #'     distances.}
-#'   \item{decay}{Decay centrality. Sum of delta^d for parameter delta.}
-#'   \item{residual_closeness}{Residual closeness. Sum of 1/2^d.}
-#'   \item{dangalchev}{Dangalchev closeness (alias for residual closeness).}
-#'   \item{generalized_closeness}{Generalized closeness. Sum of alpha^d.}
+#'   \item{decay}{Decay centrality. Sum of \eqn{\delta^d}{delta^d} over all nodes,
+#'     the node itself included, with \eqn{\delta}{delta} = \code{decay_parameter}.}
+#'   \item{residual_closeness}{Residual closeness. Sum of \eqn{1/2^d} over
+#'     all nodes, the node itself included.}
+#'   \item{dangalchev}{Dangalchev closeness. Same values as
+#'     \code{residual_closeness}.}
+#'   \item{generalized_closeness}{Generalized closeness. Same formula as
+#'     \code{decay}, using \code{decay_parameter}.}
 #'   \item{harary}{Harary centrality. Sum of 1/d^2 for all reachable pairs.}
 #'   \item{average_distance}{Average distance (centiserve). Sum of distances /
 #'     (n+1).}
@@ -552,27 +563,28 @@
 #'   \item{gateway}{Gateway coefficient. Inter-community brokerage weighted by
 #'     centrality (requires \code{membership}).}
 #'   \item{distance_entropy}{Normalized Shannon entropy of a node's
-#'     hop-distance profile; 1 = distances spread evenly, 0 = all at one
-#'     distance.}
+#'     hop-distance profile. It is 1 when the distances are spread evenly
+#'     and 0 when all lie at one distance.}
 #'   \item{local_dimension}{Growth exponent of the ball around a node
-#'     (slope of \eqn{\ln B_i(r)} on \eqn{\ln r}); lower = more
-#'     influential.}
+#'     (slope of \eqn{\ln B_i(r)}{ln B_i(r)} on \eqn{\ln r}{ln r}). Lower values mark more
+#'     influential nodes.}
 #'   \item{local_information_dimension}{Entropy-weighted local dimension
-#'     over boxes up to half the node's eccentricity; higher = more
-#'     influential.}
+#'     over boxes up to half the node's eccentricity. Higher values mark
+#'     more influential nodes.}
 #'   \item{neighborhood_connectivity}{Mean degree of a node's neighbors
 #'     (average neighbor degree); isolates score 0.}
 #'   \item{modularity_vitality}{Drop in modularity when the node is removed
-#'     under a fixed partition; positive = community hub, negative = bridge
-#'     (requires \code{membership}).}
+#'     under a fixed partition. Positive values mark community hubs and
+#'     negative values mark bridges (requires \code{membership}).}
 #'   \item{shapley_game1, shapley_game2, shapley_game3}{Shapley value of the
 #'     node in the coverage games of Michalak et al. (2013): one-hop
 #'     coverage, \code{shapley_k}-neighbor coverage, and coverage within
 #'     \code{shapley_cutoff} hops. Values sum to the node count.}
 #'   \item{access_information}{Mean bits needed to reach every other node
-#'     along shortest paths without a map; low = well connected.}
-#'   \item{hide_information}{Mean bits others need to find the node;
-#'     high = hidden.}
+#'     along shortest paths without a map. Low values mark well-connected
+#'     nodes.}
+#'   \item{hide_information}{Mean bits others need to find the node. High
+#'     values mark hidden nodes.}
 #'   \item{rumor}{Log rumor centrality on the node's BFS tree: log of the
 #'     number of spreading orders that could start there.}
 #'   \item{community_hub_bridge}{Community size times intra-community
@@ -596,8 +608,9 @@
 #'     \code{membership}).}
 #'   \item{local_dimension_fixed, fuzzy_local_dimension,
 #'     local_volume_dimension}{Silva-Costa estimator at \code{ld_radius};
-#'     slope of the fuzzy ball (higher = more influential); slope of the
-#'     degree volume (lower = more important).}
+#'     slope of the fuzzy ball, where higher values mark more influential
+#'     nodes; slope of the degree volume, where lower values mark more
+#'     important nodes.}
 #'   \item{wvoterank, enrenew, voterank_plus}{Election orders of the
 #'     weighted, entropy-based (\code{enrenew_depth}) and degree-weighted
 #'     (\code{voterank_lambda}) VoteRank variants, scored like
@@ -608,26 +621,26 @@
 #'     (\code{contraction_rho}).}
 #'   \item{two_way_rw}{Number of node pairs whose most likely two-way
 #'     random-walk route passes through the node.}
-#'   \item{heatmap}{Farness minus mean neighbor farness; lower = more
-#'     central.}
+#'   \item{heatmap}{Farness minus mean neighbor farness. Lower values mark
+#'     more central nodes.}
 #'   \item{flow_coefficient}{Share of neighbor pairs linked through the
 #'     node but not directly.}
-#'   \item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}; lower = more
-#'     central.}
+#'   \item{local_entropy}{\eqn{-\sum_{j \in N(i)} k_j \ln k_j}{-sum_{j in N(i)} k_j ln k_j}. Lower values
+#'     mark more central nodes.}
 #'   \item{weighted_h_index}{h-index over topological link weights
 #'     \eqn{k_i k_j} repeated \eqn{k_j} times.}
 #'   \item{redundancy}{Mean degree of the neighbors inside the ego
 #'     network; degree minus effective size.}
 #'   \item{weighted_kshell}{k-shell on \eqn{(k^\alpha s^\beta)^{1/(\alpha
-#'     + \beta)}} after Garas' weight normalization (\code{wks_alpha},
+#'     + \beta)}}{(k^alpha s^beta)^{1/(alpha + beta)}} after Garas' weight normalization (\code{wks_alpha},
 #'     \code{wks_beta}).}
 #'   \item{renewed_coreness}{k-core of the graph after removing links whose
 #'     diffusion importance is below \code{renewed_threshold}.}
 #'   \item{geodesic_kpath}{Number of shortest paths of length at most
 #'     \code{kpath_k} starting at the node.}
 #'   \item{local_efficiency}{Global efficiency of the subgraph induced on
-#'     the node's neighbors, the node itself removed. Note that
-#'     \code{igraph::local_efficiency()} instead measures the distances
+#'     the node's neighbors, the node itself removed. This differs from
+#'     \code{igraph::local_efficiency()}, which measures the distances
 #'     between those neighbors through the rest of the network.}
 #'   \item{s_core}{Largest strength threshold whose s-core still contains
 #'     the node; the k-core number when weights are absent.}
@@ -637,13 +650,14 @@
 #'     \code{kpath_len} that the node lies on, endpoints included.}
 #'   \item{epc}{Edge percolated component: mean size of the node's
 #'     component over \code{epc_runs} bond-percolation realizations, as a
-#'     share of the network. A Monte Carlo estimate.}
+#'     share of the network. A Monte Carlo estimate; \code{epc_seed} makes
+#'     it reproducible.}
 #'   \item{length_scaled_betweenness}{Betweenness with each separated pair
 #'     weighted by \eqn{1 / d(s,t)}.}
 #'   \item{delta_betweenness}{Betweenness with the pair weight
-#'     \eqn{(d(s,t) - 1)^{-\delta}} (\code{betweenness_delta}).}
+#'     \eqn{(d(s,t) - 1)^{-\delta}}{(d(s,t) - 1)^{-delta}} (\code{betweenness_delta}).}
 #'   \item{ego_betweenness}{Betweenness inside the node's own ego network.}
-#'   \item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}
+#'   \item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}{sum_j d_{ij}^{-delta} / (n-1)}
 #'     (\code{closeness_delta}).}
 #'   \item{truss, mdd}{Node truss number (k-2 triangles convention) and
 #'     mixed-degree shell threshold (\code{mdd_lambda}). Both use the
@@ -657,7 +671,7 @@
 #'     incident maximal cliques of size at least two. Costly; see
 #'     \code{\link{centrality_mcc}} for isolate and precision conventions.}
 #'   \item{diffusion_centrality}{Finite-horizon weighted outgoing walks:
-#'     \eqn{\sum_{t=1}^{T}(qA)^t\mathbf{1}}, with \code{diffusion_q} and
+#'     \eqn{\sum_{t=1}^{T}(qA)^t\mathbf{1}}{sum_{t=1}^{T}(qA)^t 1}, with \code{diffusion_q} and
 #'     \code{diffusion_steps}. Distinct from diffusion degree.}
 #'   \item{dynamical_importance}{Relative spectral-radius loss on vertex
 #'     deletion, evaluated by repeated eigendecomposition. Costly; see
@@ -676,8 +690,7 @@
 #'   \item{dkgm}{Gravity with the degree k-shell index as the mass at both
 #'     ends, default radius two; see \code{\link{centrality_dkgm}}.}
 #'   \item{neighbor_distance}{Benchmark centrality plus its decayed sums
-#'     over non-backtracking walks of up to \code{nd_order} steps; the
-#'     Zoo's neighbor distance centrality at the defaults. See
+#'     over non-backtracking walks of up to \code{nd_order} steps. See
 #'     \code{\link{centrality_neighbor_distance}}.}
 #'   \item{ira}{Steady state of a unit resource repeatedly reallocated to
 #'     neighbors in proportion to their \code{ira_mass}; conserved, so the
@@ -685,7 +698,7 @@
 #'     \code{cograph_no_converge} where no steady state exists. See
 #'     \code{\link{centrality_ira}}.}
 #'   \item{iira}{The same recursion with each share scaled by
-#'     \eqn{1-(1-\beta)^{k_i}} for the \code{iira_beta} spreading rate,
+#'     \eqn{1-(1-\beta)^{k_i}}{1-(1-beta)^{k_i}} for the \code{iira_beta} spreading rate,
 #'     run \code{iira_steps} times.
 #'     Decays geometrically, so only the order is meaningful. See
 #'     \code{\link{centrality_iira}}.}
@@ -694,11 +707,11 @@
 #'     neighbors' degree sum over \eqn{n-1}. Parameter-free; raw scores
 #'     depend on the whole graph's order. See \code{\link{centrality_lnc}}.}
 #'   \item{ked}{KED method: the degree times one plus the normalized
-#'     entropy of the neighbors' degrees times \eqn{\exp(K_i/N)} for the
+#'     entropy of the neighbors' degrees times \eqn{\exp(K_i/N)}{exp(K_i/N)} for the
 #'     neighbor-degree sum \eqn{K_i} and the whole graph's order
 #'     \eqn{N}. Parameter-free. See \code{\link{centrality_ked}}.}
 #'   \item{hcc}{Hybrid characteristic centrality: the extended degree
-#'     \eqn{\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j} over its maximum,
+#'     \eqn{\delta k_i+(1-\delta)\sum_{j\in N(i)}k_j}{delta k_i+(1-delta)sum_{j in N(i)}k_j} over its maximum,
 #'     plus the E-shell peeling round in which the node leaves over the
 #'     number of rounds. Raw scores lie in \eqn{[0,2]} and are not
 #'     component-local. See \code{\link{centrality_hcc}}.}
@@ -706,17 +719,17 @@
 #'     closed-neighborhood sum of \code{hcc}, the focal node counted once.
 #'     See \code{\link{centrality_ehcc}}.}
 #'   \item{lhc}{Lhc index: the degree-and-triangle-share influence
-#'     \eqn{C(v)=\sum_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)} over the ball of
+#'     \eqn{C(v)=\sum_{u\in\Phi(v)}k_u(1+TP(u))/d^2(uv)}{C(v)=sum_{u in Phi(v)}k_u(1+TP(u))/d^2(uv)} over the ball of
 #'     radius \code{lhc_radius}, summed over the open neighborhood. The
-#'     triangle share is normalized by \eqn{TNTS=\sum_u NTS(u)}, three
+#'     triangle share is normalized by \eqn{TNTS=\sum_u NTS(u)}{TNTS=sum_u NTS(u)}, three
 #'     times the number of distinct triangles, and is written as zero on a
 #'     triangle-free graph. Raw scores are not component-local. See
 #'     \code{\link{centrality_lhc}}.}
 #'   \item{iec}{Immediate effects centrality: the reciprocal mean length
 #'     of the influence sequences that end at a node,
-#'     \eqn{(n-1)/\sum_{i\neq j}m_{ij}} for the mean first passage times
-#'     \eqn{M=(I-Z+EZ_{dg})\mathrm{diag}(1/c)} of the influence chain
-#'     \eqn{W=A/\mathrm{rowSums}(A)} built with \eqn{a_{ii}=1}.
+#'     \eqn{(n-1)/\sum_{i\neq j}m_{ij}}{(n-1)/sum_{i!= j}m_{ij}} for the mean first passage times
+#'     \eqn{M=(I-Z+EZ_{dg})\mathrm{diag}(1/c)}{M=(I-Z+EZ_{dg})diag(1/c)} of the influence chain
+#'     \eqn{W=A/\mathrm{rowSums}(A)}{W=A/rowSums(A)} built with \eqn{a_{ii}=1}.
 #'     Direction-sensitive and costly (one eigenproblem and two dense
 #'     solves). \code{NA} at every node when the chain is reducible or the
 #'     graph has one node. Not the same measure as \code{markov}. See
@@ -724,14 +737,14 @@
 #'   \item{dil}{Degree and importance of lines: the degree plus the share
 #'     of each incident line's importance \eqn{I_e=(k_m-p-1)(k_n-p-1)/
 #'     (p/2+1)} that the node's own degree claims,
-#'     \eqn{k_i+\sum_{j\in\Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}, with
+#'     \eqn{k_i+\sum_{j\in\Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}{k_i+sum_{j in Gamma_i}I_{e_{ij}}(k_i-1)/(k_i+k_j-2)}, with
 #'     \eqn{p} the number of triangles on the line. Two-hop local and
 #'     component-local; never below the node's degree. See
 #'     \code{\link{centrality_dil}}.}
 #'   \item{trust_pagerank}{Trust-PageRank: a damped PageRank whose split of
 #'     a node's score among its neighbors is the column-stochastic
 #'     trust-value \eqn{T(i,j)=(1-k)s(i,j)/\sum_{l\in N_j}s(j,l)+
-#'     k\,d_i/\sum_{l\in N_j}d_l}, with \eqn{s} the fixed point of SimRank
+#'     k\,d_i/\sum_{l\in N_j}d_l}{T(i,j)=(1-k)s(i,j)/sum_{l in N_j}s(j,l)+ k d_i/sum_{l in N_j}d_l}, with \eqn{s} the fixed point of SimRank
 #'     restricted to the lines of the graph. Scores sum to one when no node
 #'     is isolated. \code{NA} at every node of a component that has lines
 #'     but no triangle, where the similarity vanishes and the ratio is
@@ -805,34 +818,22 @@
 #'     determined by original H-indices using \code{alr_h_mode}.}
 #' }
 #'
+#' @section Measures without a value on a given input: The community-aware
+#'   measures warn and return an all-\code{NA} column when
+#'   \code{membership} is missing, and the brokerage roles do the same on an
+#'   undirected graph. \code{"relative_entropy"} has no value when one of
+#'   its constituent indexes is zero at every node. Named in
+#'   \code{measures} or \code{include}, it then raises a
+#'   \code{cograph_undefined_index} error. Supplied by a tier, it gives a
+#'   \code{cograph_undefined_measure} warning and an all-\code{NA} column,
+#'   and the other measures of the tier are still computed.
+#'   \code{"flow_betweenness"} requires the igraph package. Without igraph,
+#'   naming it raises a \code{cograph_needs_igraph} error, and a tier gives
+#'   the same warning and all-\code{NA} column.
+#'
 #' @export
 #' @examples
-#' # Built-in edge-list data
-#' data(student_interactions)
-#' centrality(student_interactions)
-#'
-#' # Matrix input also works
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality(adj)
-#'
-#' # Specific measures
-#' centrality(adj, measures = c("degree", "betweenness"))
-#'
-#' # Directed network with normalization
-#' centrality(adj, mode = "in", normalized = TRUE)
-#'
-#' # Sort by pagerank
-#' centrality(adj, sort_by = "pagerank", digits = 3)
-#'
-#' # PageRank with custom damping
-#' centrality(adj, measures = "pagerank", damping = 0.9)
-#'
-#' # Harmonic centrality (better for disconnected graphs)
-#' centrality(adj, measures = "harmonic")
-#'
-#' # Global transitivity
-#' centrality(adj, measures = "transitivity", transitivity_type = "global")
+#' centrality(regulation_net)
 centrality <- function(x, type = c("basic", "extended", "all"),
                        measures = NULL, include = NULL, mode = "all",
                        normalized = FALSE, weighted = TRUE,
@@ -1971,26 +1972,31 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
 
 #' Degree Centrality
 #'
-#' Number of edges connected to each node. For directed networks,
-#' \code{centrality_indegree} counts incoming edges and
-#' \code{centrality_outdegree} counts outgoing edges.
+#' Degree centrality counts the edges incident to each node. With
+#' \code{mode = "in"} it counts incoming edges and with \code{mode = "out"}
+#' outgoing edges. On an undirected network the three modes agree.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
+#' @details
+#' Edge weights are ignored; \code{\link{centrality_strength}} sums them
+#' instead. \code{normalized = TRUE} divides the scores by their maximum.
+#' \code{centrality_indegree()} and \code{centrality_outdegree()} are the
+#' \code{mode = "in"} and \code{mode = "out"} forms.
+#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"} or
 #'   \code{"out"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{normalized}, \code{weighted}, \code{directed}).
-#'
-#' @return Named numeric vector of degree values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_strength}} for the weighted version.
-#'
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Freeman, L. C. (1978). Centrality in social networks conceptual
+#'   clarification. Social Networks, 1(3), 215-239.
+#'   \doi{10.1016/0378-8733(78)90021-7}.
+#' @seealso \code{\link{centrality_strength}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_degree(adj)
+#' centrality_degree(regulation_net)
 centrality_degree <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "degree", mode = mode, ...)
   col <- paste0("degree_", mode)
@@ -2011,24 +2017,39 @@ centrality_outdegree <- function(x, ...) {
   stats::setNames(df$degree_out, df$node)
 }
 
-#' Strength Centrality (Weighted Degree)
+#' Strength Centrality
 #'
-#' Sum of edge weights connected to each node. For directed networks,
-#' \code{centrality_instrength} sums incoming weights and
-#' \code{centrality_outstrength} sums outgoing weights.
+#' Strength (Barrat et al. 2004) is the sum of the weights of the edges
+#' incident to a node, the weighted counterpart of degree. With
+#' \code{mode = "in"} it sums incoming weights and with \code{mode = "out"}
+#' outgoing weights. \code{centrality_instrength()} and
+#' \code{centrality_outstrength()} are these two forms.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' The stored weights are always summed, and \code{weighted = FALSE} has no
+#' effect; \code{\link{centrality_degree}} counts edges. A self-loop
+#' counts twice on an undirected network and under \code{mode = "all"}, and
+#' once under \code{"in"} or \code{"out"}; \code{loops = FALSE} drops it.
+#' Negative weights are summed with their sign. \code{normalized = TRUE}
+#' divides the scores by their maximum.
 #'
-#' @return Named numeric vector of strength values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_degree}} for the unweighted version.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"in"} or \code{"out"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{loops} (keep self-loops, default \code{TRUE}) and
+#'   \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A. (2004).
+#'   The architecture of complex weighted networks. Proceedings of the
+#'   National Academy of Sciences, 101(11), 3747-3752.
+#'   \doi{10.1073/pnas.0400087101}.
+#' @seealso \code{\link{centrality_degree}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-#' centrality_strength(mat)
+#' centrality_strength(regulation_net)
 centrality_strength <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "strength", mode = mode, ...)
   col <- paste0("strength_", mode)
@@ -2051,24 +2072,39 @@ centrality_outstrength <- function(x, ...) {
 
 #' Betweenness Centrality
 #'
-#' Fraction of shortest paths passing through each node. Nodes with high
-#' betweenness act as bridges connecting different parts of the network.
+#' Betweenness centrality (Freeman 1977) sums, over pairs of other nodes, the
+#' fraction of shortest paths between them that pass through the node:
+#' \deqn{B(v) = \sum_{s \ne v \ne t} \frac{\sigma_{st}(v)}{\sigma_{st}},}{
+#'   B(v) = sum_{s != v != t} sigma_st(v) / sigma_st,}
+#' where \eqn{\sigma_{st}}{sigma_st} is the number of shortest paths from
+#' \eqn{s} to \eqn{t} and \eqn{\sigma_{st}(v)}{sigma_st(v)} the number of
+#' those through \eqn{v}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{normalized}, \code{weighted}, \code{directed}, \code{cutoff},
-#'   \code{invert_weights}).
+#' @details
+#' On a directed network the sum runs over ordered pairs along the edge
+#' direction, and on an undirected network over unordered pairs. Edge weights
+#' are read as path lengths, and \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
+#' \code{weighted = FALSE} has no effect. \code{cutoff} drops paths longer
+#' than the given length. \code{normalized = TRUE} divides the scores by
+#' their maximum.
 #'
-#' @return Named numeric vector of betweenness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_load}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{invert_weights} (default \code{NULL}, which is \code{TRUE} for tna
+#'   input), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+#'   (largest path length considered, default -1 for no limit) and
+#'   \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Freeman, L. C. (1977). A set of measures of centrality based on
+#'   betweenness. Sociometry, 40(1), 35-41. \doi{10.2307/3033543}.
+#' @seealso \code{\link{centrality_load}}, \code{\link{centrality_stress}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_betweenness(adj)
+#' centrality_betweenness(regulation_net)
 centrality_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "betweenness", ...)
   stats::setNames(df$betweenness, df$node)
@@ -2076,23 +2112,41 @@ centrality_betweenness <- function(x, ...) {
 
 #' Closeness Centrality
 #'
-#' Inverse of the average shortest path distance from a node to all others.
-#' For directed networks, \code{centrality_incloseness} and
-#' \code{centrality_outcloseness} measure incoming and outgoing closeness.
+#' Closeness centrality (Sabidussi 1966) is the reciprocal of the total
+#' shortest-path distance from a node to the nodes it reaches:
+#' \deqn{C(v) = \frac{1}{\sum_{w \ne v} d(v, w)}.}{
+#'   C(v) = 1 / sum_{w != v} d(v, w).}
+#' Unreachable nodes are left out of the sum, as in
+#' \code{igraph::closeness()}.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths, and \code{invert_weights = TRUE}
+#' uses \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
+#' \code{weighted = FALSE} has no effect. \code{mode = "out"} follows paths
+#' leaving the node and \code{mode = "in"} paths arriving at it.
+#' \code{centrality_outcloseness()} and \code{centrality_incloseness()} are
+#' these two forms. A node that reaches no other node returns \code{NaN}.
+#' \code{normalized = TRUE} multiplies each score by the number of other
+#' nodes the node reaches, as igraph does.
 #'
-#' @return Named numeric vector of closeness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_harmonic}} for a variant that handles disconnected
-#'   graphs.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{invert_weights} (default \code{NULL}, which is \code{TRUE} for tna
+#'   input), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+#'   (largest path length considered, default -1 for no limit) and
+#'   \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Sabidussi, G. (1966). The centrality index of a graph. Psychometrika,
+#'   31(4), 581-603. \doi{10.1007/BF02289527}.
+#' @seealso \code{\link{centrality_harmonic}},
+#'   \code{\link{centrality_barycenter}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_closeness(adj)
+#' centrality_closeness(regulation_net)
 centrality_closeness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "closeness", mode = mode, ...)
   col <- paste0("closeness_", mode)
@@ -2115,24 +2169,32 @@ centrality_outcloseness <- function(x, ...) {
 
 #' Eigenvector Centrality
 #'
-#' Influence-based centrality where a node's score depends on the scores
-#' of its neighbors. Nodes connected to other high-scoring nodes get
-#' higher scores.
+#' Eigenvector centrality (Bonacich 1972) scores a node by the scores of the
+#' nodes that point to it. The scores form the dominant eigenvector of the
+#' transposed weight matrix:
+#' \deqn{\lambda x = A^{T} x.}{lambda x = A^T x.}
+#' The vector is scaled to a maximum of one.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' \eqn{A} holds the edge weights. Edge weights are always used, and
+#' \code{weighted = FALSE} has no effect. On a directed network a node gains
+#' standing from its incoming edges. The scores lie between 0 and 1. A
+#' network without edges gives every node a score of one.
 #'
-#' @return Named numeric vector of eigenvector centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_pagerank}} for a random walk variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Bonacich, P. (1972). Factoring and weighting approaches to status scores
+#'   and clique identification. Journal of Mathematical Sociology, 2(1),
+#'   113-120. \doi{10.1080/0022250X.1972.9989806}.
+#' @seealso \code{\link{centrality_pagerank}}, \code{\link{centrality_alpha}},
+#'   \code{\link{centrality_authority}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_eigenvector(adj)
+#' centrality_eigenvector(regulation_net)
 centrality_eigenvector <- function(x, ...) {
   df <- centrality(x, measures = "eigenvector", ...)
   stats::setNames(df$eigenvector, df$node)
@@ -2140,28 +2202,41 @@ centrality_eigenvector <- function(x, ...) {
 
 #' PageRank Centrality
 #'
-#' Random walk centrality measuring node importance. Simulates a random
-#' walker that follows edges with probability \code{damping} and jumps to a
-#' random node with probability \code{1 - damping}.
+#' PageRank (Brin and Page 1998) is the stationary distribution of a random
+#' walk that follows an out-edge with probability \eqn{d}, choosing edges in
+#' proportion to their weights, and otherwise jumps to a node drawn from the
+#' reset distribution \eqn{p}:
+#' \deqn{PR = (1 - d)\,p + d\,P^{T} PR,}{PR = (1 - d) p + d t(P) PR,}
+#' where \eqn{P} is the row-normalized weight matrix and \eqn{d} is
+#' \code{damping}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param damping Damping factor (probability of following an edge). Default 0.85.
-#' @param personalized Named numeric vector for personalized PageRank.
-#'   Values should sum to 1. Default \code{NULL} (uniform).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Edge weights are always used, and \code{weighted = FALSE} has no effect.
+#' A node without out-edges passes its score to the reset distribution. The
+#' scores sum to one and equal \code{igraph::page_rank()}. The vector
+#' \code{personalized} is rescaled to sum to one and matched to nodes by
+#' position; its names are ignored. A negative weight raises a
+#' \code{cograph_negative_weights} error, an invalid \code{personalized} a
+#' \code{cograph_bad_input} error, and a \code{damping} outside
+#' \eqn{[0, 1]} an error.
 #'
-#' @return Named numeric vector of PageRank values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_eigenvector}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param damping Probability \eqn{d} of following an edge (default 0.85).
+#' @param personalized Reset distribution \eqn{p}, a non-negative numeric
+#'   vector with one entry per node in input node order. The default
+#'   \code{NULL} gives the uniform distribution.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Brin, S., & Page, L. (1998). The anatomy of a large-scale hypertextual Web
+#'   search engine. Computer Networks and ISDN Systems, 30(1-7), 107-117.
+#'   \doi{10.1016/S0169-7552(98)00110-X}.
+#' @seealso \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_leaderrank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_pagerank(adj)
-#' centrality_pagerank(adj, damping = 0.9)
+#' centrality_pagerank(regulation_net)
 centrality_pagerank <- function(x, damping = 0.85, personalized = NULL, ...) {
   df <- centrality(x, measures = "pagerank",
                    damping = damping, personalized = personalized, ...)
@@ -2170,24 +2245,36 @@ centrality_pagerank <- function(x, damping = 0.85, personalized = NULL, ...) {
 
 #' HITS Authority and Hub Scores
 #'
-#' Kleinberg's HITS algorithm. \code{centrality_authority} scores nodes
-#' pointed to by good hubs. \code{centrality_hub} scores nodes that point
-#' to good authorities.
+#' The HITS algorithm (Kleinberg 1999) assigns each node an authority score
+#' from the hubs that point to it and a hub score from the authorities it
+#' points to:
+#' \deqn{a = \lambda^{-1} A^{T} h, \qquad h = \lambda^{-1} A a .}{
+#'   a = A^T h / lambda, h = A a / lambda.}
+#' Authorities are the dominant eigenvector of \eqn{A^{T} A}{A^T A} and hubs
+#' the dominant eigenvector of \eqn{A A^{T}}{A A^T}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' \eqn{A} holds the edge weights. Edge weights are always used, and
+#' \code{weighted = FALSE} has no effect. Both scores are scaled to a maximum
+#' of one, so they lie between 0 and 1. On an undirected network both equal
+#' eigenvector centrality. A network without edges gives every node a score
+#' of one. \code{centrality_hub()} returns the hub scores.
 #'
-#' @return Named numeric vector of authority or hub scores.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Kleinberg, J. M. (1999). Authoritative sources in a hyperlinked
+#'   environment. Journal of the ACM, 46(5), 604-632.
+#'   \doi{10.1145/324133.324140}.
+#' @seealso \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_authority(adj)
-#' centrality_hub(adj)
+#' centrality_authority(regulation_net)
+#' centrality_hub(regulation_net)
 centrality_authority <- function(x, ...) {
   df <- centrality(x, measures = "authority", ...)
   stats::setNames(df$authority, df$node)
@@ -2202,21 +2289,35 @@ centrality_hub <- function(x, ...) {
 
 #' Eccentricity
 #'
-#' Maximum shortest path distance from a node to any other node.
-#' For directed networks, \code{centrality_ineccentricity} and
-#' \code{centrality_outeccentricity} use incoming and outgoing paths.
+#' The eccentricity of a node (Hage and Harary 1995) is its largest
+#' shortest-path distance to a node it reaches:
+#' \deqn{e(v) = \max_{w:\, d(v, w) < \infty} d(v, w).}{
+#'   e(v) = max_{w: d(v, w) < Inf} d(v, w).}
+#' Lower values mark more central nodes.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. The raw weights are always used,
+#' so \code{weighted = FALSE} and \code{invert_weights} have no effect. On an
+#' unweighted input the distances are hop counts. \code{mode = "out"} follows
+#' paths leaving the node and \code{mode = "in"} paths arriving at it.
+#' \code{centrality_outeccentricity()} and \code{centrality_ineccentricity()}
+#' are these two forms. A node that reaches no other node scores 0.
 #'
-#' @return Named numeric vector of eccentricity values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Hage, P., & Harary, F. (1995). Eccentricity and centrality in networks.
+#'   Social Networks, 17(1), 57-63. \doi{10.1016/0378-8733(94)00248-9}.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_radiality}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_eccentricity(adj)
+#' centrality_eccentricity(regulation_net)
 centrality_eccentricity <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "eccentricity", mode = mode, ...)
   col <- paste0("eccentricity_", mode)
@@ -2237,22 +2338,35 @@ centrality_outeccentricity <- function(x, ...) {
   stats::setNames(df$eccentricity_out, df$node)
 }
 
-#' K-Core Decomposition (Coreness)
+#' Coreness
 #'
-#' Assigns each node to its maximum k-core. A k-core is a maximal subgraph
-#' where every node has at least k connections within the subgraph.
+#' Coreness (Seidman 1983) is the largest \eqn{k} for which a node belongs to
+#' the \eqn{k}-core, the maximal subnetwork in which every node has degree at
+#' least \eqn{k}. It is found by repeatedly removing the nodes of lowest
+#' degree.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode = "in"} and \code{mode = "out"} peel
+#' by in-degree and out-degree, and \code{mode = "all"} by total degree, in
+#' which a reciprocated tie counts twice. A self-loop adds a fixed amount to
+#' the degree of its node throughout the peeling. The values match
+#' \code{igraph::coreness()}.
 #'
-#' @return Named numeric vector of coreness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{loops} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Seidman, S. B. (1983). Network structure and minimum degree. Social
+#'   Networks, 5(3), 269-287. \doi{10.1016/0378-8733(83)90028-X}.
+#' @seealso \code{\link{centrality_degree}},
+#'   \code{\link{centrality_s_core}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_coreness(adj)
+#' centrality_coreness(regulation_net)
 centrality_coreness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "coreness", mode = mode, ...)
   col <- paste0("coreness_", mode)
@@ -2261,56 +2375,87 @@ centrality_coreness <- function(x, mode = "all", ...) {
 
 #' Burt's Constraint
 #'
-#' Network constraint measuring the extent to which a node's connections are
-#' redundant. Low constraint indicates access to structural holes (brokerage
-#' opportunities).
+#' Burt's constraint measures how much a node's ties are concentrated in
+#' contacts that are themselves tied to each other. With \eqn{p_{ij}}{p_ij}
+#' the proportion of the tie strength of \eqn{i} invested in \eqn{j},
+#' \deqn{C_i = \sum_{j \ne i} \Big( p_{ij} + \sum_{q \ne i, j} p_{iq}
+#'   p_{qj} \Big)^2.}{
+#'   C_i = sum_{j != i} (p_ij + sum_{q != i, j} p_iq p_qj)^2.}
+#' Low constraint marks access to structural holes.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Ties are symmetrized as \eqn{w_{ij} + w_{ji}}{w_ij + w_ji} before the
+#' proportions are formed, so edge direction is ignored. Edge weights are
+#' always used, and \code{weighted = FALSE} has no effect. The values match
+#' \code{igraph::constraint()}. An isolated node returns \code{NaN}, and a
+#' node whose only tie is a self-loop scores 0.
 #'
-#' @return Named numeric vector of constraint values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_effective_size}},
+#'   \code{\link{centrality_bridging}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_constraint(adj)
+#' centrality_constraint(regulation_net)
 centrality_constraint <- function(x, ...) {
   df <- centrality(x, measures = "constraint", ...)
   stats::setNames(df$constraint, df$node)
 }
 
-#' Local Transitivity (Clustering Coefficient)
+#' Local Transitivity
 #'
-#' Proportion of triangles around each node relative to the number of
-#' possible triangles. Measures how tightly clustered a node's neighborhood is.
+#' Local transitivity, the clustering coefficient of Watts and Strogatz
+#' (1998), is the share of pairs of a node's neighbors that are themselves
+#' linked:
+#' \deqn{C_i = \frac{2 T_i}{k_i (k_i - 1)},}{C_i = 2 T_i / (k_i (k_i - 1)),}
+#' where \eqn{T_i} is the number of triangles through node \eqn{i} and
+#' \eqn{k_i} its degree.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param transitivity_type Type of transitivity: \code{"local"} (default),
-#'   \code{"global"}, \code{"undirected"}, \code{"localundirected"},
-#'   \code{"barrat"} (weighted), \code{"weighted"}, or \code{"onnela"}.
-#'   \code{"onnela"} computes the Onnela / Holme weighted clustering
-#'   coefficient on the symmetrized matrix and matches
-#'   \code{tna::centralities(., "Clustering")} byte-for-byte. Auto-set
-#'   to \code{"onnela"} when \code{tna_network = TRUE} (passed via
-#'   \code{...}) and the user did not pass an explicit value.
-#' @param isolates How to handle isolate nodes: \code{"nan"} (default) or
-#'   \code{"zero"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Triangles are counted on the undirected skeleton and edge weights are
+#' ignored. On a directed network \eqn{k_i} is the total degree, in plus
+#' out, so a reciprocated tie counts twice and the values can be lower than
+#' \code{igraph::transitivity(type = "local")}, which uses the skeleton
+#' degree. \code{"localundirected"} gives the same values as
+#' \code{"local"}. \code{"global"} and \code{"undirected"} return the
+#' network-level ratio of closed to connected triples for every node.
+#' \code{"barrat"} and \code{"weighted"} compute the weighted coefficient of
+#' Barrat et al. (2004) and raise a \code{cograph_directed_unsupported}
+#' error on directed input. \code{"onnela"} computes
+#' \eqn{(M^3)_{ii} / (s_i^2 - \sum_j M_{ij}^2)}{(M^3)_ii / (s_i^2 - sum_j M_ij^2)}
+#' on \eqn{M = W + W^{T}}{M = W + t(W)} with strengths \eqn{s_i}, the value
+#' \code{tna::centralities()} reports as Clustering, and it is the default
+#' for tna input. Under the local and Barrat types a node with fewer than
+#' two ties is \code{NaN}, or 0 with \code{isolates = "zero"}.
 #'
-#' @return Named numeric vector of transitivity values.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param transitivity_type One of \code{"local"} (default), \code{"global"},
+#'   \code{"undirected"}, \code{"localundirected"}, \code{"barrat"},
+#'   \code{"weighted"} or \code{"onnela"}.
+#' @param isolates Value for nodes with fewer than two ties: \code{"nan"}
+#'   (default) or \code{"zero"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{tna_network} (default \code{NULL}, which detects tna input).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of
+#'   'small-world' networks. Nature, 393(6684), 440-442.
+#'   \doi{10.1038/30918}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A. (2004).
+#'   The architecture of complex weighted networks. Proceedings of the
+#'   National Academy of Sciences, 101(11), 3747-3752.
+#'   \doi{10.1073/pnas.0400087101}.
+#' @seealso \code{\link{centrality_clusterrank}},
+#'   \code{\link{centrality_topological_coefficient}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_transitivity(adj)
+#' centrality_transitivity(regulation_net)
 centrality_transitivity <- function(x, transitivity_type = "local",
                                     isolates = "nan", ...) {
   df <- centrality(x, measures = "transitivity",
@@ -2320,22 +2465,47 @@ centrality_transitivity <- function(x, transitivity_type = "local",
 
 #' Harmonic Centrality
 #'
-#' Sum of inverse shortest path distances to all other nodes. Unlike closeness,
-#' harmonic centrality handles disconnected graphs naturally (unreachable nodes
-#' contribute 0 instead of making the measure undefined).
+#' Harmonic centrality (Marchiori and Latora 2000) sums the inverse
+#' shortest-path distances from a node to the other nodes:
+#' \deqn{H(i) = \sum_{j \ne i} \frac{1}{d_{ij}},}{
+#'   H(i) = sum_{j != i} 1 / d_ij,}
+#' with \eqn{1/\infty = 0}{1/Inf = 0}, so the score is defined on
+#' disconnected networks (Boldi and Vigna 2014).
+#' \code{centrality_inharmonic()} and \code{centrality_outharmonic()} are the
+#' \code{mode = "in"} and \code{mode = "out"} forms.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as distances, and \code{invert_weights = TRUE}
+#' converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+#' \code{weighted = FALSE} has no effect, because the measure then reads the
+#' weights stored in the network; hop-count harmonic centrality needs a
+#' binary input such as \code{(x != 0) * 1}. \code{mode = "all"} treats edges
+#' as undirected, \code{"out"} uses distances from the node and \code{"in"}
+#' distances to it. The scores equal \code{igraph::harmonic_centrality()} on
+#' the weighted graph. \code{normalized = TRUE} divides the scores by their
+#' maximum.
 #'
-#' @return Named numeric vector of harmonic centrality values.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{invert_weights} (default \code{NULL}, which inverts for tna input
+#'   only), \code{alpha} (inversion exponent, default 1), \code{cutoff}
+#'   (largest distance counted, default -1 for no limit) and
+#'   \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Marchiori, M., & Latora, V. (2000). Harmony in the small-world. Physica A,
+#'   285(3-4), 539-546. \doi{10.1016/S0378-4371(00)00311-3}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_closeness}} for the traditional variant.
-#'
+#' Boldi, P., & Vigna, S. (2014). Axioms for centrality. Internet
+#'   Mathematics, 10(3-4), 222-262. \doi{10.1080/15427951.2013.865686}.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_harmonic(adj)
+#' centrality_harmonic(regulation_net)
 centrality_harmonic <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "harmonic", mode = mode, ...)
   col <- paste0("harmonic_", mode)
@@ -2358,40 +2528,42 @@ centrality_outharmonic <- function(x, ...) {
 
 #' Diffusion Centrality
 #'
-#' Sum of scaled degrees of a node and its neighbors, measuring the node's
-#' potential for spreading information through the network.
-#'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}. Only used when \code{diffusion_method = "kandhway_kuri"}
-#'   (the default for non-tna inputs); ignored under \code{"power_series"},
-#'   which always treats the matrix as the row transition operator.
-#' @param lambda Scaling factor for neighbor contributions. Default 1. Only
-#'   used when \code{diffusion_method = "kandhway_kuri"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{diffusion_method}, \code{loops}, \code{weighted}, \code{directed}).
-#'
-#' @return Named numeric vector of diffusion centrality values.
+#' Diffusion centrality has two forms, chosen by \code{diffusion_method}. The
+#' \code{"kandhway_kuri"} form (Kandhway and Kuri 2014) adds the degrees of a
+#' node's neighbors to its own degree, both scaled by \eqn{\lambda}{lambda}:
+#' \eqn{DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u}{DC(v) = lambda
+#' k_v + lambda sum_{u in N(v)} k_u}. The \code{"power_series"} form sums the
+#' rows of the first \eqn{n} powers of the weight matrix:
+#' \deqn{DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.}{
+#'   DC(v) = sum_w (W + W^2 + ... + W^n)_vw.}
 #'
 #' @details
-#' Two methods are supported. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014)
-#' computes the 1-hop binary-degree neighborhood sum and is the default for
-#' raw matrices, igraph objects, and other non-tna inputs.
-#' \code{"power_series"} computes
-#' \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)} on the weighted matrix
-#' (with \code{diag(P) := 0} when \code{loops = FALSE}) and matches
-#' \code{tna::centralities(., measures = "Diffusion")} byte-for-byte.
-#' For tna inputs, the default switches to \code{"power_series"} to match
-#' user expectation; pass \code{diffusion_method = "kandhway_kuri"} to
-#' force the binary-degree formula.
+#' The default is \code{"kandhway_kuri"}, and \code{"power_series"} for tna
+#' input. The \code{"kandhway_kuri"} form uses binary degrees, so edge
+#' weights are ignored, and \code{mode} sets both the degrees and the
+#' neighbor set. On a directed network \code{mode = "all"} uses total degrees
+#' and the undirected neighbor set. \code{lambda} multiplies every score. The
+#' \code{"power_series"} form uses the edge weights and ignores \code{mode},
+#' \code{lambda} and \code{weighted}. With \code{loops = FALSE} the diagonal
+#' of \eqn{W} is set to zero. The \code{"power_series"} values match
+#' \code{tna::centralities(measures = "Diffusion")}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param lambda Scale factor \eqn{\lambda}{lambda} of the
+#'   \code{"kandhway_kuri"} form. Default 1.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{diffusion_method} (\code{"kandhway_kuri"} or
+#'   \code{"power_series"}, default \code{NULL}, which picks by input type)
+#'   and \code{loops} (default \code{TRUE}, \code{FALSE} for tna input).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_expected}},
+#'   \code{\link{centrality_diffusion_centrality}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_diffusion(adj)
+#' centrality_diffusion(regulation_net)
 centrality_diffusion <- function(x, mode = "all", lambda = 1, ...) {
   df <- centrality(x, measures = "diffusion", mode = mode, lambda = lambda, ...)
   col <- paste0("diffusion_", mode)
@@ -2400,72 +2572,116 @@ centrality_diffusion <- function(x, mode = "all", lambda = 1, ...) {
 
 #' Leverage Centrality
 #'
-#' Measures a node's influence over its neighbors based on relative degree
-#' differences. Positive values indicate the node has more connections than
-#' its average neighbor.
+#' Leverage centrality (Joyce et al. 2010) compares the degree of a node with
+#' the degrees of its neighbors:
+#' \deqn{l_i = \frac{1}{|N(i)|} \sum_{j \in N(i)} \frac{k_i - k_j}{k_i + k_j}.}{
+#'   l_i = (1 / |N(i)|) sum_{j in N(i)} (k_i - k_j) / (k_i + k_j).}
+#' Positive values mark nodes with more ties than their typical neighbor.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} selects both the degree and the
+#' neighbor set, and with \code{mode = "all"} on a directed network the
+#' degree is in plus out. The score lies between -1 and 1. An isolated node
+#' is \code{NaN}. On undirected networks the values equal
+#' \code{centiserve::leverage()}.
 #'
-#' @return Named numeric vector of leverage centrality values (range -1 to 1).
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Joyce, K. E., Laurienti, P. J., Burdette, J. H., & Hayasaka, S. (2010). A
+#'   new measure of centrality for brain networks. PLoS ONE, 5(8), e12200.
+#'   \doi{10.1371/journal.pone.0012200}.
+#' @seealso \code{\link{centrality_degree}},
+#'   \code{\link{centrality_neighborhood_connectivity}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_leverage(adj)
+#' centrality_leverage(regulation_net)
 centrality_leverage <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "leverage", mode = mode, ...)
   col <- paste0("leverage_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Geodesic K-Path Centrality
+#' Geodesic K-Reach Centrality
 #'
-#' Count of nodes reachable within shortest path distance \code{k}. Measures
-#' how many nodes a given node can reach quickly.
+#' Geodesic k-reach centrality (Borgatti and Everett 2006) counts the nodes
+#' that lie within shortest-path distance \eqn{k} of a node.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param k Maximum path length. Default 3.
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}, \code{invert_weights}).
+#' @details
+#' Edge weights are read as distances, so on a weighted network \eqn{k} is
+#' compared with the summed weights along a path; on \code{regulation_net},
+#' whose weights lie below one, every node reaches all others within
+#' \eqn{k = 1}. \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} has no
+#' effect, because the measure then reads the weights stored in the network;
+#' a hop-count reach needs a binary input such as \code{(x != 0) * 1}.
+#' \code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
+#' reached from the node and \code{"in"} nodes that reach it. A \code{k} of
+#' zero or below raises an error.
 #'
-#' @return Named numeric vector of k-reach centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param k Largest distance counted, a positive number (default 3).
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{invert_weights} (default \code{NULL}, which inverts for tna input
+#'   only) and \code{alpha} (inversion exponent, default 1).
+#' @return A named integer vector with one count per node, in input node
+#'   order.
+#' @references
+#' Borgatti, S. P., & Everett, M. G. (2006). A graph-theoretic perspective on
+#'   centrality. Social Networks, 28(4), 466-484.
+#'   \doi{10.1016/j.socnet.2005.11.005}.
+#' @seealso \code{\link{centrality_geodesic_kpath}},
+#'   \code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_kreach(adj, k = 2)
+#' centrality_kreach(regulation_net, k = 0.2)
 centrality_kreach <- function(x, mode = "all", k = 3, ...) {
   df <- centrality(x, measures = "kreach", mode = mode, k = k, ...)
   col <- paste0("kreach_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Alpha (Katz) Centrality
+#' Alpha Centrality
 #'
-#' Influence via all paths penalized by distance. Similar to eigenvector
-#' centrality but includes an exogenous contribution, making it well-defined
-#' even for directed acyclic graphs.
+#' Alpha centrality (Bonacich and Lloyd 2001) gives every node an exogenous
+#' score of one plus the scores of the nodes that point to it:
+#' \deqn{x = \alpha A^{T} x + e, \qquad x = (I - \alpha A^{T})^{-1} e.}{
+#'   x = alpha A^T x + e, x = (I - alpha A^T)^(-1) e.}
+#' The attenuation is fixed at \eqn{\alpha = 1}{alpha = 1} and \eqn{e} is a
+#' vector of ones, the defaults of \code{igraph::alpha_centrality()}.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' \eqn{A} holds the edge weights with the diagonal set to zero. Edge weights
+#' are always used, and \code{weighted = FALSE} has no effect. The
+#' \code{alpha} argument of \code{\link{centrality}} is the weight-inversion
+#' exponent, which this measure does not read. The
+#' scores are positive when the spectral radius of \eqn{A} is below one and
+#' can be negative otherwise. A singular system or a negative edge weight
+#' raises an error of class \code{cograph_singular_system}.
 #'
-#' @return Named numeric vector of alpha centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_eigenvector}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Accepted for a uniform interface. It has no effect. Default
+#'   \code{"all"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Bonacich, P., & Lloyd, P. (2001). Eigenvector-like measures of centrality
+#'   for asymmetric relations. Social Networks, 23(3), 191-201.
+#'   \doi{10.1016/S0378-8733(01)00038-7}.
+#' @seealso \code{\link{centrality_katz}}, \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_alpha(adj)
+#' centrality_alpha(regulation_net)
 centrality_alpha <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "alpha", mode = mode, ...)
   col <- paste0("alpha_", mode)
@@ -2474,22 +2690,36 @@ centrality_alpha <- function(x, mode = "all", ...) {
 
 #' Bonacich Power Centrality
 #'
-#' Measures influence based on connections to other influential nodes.
-#' The power parameter controls whether connections to well-connected
-#' nodes increase or decrease centrality.
+#' Bonacich (1987) power centrality with exponent \eqn{\beta = 1}{beta = 1}
+#' sums the walks leaving a node, each further step weighted by \eqn{\beta}{beta}:
+#' \deqn{c = \gamma\,(I - A)^{-1} A \mathbf{1},}{c = g (I - A)^(-1) A 1,}
+#' where \eqn{A} is the binary adjacency matrix and \eqn{\gamma}{g} scales
+#' the scores so that their squares sum to \eqn{n}.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' The exponent is fixed at 1, and the values equal
+#' \code{igraph::power_centrality(exponent = 1)}. Edge weights and self-loops
+#' are ignored. On a directed network the score sums over out-ties, and the
+#' argument \code{mode} has no effect. Where \eqn{I - A} is singular, as on a
+#' network that contains an isolated edge, a \code{cograph_singular_system}
+#' error is raised, and a network without edges gives \code{NaN}. The scores
+#' can be negative, as on \code{regulation_net}, and \code{normalized = TRUE}
+#' leaves scores that are all negative unchanged.
 #'
-#' @return Named numeric vector of power centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_eigenvector}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Accepted for a uniform interface; it has no effect on this
+#'   measure (default \code{"all"}).
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Bonacich, P. (1987). Power and centrality: A family of measures. American
+#'   Journal of Sociology, 92(5), 1170-1182. \doi{10.1086/228631}.
+#' @seealso \code{\link{centrality_eigenvector}},
+#'   \code{\link{centrality_katz}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_power(adj)
+#' centrality_power(regulation_net)
 centrality_power <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "power", mode = mode, ...)
   col <- paste0("power_", mode)
@@ -2498,22 +2728,32 @@ centrality_power <- function(x, mode = "all", ...) {
 
 #' Subgraph Centrality
 #'
-#' Participation in closed loops (walks), weighting shorter loops more heavily.
-#' Based on the diagonal of the matrix exponential of the adjacency matrix.
+#' Subgraph centrality (Estrada and Rodriguez-Velazquez 2005) counts the
+#' closed walks that start and end at a node, weighting a walk of length
+#' \eqn{k} by \eqn{1/k!}:
+#' \deqn{SC(i) = \sum_{k=0}^{\infty} \frac{(A^k)_{ii}}{k!} = \left(e^{A}\right)_{ii}.}{
+#'   SC(i) = sum_k (A^k)_ii / k! = exp(A)_ii.}
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' \eqn{A} is the binary adjacency matrix without self-loops, so edge weights
+#' are ignored. On a directed network \eqn{A} is replaced by
+#' \eqn{A + A^{T}}{A + t(A)}, so a reciprocated pair has entry 2; the values
+#' then equal \code{igraph::subgraph_centrality()}. An empty network raises
+#' an error.
 #'
-#' @return Named numeric vector of subgraph centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Estrada, E., & Rodriguez-Velazquez, J. A. (2005). Subgraph centrality in
+#'   complex networks. Physical Review E, 71(5), 056103.
+#'   \doi{10.1103/PhysRevE.71.056103}.
+#' @seealso \code{\link{centrality_communicability}},
+#'   \code{\link{centrality_eigenvector}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_subgraph(adj)
+#' centrality_subgraph(regulation_net)
 centrality_subgraph <- function(x, ...) {
   df <- centrality(x, measures = "subgraph", ...)
   stats::setNames(df$subgraph, df$node)
@@ -2521,23 +2761,33 @@ centrality_subgraph <- function(x, ...) {
 
 #' Laplacian Centrality
 #'
-#' Energy drop from the graph Laplacian when a node is removed
-#' (Qi et al. 2012). Measures a node's importance to the overall
-#' network energy.
+#' Laplacian centrality (Qi et al. 2012) is the drop in the Laplacian energy
+#' of a network when a node is removed. Without edge weights the drop is
+#' \deqn{L(v) = k_v^2 + k_v + 2 \sum_{u \in N(v)} k_u.}{
+#'   L(v) = k_v^2 + k_v + 2 sum_{u in N(v)} k_u.}
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Edge weights are ignored, so the score is the unweighted case of the
+#' weighted measure of Qi et al. (2012). On a directed network \eqn{k} is the
+#' total degree, in plus out, and the neighbor sum runs over out-neighbors.
+#' A self-loop adds 2 to the degree. On undirected networks the values equal
+#' \code{centiserve::laplacian()}. \code{normalized = TRUE} divides the
+#' scores by their maximum.
 #'
-#' @return Named numeric vector of Laplacian centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Qi, X., Fuller, E., Wu, Q., Wu, Y., & Zhang, C.-Q. (2012). Laplacian
+#'   centrality: A new centrality measure for weighted networks. Information
+#'   Sciences, 194, 240-253. \doi{10.1016/j.ins.2011.12.027}.
+#' @seealso \code{\link{centrality_degree}},
+#'   \code{\link{centrality_semilocal}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_laplacian(adj)
+#' centrality_laplacian(regulation_net)
 centrality_laplacian <- function(x, ...) {
   df <- centrality(x, measures = "laplacian", ...)
   stats::setNames(df$laplacian, df$node)
@@ -2545,71 +2795,125 @@ centrality_laplacian <- function(x, ...) {
 
 #' Load Centrality
 #'
-#' Fraction of all shortest paths passing through a node, similar to
-#' betweenness but weighting paths by 1/count (Goh et al. 2001).
+#' Load centrality (Goh et al. 2001) sends one unit of load from every node
+#' to every other node along shortest paths. At each branching the load is
+#' split equally among the shortest-path predecessors, and the score of a
+#' node is the total load that passes through it.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Edge weights are read as distances. \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. Paths follow edge direction on a
+#' directed network. The values equal \code{sna::loadcent()}, which credits
+#' the endpoints of each path as well as the intermediate nodes, so the
+#' scores are larger than betweenness.
 #'
-#' @return Named numeric vector of load centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_betweenness}} for the standard variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only) and \code{alpha}
+#'   (inversion exponent, default 1).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Goh, K.-I., Kahng, B., & Kim, D. (2001). Universal behavior of load
+#'   distribution in scale-free networks. Physical Review Letters, 87(27),
+#'   278701. \doi{10.1103/PhysRevLett.87.278701}.
+#' @seealso \code{\link{centrality_betweenness}},
+#'   \code{\link{centrality_stress}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_load(adj)
+#' centrality_load(regulation_net)
 centrality_load <- function(x, ...) {
   df <- centrality(x, measures = "load", ...)
   stats::setNames(df$load, df$node)
 }
 
-#' Current Flow Closeness Centrality
+#' Current-Flow Closeness
 #'
-#' Information centrality based on electrical current flow through the network.
-#' Uses the pseudoinverse of the Laplacian matrix. Requires a connected graph.
+#' Current-flow closeness (Brandes and Fleischer 2005), equal to the
+#' information centrality of Stephenson and Zelen (1989), replaces the
+#' shortest-path distance in closeness by the effective resistance
+#' \eqn{R_{vw}}{R_vw} of the network read as an electrical circuit with the
+#' edge weights as conductances:
+#' \deqn{CFC(v) = \frac{n - 1}{\sum_{w \ne v} R_{vw}}, \qquad
+#'   R_{vw} = L^{+}_{vv} + L^{+}_{ww} - 2 L^{+}_{vw},}{
+#'   CFC(v) = (n - 1) / sum_{w != v} R_vw,
+#'   R_vw = L+_vv + L+_ww - 2 L+_vw,}
+#' with \eqn{L^{+}}{L+} the pseudoinverse of the Laplacian.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' The measure is defined for connected undirected networks. On a
+#' disconnected network every score is \code{NA}, with an unclassed warning.
+#' On a directed network the Laplacian is built from the asymmetric weight
+#' matrix, and \code{directed = FALSE} gives the undirected reading. Edge
+#' weights are always used, and \code{weighted = FALSE} has no effect.
 #'
-#' @return Named numeric vector of current flow closeness values.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Stephenson, K., & Zelen, M. (1989). Rethinking centrality: Methods and
+#'   examples. Social Networks, 11(1), 1-37.
+#'   \doi{10.1016/0378-8733(89)90016-6}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_closeness}} for the shortest-path variant.
-#'
+#' Brandes, U., & Fleischer, D. (2005). Centrality measures based on current
+#'   flow. In STACS 2005, Lecture Notes in Computer Science, 3404 (pp.
+#'   533-544). Springer. \doi{10.1007/978-3-540-31856-9_44}.
+#' @seealso \code{\link{centrality_current_flow_betweenness}},
+#'   \code{\link{centrality_information}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_current_flow_closeness(adj)
+#' centrality_current_flow_closeness(regulation_net, directed = FALSE)
 centrality_current_flow_closeness <- function(x, ...) {
   df <- centrality(x, measures = "current_flow_closeness", ...)
   stats::setNames(df$current_flow_closeness, df$node)
 }
 
-#' Current Flow Betweenness Centrality
+#' Current-Flow Betweenness
 #'
-#' Betweenness based on electrical current flow rather than shortest paths.
-#' Uses the Laplacian pseudoinverse. Requires a connected graph.
+#' Current-flow betweenness (Brandes and Fleischer 2005), also known as
+#' random-walk betweenness (Newman 2005), treats the network as an electrical
+#' circuit with the edge weights as conductances. One unit of current is sent
+#' between every pair \eqn{s, t}{s, t}, and the score is the average current
+#' that flows through the node:
+#' \deqn{CFB(v) = \frac{2}{(n-1)(n-2)} \sum_{s < t} \frac{1}{2} \sum_{u}
+#'   w_{vu} \left| p^{(st)}_v - p^{(st)}_u \right|,}{
+#'   CFB(v) = 2 / ((n-1)(n-2)) sum_{s < t} (1/2) sum_u w_vu |p_v - p_u|,}
+#' where \eqn{p^{(st)}}{p} are the node potentials of that pair, taken from
+#' the pseudoinverse of the Laplacian, and the inner sum is set to zero for
+#' \eqn{v = s} and \eqn{v = t}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' The measure is defined for connected undirected networks. On a
+#' disconnected network every score is \code{NA}, with an unclassed warning.
+#' On a directed network the Laplacian is built from the asymmetric weight
+#' matrix, and \code{directed = FALSE} gives the undirected reading. With
+#' \code{weighted = FALSE} the potentials still come from the weighted
+#' Laplacian while the currents are read off the binary adjacency matrix.
+#' The fixed factor \eqn{2/((n-1)(n-2))} is the normalization of
+#' \code{networkx::current_flow_betweenness_centrality()}.
 #'
-#' @return Named numeric vector of current flow betweenness values.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Brandes, U., & Fleischer, D. (2005). Centrality measures based on current
+#'   flow. In STACS 2005, Lecture Notes in Computer Science, 3404 (pp.
+#'   533-544). Springer. \doi{10.1007/978-3-540-31856-9_44}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_betweenness}} for the shortest-path variant.
-#'
+#' Newman, M. E. J. (2005). A measure of betweenness centrality based on
+#'   random walks. Social Networks, 27(1), 39-54.
+#'   \doi{10.1016/j.socnet.2004.11.009}.
+#' @seealso \code{\link{centrality_current_flow_closeness}},
+#'   \code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_current_flow_betweenness(adj)
+#' centrality_current_flow_betweenness(regulation_net, directed = FALSE)
 centrality_current_flow_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "current_flow_betweenness", ...)
   stats::setNames(df$current_flow_betweenness, df$node)
@@ -2617,23 +2921,35 @@ centrality_current_flow_betweenness <- function(x, ...) {
 
 #' VoteRank Centrality
 #'
-#' Identifies influential spreaders via an iterative voting mechanism.
-#' Returns normalized rank (1 = most influential). Based on
-#' Zhang et al. (2016).
+#' VoteRank (Zhang et al. 2016) elects spreaders one at a time. Every node
+#' votes for its neighbors with a voting ability that starts at 1, the node
+#' with the most votes is elected, and each neighbor of the elected node
+#' loses \eqn{1/\langle k \rangle}{1/<k>} of its ability, where
+#' \eqn{\langle k \rangle}{<k>} is the mean degree. A node elected in round
+#' \eqn{r} of \eqn{m} rounds scores \eqn{(m + 1 - r)/m}{(m + 1 - r) / m}, so
+#' the first node elected scores 1.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Edge weights are ignored. On a directed network a node receives the votes
+#' of its in-neighbors, the election reduces the ability of the out-neighbors
+#' of the elected node, and the mean degree counts in-ties and out-ties.
+#' Every node is elected in turn, so on \eqn{n} nodes the scores are
+#' \eqn{1/n, 2/n, \ldots, 1}{1/n, 2/n, ..., 1}. A tie in votes goes to the
+#' node listed first.
 #'
-#' @return Named numeric vector of VoteRank values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Zhang, J.-X., Chen, D.-B., Dong, Q., & Zhao, Z.-D. (2016). Identifying a
+#'   set of influential spreaders in complex networks. Scientific Reports, 6,
+#'   27823. \doi{10.1038/srep27823}.
+#' @seealso \code{\link{centrality_ncvoterank}},
+#'   \code{\link{centrality_wvoterank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_voterank(adj)
+#' centrality_voterank(regulation_net)
 centrality_voterank <- function(x, ...) {
   df <- centrality(x, measures = "voterank", ...)
   stats::setNames(df$voterank, df$node)
@@ -2641,27 +2957,41 @@ centrality_voterank <- function(x, ...) {
 
 #' Percolation Centrality
 #'
-#' Importance for spreading processes using node states. Each node has
-#' a state (0-1) representing how activated it is. When all states are
-#' equal, equivalent to betweenness.
+#' Percolation centrality (Piraveenan et al. 2013) weights each shortest path
+#' through a node by the percolation state \eqn{x_s} of its source:
+#' \deqn{PC(v) = \frac{1}{n-2} \sum_{s \ne v \ne t}
+#'   \frac{\sigma_{st}(v)}{\sigma_{st}} \frac{x_s}{\sum_i x_i - x_v},}{
+#'   PC(v) = (1 / (n - 2)) sum_{s != v != t} (sigma_st(v) / sigma_st) x_s / (sum_i x_i - x_v),}
+#' where \eqn{\sigma_{st}}{sigma_st} is the number of shortest paths from
+#' \eqn{s} to \eqn{t} and \eqn{\sigma_{st}(v)}{sigma_st(v)} the number through
+#' \eqn{v}. With equal states the score is the normalized betweenness.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param states Named numeric vector of node states (0-1). Default \code{NULL}
-#'   (all nodes get state 1).
-#' @param ... Additional arguments passed to \code{\link{centrality}} (e.g.,
-#'   \code{weighted}, \code{directed}).
+#' @details
+#' Edge weights are read as distances, \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights} has no effect on this measure. Paths
+#' follow edge direction on a directed network. \code{states} is matched to
+#' nodes by name when it has names and by position otherwise. Its values are
+#' clipped to \eqn{[0, 1]} and missing values are set to 1, and a vector of
+#' the wrong length raises an error. A network with fewer than three nodes
+#' scores 0.
 #'
-#' @return Named numeric vector of percolation centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_betweenness}} which this generalizes.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param states Percolation state of each node, between 0 and 1. The
+#'   default \code{NULL} gives every node state 1.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Piraveenan, M., Prokopenko, M., & Hossain, L. (2013). Percolation
+#'   centrality: Quantifying graph-theoretic impact of nodes during
+#'   percolation in networks. PLoS ONE, 8(1), e53095.
+#'   \doi{10.1371/journal.pone.0053095}.
+#' @seealso \code{\link{centrality_betweenness}},
+#'   \code{\link{centrality_load}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_percolation(adj)
-#' centrality_percolation(adj, states = c(A = 0.8, B = 0.2, C = 0.5))
+#' centrality_percolation(regulation_net)
 centrality_percolation <- function(x, states = NULL, ...) {
   df <- centrality(x, measures = "percolation", states = states, ...)
   stats::setNames(df$percolation, df$node)
@@ -2673,21 +3003,44 @@ centrality_percolation <- function(x, states = NULL, ...) {
 
 #' Radiality Centrality
 #'
-#' Centrality based on sum of (diameter + 1 - distance) normalized by n-1.
-#' Nodes closer to others (on average) have higher radiality.
+#' Radiality (Valente and Foreman 1998) reverses each distance against the
+#' diameter \eqn{D} and averages over the network:
+#' \deqn{R(i) = \frac{1}{n - 1} \sum_{j:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
+#'   R(i) = sum_{j: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
+#' Nodes close to the others score high.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' The sum includes the node itself, which contributes \eqn{D + 1}, and the
+#' values equal \code{centiserve::radiality()} on undirected networks.
+#' Unreachable nodes contribute 0. Edge weights are read as distances;
+#' \code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
+#' converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+#' \code{mode = "all"} treats edges as undirected, \code{"out"} uses
+#' distances from the node and \code{"in"} distances to it. The diameter is
+#' taken on the stored edge weights in the direction of the network,
+#' whatever \code{mode} and \code{invert_weights} are. A single-node network
+#' gives \code{NA}.
 #'
-#' @return Named numeric vector of radiality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_closeness}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest distance counted,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Valente, T. W., & Foreman, R. K. (1998). Integration and radiality:
+#'   Measuring the extent of an individual's connectedness and reachability
+#'   in a network. Social Networks, 20(1), 89-105.
+#'   \doi{10.1016/S0378-8733(97)00007-5}.
+#' @seealso \code{\link{centrality_integration}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_radiality(adj)
+#' centrality_radiality(regulation_net)
 centrality_radiality <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "radiality", mode = mode, ...)
   col <- paste0("radiality_", mode)
@@ -2696,21 +3049,37 @@ centrality_radiality <- function(x, mode = "all", ...) {
 
 #' Lin Centrality
 #'
-#' Reachable nodes squared divided by sum of distances. Well-defined for
-#' disconnected graphs.
+#' Lin centrality divides the squared number of nodes a node reaches by the
+#' sum of its distances to them:
+#' \deqn{L(i) = \frac{r_i^2}{\sum_{j \in R_i} d_{ij}},}{
+#'   L(i) = r_i^2 / sum_{j in R_i} d_ij,}
+#' where \eqn{R_i} is the set of \eqn{r_i} nodes reachable from \eqn{i}. The
+#' score is defined on disconnected networks.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as distances. \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+#' undirected, \code{"out"} uses distances from the node and \code{"in"}
+#' distances to it. A node that reaches no other node scores 0, and a
+#' single-node network gives \code{NA}. On undirected networks the values
+#' equal \code{centiserve::lincent()}.
 #'
-#' @return Named numeric vector of Lin centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_closeness}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest distance counted,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_lin(adj)
+#' centrality_lin(regulation_net)
 centrality_lin <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "lin", mode = mode, ...)
   col <- paste0("lin_", mode)
@@ -2719,25 +3088,38 @@ centrality_lin <- function(x, mode = "all", ...) {
 
 #' Decay Centrality
 #'
-#' Sum of delta^d over all nodes, where d is the shortest path distance.
-#' Nodes near many others get higher scores. The \code{decay_parameter}
-#' controls the distance penalty.
+#' Decay centrality sums a decay factor \eqn{\delta}{delta} raised to the
+#' distance from the node to every node:
+#' \deqn{D(v) = \sum_{w} \delta^{d(v, w)}.}{D(v) = sum_w delta^d(v, w).}
+#' The sum includes the node itself, which adds one to every score, and
+#' unreachable nodes contribute 0. Values of \eqn{\delta}{delta} between 0
+#' and 1 discount distant nodes.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param decay_parameter Numeric between 0 and 1. Default 0.5.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. The value of
+#' \code{decay_parameter} is not checked, and values above 1 give more weight
+#' to distant nodes. \code{\link{centrality_generalized_closeness}} computes
+#' the same quantity, and \code{decay_parameter = 0.5} gives
+#' \code{\link{centrality_dangalchev}}.
 #'
-#' @return Named numeric vector of decay centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param decay_parameter Decay factor \eqn{\delta}{delta}. Default 0.5.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_generalized_closeness}},
+#'   \code{\link{centrality_dangalchev}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_decay(adj, decay_parameter = 0.5)
+#' centrality_decay(regulation_net)
 centrality_decay <- function(x, mode = "all", decay_parameter = 0.5, ...) {
   df <- centrality(x, measures = "decay", mode = mode,
                    decay_parameter = decay_parameter, ...)
@@ -2747,70 +3129,118 @@ centrality_decay <- function(x, mode = "all", decay_parameter = 0.5, ...) {
 
 #' Residual Closeness Centrality
 #'
-#' Sum of 1/2^d for all nodes, including self. Robust to disconnected graphs.
+#' Residual closeness (Dangalchev 2006) sums distances that decay by half
+#' with every step:
+#' \deqn{C(i) = \sum_{j} 2^{-d_{ij}},}{C(i) = sum_j 2^(-d_ij),}
+#' with \eqn{2^{-\infty} = 0}{2^(-Inf) = 0}, so the score is defined on
+#' disconnected networks.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' The sum includes the node itself, which adds 1, and the values equal
+#' \code{centiserve::closeness.residual()} on undirected networks. Edge
+#' weights are read as distances; \code{weighted = FALSE} uses hop counts,
+#' and \code{invert_weights = TRUE} converts a weight \eqn{w} to the distance
+#' \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+#' undirected, \code{"out"} uses distances from the node and \code{"in"}
+#' distances to it. \code{\link{centrality_dangalchev}} returns the same
+#' values.
 #'
-#' @return Named numeric vector of residual closeness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_dangalchev}} (alias).
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest distance counted,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Dangalchev, C. (2006). Residual closeness in networks. Physica A, 365(2),
+#'   556-564. \doi{10.1016/j.physa.2005.12.020}.
+#' @seealso \code{\link{centrality_dangalchev}},
+#'   \code{\link{centrality_decay}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_residual_closeness(adj)
+#' centrality_residual_closeness(regulation_net)
 centrality_residual_closeness <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "residual_closeness", mode = mode, ...)
   col <- paste0("residual_closeness_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Dangalchev Closeness Centrality
+#' Dangalchev Closeness
 #'
-#' Alias for residual closeness centrality: sum of 1/2^d.
+#' Dangalchev closeness, the residual closeness of Dangalchev (2006), sums an
+#' exponentially decaying function of the distance to every node:
+#' \deqn{D(v) = \sum_{w} 2^{-d(v, w)}.}{D(v) = sum_w 2^(-d(v, w)).}
+#' The sum includes the node itself, which adds one to every score, as in the
+#' centiserve package. Unreachable nodes contribute 0.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. The values equal
+#' those of \code{\link{centrality_residual_closeness}} and of
+#' \code{\link{centrality_decay}} with \code{decay_parameter = 0.5}.
 #'
-#' @return Named numeric vector of Dangalchev closeness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_residual_closeness}} (equivalent).
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Dangalchev, C. (2006). Residual closeness in networks. Physica A, 365(2),
+#'   556-564. \doi{10.1016/j.physa.2005.12.020}.
+#' @seealso \code{\link{centrality_residual_closeness}},
+#'   \code{\link{centrality_decay}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_dangalchev(adj)
+#' centrality_dangalchev(regulation_net)
 centrality_dangalchev <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "dangalchev", mode = mode, ...)
   col <- paste0("dangalchev_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Generalized Closeness Centrality
+#' Generalized Closeness
 #'
-#' Sum of alpha^d over all nodes. Generalization of decay centrality
-#' matching tidygraph's implementation.
+#' Generalized closeness, as in the tidygraph package, sums a decay factor
+#' \eqn{\alpha}{alpha} raised to the distance from the node to every node:
+#' \deqn{GC(v) = \sum_{w} \alpha^{d(v, w)}.}{GC(v) = sum_w alpha^d(v, w).}
+#' The sum includes the node itself, which adds one to every score, and
+#' unreachable nodes contribute 0.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param decay_parameter Numeric between 0 and 1 (the alpha parameter).
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, with the inversion exponent
+#' \code{alpha} of \code{\link{centrality}}, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. The values equal
+#' those of \code{\link{centrality_decay}} with the same
+#' \code{decay_parameter}, which is not checked.
+#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param decay_parameter Decay factor \eqn{\alpha}{alpha} of the formula.
 #'   Default 0.5.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of generalized closeness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_decay}} (equivalent formulation).
-#'
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_decay}},
+#'   \code{\link{centrality_harmonic}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_generalized_closeness(adj)
+#' centrality_generalized_closeness(regulation_net)
 centrality_generalized_closeness <- function(x, mode = "all",
                                              decay_parameter = 0.5, ...) {
   df <- centrality(x, measures = "generalized_closeness", mode = mode,
@@ -2821,41 +3251,78 @@ centrality_generalized_closeness <- function(x, mode = "all",
 
 #' Harary Centrality
 #'
-#' Sum of 1/d^2 over all reachable node pairs. Robust to disconnected graphs.
+#' Harary centrality sums the inverse squared shortest-path distances from a
+#' node to the other nodes:
+#' \deqn{H(i) = \sum_{j \ne i} \frac{1}{d_{ij}^{2}},}{
+#'   H(i) = sum_{j != i} 1 / d_ij^2,}
+#' with \eqn{1/\infty = 0}{1/Inf = 0}, so an unreachable node contributes
+#' nothing and the score is defined on disconnected networks.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as distances. On \code{regulation_net}, whose
+#' weights lie below one, the scores are therefore large.
+#' \code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
+#' converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
+#' \code{mode = "all"} treats edges as undirected, \code{"out"} uses
+#' distances from the node and \code{"in"} distances to it. The Harary index
+#' of Plavsic et al. (1993) sums the inverse distances \eqn{1/d_{ij}}{1/d_ij};
+#' its node-level form is \code{\link{centrality_harmonic}}.
 #'
-#' @return Named numeric vector of Harary centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest distance counted,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Plavsic, D., Nikolic, S., Trinajstic, N., & Mihalic, Z. (1993). On the
+#'   Harary index for the characterization of chemical graphs. Journal of
+#'   Mathematical Chemistry, 12(1), 235-250. \doi{10.1007/BF01164638}.
+#' @seealso \code{\link{centrality_harmonic}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_harary(adj)
+#' centrality_harary(regulation_net)
 centrality_harary <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "harary", mode = mode, ...)
   col <- paste0("harary_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Average Distance Centrality
+#' Average Distance
 #'
-#' Sum of shortest path distances divided by (n + 1). Lower values indicate
-#' more central nodes.
+#' Average distance is the sum of the shortest-path distances from a node to
+#' every node, divided by \eqn{n + 1} as in the centiserve package:
+#' \deqn{AD(v) = \frac{1}{n + 1} \sum_{w} d(v, w).}{
+#'   AD(v) = sum_w d(v, w) / (n + 1).}
+#' Lower values mark more central nodes.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. A node that
+#' cannot reach every other node scores \code{Inf}, so on a disconnected
+#' network every score is \code{Inf}.
 #'
-#' @return Named numeric vector of average distance values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_barycenter}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_average_distance(adj)
+#' centrality_average_distance(regulation_net)
 centrality_average_distance <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "average_distance", mode = mode, ...)
   col <- paste0("average_distance_", mode)
@@ -2864,19 +3331,37 @@ centrality_average_distance <- function(x, mode = "all", ...) {
 
 #' Barycenter Centrality
 #'
-#' Inverse of the total distance to all reachable nodes.
+#' Barycenter centrality is the reciprocal of the total shortest-path distance
+#' from a node to the nodes it reaches:
+#' \deqn{BC(v) = \frac{1}{\sum_{w \ne v} d(v, w)}.}{
+#'   BC(v) = 1 / sum_{w != v} d(v, w).}
+#' Unreachable nodes are left out of the sum.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. The formula is
+#' the one \code{\link{centrality_closeness}} computes, and with the default
+#' \code{weighted = TRUE} the two agree on every node that reaches another
+#' node. A node that reaches no other node scores 0, where closeness returns
+#' \code{NaN}.
 #'
-#' @return Named numeric vector of barycenter centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1), \code{cutoff} (largest path length considered,
+#'   default -1 for no limit) and \code{normalized} (divide by the maximum,
+#'   default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_average_distance}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_barycenter(adj)
+#' centrality_barycenter(regulation_net)
 centrality_barycenter <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "barycenter", mode = mode, ...)
   col <- paste0("barycenter_", mode)
@@ -2885,20 +3370,40 @@ centrality_barycenter <- function(x, mode = "all", ...) {
 
 #' Wiener Index Centrality
 #'
-#' Total sum of shortest path distances from a node to all others.
-#' Higher values indicate less central (more peripheral) nodes.
+#' The Wiener centrality of a node is the sum of its shortest-path distances
+#' to the nodes it reaches:
+#' \deqn{W(i) = \sum_{j \ne i,\, d_{ij} < \infty} d_{ij}.}{
+#'   W(i) = sum_{j != i, d_ij < Inf} d_ij.}
+#' High values mark peripheral nodes. On a connected undirected network half
+#' the sum of the scores is the Wiener index of the network (Wiener 1947).
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as distances. \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
+#' undirected, \code{"out"} uses distances from the node and \code{"in"}
+#' distances to it. Unreachable nodes add nothing, so on a disconnected
+#' network a node in a small component also scores low.
 #'
-#' @return Named numeric vector of Wiener index values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest distance counted,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Wiener, H. (1947). Structural determination of paraffin boiling points.
+#'   Journal of the American Chemical Society, 69(1), 17-20.
+#'   \doi{10.1021/ja01193a005}.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_average_distance}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_wiener(adj)
+#' centrality_wiener(regulation_net)
 centrality_wiener <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "wiener", mode = mode, ...)
   col <- paste0("wiener_", mode)
@@ -2907,42 +3412,73 @@ centrality_wiener <- function(x, mode = "all", ...) {
 
 #' Closeness Vitality
 #'
-#' Drop in the Wiener index when a node is removed. Higher values indicate
-#' more critical nodes for overall connectivity.
+#' Closeness vitality (Koschuetzki et al. 2005) is the drop in the Wiener
+#' index when a node is removed:
+#' \deqn{CV(v) = W(G) - W(G - v), \qquad W(G) = \sum_{s \ne t} d(s, t).}{
+#'   CV(v) = W(G) - W(G - v), W(G) = sum_{s != t} d(s, t).}
+#' The Wiener index sums the finite distances over ordered pairs, as in
+#' \code{networkx::closeness_vitality()}.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths. Pairs that are
+#' not connected contribute nothing to either index. An isolated node scores
+#' 0.
 #'
-#' @return Named numeric vector of closeness vitality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
+#'   D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
+#'   Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.
+#'   16-61). Springer. \doi{10.1007/978-3-540-31955-9_3}.
+#' @seealso \code{\link{centrality_wiener}}, \code{\link{centrality_centroid}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_closeness_vitality(adj)
+#' centrality_closeness_vitality(regulation_net)
 centrality_closeness_vitality <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "closeness_vitality", mode = mode, ...)
   col <- paste0("closeness_vitality_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Lobby Index (H-Index of Neighborhood)
+#' Lobby Index
 #'
-#' Largest k such that the node's closed neighborhood contains at least k
-#' nodes with degree >= k. Network analogue of the h-index.
+#' The lobby index (Korn et al. 2009) is the h-index of the degrees in the
+#' closed neighborhood of a node. It is the largest \eqn{k} such that the
+#' node and its neighbors include at least \eqn{k} nodes of degree \eqn{k}
+#' or more.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} selects both the degree and the
+#' neighbors, and with \code{mode = "all"} on a directed network the degree
+#' is in plus out. An isolated node scores 0. On undirected networks the
+#' values equal \code{centiserve::lobby()}.
 #'
-#' @return Named integer vector of lobby index values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named integer vector with one index per node, in input node
+#'   order.
+#' @references
+#' Korn, A., Schubert, A., & Telcs, A. (2009). Lobby index in networks.
+#'   Physica A, 388(11), 2221-2226. \doi{10.1016/j.physa.2009.02.013}.
+#' @seealso \code{\link{centrality_degree}},
+#'   \code{\link{centrality_coreness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_lobby(adj)
+#' centrality_lobby(regulation_net)
 centrality_lobby <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "lobby", mode = mode, ...)
   col <- paste0("lobby_", mode)
@@ -2951,20 +3487,32 @@ centrality_lobby <- function(x, mode = "all", ...) {
 
 #' Entropy Centrality
 #'
-#' Graph-theoretic entropy based on shortest path distribution in the residual
-#' graph after removing the node.
+#' Entropy centrality, in the form of the centiserve package, removes the node
+#' and measures how evenly reachability is spread over the remaining network.
+#' With \eqn{r_j}{r_j} the number of nodes that node \eqn{j} reaches in
+#' \eqn{G - v} and \eqn{P} half the total of the \eqn{r_j}{r_j},
+#' \deqn{H(v) = -\sum_{j} y_j \log_2 y_j, \qquad y_j = \frac{r_j}{P}.}{
+#'   H(v) = -sum_j y_j log2(y_j), y_j = r_j / P.}
+#' Terms with \eqn{y_j = 0}{y_j = 0} are dropped.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored, and \code{mode} sets the direction of
+#' reachability. When the network stays strongly connected after the removal
+#' of any one node, every node scores \eqn{2 \log_2((n-1)/2)}{2 log2((n-1)/2)},
+#' as on \code{regulation_net}.
 #'
-#' @return Named numeric vector of entropy centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_distance_entropy}},
+#'   \code{\link{centrality_diversity}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_entropy(adj)
+#' centrality_entropy(regulation_net)
 centrality_entropy <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "entropy", mode = mode, ...)
   col <- paste0("entropy_", mode)
@@ -2973,40 +3521,71 @@ centrality_entropy <- function(x, mode = "all", ...) {
 
 #' Semi-Local Centrality
 #'
-#' Triple-nested neighborhood computation measuring 4-hop local influence.
+#' Semi-local centrality (Chen et al. 2012) sums, over the neighbors \eqn{u}
+#' of a node and the neighbors \eqn{w} of each \eqn{u}, the number
+#' \eqn{N(w)} of nodes within two steps of \eqn{w}:
+#' \deqn{C_L(v) = \sum_{u \in \Gamma(v)} \sum_{w \in \Gamma(u)} N(w).}{
+#'   C_L(v) = sum_{u in N(v)} sum_{w in N(u)} N(w).}
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} selects the neighbors, and with
+#' \code{mode = "all"} on a directed network a reciprocated tie counts twice.
+#' An isolated node scores 0. On undirected networks the values equal
+#' \code{centiserve::semilocal()}.
 #'
-#' @return Named numeric vector of semi-local centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Chen, D., Lu, L., Shang, M.-S., Zhang, Y.-C., & Zhou, T. (2012).
+#'   Identifying influential nodes in complex networks. Physica A, 391(4),
+#'   1777-1787. \doi{10.1016/j.physa.2011.09.017}.
+#' @seealso \code{\link{centrality_laplacian}},
+#'   \code{\link{centrality_degree}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_semilocal(adj)
+#' centrality_semilocal(regulation_net)
 centrality_semilocal <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "semilocal", mode = mode, ...)
   col <- paste0("semilocal_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' ClusterRank Centrality
+#' ClusterRank
 #'
-#' Product of clustering coefficient and sum of (neighbor degree + 1).
+#' ClusterRank (Chen et al. 2013) combines the local clustering coefficient
+#' \eqn{c_v} of a node with the degrees of its neighbors:
+#' \deqn{CR(v) = c_v \sum_{u \in N(v)} (k_u + 1).}{
+#'   CR(v) = c_v sum_{u in N(v)} (k_u + 1).}
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} sets both the neighbor set and the
+#' degrees, and on a directed network a reciprocated neighbor enters the sum
+#' twice under \code{mode = "all"}. The clustering coefficient ignores edge
+#' direction. A node with fewer than two neighbors has no clustering
+#' coefficient and returns \code{NaN}. Chen et al. weight the sum by
+#' \eqn{10^{-c_v}}{10^(-c_v)}, and the measure here multiplies by \eqn{c_v}
+#' itself, as the centiserve package does.
 #'
-#' @return Named numeric vector of ClusterRank values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Chen, D.-B., Gao, H., Lu, L., & Zhou, T. (2013). Identifying influential
+#'   nodes in large-scale directed networks: The role of clustering. PLoS ONE,
+#'   8(10), e77455. \doi{10.1371/journal.pone.0077455}.
+#' @seealso \code{\link{centrality_transitivity}},
+#'   \code{\link{centrality_expected}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_clusterrank(adj)
+#' centrality_clusterrank(regulation_net)
 centrality_clusterrank <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "clusterrank", mode = mode, ...)
   col <- paste0("clusterrank_", mode)
@@ -3015,19 +3594,34 @@ centrality_clusterrank <- function(x, mode = "all", ...) {
 
 #' Bottleneck Centrality
 #'
-#' Number of shortest path trees where the node appears in more than n/4 paths.
+#' Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
+#' shortest-path trees in which a node is a bottleneck. For each source
+#' \eqn{s}, every shortest path from \eqn{s} to every reachable node is
+#' enumerated, and a node \eqn{v \ne s}{v != s} scores one for that source
+#' when it lies on more than \eqn{n/4} of these paths.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Distances are hop counts, so edge weights are ignored. \code{mode} sets the
+#' direction in which the paths leave the source. Paths that end at \eqn{v}
+#' count toward its total. A network with one node gives that node a score of
+#' one.
 #'
-#' @return Named integer vector of bottleneck centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one score per node, in input node
+#'   order.
+#' @references
+#' Przulj, N., Wigle, D. A., & Jurisica, I. (2004). Functional topology in a
+#'   network of protein interactions. Bioinformatics, 20(3), 340-348.
+#'   \doi{10.1093/bioinformatics/btg415}.
+#' @seealso \code{\link{centrality_stress}},
+#'   \code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_bottleneck(adj)
+#' centrality_bottleneck(regulation_net)
 centrality_bottleneck <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "bottleneck", mode = mode, ...)
   col <- paste0("bottleneck_", mode)
@@ -3036,80 +3630,116 @@ centrality_bottleneck <- function(x, mode = "all", ...) {
 
 #' Centroid Value
 #'
-#' Minimum difference between own and competitor's closer-node count.
-#' Measures how much a node is at the center of the graph.
+#' The centroid value (Koschuetzki et al. 2005) compares a node with every
+#' other node by the number of nodes each one is closer to. With
+#' \eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes strictly closer to
+#' \eqn{v} than to \eqn{u},
+#' \deqn{CV(v) = \min_{u} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
+#'   CV(v) = min_u [gamma(v, u) - gamma(u, v)].}
+#' The minimum includes \eqn{u = v}, so the score is at most 0, and values
+#' closer to 0 mark more central nodes.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
+#' counts hops. \code{mode} sets the direction of the paths.
 #'
-#' @return Named numeric vector of centroid values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{cutoff} (largest path length considered,
+#'   default -1 for no limit).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
+#'   D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
+#'   Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.
+#'   16-61). Springer. \doi{10.1007/978-3-540-31955-9_3}.
+#' @seealso \code{\link{centrality_closeness}},
+#'   \code{\link{centrality_closeness_vitality}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_centroid(adj)
+#' centrality_centroid(regulation_net)
 centrality_centroid <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "centroid", mode = mode, ...)
   col <- paste0("centroid_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Maximum Neighborhood Component (MNC)
+#' Maximum Neighborhood Component
 #'
-#' Size of the largest connected component in the node's neighborhood subgraph.
+#' The maximum neighborhood component (Lin et al. 2008) is the number of
+#' nodes in the largest connected component of the subgraph induced by the
+#' neighbors of a node.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored and the neighbor subgraph is read as undirected.
+#' \code{mode} selects the neighbors. An isolated node scores 0. On
+#' undirected networks the values equal \code{centiserve::mnc()}.
 #'
-#' @return Named integer vector of MNC values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_dmnc}} for the density variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named integer vector with one size per node, in input node
+#'   order.
+#' @references
+#' Lin, C.-Y., Chin, C.-H., Wu, H.-H., Chen, S.-H., Ho, C.-W., & Ko, M.-T.
+#'   (2008). Hubba: hub objects analyzer, a framework of interactome hubs
+#'   identification for network biology. Nucleic Acids Research, 36,
+#'   W438-W443. \doi{10.1093/nar/gkn257}.
+#' @seealso \code{\link{centrality_dmnc}}, \code{\link{centrality_lac}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_mnc(adj)
+#' centrality_mnc(regulation_net)
 centrality_mnc <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "mnc", mode = mode, ...)
   col <- paste0("mnc_", mode)
   stats::setNames(df[[col]], df$node)
 }
 
-#' Density of Maximum Neighborhood Component (DMNC)
+#' Density of Maximum Neighborhood Component
 #'
-#' Edges divided by nodes raised to \code{dmnc_epsilon}, both taken from the
-#' largest connected component of the subgraph induced on a node's
-#' neighbors (the focal node excluded).
+#' The density of maximum neighborhood component (Lin et al. 2008) looks at
+#' the subnetwork induced by the neighbors of a node, the node itself left
+#' out, and takes its largest connected component with \eqn{E} edges and
+#' \eqn{N} nodes:
+#' \deqn{DMNC(v) = \frac{E}{N^{\varepsilon}}.}{DMNC(v) = E / N^epsilon.}
+#' A node without neighbors scores 0.
 #'
-#' @inheritParams centrality_degree
-#' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC. Default 1.7 as
-#'   recommended by Lin et al. (2008). centiserve uses 1.67 (four-community
-#'   assumption). Must be between 1 and 2.
+#' @details
+#' Edge weights are ignored, and \code{mode} sets the neighbor set. On an
+#' undirected network the result follows this definition. On a directed
+#' network the component is a strongly connected component, and its nodes are
+#' read from the neighbor list with each reciprocated neighbor listed twice,
+#' as in the centiserve package. The edge count can then belong to a
+#' different node set, and scores above one occur. The value of
+#' \code{dmnc_epsilon} is not checked.
 #'
-#' @return Named numeric vector of DMNC values.
-#'
-#' @section Divergence from centiserve:
-#' \code{centiserve::dmnc()} returns different values, and not only because
-#' of its different \code{epsilon} default. Its edge count is taken with
-#' \code{induced.subgraph(graph, which(c$membership \%in\% ...))}, where the
-#' membership vector indexes the neighborhood subgraph but is used to
-#' subset the original graph. The two index spaces are not the same, so the
-#' edges counted are those of an unrelated vertex set. On the Zachary karate
-#' club the two disagree on 14 of 34 nodes at a matched epsilon, and
-#' reproducing that indexing exactly reproduces centiserve's output.
-#' cograph counts the edges of the component it actually found.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_mnc}} for the size-only variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param dmnc_epsilon Exponent \eqn{\varepsilon}{epsilon}. Default 1.7, the
+#'   value Lin et al. (2008) recommend. The centiserve package uses 1.67.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Lin, C.-Y., Chin, C.-H., Wu, H.-H., Chen, S.-H., Ho, C.-W., & Ko, M.-T.
+#'   (2008). Hubba: Hub objects analyzer, a framework of interactome hubs
+#'   identification for network biology. Nucleic Acids Research, 36(suppl 2),
+#'   W438-W443. \doi{10.1093/nar/gkn257}.
+#' @seealso \code{\link{centrality_mnc}}, \code{\link{centrality_mcc}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_dmnc(adj)
+#' centrality_dmnc(regulation_net, directed = FALSE)
 centrality_dmnc <- function(x, mode = "all", dmnc_epsilon = 1.7, ...) {
   df <- centrality(x, measures = "dmnc", mode = mode,
                    dmnc_epsilon = dmnc_epsilon, ...)
@@ -3117,29 +3747,37 @@ centrality_dmnc <- function(x, mode = "all", dmnc_epsilon = 1.7, ...) {
   stats::setNames(df[[col]], df$node)
 }
 
-#' Local Average Connectivity (LAC)
+#' Local Average Connectivity
 #'
-#' Average degree of neighbors within the neighborhood subgraph. Measures
-#' how interconnected a node's neighbors are. Proposed by Li et al. (2011)
-#' for identifying essential proteins in PPI networks.
+#' Local average connectivity (Li et al. 2011) is the mean degree of the
+#' neighbors of a node within the subgraph \eqn{C_v} induced by those
+#' neighbors:
+#' \deqn{LAC(v) = \frac{1}{k_v} \sum_{u \in N(v)} k_u^{C_v},}{
+#'   LAC(v) = (1 / k_v) sum_{u in N(v)} k_u^(C_v),}
+#' where \eqn{k_u^{C_v}}{k_u^(C_v)} is the degree of \eqn{u} inside
+#' \eqn{C_v}. High values mark nodes whose neighbors are tied to each other.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} selects the neighbors and the degree
+#' counted inside \eqn{C_v}. With \code{mode = "all"} on a directed network
+#' in-ties and out-ties are both counted, so a reciprocated tie counts twice.
+#' An isolated node scores 0.
 #'
-#' @return Named numeric vector of LAC values.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Li, M., Wang, J., Chen, X., Wang, H., & Pan, Y. (2011). A local average
 #' connectivity-based method for identifying essential proteins from the network
 #' level. \emph{Computational Biology and Chemistry}, 35(3), 143-150.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_dmnc}} for another neighborhood density measure.
-#'
+#' @seealso \code{\link{centrality_dmnc}}, \code{\link{centrality_mnc}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_lac(adj)
+#' centrality_lac(regulation_net)
 centrality_lac <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "lac", mode = mode, ...)
   col <- paste0("lac_", mode)
@@ -3148,43 +3786,76 @@ centrality_lac <- function(x, mode = "all", ...) {
 
 #' Communicability Centrality
 #'
-#' Total communicability: row sums of the matrix exponential of the adjacency
-#' matrix. Measures a node's ability to broadcast information through all paths.
+#' Total communicability (Estrada and Hatano 2008; Benzi and Klymko 2013) sums
+#' the walks of every length that start at a node, a walk of length \eqn{k}
+#' weighted by \eqn{1/k!}:
+#' \deqn{TC(v) = \sum_{w} \left[ e^{A} \right]_{vw}
+#'   = \sum_{w} \sum_{k = 0}^{\infty} \frac{(A^k)_{vw}}{k!}.}{
+#'   TC(v) = sum_w [exp(A)]_vw = sum_w sum_{k >= 0} (A^k)_vw / k!.}
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' \eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
+#' matrix exponential is formed from an eigendecomposition that assumes a
+#' symmetric matrix. On a directed network the result therefore differs from
+#' the row sums of \eqn{e^{A}}{exp(A)}, and \code{directed = FALSE} gives the
+#' undirected reading for which the measure is defined.
 #'
-#' @return Named numeric vector of communicability values.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Estrada, E., & Hatano, N. (2008). Communicability in complex networks.
+#'   Physical Review E, 77(3), 036111. \doi{10.1103/PhysRevE.77.036111}.
 #'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_subgraph}} for the diagonal-only variant.
-#'
+#' Benzi, M., & Klymko, C. (2013). Total communicability as a centrality
+#'   measure. Journal of Complex Networks, 1(2), 124-149.
+#'   \doi{10.1093/comnet/cnt007}.
+#' @seealso \code{\link{centrality_subgraph}},
+#'   \code{\link{centrality_communicability_betweenness}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_communicability(adj)
+#' centrality_communicability(regulation_net, directed = FALSE)
 centrality_communicability <- function(x, ...) {
   df <- centrality(x, measures = "communicability", ...)
   stats::setNames(df$communicability, df$node)
 }
 
-#' Communicability Betweenness Centrality
+#' Communicability Betweenness
 #'
-#' Fraction of total communicability that passes through each node.
+#' Communicability betweenness (Estrada, Higham and Hatano 2009) is the share
+#' of the communicability between other pairs of nodes that is lost when the
+#' node is removed. With \eqn{G = e^{A}}{G = exp(A)} and \eqn{G^{(r)}}{G^(r)}
+#' the same exponential after the edges of \eqn{r} are deleted,
+#' \deqn{\omega_r = \frac{1}{(n-1)(n-2)} \sum_{p \ne q,\; p, q \ne r}
+#'   \frac{G_{pq} - G^{(r)}_{pq}}{G_{pq}}.}{
+#'   omega_r = 1 / ((n-1)(n-2)) sum_{p != q; p, q != r}
+#'   (G_pq - G^(r)_pq) / G_pq.}
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' \eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
+#' scores lie between 0 and 1. The measure is defined for undirected networks.
+#' On a directed network the matrix exponential needs the inverse of an
+#' eigenvector matrix, and when that matrix is singular the function stops
+#' with an unclassed error, as it does for \code{regulation_net}.
+#' \code{directed = FALSE} gives the undirected reading.
 #'
-#' @return Named numeric vector of communicability betweenness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Estrada, E., Higham, D. J., & Hatano, N. (2009). Communicability
+#'   betweenness in complex networks. Physica A, 388(5), 764-774.
+#'   \doi{10.1016/j.physa.2008.11.011}.
+#' @seealso \code{\link{centrality_communicability}},
+#'   \code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_communicability_betweenness(adj)
+#' centrality_communicability_betweenness(regulation_net, directed = FALSE)
 centrality_communicability_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "communicability_betweenness", ...)
   stats::setNames(df$communicability_betweenness, df$node)
@@ -3192,20 +3863,32 @@ centrality_communicability_betweenness <- function(x, ...) {
 
 #' Random Walk Centrality
 #'
-#' Inverse sum of random walk distances. Requires a connected graph.
+#' Random walk centrality is the inverse of the summed random-walk distances
+#' from a node to the others:
+#' \deqn{RW(i) = \left(\sum_{j} \frac{m_{ij} + m_{ji}}{2}\right)^{-1},}{
+#'   RW(i) = 1 / sum_j (m_ij + m_ji) / 2,}
+#' where \eqn{m_{ij}}{m_ij} is the mean first passage time from \eqn{i} to
+#' \eqn{j} of a walk that moves to each out-neighbor with equal probability.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. A disconnected network gives \code{NA} for every
+#' node with a warning that carries no condition class. On a directed
+#' network that is not strongly connected, some nodes have stationary
+#' probability zero, their passage times are set to 0, and the scores are
+#' then not random-walk distances. The passage times are symmetrized before
+#' the sum, so the values differ from
+#' \code{tidygraph::centrality_random_walk()}, which sums them unsymmetrized.
 #'
-#' @return Named numeric vector of random walk centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_markov}},
+#'   \code{\link{centrality_current_flow_closeness}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_random_walk(adj)
+#' centrality_random_walk(regulation_net)
 centrality_random_walk <- function(x, ...) {
   df <- centrality(x, measures = "random_walk", ...)
   stats::setNames(df$random_walk, df$node)
@@ -3213,110 +3896,152 @@ centrality_random_walk <- function(x, ...) {
 
 #' Stress Centrality
 #'
-#' Number of shortest paths passing through each node. Unlike betweenness,
-#' does not normalize by the total number of shortest paths.
+#' Stress centrality (Shimbel 1953) counts the shortest paths between other
+#' pairs of nodes that pass through a node:
+#' \deqn{S(v) = \sum_{s \ne v \ne t} \sigma_{st}(v),}{
+#'   S(v) = sum_{s != v != t} sigma_st(v),}
+#' where \eqn{\sigma_{st}(v)}{sigma_st(v)} is the number of shortest paths
+#' from \eqn{s} to \eqn{t} through \eqn{v}. Betweenness divides each count by
+#' the number of shortest paths between the pair; stress keeps the counts.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are read as distances. \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. On a directed network the paths
+#' follow edge direction, and on an undirected network each pair is counted
+#' once. The values equal \code{sna::stresscent()}.
 #'
-#' @return Named numeric vector of stress centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_betweenness}} for the normalized variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only) and \code{alpha}
+#'   (inversion exponent, default 1).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Shimbel, A. (1953). Structural parameters of communication networks. The
+#'   Bulletin of Mathematical Biophysics, 15(4), 501-507.
+#'   \doi{10.1007/BF02476438}.
+#' @seealso \code{\link{centrality_betweenness}},
+#'   \code{\link{centrality_load}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_stress(adj)
+#' centrality_stress(regulation_net)
 centrality_stress <- function(x, ...) {
   df <- centrality(x, measures = "stress", ...)
   stats::setNames(df$stress, df$node)
 }
 
-#' Flow Betweenness Centrality
+#' Flow Betweenness
 #'
-#' Max-flow based betweenness centrality.
+#' Flow betweenness (Freeman, Borgatti and White 1991) sums, over pairs of
+#' other nodes \eqn{s} and \eqn{t}, the flow that passes through the node
+#' when a maximum flow is sent from \eqn{s} to \eqn{t} with the edge weights
+#' as capacities.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' The measure requires the igraph package and raises an error of class
+#' \code{cograph_needs_igraph} without it. The flow through a node is read
+#' from the maximum flow that \code{igraph::max_flow()} returns. On a
+#' directed network the sum runs over ordered pairs along the edge direction,
+#' and on an undirected network over unordered pairs. \code{weighted = FALSE}
+#' gives every edge capacity one, and \code{invert_weights = TRUE} uses
+#' \eqn{1/w^\alpha}{1/w^alpha} as the capacity.
 #'
-#' @return Named numeric vector of flow betweenness values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_betweenness}} for shortest-path variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which is \code{TRUE} for tna input), \code{alpha} (inversion
+#'   exponent, default 1) and \code{normalized} (default \code{FALSE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Freeman, L. C., Borgatti, S. P., & White, D. R. (1991). Centrality in
+#'   valued graphs: A measure of betweenness based on network flow. Social
+#'   Networks, 13(2), 141-154. \doi{10.1016/0378-8733(91)90017-N}.
+#' @seealso \code{\link{centrality_betweenness}},
+#'   \code{\link{centrality_current_flow_betweenness}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_flow_betweenness(adj)
+#' centrality_flow_betweenness(regulation_net)
 centrality_flow_betweenness <- function(x, ...) {
   df <- centrality(x, measures = "flow_betweenness", ...)
   stats::setNames(df$flow_betweenness, df$node)
 }
 
-#' Expected Influence (one-step)
+#' One-Step Expected Influence
 #'
-#' Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
-#' The appropriate centrality for networks with positive *and* negative
-#' edges (partial-correlation, glasso, signed correlation networks) where
-#' treating negative edges as positive magnitudes can be misleading.
+#' One-step expected influence (Robinaugh, Millner and McNally 2016) sums the
+#' signed weights of a node's edges:
+#' \deqn{EI_1(i) = \sum_{j} w_{ij}.}{EI1(i) = sum_j w_ij.}
+#' Negative edges lower the score, which makes the measure suited to
+#' partial-correlation and other signed networks.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna
-#'   object).
-#' @param mode One of "all", "in", "out" for directed graphs. Default "out".
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' \code{mode = "out"} (the default here) sums the outgoing weights,
+#' \code{mode = "in"} the incoming weights and \code{mode = "all"} both, with
+#' a self-loop counted once. On an undirected network \code{"out"} and
+#' \code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
+#' are always used, and \code{weighted = FALSE} has no effect. On an
+#' unweighted input the score is the degree in the chosen mode. When the
+#' network has a negative edge, \code{normalized = TRUE} divides by the
+#' largest absolute score and keeps the sign.
 #'
-#' @return Named numeric vector of expected-influence values (signed).
-#'
-#' @references Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
-#'   highly influential nodes in the complicated grief network.
-#'   \emph{Journal of Abnormal Psychology}, 125(6), 747-757.
-#'
-#' @seealso \code{\link{centrality_expected_influence_2}} for the two-step
-#'   variant, \code{\link{centrality_strength}} for the weighted-degree analogue.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"out"} (default), \code{"in"} or
+#'   \code{"all"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} and \code{psych_network}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+#'   highly influential nodes in the complicated grief network. Journal of
+#'   Abnormal Psychology, 125(6), 747-757. \doi{10.1037/abn0000181}.
+#' @seealso \code{\link{centrality_expected_influence_2}},
+#'   \code{\link{centrality_strength}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Signed weight matrix (partial correlations, for example)
-#' W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-#'                0.5,  0.0,  0.4, -0.1,
-#'               -0.3,  0.4,  0.0,  0.6,
-#'                0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-#' rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-#' centrality_expected_influence_1(W)
+#' centrality_expected_influence_1(regulation_net)
 centrality_expected_influence_1 <- function(x, mode = "out", ...) {
   df <- centrality(x, measures = "expected_influence_1", mode = mode, ...)
   stats::setNames(df[[paste0("expected_influence_1_", mode)]], df$node)
 }
 
-#' Expected Influence (two-step)
+#' Two-Step Expected Influence
 #'
-#' Two-step signed-weight sum: a node's own expected influence (EI1) plus
-#' the weighted sum of its neighbors' EI1 (Robinaugh, Millner & McNally
-#' 2016). Captures both the node's direct influence and the influence it
-#' exerts indirectly via highly-connected neighbors.
+#' Two-step expected influence (Robinaugh, Millner and McNally 2016) adds to
+#' the one-step expected influence of a node the one-step expected influence
+#' of its neighbors, each weighted by the signed edge between them:
+#' \deqn{EI_2(i) = EI_1(i) + \sum_{j} w_{ij} EI_1(j).}{
+#'   EI2(i) = EI1(i) + sum_j w_ij EI1(j).}
 #'
-#' @inheritParams centrality_expected_influence_1
+#' @details
+#' \code{mode = "out"} (the default here) follows outgoing edges at both
+#' steps, \code{mode = "in"} incoming edges and \code{mode = "all"} both, with
+#' a self-loop counted once. On an undirected network \code{"out"} and
+#' \code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
+#' are always used, and \code{weighted = FALSE} has no effect. When the
+#' network has a negative edge, \code{normalized = TRUE} divides by the
+#' largest absolute score and keeps the sign.
 #'
-#' @return Named numeric vector of two-step expected-influence values.
-#'
-#' @references Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying
-#'   highly influential nodes in the complicated grief network.
-#'   \emph{Journal of Abnormal Psychology}, 125(6), 747-757.
-#'
-#' @seealso \code{\link{centrality_expected_influence_1}} for the one-step
-#'   variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"out"} (default), \code{"in"} or
+#'   \code{"all"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized} and \code{psych_network}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+#'   highly influential nodes in the complicated grief network. Journal of
+#'   Abnormal Psychology, 125(6), 747-757. \doi{10.1037/abn0000181}.
+#' @seealso \code{\link{centrality_expected_influence_1}},
+#'   \code{\link{centrality_strength}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-#'                0.5,  0.0,  0.4, -0.1,
-#'               -0.3,  0.4,  0.0,  0.6,
-#'                0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-#' rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-#' centrality_expected_influence_2(W)
+#' centrality_expected_influence_2(regulation_net)
 centrality_expected_influence_2 <- function(x, mode = "out", ...) {
   df <- centrality(x, measures = "expected_influence_2", mode = mode, ...)
   stats::setNames(df[[paste0("expected_influence_2_", mode)]], df$node)
@@ -3324,21 +4049,33 @@ centrality_expected_influence_2 <- function(x, mode = "out", ...) {
 
 #' Topological Coefficient
 #'
-#' Fraction of shared second-order neighbors, measuring topological overlap
-#' between a node and its neighbors.
+#' The topological coefficient (Stelzl et al. 2005) measures how far a node
+#' shares neighbors with the nodes it is linked to through a common neighbor:
+#' \deqn{T(v) = \frac{\sum_{u \in U_v} J(v, u)}{|U_v|\, k_v},}{
+#'   T(v) = sum_{u in U_v} J(v, u) / (|U_v| k_v),}
+#' where \eqn{U_v} is the set of nodes that share at least one neighbor with
+#' \eqn{v}, \eqn{J(v, u)} is the number of shared neighbors plus one when
+#' \eqn{u} and \eqn{v} are linked, and \eqn{k_v} is the degree.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights and direction are ignored. A node that shares no neighbor
+#' with any other node scores 0, as does an isolated node. On undirected
+#' networks the values equal \code{centiserve::topocoefficient()}.
 #'
-#' @return Named numeric vector of topological coefficient values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Stelzl, U., Worm, U., Lalowski, M., Haenig, C., Brembeck, F. H., Goehler,
+#'   H., et al. (2005). A human protein-protein interaction network: A
+#'   resource for annotating the proteome. Cell, 122(6), 957-968.
+#'   \doi{10.1016/j.cell.2005.08.029}.
+#' @seealso \code{\link{centrality_transitivity}},
+#'   \code{\link{centrality_lac}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_topological_coefficient(adj)
+#' centrality_topological_coefficient(regulation_net)
 centrality_topological_coefficient <- function(x, ...) {
   df <- centrality(x, measures = "topological_coefficient", ...)
   stats::setNames(df$topological_coefficient, df$node)
@@ -3346,22 +4083,36 @@ centrality_topological_coefficient <- function(x, ...) {
 
 #' Bridging Centrality
 #'
-#' Product of betweenness and bridging coefficient. Identifies nodes that
-#' bridge communities.
+#' Bridging centrality (Hwang et al. 2008) is the product of betweenness
+#' \eqn{B(v)} and the bridging coefficient, which compares the inverse degree
+#' of a node with the inverse degrees of its neighbors:
+#' \deqn{BrC(v) = B(v) \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u}.}{
+#'   BrC(v) = B(v) (1/k_v) / sum_{u in N(v)} 1/k_u.}
+#' High values mark nodes that lie on many shortest paths and connect densely
+#' linked regions.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' The betweenness factor reads edge weights as path lengths and follows the
+#' edge direction of a directed network. Edge weights are always used, and
+#' \code{weighted = FALSE} and \code{invert_weights} have no effect. The
+#' degrees are total degrees, and on a directed network a reciprocated
+#' neighbor enters the sum twice. An isolated node scores 0.
 #'
-#' @return Named numeric vector of bridging centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_localized_bridging}} for the ego-network variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Hwang, W., Kim, T., Ramanathan, M., & Zhang, A. (2008). Bridging
+#'   centrality: Graph mining from element level to group level. In
+#'   Proceedings of the 14th ACM SIGKDD International Conference on Knowledge
+#'   Discovery and Data Mining (pp. 336-344). \doi{10.1145/1401890.1401934}.
+#' @seealso \code{\link{centrality_local_bridging}},
+#'   \code{\link{centrality_betweenness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_bridging(adj)
+#' centrality_bridging(regulation_net)
 centrality_bridging <- function(x, ...) {
   df <- centrality(x, measures = "bridging", ...)
   stats::setNames(df$bridging, df$node)
@@ -3369,47 +4120,59 @@ centrality_bridging <- function(x, ...) {
 
 #' Local Bridging Centrality
 #'
-#' (1/degree) times bridging coefficient. Local measure of inter-community
-#' connectivity.
-#' This legacy score differs from Nanda and Kotz's ego-betweenness product;
-#' use \code{\link{centrality_localized_bridging}} for their LBC definition.
+#' Local bridging centrality multiplies the bridging coefficient of a node by
+#' its inverse degree:
+#' \deqn{LB(v) = \frac{1}{k_v} \cdot \frac{1/k_v}{\sum_{u \in N(v)} 1/k_u}.}{
+#'   LB(v) = (1 / k_v) * (1 / k_v) / sum_{u in N(v)} (1 / k_u).}
+#' A node of low degree whose neighbors have high degree scores high.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. On a directed network \eqn{k} is the total
+#' degree, in plus out, and a reciprocated tie counts twice. An isolated node
+#' scores 0. The local bridging centrality of Nanda and Kotz, the product of
+#' ego betweenness and the bridging coefficient, is
+#' \code{\link{centrality_localized_bridging}}.
 #'
-#' @return Named numeric vector of local bridging values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_bridging}} for the betweenness-weighted variant.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_bridging}},
+#'   \code{\link{centrality_localized_bridging}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_local_bridging(adj)
+#' centrality_local_bridging(regulation_net)
 centrality_local_bridging <- function(x, ...) {
   df <- centrality(x, measures = "local_bridging", ...)
   stats::setNames(df$local_bridging, df$node)
 }
 
-#' Effective Size (Burt's)
+#' Effective Size
 #'
-#' Network effective size: degree minus redundancy. Measures non-redundant
-#' contacts in ego network.
+#' Burt's effective size is the number of a node's contacts minus their
+#' redundancy, the average number of ties each contact has to the other
+#' contacts:
+#' \deqn{ES(v) = k_v - \frac{1}{k_v} \sum_{j \in N(v)} |N(v) \cap N(j)|.}{
+#'   ES(v) = k_v - (1 / k_v) sum_{j in N(v)} |N(v) & N(j)|.}
+#' On an undirected network this is \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
+#' with \eqn{t_v}{t_v} the number of ties among the contacts.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. On a directed network each reciprocated neighbor
+#' enters the neighbor list twice, so \eqn{k_v}{k_v} counts it twice and the
+#' result differs from that of the undirected skeleton. An isolated node
+#' scores 0.
 #'
-#' @return Named numeric vector of effective size values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_constraint}} for a related structural holes measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_constraint}},
+#'   \code{\link{centrality_redundancy}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_effective_size(adj)
+#' centrality_effective_size(regulation_net)
 centrality_effective_size <- function(x, ...) {
   df <- centrality(x, measures = "effective_size", ...)
   stats::setNames(df$effective_size, df$node)
@@ -3417,21 +4180,36 @@ centrality_effective_size <- function(x, ...) {
 
 #' Diversity Centrality
 #'
-#' Shannon entropy of the edge weight distribution per node. Measures
-#' how evenly a node distributes its connections.
+#' Diversity centrality (Eagle, Macy and Claxton 2010) is the Shannon entropy
+#' of the weights on the edges incident to a node, divided by its maximum
+#' \eqn{\log_2 k_v}{log2 k_v}:
+#' \deqn{D(v) = -\frac{\sum_{j} p_{vj} \log_2 p_{vj}}{\log_2 k_v}, \qquad
+#'   p_{vj} = \frac{|w_{vj}|}{\sum_{l} |w_{vl}|}.}{
+#'   D(v) = -sum_j p_vj log2(p_vj) / log2(k_v),
+#'   p_vj = |w_vj| / sum_l |w_vl|.}
+#' The score lies between 0 and 1 and reaches 1 when the weights are equal.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' On a directed network incoming and outgoing edges are separate entries,
+#' and \eqn{k_v}{k_v} counts both. Edge weights are always used, and
+#' \code{weighted = FALSE} has no effect. On an unweighted input every node
+#' with two or more edges scores 1. A node with fewer than two edges, or
+#' with edge weights summing to zero, scores 0.
 #'
-#' @return Named numeric vector of diversity centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Eagle, N., Macy, M., & Claxton, R. (2010). Network diversity and economic
+#'   development. Science, 328(5981), 1029-1031.
+#'   \doi{10.1126/science.1186605}.
+#' @seealso \code{\link{centrality_entropy}},
+#'   \code{\link{centrality_strength}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-#' centrality_diversity(mat)
+#' centrality_diversity(regulation_net)
 centrality_diversity <- function(x, ...) {
   df <- centrality(x, measures = "diversity", ...)
   stats::setNames(df$diversity, df$node)
@@ -3439,21 +4217,28 @@ centrality_diversity <- function(x, ...) {
 
 #' Cross-Clique Connectivity
 #'
-#' Count of all cliques (not just maximal) containing each node. Measures
-#' embeddedness in dense substructures.
+#' Cross-clique connectivity (Faghani and Nguyen 2013) counts the cliques that
+#' contain a node. Every complete subnetwork counts, including the node
+#' itself and each of its edges, so a node of an isolated triangle scores 4.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge direction, edge weights and self-loops are ignored.
 #'
-#' @return Named integer vector of cross-clique counts.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order.
+#' @references
+#' Faghani, M. R., & Nguyen, U. T. (2013). A study of XSS worm propagation and
+#'   detection mechanisms in online social networks. IEEE Transactions on
+#'   Information Forensics and Security, 8(11), 1815-1826.
+#'   \doi{10.1109/TIFS.2013.2280884}.
+#' @seealso \code{\link{centrality_coreness}},
+#'   \code{\link{centrality_transitivity}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_cross_clique(adj)
+#' centrality_cross_clique(regulation_net)
 centrality_cross_clique <- function(x, ...) {
   df <- centrality(x, measures = "cross_clique", ...)
   stats::setNames(df$cross_clique, df$node)
@@ -3461,21 +4246,35 @@ centrality_cross_clique <- function(x, ...) {
 
 #' Markov Centrality
 #'
-#' Inverse of column means of the mean first passage time matrix.
-#' Requires a connected graph.
+#' Markov centrality (White and Smyth 2003) is the inverse of the mean first
+#' passage time of a random walk into a node:
+#' \deqn{M(j) = \left(\frac{1}{n} \sum_{i} m_{ij}\right)^{-1},}{
+#'   M(j) = 1 / ((1 / n) sum_i m_ij),}
+#' where \eqn{m_{ij}}{m_ij} is the expected number of steps from \eqn{i} to
+#' the first visit of \eqn{j} and \eqn{m_{jj} = 0}{m_jj = 0}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' The walk moves from a node to each of its out-neighbors with equal
+#' probability, so edge weights are ignored. A disconnected network gives
+#' \code{NA} for every node with a warning that carries no condition class.
+#' On a directed network that is connected but not strongly connected some
+#' scores are \code{NA} without a warning. The values equal
+#' \code{centiserve::markovcent()}.
 #'
-#' @return Named numeric vector of Markov centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' White, S., & Smyth, P. (2003). Algorithms for estimating relative
+#'   importance in networks. In Proceedings of the Ninth ACM SIGKDD
+#'   International Conference on Knowledge Discovery and Data Mining
+#'   (pp. 266-275). \doi{10.1145/956750.956782}.
+#' @seealso \code{\link{centrality_random_walk}},
+#'   \code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_markov(adj)
+#' centrality_markov(regulation_net)
 centrality_markov <- function(x, ...) {
   df <- centrality(x, measures = "markov", ...)
   stats::setNames(df$markov, df$node)
@@ -3483,19 +4282,36 @@ centrality_markov <- function(x, ...) {
 
 #' Integration Centrality
 #'
-#' Distance-based influence: sum of 1 - (d-1)/max(d) over all nodes.
+#' Integration centrality (Valente and Foreman 1998) scores each distance
+#' against the diameter \eqn{D}, the largest finite hop distance, and sums:
+#' \deqn{I(i) = \sum_{j} \left(1 - \frac{d_{ij} - 1}{D}\right),}{
+#'   I(i) = sum_j (1 - (d_ij - 1) / D),}
+#' where an unreachable node contributes 0.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Distances are hop counts, so edge weights are ignored. The sum includes
+#' the node itself, which contributes \eqn{1 + 1/D}, and is not divided by
+#' \eqn{n - 1}; the values equal \code{tidygraph::centrality_integration()}.
+#' \code{mode = "all"} treats edges as undirected, \code{"out"} uses
+#' distances from the node and \code{"in"} distances to it. On a network
+#' without edges every node scores \eqn{n}.
 #'
-#' @return Named numeric vector of integration centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Valente, T. W., & Foreman, R. K. (1998). Integration and radiality:
+#'   Measuring the extent of an individual's connectedness and reachability
+#'   in a network. Social Networks, 20(1), 89-105.
+#'   \doi{10.1016/S0378-8733(97)00007-5}.
+#' @seealso \code{\link{centrality_radiality}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_integration(adj)
+#' centrality_integration(regulation_net)
 centrality_integration <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "integration", mode = mode, ...)
   col <- paste0("integration_", mode)
@@ -3504,19 +4320,28 @@ centrality_integration <- function(x, mode = "all", ...) {
 
 #' Expected Centrality
 #'
-#' Sum of neighbor degrees. Simple but effective influence proxy.
+#' Expected centrality is the sum of the degrees of a node's neighbors:
+#' \deqn{E(v) = \sum_{u \in N(v)} k_u.}{E(v) = sum_{u in N(v)} k_u.}
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Edge weights are ignored. \code{mode} sets both the degrees and the
+#' neighbor set. On a directed network \code{mode = "all"} uses total degrees
+#' and the undirected neighbor set. Adding the node's own degree gives the
+#' \code{"kandhway_kuri"} form of \code{\link{centrality_diffusion}}.
 #'
-#' @return Named numeric vector of expected centrality values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_diffusion}},
+#'   \code{\link{centrality_neighborhood_connectivity}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_expected(adj)
+#' centrality_expected(regulation_net)
 centrality_expected <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "expected", mode = mode, ...)
   col <- paste0("expected_", mode)
@@ -3525,21 +4350,31 @@ centrality_expected <- function(x, mode = "all", ...) {
 
 #' Gil-Schmidt Power Index
 #'
-#' Sum of 1/d(v,w) normalized by (n-1). Variant of closeness using harmonic
-#' mean of distances.
+#' The Gil-Schmidt power index sums the reciprocal hop distances from a node
+#' to the nodes it reaches and divides by \eqn{n - 1}:
+#' \deqn{GS(v) = \frac{1}{n - 1} \sum_{w \ne v} \frac{1}{d(v, w)}.}{
+#'   GS(v) = sum_{w != v} 1 / d(v, w) / (n - 1).}
+#' Unreachable nodes contribute 0, so the score lies between 0 and 1, and a
+#' node adjacent to every other node scores 1.
 #'
-#' @inheritParams centrality_degree
+#' @details
+#' Distances are hop counts, so edge weights are ignored and
+#' \code{invert_weights} has no effect. \code{mode} sets the direction of the
+#' paths. With \code{mode = "out"} the values match
+#' \code{sna::gilschmidt()} with its default settings.
 #'
-#' @return Named numeric vector of Gil-Schmidt power index values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_harmonic}} for a related measure.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @seealso \code{\link{centrality_harmonic}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_gilschmidt(adj)
+#' centrality_gilschmidt(regulation_net)
 centrality_gilschmidt <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "gilschmidt", mode = mode, ...)
   col <- paste0("gilschmidt_", mode)
@@ -3548,23 +4383,32 @@ centrality_gilschmidt <- function(x, mode = "all", ...) {
 
 #' SALSA Authority Centrality
 #'
-#' Stochastic Approach for Link-Structure Analysis. Returns authority scores.
-#' Requires a directed graph.
+#' SALSA (Lempel and Moran 2000) ranks authorities by a random walk that
+#' alternates between following an edge backward and forward. The authority
+#' score of a node is its entry in the stationary distribution of the chain
+#' \deqn{\tilde{A} = W_c^{T} W_r,}{A~ = t(W_c) W_r,}
+#' where \eqn{W_r} and \eqn{W_c} are the row-normalized and column-normalized
+#' adjacency matrices.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#'   Must be directed.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' The measure needs a directed network. On undirected input every score is
+#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' ignored. The scores are scaled so that the largest is 1, and a node
+#' without incoming edges scores 0.
 #'
-#' @return Named numeric vector of SALSA authority scores.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_authority}} for HITS authority.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Lempel, R., & Moran, S. (2000). The stochastic approach for link-structure
+#'   analysis (SALSA) and the TKC effect. Computer Networks, 33(1-6),
+#'   387-401. \doi{10.1016/S1389-1286(00)00034-7}.
+#' @seealso \code{\link{centrality_authority}},
+#'   \code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_salsa(adj)
+#' centrality_salsa(regulation_net)
 centrality_salsa <- function(x, ...) {
   df <- centrality(x, measures = "salsa", ...)
   stats::setNames(df$salsa, df$node)
@@ -3572,23 +4416,31 @@ centrality_salsa <- function(x, ...) {
 
 #' LeaderRank Centrality
 #'
-#' PageRank variant with a ground node connected to all nodes.
-#' Requires a directed graph.
+#' LeaderRank (Lu et al. 2011) adds a ground node joined in both directions
+#' to every node and runs a random walk without damping on the extended
+#' network. The final score of the ground node is shared equally among the
+#' other nodes.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#'   Must be directed.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' The measure needs a directed network. On undirected input every score is
+#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' ignored; \code{\link{centrality_weighted_leaderrank}} uses them. The walk
+#' starts with one unit at every node and none at the ground node, so the
+#' scores sum to \eqn{n}. The values equal \code{centiserve::leaderrank()}.
 #'
-#' @return Named numeric vector of LeaderRank values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_pagerank}} for standard PageRank.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Lu, L., Zhang, Y.-C., Yeung, C. H., & Zhou, T. (2011). Leaders in social
+#'   networks, the Delicious case. PLoS ONE, 6(6), e21202.
+#'   \doi{10.1371/journal.pone.0021202}.
+#' @seealso \code{\link{centrality_weighted_leaderrank}},
+#'   \code{\link{centrality_pagerank}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 0, 0, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_leaderrank(adj)
+#' centrality_leaderrank(regulation_net)
 centrality_leaderrank <- function(x, ...) {
   df <- centrality(x, measures = "leaderrank", ...)
   stats::setNames(df$leaderrank, df$node)
@@ -3596,25 +4448,39 @@ centrality_leaderrank <- function(x, ...) {
 
 #' Participation Coefficient
 #'
-#' Measures diversity of inter-community connections. Nodes connecting to
-#' many communities have high participation. Requires community membership.
+#' The participation coefficient (Guimera and Nunes Amaral 2005) measures
+#' how evenly the ties of a node spread over communities:
+#' \deqn{P_i = 1 - \sum_{s} \left(\frac{k_{is}}{k_i}\right)^2,}{
+#'   P_i = 1 - sum_s (k_is / k_i)^2,}
+#' where \eqn{k_{is}}{k_is} counts the ties of node \eqn{i} to community
+#' \eqn{s} and \eqn{k_i} is its degree.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param membership Integer vector of community assignments (one per node).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. \code{mode} selects the ties counted, and with
+#' \code{mode = "all"} on a directed network a reciprocated tie counts twice.
+#' A node whose ties all stay in one community scores 0, as does an isolated
+#' node, and the score is below 1. Without \code{membership} every score is
+#' \code{NA} with a warning that carries no condition class, and a
+#' \code{membership} of the wrong length raises an error. On undirected
+#' networks the values equal \code{brainGraph::part_coeff()}.
 #'
-#' @return Named numeric vector of participation coefficient values (0-1).
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_within_module_z}} for within-community connectivity.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Community of each node, a vector with one entry per
+#'   node in input node order (default \code{NULL}).
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Guimera, R., & Nunes Amaral, L. A. (2005). Functional cartography of
+#'   complex metabolic networks. Nature, 433(7028), 895-900.
+#'   \doi{10.1038/nature03288}.
+#' @seealso \code{\link{centrality_within_module_z}},
+#'   \code{\link{centrality_gateway}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' centrality_participation(adj, membership = c(1, 1, 1, 2, 2))
+#' centrality_participation(regulation_net, membership = rep(1:2, each = 5))
 centrality_participation <- function(x, membership = NULL, mode = "all", ...) {
   df <- centrality(x, measures = "participation", mode = mode,
                    membership = membership, ...)
@@ -3624,25 +4490,41 @@ centrality_participation <- function(x, membership = NULL, mode = "all", ...) {
 
 #' Within-Module Degree Z-Score
 #'
-#' Z-score of intra-community connectivity. High values indicate hubs
-#' within their own community. Requires community membership.
+#' The within-module degree z-score (Guimera and Nunes Amaral 2005)
+#' standardizes the number of ties a node has inside its own community
+#' against the other members of that community:
+#' \deqn{z_i = \frac{\kappa_i - \bar{\kappa}_{s_i}}{\sigma_{\kappa_{s_i}}},}{
+#'   z_i = (kappa_i - mean(kappa_s)) / sd(kappa_s),}
+#' where \eqn{\kappa_i}{kappa_i} counts the ties of \eqn{i} to its community
+#' \eqn{s_i}. High values mark hubs within their community.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param membership Integer vector of community assignments (one per node).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. \code{mode} selects the ties counted, and with
+#' \code{mode = "all"} on a directed network a reciprocated tie counts twice.
+#' The standard deviation is the sample value. A community with one member,
+#' or whose members all have the same within-community degree, gives
+#' \code{NaN}. Without \code{membership} every score is \code{NA} with a
+#' warning that carries no condition class, and a \code{membership} of the
+#' wrong length raises an error. On undirected networks the values equal
+#' \code{brainGraph::within_module_deg_z_score()}.
 #'
-#' @return Named numeric vector of within-module z-score values.
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_participation}} for between-community diversity.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Community of each node, a vector with one entry per
+#'   node in input node order (default \code{NULL}).
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Guimera, R., & Nunes Amaral, L. A. (2005). Functional cartography of
+#'   complex metabolic networks. Nature, 433(7028), 895-900.
+#'   \doi{10.1038/nature03288}.
+#' @seealso \code{\link{centrality_participation}},
+#'   \code{\link{centrality_gateway}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' centrality_within_module_z(adj, membership = c(1, 1, 1, 2, 2))
+#' centrality_within_module_z(regulation_net, membership = rep(1:2, each = 5))
 centrality_within_module_z <- function(x, membership = NULL, mode = "all", ...) {
   df <- centrality(x, measures = "within_module_z", mode = mode,
                    membership = membership, ...)
@@ -3652,26 +4534,44 @@ centrality_within_module_z <- function(x, membership = NULL, mode = "all", ...) 
 
 #' Gateway Coefficient
 #'
-#' Inter-community brokerage weighted by centrality. Combines participation
-#' with degree information. Requires community membership.
+#' The gateway coefficient (Ruiz Vargas and Wahl 2014) refines the
+#' participation coefficient by weighting the links of node \eqn{i} into each
+#' module \eqn{s} by how much of the connection between the two modules they
+#' carry and by the degree of the neighbors they reach:
+#' \deqn{G_i = 1 - \frac{1}{k_i^2} \sum_{s} k_{is}^2 \, g_{is}^2,}{
+#'   G_i = 1 - (1 / k_i^2) sum_s k_is^2 g_is^2,}
+#' where \eqn{k_{is}}{k_is} is the number of links of \eqn{i} into module
+#' \eqn{s} and \eqn{g_{is}}{g_is} lies between 0 and 1.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param membership Integer vector of community assignments (one per node).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
+#' @details
+#' Edge weights are ignored. On an undirected network the score lies between 0
+#' and 1. On a directed network \eqn{k_i}{k_i} is the in-degree while
+#' \eqn{k_{is}}{k_is} counts outgoing links, and the score can be negative, as
+#' on \code{regulation_net}. \code{membership} must hold integer codes
+#' \code{1, ..., m}. Without \code{membership} the function raises an
+#' unclassed warning and returns \code{NA}, and a \code{membership} of the
+#' wrong length or with character labels raises an unclassed error. With a
+#' single module every node scores 0, and so does a node without incoming
+#' links.
 #'
-#' @return Named numeric vector of gateway coefficient values (0-1).
-#'
-#' @seealso \code{\link{centrality}} for computing multiple measures at once,
-#'   \code{\link{centrality_participation}} for the simpler participation
-#'   coefficient.
-#'
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Integer module codes, one per node.
+#' @param mode Accepted for a uniform interface. It has no effect. Default
+#'   \code{"all"}.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{directed} and \code{normalized}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
+#' @references
+#' Ruiz Vargas, E., & Wahl, L. M. (2014). The gateway coefficient: A novel
+#'   metric for identifying critical connections in modular networks. The
+#'   European Physical Journal B, 87(7), 161.
+#'   \doi{10.1140/epjb/e2014-40800-7}.
+#' @seealso \code{\link{centrality_participation}},
+#'   \code{\link{centrality_within_module_z}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' centrality_gateway(adj, membership = c(1, 1, 1, 2, 2))
+#' centrality_gateway(regulation_net, membership = rep(1:2, each = 5))
 centrality_gateway <- function(x, membership = NULL, mode = "all", ...) {
   df <- centrality(x, measures = "gateway", mode = mode,
                    membership = membership, ...)
@@ -3687,35 +4587,36 @@ centrality_gateway <- function(x, membership = NULL, mode = "all", ...) {
 
 #' Katz Centrality
 #'
-#' Katz (1953) status index: \eqn{C = (I - \alpha A^T)^{-1} \mathbf{1}}.
-#' Each node's score sums attenuated walks of every length back to it, with
-#' attenuation \eqn{\alpha} applied per step. Rankings are identical to
-#' Bonacich's alpha centrality with a uniform exogenous vector.
+#' Katz (1953) status sums the walks of every length that end at a node,
+#' each step attenuated by \eqn{\alpha}{alpha}:
+#' \deqn{c = (I - \alpha A^{T})^{-1}\mathbf{1},}{c = (I - alpha t(A))^(-1) 1,}
+#' where \eqn{A} is the weighted adjacency matrix and \eqn{\alpha}{alpha} is
+#' \code{katz_alpha}.
 #'
-#' Equivalence is verified bit-exact against \code{centiserve::katzcent}
-#' (cograph mirrors centiserve's exact LAPACK call sequence) and at machine
-#' epsilon against \code{igraph::alpha_centrality(exo = 1)} and
-#' \code{networkx.katz_centrality_numpy}.
+#' @details
+#' The series converges for \eqn{\alpha < 1/\rho(A)}{alpha < 1/rho(A)}, where
+#' \eqn{\rho(A)}{rho(A)} is the spectral radius. A divergent series is
+#' detected from scores below one and raises a \code{cograph_katz_diverged}
+#' warning that names the bound; the returned values are then not Katz
+#' scores. Edge weights are always used, and \code{weighted = FALSE} has no
+#' effect. On a directed network the score counts walks that arrive at the
+#' node. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
+#' same \code{alpha}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param katz_alpha Attenuation factor. Must satisfy
-#'   \eqn{\alpha < 1 / \rho(A)} where \eqn{\rho(A)} is the spectral radius.
-#'   Default 0.1 matches centiserve and NetworkX conventions.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of Katz centrality values.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_eigenvector}},
-#'   \code{\link{centrality_pagerank}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param katz_alpha Attenuation factor \eqn{\alpha}{alpha} (default 0.1).
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Katz, L. (1953). A new status index derived from sociometric analysis.
 #' \emph{Psychometrika}, 18(1), 39-43.
-#'
+#' @seealso \code{\link{centrality_alpha}},
+#'   \code{\link{centrality_eigenvector}}, \code{\link{centrality_hubbell}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_katz(adj)
+#' centrality_katz(regulation_net)
 centrality_katz <- function(x, katz_alpha = 0.1, ...) {
   df <- centrality(x, measures = "katz", katz_alpha = katz_alpha, ...)
   stats::setNames(df$katz, df$node)
@@ -3724,157 +4625,152 @@ centrality_katz <- function(x, katz_alpha = 0.1, ...) {
 
 #' Hubbell Centrality
 #'
-#' Hubbell (1965) input-output centrality:
-#' \eqn{C = (I - w W)^{-1} \mathbf{1}}, where \eqn{W} is the (weighted)
-#' adjacency matrix and \eqn{w} is a weight factor that must satisfy
-#' \eqn{w \cdot \rho(W) < 1} for the system to be solvable.
+#' Hubbell (1965) centrality solves an input-output system in which the
+#' score of a node is one plus the attenuated scores of the nodes it sends
+#' ties to:
+#' \deqn{c = (I - wW)^{-1}\mathbf{1},}{c = (I - w W)^(-1) 1,}
+#' where \eqn{W} is the weighted adjacency matrix and \eqn{w} is
+#' \code{hubbell_weight}.
 #'
-#' Bit-exact match against \code{centiserve::hubbell} when edge weights are
-#' passed explicitly (cograph mirrors centiserve's full-inverse LAPACK call
-#' path).
+#' @details
+#' The system is solvable when the spectral radius of \eqn{wW} is below one.
+#' Otherwise every score is \code{NA} with a warning that carries no
+#' condition class. A \code{hubbell_weight} of zero or below raises an error.
+#' Edge weights are always used, and \code{weighted = FALSE} has no effect.
+#' The rows of \eqn{W} are outgoing ties, so on a directed network the score
+#' sums attenuated walks that leave the node. \code{centiserve::hubbell()}
+#' with \code{weights = NULL} sets every weight to 1, so it reproduces these
+#' values only when the weights are passed explicitly.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param hubbell_weight Attenuation factor \eqn{w}. Default 0.5. If
-#'   \eqn{w \cdot \rho(W) \ge 1}, the function returns \code{NA} with a warning.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of Hubbell centrality values (or \code{NA} if
-#'   the system is not solvable).
-#'
-#' @section Note on centiserve equivalence:
-#' \code{centiserve::hubbell(g, weights = NULL)} silently resets all edge
-#' weights to 1, ignoring the graph's weight attribute. To reproduce cograph's
-#' values with centiserve on a weighted graph, pass
-#' \code{weights = igraph::E(g)$weight} explicitly.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_katz}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param hubbell_weight Attenuation factor \eqn{w}, a positive number
+#'   (default 0.5).
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Hubbell, C. H. (1965). An input-output approach to clique identification.
 #' \emph{Sociometry}, 28(4), 377-399.
-#'
+#' @seealso \code{\link{centrality_katz}}, \code{\link{centrality_power}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Small weighted path graph; spectral radius permits weightfactor = 0.5
-#' adj <- matrix(0, 4, 4)
-#' adj[1,2] <- adj[2,1] <- adj[2,3] <- adj[3,2] <- adj[3,4] <- adj[4,3] <- 0.3
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-#' centrality_hubbell(adj, hubbell_weight = 0.5)
+#' centrality_hubbell(regulation_net)
 centrality_hubbell <- function(x, hubbell_weight = 0.5, ...) {
   df <- centrality(x, measures = "hubbell", hubbell_weight = hubbell_weight, ...)
   stats::setNames(df$hubbell, df$node)
 }
 
 
-#' Information Centrality (Stephenson-Zelen)
+#' Information Centrality
 #'
-#' Information centrality (Stephenson & Zelen 1989) measures a node's
-#' importance in terms of the "information" contained in all paths (not only
-#' shortest) passing through it. Defined via the inverse of a Laplacian-like
-#' matrix, yielding per-node
-#' \eqn{IC_i = 1 / (C_{ii} + (\mathrm{tr}(C) - 2 R_i) / n)} where
-#' \eqn{C = A^{-1}} and \eqn{R_i} is the row sum of \eqn{C}.
+#' Information centrality (Stephenson and Zelen 1989) measures the
+#' information carried by all paths between a node and the others, each path
+#' weighted by its length. With \eqn{C = B^{-1}}{C = B^(-1)}, where \eqn{B}
+#' has diagonal \eqn{1 + s_i}{1 + s_i} (\eqn{s_i} the strength) and
+#' off-diagonal entries \eqn{1 - w_{ij}}{1 - w_ij},
+#' \deqn{I_i = \frac{1}{C_{ii} + (T - 2R_i)/n},}{
+#'   I_i = 1 / (C_ii + (T - 2 R_i) / n),}
+#' where \eqn{T} is the trace of \eqn{C} and \eqn{R_i} the sum of row
+#' \eqn{i}.
 #'
-#' Bit-exact match against \code{sna::infocent} on connected undirected
-#' graphs (cograph mirrors sna's exact construction and call sequence).
+#' @details
+#' The network is symmetrized with \eqn{(w_{ij} + w_{ji})/2}{(w_ij + w_ji)/2},
+#' so direction is ignored. Edge weights enter as tie strengths, and
+#' \code{weighted = FALSE} uses the binary matrix. Isolated nodes score 0 and
+#' are left out of \eqn{n}. When \eqn{B} is singular, as on some disconnected
+#' networks, every score is \code{NA} without a warning. On unweighted
+#' undirected networks the values equal \code{sna::infocent()}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of information centrality values.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_current_flow_closeness}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}. The measure uses
+#'   \code{weighted} (default \code{TRUE}).
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Stephenson, K., & Zelen, M. (1989). Rethinking centrality: Methods and
 #' examples. \emph{Social Networks}, 11(1), 1-37.
-#'
+#' @seealso \code{\link{centrality_current_flow_closeness}},
+#'   \code{\link{centrality_closeness}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-#' centrality_information(adj)
+#' centrality_information(regulation_net)
 centrality_information <- function(x, ...) {
   df <- centrality(x, measures = "information", ...)
   stats::setNames(df$information, df$node)
 }
 
 
-#' Pairwise Disconnectivity (Potapov et al. 2008)
+#' Pairwise Disconnectivity
 #'
-#' For a directed network, \code{pairwisedis(v)} is the fraction of ordered
-#' reachable pairs \eqn{(s, t)} that become unreachable when node \eqn{v} is
-#' removed:
-#' \deqn{PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|}
-#' where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t), s \ne t}
-#' with a directed path from \eqn{s} to \eqn{t}.
+#' Pairwise disconnectivity (Potapov et al. 2008) is the share of ordered
+#' reachable pairs that become unreachable when a node is removed:
+#' \deqn{PD(v) = \frac{|P(G)| - |P(G - v)|}{|P(G)|},}{
+#'   PD(v) = (|P(G)| - |P(G - v)|) / |P(G)|,}
+#' where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t)},
+#' \eqn{s \ne t}{s != t}, with a directed path from \eqn{s} to \eqn{t}.
 #'
-#' Bit-exact match against \code{centiserve::pairwisedis} on directed
-#' graphs. Requires the input to be directed; returns \code{NA} with a
-#' warning on undirected inputs.
+#' @details
+#' The measure needs a directed network. On undirected input every score is
+#' \code{NA} with a warning that carries no condition class. Reachability
+#' uses hop counts, so edge weights are ignored. The score lies between 0
+#' and 1, and a network without reachable pairs scores 0 everywhere. The
+#' values equal \code{centiserve::pairwisedis()}.
 #'
-#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of pairwise disconnectivity values in \eqn{[0, 1]}.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{robustness}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Potapov, A. P., Goemann, B., & Wingender, E. (2008). The pairwise
 #'   disconnectivity index as a new metric for the topological analysis of
 #'   regulatory networks. \emph{BMC Bioinformatics}, 9, 227.
 #'   \doi{10.1186/1471-2105-9-227}.
-#'
+#' @seealso \code{\link{centrality_prestige_domain}}, \code{\link{robustness}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_pairwisedis(adj)
+#' centrality_pairwisedis(regulation_net)
 centrality_pairwisedis <- function(x, ...) {
   df <- centrality(x, measures = "pairwisedis", ...)
   stats::setNames(df$pairwisedis, df$node)
 }
 
 
-#' Local Reaching Centrality (Mones, Vicsek & Vicsek 2012)
+#' Local Reaching Centrality
 #'
-#' Local reaching centrality measures how much of the network is reachable
-#' from a node.
+#' Local reaching centrality (Mones et al. 2012) measures how much of the
+#' network a node reaches. On an unweighted directed network it is the share
+#' of the other nodes reachable from the node. On an unweighted undirected
+#' network it is the mean inverse distance to the other nodes, harmonic
+#' centrality divided by \eqn{n - 1}.
 #'
-#' \itemize{
-#'   \item Directed unweighted: \eqn{LRC(v) = |\{u : u \ne v, v \to u\}| / (N - 1)}.
-#'   \item Undirected unweighted: average of \eqn{1/d(v, u)} over all
-#'     \eqn{u \ne v}, divided by \eqn{N - 1}. Numerically equal to
-#'     \code{igraph::harmonic_centrality(normalized = TRUE)}.
-#'   \item Weighted: NetworkX convention, where edge weights are interpreted
-#'     as strengths and path length is \eqn{\sum_e (\mathrm{total\_weight} / w_e)}.
-#'     Per-path score is the mean of original edge weights along the shortest
-#'     path.
-#' }
+#' @details
+#' A network counts as weighted unless every weight is 1, and
+#' \code{weighted = FALSE} has no effect. In the weighted form a shortest
+#' path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
+#' edge weight, and each reached node contributes the mean edge weight along
+#' its path; the sum is divided by \eqn{n - 1}. With \code{mode = "out"} the
+#' weighted values equal \code{networkx.local_reaching_centrality()} with
+#' \code{normalized = False}. \code{mode = "all"} treats edges as undirected,
+#' and \code{"in"} counts the nodes that reach the node. A negative weight
+#' raises an error. \code{\link{reaching_global}} is the network-level
+#' hierarchy measure built from these scores.
 #'
-#' Bit-exact match against \code{networkx.local_reaching_centrality} across
-#' all three branches. Bit-exact match against
-#' \code{igraph::harmonic_centrality(normalized = TRUE)} for the undirected
-#' unweighted branch. See \code{\link{reaching_global}} for the graph-level
-#' hierarchy measure derived from per-node LRC.
-#'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
-#' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
-#'   \code{"out"}.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of local reaching centrality values.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_harmonic}},
-#'   \code{\link{reaching_global}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param mode Direction for directed networks: \code{"all"} (default),
+#'   \code{"out"} or \code{"in"}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Mones, E., Vicsek, L., & Vicsek, T. (2012). Hierarchy measure for complex
 #' networks. \emph{PLoS ONE}, 7(3), e33799.
-#'
+#' @seealso \code{\link{reaching_global}}, \code{\link{centrality_harmonic}},
+#'   \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Directed path A -> B -> C
-#' adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_reaching_local(adj, mode = "out")
+#' centrality_reaching_local(regulation_net)
 centrality_reaching_local <- function(x, mode = "all", ...) {
   df <- centrality(x, measures = "reaching_local", mode = mode, ...)
   col <- paste0("reaching_local_", mode)
@@ -3886,18 +4782,22 @@ centrality_reaching_local <- function(x, mode = "all", ...) {
 #'
 #' A graph-level hierarchy measure computed from per-node local reaching
 #' centralities:
-#' \deqn{GRC(G) = \frac{1}{N - 1} \sum_v \left( \max_u LRC(u) - LRC(v) \right)}
+#' \deqn{GRC(G) = \frac{1}{N - 1} \sum_v \left( \max_u LRC(u) - LRC(v) \right)}{GRC(G) = 1/(N - 1) sum_v ( max_u LRC(u) - LRC(v) )}
 #'
-#' Values close to 0 indicate a flat network (all nodes reach equal
-#' proportions of the graph); values close to 1 indicate strong hierarchical
-#' structure. Matches \code{networkx.global_reaching_centrality} exactly.
+#' Values close to 0 indicate a flat network in which all nodes reach equal
+#' proportions of the graph. Larger values indicate a more hierarchical
+#' structure. The result matches \code{networkx.global_reaching_centrality}.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object).
+#' @param x Network input (matrix, edge-list data frame, igraph, network,
+#'   cograph_network, tna object).
 #' @param mode For directed networks: \code{"all"} (default), \code{"in"}, or
 #'   \code{"out"}.
 #' @param ... Additional arguments passed to \code{\link{centrality_reaching_local}}.
 #'
-#' @return A single numeric value in \eqn{[0, 1]}.
+#' @return A single numeric value. On an unweighted graph it lies in
+#'   \eqn{[0, 1]}. On a weighted graph the local reaching centralities scale
+#'   with the edge weights, so the value is unbounded. A graph with at most
+#'   one node returns 0.
 #'
 #' @seealso \code{\link{centrality_reaching_local}}, \code{\link{summarize_network}}.
 #' @references
@@ -3906,11 +4806,7 @@ centrality_reaching_local <- function(x, mode = "all", ...) {
 #'
 #' @export
 #' @examples
-#' # Star graph: highly hierarchical (directed out from center)
-#' adj <- matrix(0, 5, 5)
-#' adj[1, 2:5] <- 1
-#' rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-#' reaching_global(adj, mode = "out")
+#' reaching_global(regulation_net, mode = "out")
 reaching_global <- function(x, mode = "all", ...) {
   lrc <- centrality_reaching_local(x, mode = mode, ...)
   n <- length(lrc)
@@ -3926,32 +4822,29 @@ reaching_global <- function(x, mode = "all", ...) {
 
 #' Domain Prestige
 #'
-#' Directed-graph prestige measure: for each node \eqn{v}, the number of
-#' other nodes that can reach \eqn{v} via a directed path.
-#' \deqn{\mathrm{domain}(v) = |\{u \ne v : u \to^* v\}|}
+#' Domain prestige (Wasserman and Faust 1994) counts the other nodes that
+#' reach a node through a directed path:
+#' \deqn{D(v) = |\{u \ne v : u \to^{*} v\}|.}{
+#'   D(v) = number of nodes u != v with a directed path to v.}
 #'
-#' Bit-exact match against \code{sna::prestige(cmode = "domain")}.
-#' Directed-only; returns \code{NA} with a warning on undirected input.
+#' @details
+#' The measure needs a directed network. On undirected input every score is
+#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' ignored. The score is a whole number between 0 and \eqn{n - 1}. The values
+#' equal \code{sna::prestige(cmode = "domain")}.
 #'
-#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of domain prestige values in
-#'   \eqn{\{0, 1, \ldots, N - 1\}}.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_reaching_local}}
-#'   for the dual "out-reachability" measure, \code{\link{centrality_pairwisedis}}
-#'   for a related reachability-based directed measure.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
 #' and Applications}. Cambridge University Press.
-#'
+#' @seealso \code{\link{centrality_prestige_domain_proximity}},
+#'   \code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Directed 3-cycle: every node reaches every other node
-#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_prestige_domain(adj)
+#' centrality_prestige_domain(regulation_net)
 centrality_prestige_domain <- function(x, ...) {
   df <- centrality(x, measures = "prestige_domain", ...)
   stats::setNames(df$prestige_domain, df$node)
@@ -3960,46 +4853,33 @@ centrality_prestige_domain <- function(x, ...) {
 
 #' Domain Proximity Prestige
 #'
-#' Distance-weighted variant of domain prestige. For each directed node
-#' \eqn{v}:
-#' \deqn{PD(v) = R_v^2 / (D_v \cdot (n - 1))}
-#' where \eqn{R_v} is the number of other nodes that reach \eqn{v}, and
-#' \eqn{D_v} is the sum of geodesic distances from those reachers to
-#' \eqn{v}. A node that is reachable quickly from many others scores high;
-#' unreachable nodes score 0.
+#' Domain proximity prestige (Wasserman and Faust 1994) combines the number
+#' of nodes that reach a node with their distance to it:
+#' \deqn{PD(v) = \frac{R_v^2}{(n - 1)\,D_v},}{PD(v) = R_v^2 / ((n - 1) D_v),}
+#' where \eqn{R_v} is the number of other nodes with a directed path to
+#' \eqn{v} and \eqn{D_v} the sum of their hop distances to \eqn{v}.
 #'
-#' Bit-exact match against \code{sna::prestige(cmode = "domain.proximity")}
-#' on strongly connected directed graphs. Directed-only; returns \code{NA}
-#' with a warning on undirected input.
+#' @details
+#' The measure needs a directed network. On undirected input every score is
+#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' ignored. A node that no other node reaches scores 0, and the score lies
+#' between 0 and 1. On strongly connected networks the values equal
+#' \code{sna::prestige(cmode = "domain.proximity")}. On other networks sna
+#' sets some scores to 0, because its sum multiplies an infinite distance by
+#' zero; cograph sums the finite distances only.
 #'
-#' @section Divergence from sna on disconnected graphs:
-#' sna's formula computes \code{(counts > 0) * gdist} element-wise and then
-#' sums to get the denominator. For any pair where \code{gdist = Inf}
-#' (unreachable), R evaluates \code{FALSE * Inf = NaN}, so the entire
-#' denominator becomes \code{NaN} and sna zeros every node via
-#' \code{p[is.nan(p)] <- 0}. cograph masks with \code{is.finite()} before
-#' summing, producing mathematically correct values on any directed graph,
-#' including those with disconnected components.
-#'
-#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named numeric vector of domain proximity prestige values in
-#'   \eqn{[0, 1]}.
-#'
-#' @seealso \code{\link{centrality}}, \code{\link{centrality_prestige_domain}}
-#'   for the unweighted count, \code{\link{centrality_reaching_local}}
-#'   for the dual out-reachability measure.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param ... Further arguments to \code{\link{centrality}}.
+#' @return A named numeric vector with one score per node, in input node
+#'   order.
 #' @references
 #' Wasserman, S., & Faust, K. (1994). \emph{Social Network Analysis: Methods
 #' and Applications}. Cambridge University Press.
-#'
+#' @seealso \code{\link{centrality_prestige_domain}},
+#'   \code{\link{centrality_reaching_local}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' # Directed 3-cycle: each node is reached by both others at distance 1 and 2
-#' adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-#' centrality_prestige_domain_proximity(adj)
+#' centrality_prestige_domain_proximity(regulation_net)
 centrality_prestige_domain_proximity <- function(x, ...) {
   df <- centrality(x, measures = "prestige_domain_proximity", ...)
   stats::setNames(df$prestige_domain_proximity, df$node)
@@ -4010,150 +4890,188 @@ centrality_prestige_domain_proximity <- function(x, ...) {
 # Batch 5 wrappers: Gould-Fernandez brokerage (5 roles).
 # ---------------------------------------------------------------------------
 
-#' Gould-Fernandez Brokerage — Coordinator Role
+#' Coordinator Brokerage
 #'
-#' Coordinator brokerage (w_I): count of open directed 2-paths
-#' \eqn{A \to V \to A} passing through node \eqn{V}, where all three nodes
-#' belong to \eqn{V}'s group. The broker mediates contact between two
-#' in-group members.
+#' Coordinator brokerage (Gould and Fernandez 1989) counts the open two-paths
+#' \eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which \eqn{a},
+#' \eqn{v} and \eqn{c} all belong to the same group. A two-path is open when
+#' the network has no edge from \eqn{a} to \eqn{c}. This role is \eqn{w_I}{w_I}
+#' in the notation of the source.
 #'
-#' Bit-exact match against \code{sna::brokerage$raw.nli[, "w_I"]}. Counts
-#' OPEN 2-paths only — those where no direct edge from \code{a} to \code{c}
-#' exists. Directed-only; returns \code{NA} with a warning on undirected input.
+#' @details
+#' The measure is defined for directed networks. On an undirected network it
+#' raises an unclassed warning and returns \code{NA}, and the same happens when
+#' \code{membership} is missing. A \code{membership} whose length differs from
+#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' or strings. Edge weights and self-loops are ignored. The other four roles
+#' are \code{\link{centrality_brokerage_itinerant}},
+#' \code{\link{centrality_brokerage_representative}},
+#' \code{\link{centrality_brokerage_gatekeeper}} and
+#' \code{\link{centrality_brokerage_liaison}}.
 #'
-#' @param x Directed network input (matrix, igraph, cograph_network, tna object).
-#' @param membership Integer or character vector of group assignments, length
-#'   equal to the number of nodes. Required.
-#' @param ... Additional arguments passed to \code{\link{centrality}}.
-#'
-#' @return Named integer vector of coordinator role counts.
-#'
-#' @seealso \code{\link{centrality}},
-#'   \code{\link{centrality_brokerage_itinerant}},
-#'   \code{\link{centrality_brokerage_representative}},
-#'   \code{\link{centrality_brokerage_gatekeeper}},
-#'   \code{\link{centrality_brokerage_liaison}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Group labels, one per node.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order. \code{normalized = TRUE} returns a numeric vector.
 #' @references
-#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
-#' formal approach to brokerage in transaction networks.
-#' \emph{Sociological Methodology}, 19, 89-126.
-#'
+#' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
+#'   approach to brokerage in transaction networks. Sociological Methodology,
+#'   19, 89-126. \doi{10.2307/270949}.
+#' @seealso \code{\link{centrality_brokerage_gatekeeper}},
+#'   \code{\link{centrality_gateway}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_brokerage_coordinator(adj, membership = c(1, 1, 2, 2))
+#' centrality_brokerage_coordinator(regulation_net, membership = rep(1:2, each = 5))
 centrality_brokerage_coordinator <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "brokerage_coordinator",
                    membership = membership, ...)
   stats::setNames(df$brokerage_coordinator, df$node)
 }
 
-#' Gould-Fernandez Brokerage — Itinerant (Consultant) Role
+#' Itinerant Brokerage
 #'
-#' Itinerant brokerage (w_O): count of open directed 2-paths
-#' \eqn{A \to V \to A} where the two endpoints are in the same group but
-#' the broker \eqn{V} is in a different group. The broker mediates within
-#' another group as an outsider.
+#' Itinerant brokerage (Gould and Fernandez 1989), also called the consultant
+#' role, counts the open two-paths \eqn{a \to v \to c}{a -> v -> c} through
+#' node \eqn{v} in which \eqn{a} and \eqn{c} belong to the same group and
+#' \eqn{v} to another group. A two-path is open when the network has no edge
+#' from \eqn{a} to \eqn{c}. This role is \eqn{w_O}{w_O} in the notation of
+#' the source.
 #'
-#' Bit-exact match against \code{sna::brokerage$raw.nli[, "w_O"]}.
-#' Directed-only.
+#' @details
+#' The measure is defined for directed networks. On an undirected network it
+#' raises an unclassed warning and returns \code{NA}, and the same happens when
+#' \code{membership} is missing. A \code{membership} whose length differs from
+#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' or strings. Edge weights and self-loops are ignored.
 #'
-#' @inheritParams centrality_brokerage_coordinator
-#' @return Named integer vector of itinerant role counts.
-#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Group labels, one per node.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order. \code{normalized = TRUE} returns a numeric vector.
 #' @references
 #' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-#'   approach to brokerage in transaction networks. \emph{Sociological
-#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
+#'   approach to brokerage in transaction networks. Sociological Methodology,
+#'   19, 89-126. \doi{10.2307/270949}.
+#' @seealso \code{\link{centrality_brokerage_coordinator}},
+#'   \code{\link{centrality_brokerage_liaison}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_brokerage_itinerant(adj, membership = c(1, 1, 2, 2))
+#' centrality_brokerage_itinerant(regulation_net, membership = rep(1:2, each = 5))
 centrality_brokerage_itinerant <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "brokerage_itinerant",
                    membership = membership, ...)
   stats::setNames(df$brokerage_itinerant, df$node)
 }
 
-#' Gould-Fernandez Brokerage — Representative Role
+#' Representative Brokerage
 #'
-#' Representative brokerage (b_IO): count of open directed 2-paths
-#' \eqn{A \to V \to B} where \eqn{A} and \eqn{V} are in the same group
-#' and \eqn{B} is in a different group. The broker represents their group
-#' outward.
+#' Representative brokerage (Gould and Fernandez 1989) counts the open
+#' two-paths \eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which
+#' \eqn{a} and \eqn{v} belong to the same group and \eqn{c} to another group.
+#' The broker passes contact from its own group to the outside. A two-path is
+#' open when the network has no edge from \eqn{a} to \eqn{c}. This role is
+#' \eqn{b_{IO}}{b_IO} in the notation of the source.
 #'
-#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_IO"]}.
-#' Directed-only.
+#' @details
+#' The measure is defined for directed networks. On an undirected network it
+#' raises an unclassed warning and returns \code{NA}, and the same happens when
+#' \code{membership} is missing. A \code{membership} whose length differs from
+#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' or strings. Edge weights and self-loops are ignored.
 #'
-#' @inheritParams centrality_brokerage_coordinator
-#' @return Named integer vector of representative role counts.
-#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Group labels, one per node.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order. \code{normalized = TRUE} returns a numeric vector.
 #' @references
 #' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-#'   approach to brokerage in transaction networks. \emph{Sociological
-#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
+#'   approach to brokerage in transaction networks. Sociological Methodology,
+#'   19, 89-126. \doi{10.2307/270949}.
+#' @seealso \code{\link{centrality_brokerage_gatekeeper}},
+#'   \code{\link{centrality_brokerage_coordinator}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_brokerage_representative(adj, membership = c(1, 1, 2, 2))
+#' centrality_brokerage_representative(regulation_net, membership = rep(1:2, each = 5))
 centrality_brokerage_representative <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "brokerage_representative",
                    membership = membership, ...)
   stats::setNames(df$brokerage_representative, df$node)
 }
 
-#' Gould-Fernandez Brokerage — Gatekeeper Role
+#' Gatekeeper Brokerage
 #'
-#' Gatekeeper brokerage (b_OI): count of open directed 2-paths
-#' \eqn{A \to V \to B} where \eqn{V} and \eqn{B} are in the same group
-#' and \eqn{A} is in a different group. The broker acts as a gate letting
-#' in-group members receive contact from outside.
+#' Gatekeeper brokerage (Gould and Fernandez 1989) counts the open two-paths
+#' \eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which \eqn{v} and
+#' \eqn{c} belong to the same group and \eqn{a} to another group. The broker
+#' admits contact from outside to a member of its own group. A two-path is
+#' open when the network has no edge from \eqn{a} to \eqn{c}. This role is
+#' \eqn{b_{OI}}{b_OI} in the notation of the source.
 #'
-#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_OI"]}.
-#' Directed-only.
+#' @details
+#' The measure is defined for directed networks. On an undirected network it
+#' raises an unclassed warning and returns \code{NA}, and the same happens when
+#' \code{membership} is missing. A \code{membership} whose length differs from
+#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' or strings. Edge weights and self-loops are ignored.
 #'
-#' @inheritParams centrality_brokerage_coordinator
-#' @return Named integer vector of gatekeeper role counts.
-#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Group labels, one per node.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order. \code{normalized = TRUE} returns a numeric vector.
 #' @references
 #' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-#'   approach to brokerage in transaction networks. \emph{Sociological
-#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
+#'   approach to brokerage in transaction networks. Sociological Methodology,
+#'   19, 89-126. \doi{10.2307/270949}.
+#' @seealso \code{\link{centrality_brokerage_representative}},
+#'   \code{\link{centrality_brokerage_coordinator}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_brokerage_gatekeeper(adj, membership = c(1, 1, 2, 2))
+#' centrality_brokerage_gatekeeper(regulation_net, membership = rep(1:2, each = 5))
 centrality_brokerage_gatekeeper <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "brokerage_gatekeeper",
                    membership = membership, ...)
   stats::setNames(df$brokerage_gatekeeper, df$node)
 }
 
-#' Gould-Fernandez Brokerage — Liaison Role
+#' Liaison Brokerage
 #'
-#' Liaison brokerage (b_O): count of open directed 2-paths
-#' \eqn{A \to V \to B} where all three nodes belong to different groups.
-#' The broker mediates between two groups to neither of which they belong.
+#' Liaison brokerage (Gould and Fernandez 1989) counts the open two-paths
+#' \eqn{a \to v \to c}{a -> v -> c} through node \eqn{v} in which \eqn{a},
+#' \eqn{v} and \eqn{c} belong to three different groups. A two-path is open
+#' when the network has no edge from \eqn{a} to \eqn{c}. This role is
+#' \eqn{b_O}{b_O} in the notation of the source.
 #'
-#' Bit-exact match against \code{sna::brokerage$raw.nli[, "b_O"]}.
-#' Directed-only.
+#' @details
+#' The measure is defined for directed networks. On an undirected network it
+#' raises an unclassed warning and returns \code{NA}, and the same happens when
+#' \code{membership} is missing. A \code{membership} whose length differs from
+#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' or strings. With fewer than three groups every count is 0. Edge weights and
+#' self-loops are ignored.
 #'
-#' @inheritParams centrality_brokerage_coordinator
-#' @return Named integer vector of liaison role counts.
-#' @seealso \code{\link{centrality_brokerage_coordinator}}.
+#' @param x Network input accepted by \code{\link{centrality}}.
+#' @param membership Group labels, one per node.
+#' @param ... Further arguments to \code{\link{centrality}}, such as
+#'   \code{normalized}.
+#' @return A named integer vector with one count per node, in input node
+#'   order. \code{normalized = TRUE} returns a numeric vector.
 #' @references
 #' Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A formal
-#'   approach to brokerage in transaction networks. \emph{Sociological
-#'   Methodology}, 19, 89-126. \doi{10.2307/270949}.
+#'   approach to brokerage in transaction networks. Sociological Methodology,
+#'   19, 89-126. \doi{10.2307/270949}.
+#' @seealso \code{\link{centrality_brokerage_itinerant}},
+#'   \code{\link{centrality_brokerage_coordinator}}, \code{\link{centrality}}.
 #' @export
 #' @examples
-#' adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-#' rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-#' centrality_brokerage_liaison(adj, membership = c(1, 1, 2, 2))
+#' centrality_brokerage_liaison(regulation_net, membership = rep(1:3, length.out = 10))
 centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
   df <- centrality(x, measures = "brokerage_liaison",
                    membership = membership, ...)
@@ -4163,10 +5081,11 @@ centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
 
 #' Calculate Edge Centrality Measures
 #'
-#' Computes centrality measures for edges in a network and returns a tidy
-#' data frame. Unlike node centrality, these measures describe edge importance.
+#' Computes centrality measures for the edges of a network and returns a
+#' tidy data frame with one row per edge.
 #'
-#' @param x Network input (matrix, igraph, network, cograph_network, tna object)
+#' @param x Network input (matrix, edge-list data frame, igraph, network,
+#'   cograph_network, tna object).
 #' @param measures Which measures to calculate. Default "all" calculates all
 #'   available edge measures. Options: "betweenness", "weight", "overlap",
 #'   "simmelian", "reciprocity".
@@ -4174,15 +5093,20 @@ centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param cutoff Maximum path length for betweenness. Default -1 (no limit).
-#' @param invert_weights Logical or NULL. Invert weights for path-based measures?
-#'   Default NULL (auto-detect: TRUE for tna objects, FALSE otherwise).
-#' @param alpha Numeric. Exponent for weight inversion. Default 1.
+#' @param invert_weights Logical or NULL. Whether edge betweenness inverts the
+#'   weights, so that higher weights mean shorter paths. The default
+#'   \code{NULL} is TRUE for tna objects and FALSE otherwise.
+#' @param alpha Numeric. Exponent of the inversion, which computes distances
+#'   as \code{1 / weight^alpha}. Default 1.
 #' @param digits Integer or NULL. Round numeric columns. Default NULL.
 #' @param sort_by Character or NULL. Column to sort by (descending). Default NULL.
-#' @param ... Additional arguments forwarded to the graph constructor, namely
-#'   \code{loops} and \code{simplify} (see \code{\link{centrality}}).
+#' @param ... For \code{edge_centrality()}, the graph-construction
+#'   arguments \code{loops} and \code{simplify} (see
+#'   \code{\link{centrality}}). For \code{edge_betweenness()}, arguments
+#'   passed to \code{edge_centrality()}.
 #'
-#' @return A base \code{data.frame} with one row per edge, in the canonical
+#' @return \code{edge_centrality()} returns a base \code{data.frame} with one
+#'   row per edge, in the canonical
 #'   (row-major) edge order of the input. The first two columns are
 #'   \code{from} and \code{to} (character when the input carried node names,
 #'   numeric indices otherwise); the remaining columns are those the requested
@@ -4195,8 +5119,9 @@ centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
 #' @details
 #' Edge measures available, with the column(s) each one adds:
 #' \describe{
-#'   \item{betweenness}{Number of shortest paths passing through the edge.
-#'     Adds \code{betweenness}.}
+#'   \item{betweenness}{Edge betweenness, the sum over node pairs of the
+#'     share of their shortest paths that pass through the edge. Adds
+#'     \code{betweenness}.}
 #'   \item{weight}{Original edge weight (1 for an unweighted input). Adds
 #'     \code{weight}.}
 #'   \item{overlap}{Jaccard neighborhood overlap of the edge endpoints. Adds
@@ -4213,18 +5138,7 @@ centrality_brokerage_liaison <- function(x, membership = NULL, ...) {
 #'
 #' @export
 #' @examples
-#' # Create test network
-#' mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-#'
-#' # All edge measures
-#' edge_centrality(mat)
-#'
-#' # Just betweenness
-#' edge_centrality(mat, measures = "betweenness")
-#'
-#' # Sort by betweenness to find bridge edges
-#' edge_centrality(mat, sort_by = "betweenness")
+#' edge_centrality(regulation_net, measures = "betweenness")
 edge_centrality <- function(x, measures = "all",
                             weighted = TRUE, directed = NULL,
                             cutoff = -1, invert_weights = NULL, alpha = 1,
@@ -4357,13 +5271,10 @@ edge_centrality <- function(x, measures = "all",
 }
 
 #' @rdname edge_centrality
-#' @return Named numeric vector of edge betweenness values (named by
-#'   \code{"from->to"}).
+#' @return \code{edge_betweenness()} returns a numeric vector of edge
+#'   betweenness values named \code{"from->to"}, for directed and undirected
+#'   inputs alike.
 #' @export
-#' @examples
-#' mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-#' rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-#' edge_betweenness(mat)
 edge_betweenness <- function(x, ...) {
   df <- edge_centrality(x, measures = "betweenness", ...)
   stats::setNames(df$betweenness, paste(df$from, df$to, sep = "->"))

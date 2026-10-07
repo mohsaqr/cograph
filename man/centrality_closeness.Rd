@@ -38,8 +38,8 @@ Unreachable nodes are left out of the sum, as in
 }
 \details{
 Edge weights are read as path lengths, and \code{invert_weights = TRUE}
-uses \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
-\code{weighted = FALSE} has no effect. \code{mode = "out"} follows paths
+uses \eqn{1/w^\alpha}{1/w^alpha} instead. \code{weighted = FALSE} uses
+hop counts. \code{mode = "out"} follows paths
 leaving the node and \code{mode = "in"} paths arriving at it.
 \code{centrality_outcloseness()} and \code{centrality_incloseness()} are
 these two forms. A node that reaches no other node returns \code{NaN}.

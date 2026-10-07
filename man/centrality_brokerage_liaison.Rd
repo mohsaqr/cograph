@@ -27,9 +27,11 @@ when the network has no edge from \eqn{a} to \eqn{c}. This role is
 }
 \details{
 The measure is defined for directed networks. On an undirected network it
-raises an unclassed warning and returns \code{NA}, and the same happens when
-\code{membership} is missing. A \code{membership} whose length differs from
-the number of nodes raises an unclassed error. Group labels may be numbers
+returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+same happens when \code{membership} is missing, where the warning also has
+class \code{cograph_bad_membership}. A \code{membership} whose length
+differs from the number of nodes raises a \code{cograph_bad_membership}
+error. Group labels may be numbers
 or strings. With fewer than three groups every count is 0. Edge weights and
 self-loops are ignored.
 }

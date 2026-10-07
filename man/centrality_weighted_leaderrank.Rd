@@ -35,8 +35,10 @@ has no effect. The returned scores omit the ground, so they sum to less
 than \eqn{N+1}{N + 1}. With \eqn{\alpha = 0}{alpha = 0} every ground arc
 has weight 1. With a positive \eqn{\alpha}{alpha} a node with in-degree
 0 scores 0, and when every in-degree is 0 all scores are \code{NaN}
-without a warning. A negative \eqn{\alpha}{alpha} requires a positive
-in-degree at every node and raises an error otherwise.
+with a \code{cograph_undefined_measure} warning. A negative
+\eqn{\alpha}{alpha} requires a positive in-degree at every node and
+raises a \code{cograph_bad_parameter} error otherwise, as does a
+\code{wlr_alpha} that is not a finite number.
 }
 \examples{
 centrality_weighted_leaderrank(regulation_net)

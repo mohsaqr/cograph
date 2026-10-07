@@ -83,8 +83,10 @@ network. A low p-value then indicates that the partition explains more
 structure in the observed network than in random networks, independently
 of any detection algorithm.
 
-The observed modularity is computed with the edge weights of \code{x}. The
-null networks are unweighted.
+The observed modularity is computed with the edge weights of \code{x}.
+When \code{x} is weighted, each null network receives the observed edge
+weights, randomly reassigned to its edges, so the observed and null
+modularity are on the same scale.
 }
 \section{Printing and plotting}{
 

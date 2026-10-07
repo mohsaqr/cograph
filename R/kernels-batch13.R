@@ -9,7 +9,7 @@
 .cg_volume <- function(b, radius = 2) {
   if (!is.numeric(radius) || length(radius) != 1L || is.na(radius) ||
         radius < 0 || (is.finite(radius) && radius != floor(radius))) {
-    stop("volume_radius must be a nonnegative integer or Inf", call. = FALSE)
+    .cg_stop_bad_parameter("volume_radius must be a nonnegative integer or Inf")
   }
   deg <- rowSums(b)
   if (radius == 0 || !length(deg)) return(as.numeric(deg))

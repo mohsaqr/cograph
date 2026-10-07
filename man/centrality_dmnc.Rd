@@ -33,11 +33,12 @@ A node without neighbors scores 0.
 \details{
 Edge weights are ignored, and \code{mode} sets the neighbor set. On an
 undirected network the result follows this definition. On a directed
-network the component is a strongly connected component, and its nodes are
-read from the neighbor list with each reciprocated neighbor listed twice,
-as in the centiserve package. The edge count can then belong to a
-different node set, and scores above one occur. The value of
-\code{dmnc_epsilon} is not checked.
+network the component is a strongly connected component of the induced
+subnetwork, \eqn{E} counts its directed edges, and a reciprocated
+neighbor enters the subnetwork once. When several components share the
+largest size, \eqn{E} counts the edges among all of their nodes. A
+\code{dmnc_epsilon} that is not a single positive finite number raises a
+\code{cograph_bad_parameter} error.
 }
 \examples{
 centrality_dmnc(regulation_net, directed = FALSE)

@@ -9,14 +9,12 @@ calculate_random_walk_decay <- function(cg, weights = NULL, decay = 0.5,
   if (is.null(mass)) mass <- rep(1, n)
   if (!is.numeric(mass) || length(mass) != n ||
         any(!is.finite(mass)) || any(mass < 0)) {
-    stop("rwd_node_weights must contain one finite nonnegative number per node",
-         call. = FALSE)
+    .cg_stop_bad_parameter("rwd_node_weights must contain one finite nonnegative number per node")
   }
   if (!is.null(names(mass))) {
     labels <- cg$labels
     if (anyDuplicated(names(mass)) || !setequal(names(mass), labels)) {
-      stop("rwd_node_weights names must match node names exactly",
-           call. = FALSE)
+      .cg_stop_bad_parameter("rwd_node_weights names must match node names exactly")
     }
     mass <- mass[match(labels, names(mass))]
   }

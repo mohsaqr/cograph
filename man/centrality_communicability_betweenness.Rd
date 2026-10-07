@@ -29,10 +29,10 @@ the same exponential after the edges of \eqn{r} are deleted,
 \details{
 \eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
 scores lie between 0 and 1. The measure is defined for undirected networks.
-On a directed network the matrix exponential needs the inverse of an
-eigenvector matrix, and when that matrix is singular the function stops
-with an unclassed error, as it does for \code{regulation_net}.
-\code{directed = FALSE} gives the undirected reading.
+On a directed network \eqn{G}{G} and \eqn{G^{(r)}}{G^(r)} are computed by
+scaling and squaring with a Pade approximation, as in
+\code{\link{centrality_communicability}}, so the measure is defined there
+as well. \code{directed = FALSE} gives the undirected reading.
 }
 \examples{
 centrality_communicability_betweenness(regulation_net, directed = FALSE)

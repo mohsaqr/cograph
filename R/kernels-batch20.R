@@ -9,8 +9,7 @@
   choices <- c("degree", "betweenness", "reverse_closeness")
   if (!is.character(base) || length(base) != 1L || is.na(base) ||
         !base %in% choices) {
-    stop("exogenous_base must be degree, betweenness or reverse_closeness",
-         call. = FALSE)
+    .cg_stop_bad_parameter("exogenous_base must be degree, betweenness or reverse_closeness")
   }
   n <- nrow(b)
   if (n <= 1L) return(numeric(n))

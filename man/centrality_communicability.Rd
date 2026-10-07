@@ -25,11 +25,13 @@ weighted by \eqn{1/k!}:
   TC(v) = sum_w [exp(A)]_vw = sum_w sum_{k >= 0} (A^k)_vw / k!.}
 }
 \details{
-\eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
-matrix exponential is formed from an eigendecomposition that assumes a
-symmetric matrix. On a directed network the result therefore differs from
-the row sums of \eqn{e^{A}}{exp(A)}, and \code{directed = FALSE} gives the
-undirected reading for which the measure is defined.
+\eqn{A} is the binary adjacency matrix, so edge weights are ignored. On an
+undirected network the matrix exponential is formed from the
+eigendecomposition of the symmetric \eqn{A}. On a directed network it is
+computed by scaling and squaring with a Pade approximation (Moler and Van
+Loan 2003), and the scores are the row sums of \eqn{e^{A}}{exp(A)}, the
+walks that leave each node. \code{directed = FALSE} gives the undirected
+reading.
 }
 \examples{
 centrality_communicability(regulation_net, directed = FALSE)
@@ -41,6 +43,10 @@ Physical Review E, 77(3), 036111. \doi{10.1103/PhysRevE.77.036111}.
 Benzi, M., & Klymko, C. (2013). Total communicability as a centrality
 measure. Journal of Complex Networks, 1(2), 124-149.
 \doi{10.1093/comnet/cnt007}.
+
+Moler, C., & Van Loan, C. (2003). Nineteen dubious ways to compute the
+exponential of a matrix, twenty-five years later. SIAM Review, 45(1),
+3-49. \doi{10.1137/S00361445024180}.
 }
 \seealso{
 \code{\link{centrality_subgraph}},

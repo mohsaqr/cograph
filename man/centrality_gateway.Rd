@@ -9,10 +9,11 @@ centrality_gateway(x, membership = NULL, mode = "all", ...)
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{membership}{Integer module codes, one per node.}
+\item{membership}{Module labels, one per node: integer codes, character
+labels or a factor.}
 
-\item{mode}{Accepted for a uniform interface. It has no effect. Default
-\code{"all"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
 \item{...}{Further arguments to \code{\link{centrality}}, such as
 \code{directed} and \code{normalized}.}
@@ -32,15 +33,19 @@ where \eqn{k_{is}}{k_is} is the number of links of \eqn{i} into module
 \eqn{s} and \eqn{g_{is}}{g_is} lies between 0 and 1.
 }
 \details{
-Edge weights are ignored. On an undirected network the score lies between 0
-and 1. On a directed network \eqn{k_i}{k_i} is the in-degree while
-\eqn{k_{is}}{k_is} counts outgoing links, and the score can be negative, as
-on \code{regulation_net}. \code{membership} must hold integer codes
-\code{1, ..., m}. Without \code{membership} the function raises an
-unclassed warning and returns \code{NA}, and a \code{membership} of the
-wrong length or with character labels raises an unclassed error. With a
-single module every node scores 0, and so does a node without incoming
-links.
+Edge weights are ignored, and the score lies between 0 and 1. On a
+directed network \code{mode} chooses the ties: \code{"out"} uses outgoing
+links, \code{"in"} incoming links and \code{"all"} (default) both, with a
+reciprocated tie counted twice. The degree \eqn{k_i}{k_i}, the module
+links \eqn{k_{is}}{k_is} and the neighbors whose degrees enter
+\eqn{g_{is}}{g_is} all use the same ties. On an undirected network the
+three modes agree and equal \code{brainGraph::gateway_coeff(centr =
+"degree")}. \code{membership} can hold integer, character or factor
+labels. Without \code{membership} the function returns \code{NA} with a
+warning of classes \code{cograph_bad_membership} and
+\code{cograph_undefined_measure}, and a \code{membership} of the wrong
+length raises a \code{cograph_bad_membership} error. With a single module
+every node scores 0, and so does a node without links in the chosen mode.
 }
 \examples{
 centrality_gateway(regulation_net, membership = rep(1:2, each = 5))

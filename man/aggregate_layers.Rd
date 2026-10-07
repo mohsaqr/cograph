@@ -30,8 +30,9 @@ used only by \code{method = "sum"} to compute a weighted sum.}
 }
 \value{
 The aggregated adjacency matrix, with the dimnames of the first
-layer. A list with a single layer is returned unchanged for every
-\code{method}.
+layer. A list with a single layer is aggregated the same way, so
+\code{"union"} and \code{"intersection"} binarize it and \code{"sum"}
+multiplies it by its layer weight.
 }
 \description{
 Combines multiple network layers into a single network.

@@ -5,7 +5,7 @@ calculate_beta_measure <- function(cg, beta_direction = "positive") {
   if (!is.character(beta_direction) || length(beta_direction) != 1L ||
         is.na(beta_direction) ||
         !beta_direction %in% c("positive", "negative")) {
-    stop("beta_direction must be 'positive' or 'negative'.", call. = FALSE)
+    .cg_stop_bad_parameter("beta_direction must be 'positive' or 'negative'.")
   }
   a <- .cg_path_matrix(cg, NULL)
   diag(a) <- 0

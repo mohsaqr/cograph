@@ -41,13 +41,12 @@ disconnected networks (Boldi and Vigna 2014).
 \details{
 Edge weights are read as distances, and \code{invert_weights = TRUE}
 converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
-\code{weighted = FALSE} has no effect, because the measure then reads the
-weights stored in the network; hop-count harmonic centrality needs a
-binary input such as \code{(x != 0) * 1}. \code{mode = "all"} treats edges
+\code{weighted = FALSE} uses hop counts. \code{mode = "all"} treats edges
 as undirected, \code{"out"} uses distances from the node and \code{"in"}
 distances to it. The scores equal \code{igraph::harmonic_centrality()} on
-the weighted graph. \code{normalized = TRUE} divides the scores by their
-maximum.
+the weighted graph. \code{normalized = TRUE} divides the scores by
+\eqn{n - 1}, as \code{igraph::harmonic_centrality(normalized = TRUE)}
+does.
 }
 \examples{
 centrality_harmonic(regulation_net)

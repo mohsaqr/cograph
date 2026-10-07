@@ -7,12 +7,11 @@
 #' @noRd
 .cg_finite_diffusion <- function(a, q = 1, steps = 3) {
   if (!is.numeric(q) || length(q) != 1L || !is.finite(q) || q < 0 || q > 1) {
-    stop("diffusion_q must be a finite number between 0 and 1", call. = FALSE)
+    .cg_stop_bad_parameter("diffusion_q must be a finite number between 0 and 1")
   }
   if (!is.numeric(steps) || length(steps) != 1L || !is.finite(steps) ||
         steps < 0 || steps != floor(steps) || steps > .Machine$integer.max) {
-    stop("diffusion_steps must be an integer in [0, .Machine$integer.max]",
-         call. = FALSE)
+    .cg_stop_bad_parameter("diffusion_steps must be an integer in [0, .Machine$integer.max]")
   }
   n <- nrow(a)
   out <- numeric(n)
@@ -62,7 +61,11 @@
   n <- nrow(a)
   if (n == 0L) return(numeric(0))
   radius <- .cg_candidate_radius(a)
-  if (radius == 0) return(rep(NaN, n))
+  if (radius == 0) {
+    .cg_warn_undefined("dynamical_importance is undefined when the spectral ",
+                       "radius is 0, as on any acyclic network; returning NaN")
+    return(rep(NaN, n))
+  }
   out <- vapply(seq_len(n), function(i) {
     after <- .cg_candidate_radius(a[-i, -i, drop = FALSE])
     (radius - after) / radius

@@ -731,7 +731,8 @@ calculate_wiener <- function(cg, mode = "all", weights = NULL,
 #'
 #' Row sums of the matrix exponential expm(A). This is the total
 #' communicability of each node (not the subgraph centrality which is
-#' the diagonal — already available as "subgraph" measure).
+#' the diagonal, already available as "subgraph" measure). `.cg_expm()`
+#' computes expm(A) for symmetric and directed A alike.
 #' @keywords internal
 #' @noRd
 calculate_communicability <- function(cg) {
@@ -739,17 +740,7 @@ calculate_communicability <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(1)
-
-  A <- unname(cg$b)
-  eig <- eigen(A, symmetric = isSymmetric(A))
-  vals <- Re(eig$values)
-  vecs <- Re(eig$vectors)
-  exp_vals <- exp(vals)
-
-  # expm(A) = V diag(exp(lambda)) V^-1
-  # For symmetric: V^-1 = t(V), so expm = V %*% diag(exp_vals) %*% t(V)
-  expm_A <- vecs %*% diag(exp_vals, nrow = length(exp_vals)) %*% t(vecs)
-  rowSums(expm_A)
+  rowSums(.cg_expm(unname(cg$b)))
 }
 
 
@@ -762,51 +753,7 @@ calculate_communicability_betweenness <- function(cg) {
   cg <- .ext_context(cg)
   n <- cg$n
   if (n <= 2) return(rep(0, n))
-
-  unname_A <- unname(cg$b)
-  is_sym <- isSymmetric(unname_A)
-
-  # Pre-computed expm: G = V exp(D) V^{-1}; for symmetric A, V^{-1} = V^T.
-  # Zeroing row/col r preserves symmetry, so we can reuse symmetric-eigen
-  # on A_red too. Caching is_sym saves one isSymmetric() per vertex.
-  .expm_sym <- function(M, symmetric) {
-    eig <- eigen(M, symmetric = symmetric)
-    v <- Re(eig$vectors)
-    if (symmetric) {
-      v %*% (exp(Re(eig$values)) * t(v))  # tcrossprod-style scaling
-    } else {
-      v %*% diag(exp(Re(eig$values)), nrow = nrow(M)) %*% solve(v)
-    }
-  }
-
-  G <- .expm_sym(unname_A, is_sym)
-
-  # Pre-compute 1/G with a zero-tolerance guard; the per-vertex step below
-  # collapses to a single mask+sum instead of an O(n^2) double loop per r.
-  inv_G <- G
-  valid_G <- G > 1e-15
-  inv_G[valid_G] <- 1 / G[valid_G]
-  inv_G[!valid_G] <- 0
-  diag_mask <- diag(n) == 1  # rows where s == t
-
-  cb <- vapply(seq_len(n), function(r) {
-    A_red <- unname_A
-    A_red[r, ] <- 0
-    A_red[, r] <- 0
-    G_red <- .expm_sym(A_red, is_sym)
-
-    # ratio[s, t] = (G[s,t] - G_red[s,t]) / G[s,t], with 0 where G[s,t]=0
-    ratio <- (G - G_red) * inv_G
-    # Exclude diagonal (s == t), row r, col r
-    ratio[diag_mask] <- 0
-    ratio[r, ] <- 0
-    ratio[, r] <- 0
-    sum(ratio)
-  }, numeric(1))
-
-  denom <- (n - 1) * (n - 2)
-  if (denom > 0) cb <- cb / denom
-  cb
+  .cg_comm_betweenness_kernel(unname(cg$b), n)
 }
 
 
@@ -822,13 +769,26 @@ calculate_random_walk <- function(cg) {
   if (n <= 1) return(rep(NA_real_, n))
 
   if (.cg_n_components(cg$b) > 1L) {
-    warning("Random walk centrality undefined for disconnected graphs",
-            call. = FALSE)
+    .cg_warn_undefined("Random walk centrality undefined for disconnected ",
+                       "graphs; returning NA")
+    return(rep(NA_real_, n))
+  }
+  # Every node of a directed network that is not strongly connected has a
+  # partner it cannot reach or that cannot reach it, so one of its two
+  # passage times is infinite and its random-walk distance sum diverges.
+  if (cg$directed && !all(is.finite(.cg_distances(cg$b, "out")))) {
+    .cg_warn_undefined("Random walk centrality undefined for directed ",
+                       "networks that are not strongly connected; ",
+                       "returning NA")
     return(rep(NA_real_, n))
   }
 
   mfpt <- .ext_mfpt(cg)
-  if (is.null(mfpt)) return(rep(NA_real_, n))
+  if (is.null(mfpt)) {
+    .cg_warn_undefined("Random walk centrality undefined: the fundamental ",
+                       "matrix of the walk is singular; returning NA")
+    return(rep(NA_real_, n))
+  }
 
   # Random walk distance: d_rw(i,j) = (m_ij + m_ji) / 2 for symmetry
   rw_dist <- (mfpt + t(mfpt)) / 2
@@ -961,11 +921,11 @@ calculate_dmnc <- function(cg, mode = "all", epsilon = 1.7) {
     if (length(comps) == 0) return(0)
     sizes <- lengths(comps)
     mc_size <- max(sizes)
-    # Reference quirk kept on purpose: the positions of the largest
-    # component index the raw neighbor list, repeats included, not the
-    # deduplicated vertex set the components were computed on.
+    # Component positions index the deduplicated vertex set the components
+    # were computed on. (On a directed graph `nbs` lists a reciprocated
+    # neighbor twice, so indexing `nbs` would pick the wrong vertices.)
     positions <- sort(unlist(comps[sizes == mc_size], use.names = FALSE))
-    mc_nodes <- unique(nbs[positions])
+    mc_nodes <- sub_nodes[positions]
     ec <- .ext_edge_count(b, mc_nodes, cg$directed)
     if (ec == 0 || mc_size == 0) return(0)
     ec / mc_size^epsilon
@@ -1122,17 +1082,40 @@ calculate_markov <- function(cg) {
   if (n <= 1) return(rep(NA_real_, n))
 
   if (.cg_n_components(cg$b) > 1L) {
-    warning("Markov centrality undefined for disconnected graphs",
-            call. = FALSE)
+    .cg_warn_undefined("Markov centrality undefined for disconnected graphs; ",
+                       "returning NA")
+    return(rep(NA_real_, n))
+  }
+  # A node without out-ties stops the walk, so the transition matrix is not
+  # stochastic and the passage-time formula below does not hold anywhere.
+  if (cg$directed && any(rowSums(cg$b) == 0)) {
+    .cg_warn_undefined("Markov centrality undefined: the walk stops at a ",
+                       "node without out-ties; returning NA")
+    return(rep(NA_real_, n))
+  }
+  # The mean passage time into j is finite only when every node reaches j.
+  # Those nodes form the single closed class, where the formula holds.
+  reached_by_all <- colSums(is.finite(.cg_distances(cg$b, "out"))) == n
+  if (!all(reached_by_all)) {
+    .cg_warn_undefined(sprintf(
+      paste0("Markov centrality undefined for %d of %d nodes, which some ",
+             "node cannot reach; those scores are NA"),
+      sum(!reached_by_all), n))
+  }
+  if (!any(reached_by_all)) return(rep(NA_real_, n))
+
+  mfpt <- .ext_mfpt(cg)
+  if (is.null(mfpt)) {
+    .cg_warn_undefined("Markov centrality undefined: the fundamental matrix ",
+                       "of the walk is singular; returning NA")
     return(rep(NA_real_, n))
   }
 
-  mfpt <- .ext_mfpt(cg)
-  if (is.null(mfpt)) return(rep(NA_real_, n))
-
   # centiserve: 1 / column means
   col_means <- colMeans(mfpt)
-  ifelse(col_means > 0, 1 / col_means, NA_real_)
+  out <- ifelse(col_means > 0, 1 / col_means, NA_real_)
+  out[!reached_by_all] <- NA_real_
+  out
 }
 
 
@@ -1191,7 +1174,7 @@ calculate_salsa <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("SALSA requires a directed graph; returning NA", call. = FALSE)
+    .cg_warn_undefined("SALSA requires a directed graph; returning NA")
     return(rep(NA_real_, n))
   }
 
@@ -1218,7 +1201,7 @@ calculate_leaderrank <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("LeaderRank requires a directed graph; returning NA", call. = FALSE)
+    .cg_warn_undefined("LeaderRank requires a directed graph; returning NA")
     return(rep(NA_real_, n))
   }
   # Ground node joined to every vertex in both directions, then a pure
@@ -1281,10 +1264,10 @@ calculate_participation <- function(cg, membership = NULL, mode = "all") {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
-    warning("participation requires membership; returning NA", call. = FALSE)
+    .cg_warn_no_membership("participation")
     return(rep(NA_real_, n))
   }
-  stopifnot(length(membership) == n)
+  .cg_check_membership(membership, n, allow_na = TRUE)
 
   .cg_participation(.ext_adjlist(cg, mode),
                     .cg_degree(cg$b, cg$directed, mode), membership)
@@ -1299,10 +1282,10 @@ calculate_within_module_z <- function(cg, membership = NULL, mode = "all") {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
-    warning("within_module_z requires membership; returning NA", call. = FALSE)
+    .cg_warn_no_membership("within_module_z")
     return(rep(NA_real_, n))
   }
-  stopifnot(length(membership) == n)
+  .cg_check_membership(membership, n, allow_na = TRUE)
 
   # brainGraph convention: NaN where a module's within-degree has no spread
   .cg_within_module_z(.ext_adjlist(cg, mode), membership)
@@ -1317,12 +1300,20 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (is.null(membership)) {
-    warning("gateway requires membership; returning NA", call. = FALSE)
+    .cg_warn_no_membership("gateway")
     return(rep(NA_real_, n))
   }
-  stopifnot(length(membership) == n)
+  .cg_check_membership(membership, n, allow_na = TRUE)
 
-  .cg_gateway(unname(cg$b), membership)
+  # Orient the ties so degree, module links and neighbors all read the same
+  # direction: out-ties by row, in-ties by column, or both.
+  b <- unname(cg$b)
+  if (cg$directed) {
+    b <- switch(mode, out = b, `in` = t(b), all = b + t(b))
+  }
+  # Any labels (character, factor, gapped integers) become codes 1..m.
+  codes <- as.integer(factor(membership))
+  .cg_gateway(b, codes)
 }
 
 
@@ -1455,7 +1446,7 @@ calculate_second_order <- function(cg) {
   if (n <= 1) return(rep(NA_real_, n))
 
   if (.cg_n_components(cg$b) > 1L) {
-    warning("second_order requires a connected graph; returning NA", call. = FALSE)
+    .cg_warn_undefined("second_order requires a connected graph; returning NA")
     return(rep(NA_real_, n))
   }
 
@@ -1570,6 +1561,9 @@ calculate_expected_influence <- function(cg, weights = NULL, step = 1L,
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
+  # An undirected W is symmetric, so its row sums already hold every tie;
+  # adding the column sums under "all" would count each edge twice.
+  if (!cg$directed) mode <- "out"
 
   # Signed weight matrix: negative edges stay negative. NULL weights fall
   # back to the graph's own weights, or to 1 when it has none.
@@ -1653,7 +1647,7 @@ calculate_trophic_level <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("trophic_level requires a directed graph; returning NA", call. = FALSE)
+    .cg_warn_undefined("trophic_level requires a directed graph; returning NA")
     return(rep(NA_real_, n))
   }
 
@@ -1706,7 +1700,7 @@ calculate_spanning_tree <- function(cg) {
   if (n <= 1) return(rep(1, n))
 
   if (.cg_n_components(cg$b) > 1L) {
-    warning("spanning_tree requires a connected graph; returning NA", call. = FALSE)
+    .cg_warn_undefined("spanning_tree requires a connected graph; returning NA")
     return(rep(NA_real_, n))
   }
 
@@ -1751,7 +1745,6 @@ calculate_katz <- function(cg, weights = NULL, alpha = 0.1) {
   cg <- .ext_context(cg)
   n <- cg$n
   if (n == 0) return(numeric(0))
-  if (n == 1) return(0)
 
   # Match centiserve::katzcent's exact construction so the result is bit-exact
   # identical: take dense adjacency, compute (I - alpha A^T)^{-1}, then
@@ -1779,8 +1772,8 @@ calculate_katz <- function(cg, weights = NULL, alpha = 0.1) {
   res <- tryCatch(
     solve(diag(x = 1, nrow = n) - (alpha * t(A))) %*% matrix(1, nrow = n, ncol = 1),
     error = function(e) {
-      warning("katz: linear solve failed (", conditionMessage(e),
-              "); returning NA", call. = FALSE)
+      .cg_warn_undefined("katz: linear solve failed (", conditionMessage(e),
+                         "); returning NA")
       matrix(NA_real_, n, 1)
     }
   )
@@ -1805,7 +1798,7 @@ calculate_hubbell <- function(cg, weights = NULL, weightfactor = 0.5) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!is.numeric(weightfactor) || length(weightfactor) != 1L || weightfactor <= 0) {
-    stop("hubbell: weightfactor must be a positive scalar", call. = FALSE)
+    .cg_stop_bad_parameter("hubbell: weightfactor must be a positive scalar")
   }
 
   # Use explicit weights if given, else the graph's own weights, else unweighted.
@@ -1823,10 +1816,9 @@ calculate_hubbell <- function(cg, weights = NULL, weightfactor = 0.5) {
   ev <- tryCatch(eigen(scaledW, only.values = TRUE)$values,
                  error = function(e) NULL)
   if (is.null(ev) || any(Mod(ev) >= 1 - 1e-10)) {
-    warning("hubbell: not solvable for this graph at weightfactor=",
-            format(weightfactor, digits = 4),
-            " (spectral radius >= 1); returning NA",
-            call. = FALSE)
+    .cg_warn_undefined("hubbell: not solvable for this graph at weightfactor=",
+                       format(weightfactor, digits = 4),
+                       " (spectral radius >= 1); returning NA")
     return(rep(NA_real_, n))
   }
 
@@ -1837,8 +1829,8 @@ calculate_hubbell <- function(cg, weights = NULL, weightfactor = 0.5) {
   res <- tryCatch(
     solve(diag(x = 1, nrow = n) - scaledW) %*% matrix(1, nrow = n, ncol = 1),
     error = function(e) {
-      warning("hubbell: linear solve failed (", conditionMessage(e),
-              "); returning NA", call. = FALSE)
+      .cg_warn_undefined("hubbell: linear solve failed (", conditionMessage(e),
+                         "); returning NA")
       matrix(NA_real_, n, 1)
     }
   )
@@ -1870,7 +1862,24 @@ calculate_information <- function(cg, weights = NULL) {
 
   # Symmetrized inside the kernel (Stephenson-Zelen is undirected); the
   # construction mirrors sna::infocent so the result is bit-exact.
-  .cg_information(.ext_path_matrix(cg, weights), weighted = !is.null(weights))
+  m <- .ext_path_matrix(cg, weights)
+  # Isolates score 0 and leave the system; the measure needs the remaining
+  # nodes to form one component, or the information matrix is singular and
+  # the loose-tolerance inverse returns rounding noise.
+  linked <- (m != 0) | (t(m) != 0)
+  diag(linked) <- FALSE
+  non_iso <- rowSums(linked) > 0
+  if (.cg_n_components(linked[non_iso, non_iso, drop = FALSE]) > 1L) {
+    .cg_warn_undefined("Information centrality undefined for disconnected ",
+                       "graphs; returning NA")
+    return(rep(NA_real_, n))
+  }
+  out <- .cg_information(m, weighted = !is.null(weights))
+  if (anyNA(out)) {
+    .cg_warn_undefined("Information centrality undefined: the information ",
+                       "matrix is singular; returning NA")
+  }
+  out
 }
 
 
@@ -1891,8 +1900,7 @@ calculate_pairwisedis <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("pairwisedis requires a directed graph; returning NA",
-            call. = FALSE)
+    .cg_warn_undefined("pairwisedis requires a directed graph; returning NA")
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
@@ -1947,7 +1955,8 @@ calculate_reaching_local <- function(cg, mode = "all", weights = NULL) {
   # (higher weight => shorter path).
   w <- edge_w
   if (any(w < 0)) {
-    stop("reaching_local: edge weights must be non-negative", call. = FALSE)
+    stop(errorCondition("reaching_local: edge weights must be non-negative",
+                        class = "cograph_negative_weights", call = NULL))
   }
   if (sum(w) <= 0) {
     return(rep(0, n))
@@ -1974,8 +1983,7 @@ calculate_prestige_domain <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("prestige_domain requires a directed graph; returning NA",
-            call. = FALSE)
+    .cg_warn_undefined("prestige_domain requires a directed graph; returning NA")
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
@@ -2008,8 +2016,8 @@ calculate_prestige_domain_proximity <- function(cg) {
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (!cg$directed) {
-    warning("prestige_domain_proximity requires a directed graph; returning NA",
-            call. = FALSE)
+    .cg_warn_undefined("prestige_domain_proximity requires a directed graph; ",
+                       "returning NA")
     return(rep(NA_real_, n))
   }
   if (n == 1) return(0)
@@ -2059,16 +2067,17 @@ calculate_brokerage <- function(cg, membership, role) {
   n <- cg$n
   if (n == 0) return(integer(0))
   if (is.null(membership)) {
-    warning("brokerage requires membership; returning NA", call. = FALSE)
+    .cg_warn_no_membership("brokerage")
     return(rep(NA_integer_, n))
   }
   if (length(membership) != n) {
-    stop(sprintf("membership length (%d) must equal number of nodes (%d)",
-                 length(membership), n), call. = FALSE)
+    stop(errorCondition(
+      sprintf("membership length (%d) must equal number of nodes (%d)",
+              length(membership), n),
+      class = "cograph_bad_membership", call = NULL))
   }
   if (!cg$directed) {
-    warning("brokerage requires a directed graph; returning NA",
-            call. = FALSE)
+    .cg_warn_undefined("brokerage requires a directed graph; returning NA")
     return(rep(NA_integer_, n))
   }
 

@@ -5,14 +5,13 @@ calculate_spectralrank <- function(cg, weights = NULL, sr_prior = 0) {
   n <- cg$n
   if (!is.numeric(sr_prior) || !(length(sr_prior) %in% c(1L, n)) ||
         any(!is.finite(sr_prior)) || any(sr_prior < 0)) {
-    stop("sr_prior must be a finite nonnegative scalar or one value per node",
-         call. = FALSE)
+    .cg_stop_bad_parameter("sr_prior must be a finite nonnegative scalar or one value per node")
   }
   if (length(sr_prior) == n && !is.null(names(sr_prior)) && n > 0) {
     labels <- cg$labels
     if (!cg$has_names || anyDuplicated(names(sr_prior)) ||
           !setequal(names(sr_prior), labels)) {
-      stop("sr_prior names must match node names exactly", call. = FALSE)
+      .cg_stop_bad_parameter("sr_prior names must match node names exactly")
     }
     sr_prior <- sr_prior[match(labels, names(sr_prior))]
   }

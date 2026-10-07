@@ -21,7 +21,9 @@ from/source/src/v1/node1/i and to/target/tgt/v2/node2/j are
 auto-detected. Optional weight column (weight/w/value/strength).}
 \item{data.frame without from/to columns}{Sequence data. Each row is a
 sequence, columns are time steps. Consecutive pairs (t, t+1) become
-transitions.}
+transitions. A data frame with three or more columns that all have
+the default names V1, V2, V3, ... is read as sequence data, even
+though V1 and V2 are also from/to names.}
 \item{tna object}{If \code{x$data} is non-NULL, uses sequence path on
 the raw data. Otherwise falls back to \code{\link{csum}}.}
 \item{cograph_network}{If \code{x$data} is non-NULL, detects edge list
@@ -57,8 +59,11 @@ column containing cluster labels. The mapping is built from unique
 (no normalization), "cooccurrence" (symmetrize), or "semi_markov"
 (row-normalize, identical to "tna"). Default "tna".}
 
-\item{directed}{Logical. Default \code{TRUE}. The value is recorded in
-\code{meta$directed}; the weights are not modified.}
+\item{directed}{Logical. Default \code{TRUE}. With \code{FALSE} the
+node-level weights are symmetrized as \eqn{(A + A^T) / 2}{(A + t(A)) / 2}
+before aggregation: a matrix input is averaged with its transpose, and
+each observed transition counts half in each direction. The value is
+recorded in \code{meta$directed}.}
 
 \item{compute_within}{Logical. Compute within-cluster matrices? Default TRUE.}
 }

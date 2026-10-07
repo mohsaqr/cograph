@@ -35,9 +35,9 @@ and 1 discount distant nodes.
 \details{
 Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
 \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
-counts hops. \code{mode} sets the direction of the paths. The value of
-\code{decay_parameter} is not checked, and values above 1 give more weight
-to distant nodes. \code{\link{centrality_generalized_closeness}} computes
+counts hops. \code{mode} sets the direction of the paths.
+\code{decay_parameter} must lie strictly between 0 and 1, and other values
+raise a \code{cograph_bad_parameter} error. \code{\link{centrality_generalized_closeness}} computes
 the same quantity, and \code{decay_parameter = 0.5} gives
 \code{\link{centrality_dangalchev}}.
 }

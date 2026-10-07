@@ -223,8 +223,7 @@ calculate_community_hub_bridge <- function(cg, membership = NULL,
   n <- cg$n
   if (n == 0L) return(numeric(0))
   if (is.null(membership)) {
-    warning("community_hub_bridge requires membership; returning NA",
-            call. = FALSE)
+    .cg_warn_no_membership("community_hub_bridge")
     return(rep(NA_real_, n))
   }
   if (length(membership) != n || anyNA(membership)) {
@@ -259,8 +258,9 @@ calculate_community_hub_bridge <- function(cg, membership = NULL,
 #' \code{mode = "in"} only out-links or in-links count, and the default
 #' ignores direction. This is the raw form of the original article. Later
 #' work by the same group uses a normalized variant with the same name.
-#' Without \code{membership} the function raises an unclassed warning and
-#' returns \code{NA} for every node. A \code{membership} that is not one
+#' Without \code{membership} the function raises a warning of classes \code{cograph_bad_membership} and
+#' \code{cograph_undefined_measure}
+#' and returns \code{NA} for every node. A \code{membership} that is not one
 #' non-missing label per node raises an error of class
 #' \code{cograph_bad_membership}.
 #'

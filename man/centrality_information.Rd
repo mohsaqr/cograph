@@ -31,8 +31,9 @@ where \eqn{T} is the trace of \eqn{C} and \eqn{R_i} the sum of row
 The network is symmetrized with \eqn{(w_{ij} + w_{ji})/2}{(w_ij + w_ji)/2},
 so direction is ignored. Edge weights enter as tie strengths, and
 \code{weighted = FALSE} uses the binary matrix. Isolated nodes score 0 and
-are left out of \eqn{n}. When \eqn{B} is singular, as on some disconnected
-networks, every score is \code{NA} without a warning. On unweighted
+are left out of \eqn{n}. When the other nodes do not form one connected
+component, or \eqn{B} is singular, every score is \code{NA} with a
+\code{cograph_undefined_measure} warning. On unweighted
 undirected networks the values equal \code{sna::infocent()}.
 }
 \examples{

@@ -496,7 +496,7 @@ is_cograph_network <- function(x) {
 #'   \item{\code{get_nodes()}, \code{nodes()}}{The node table, with \code{id}
 #'     and \code{label} columns plus layout coordinates or other metadata
 #'     columns when present. \code{nodes()} is a deprecated alias of
-#'     \code{get_nodes()}.}
+#'     \code{get_nodes()} and signals a deprecation warning.}
 #'   \item{\code{get_edges()}}{A data frame with one row per edge and columns
 #'     \code{from} and \code{to} (integer row numbers into the node table),
 #'     \code{weight}, and any extra edge columns. An undirected network stores
@@ -1048,7 +1048,7 @@ get_groups <- function(x) {
 #' @export
 nodes <- function(x) {
   # Soft deprecation warning
-  # .Deprecated("get_nodes")
+  .Deprecated("get_nodes")
   get_nodes(x)
 }
 

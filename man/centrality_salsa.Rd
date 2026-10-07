@@ -25,7 +25,7 @@ adjacency matrices.
 }
 \details{
 The measure needs a directed network. On undirected input every score is
-\code{NA} with a warning that carries no condition class. Edge weights are
+\code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 ignored. The scores are scaled so that the largest is 1, and a node
 without incoming edges scores 0.
 }

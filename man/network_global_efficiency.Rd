@@ -20,8 +20,8 @@ network_global_efficiency(
 which follows the directedness of the converted graph.}
 
 \item{weights}{Numeric vector of edge weights. Default NULL uses the
-graph's \code{weight} attribute when present. NA ignores weights when
-\code{invert_weights} is FALSE.}
+graph's \code{weight} attribute when present. NA ignores weights, so
+every edge has length 1, whatever \code{invert_weights} is.}
 
 \item{invert_weights}{Logical or NULL. If TRUE, weights are converted to
 distances as \eqn{1/w^{\alpha}}{1/w^{alpha}}, so stronger ties give shorter paths. If

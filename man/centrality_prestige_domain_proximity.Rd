@@ -24,7 +24,7 @@ where \eqn{R_v} is the number of other nodes with a directed path to
 }
 \details{
 The measure needs a directed network. On undirected input every score is
-\code{NA} with a warning that carries no condition class. Edge weights are
+\code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 ignored. A node that no other node reaches scores 0, and the score lies
 between 0 and 1. On strongly connected networks the values equal
 \code{sna::prestige(cmode = "domain.proximity")}. On other networks sna

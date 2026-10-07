@@ -29,10 +29,9 @@ partial-correlation and other signed networks.
 \details{
 \code{mode = "out"} (the default here) sums the outgoing weights,
 \code{mode = "in"} the incoming weights and \code{mode = "all"} both, with
-a self-loop counted once. On an undirected network \code{"out"} and
-\code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
-are always used, and \code{weighted = FALSE} has no effect. On an
-unweighted input the score is the degree in the chosen mode. When the
+a self-loop counted once. On an undirected network the three modes
+agree and each edge is counted once. With \code{weighted = FALSE}, or on
+an unweighted input, the score is the degree in the chosen mode. When the
 network has a negative edge, \code{normalized = TRUE} divides by the
 largest absolute score and keeps the sign.
 }

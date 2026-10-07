@@ -3,15 +3,14 @@
 #' @noRd
 .cg_check_ira_args <- function(alpha, tol, max_iter) {
   if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha)) {
-    stop("ira_alpha must be a single finite number", call. = FALSE)
+    .cg_stop_bad_parameter("ira_alpha must be a single finite number")
   }
   if (!is.numeric(tol) || length(tol) != 1L || !is.finite(tol) || tol <= 0) {
-    stop("ira_tol must be a single finite positive number", call. = FALSE)
+    .cg_stop_bad_parameter("ira_tol must be a single finite positive number")
   }
   if (!is.numeric(max_iter) || length(max_iter) != 1L ||
         !is.finite(max_iter) || max_iter < 1 || max_iter != trunc(max_iter)) {
-    stop("ira_max_iter must be a single whole number of at least one",
-         call. = FALSE)
+    .cg_stop_bad_parameter("ira_max_iter must be a single whole number of at least one")
   }
   invisible(NULL)
 }
@@ -41,11 +40,11 @@ calculate_iira <- function(cg, mass = "coreness", beta = 0.2, steps = 50) {
   mass <- match.arg(mass, c("coreness", "degree"))
   if (!is.numeric(beta) || length(beta) != 1L || !is.finite(beta) ||
         beta <= 0 || beta > 1) {
-    stop("iira_beta must be a single number in (0, 1]", call. = FALSE)
+    .cg_stop_bad_parameter("iira_beta must be a single number in (0, 1]")
   }
   if (!is.numeric(steps) || length(steps) != 1L || !is.finite(steps) ||
         steps < 0 || steps != trunc(steps)) {
-    stop("iira_steps must be a single nonnegative whole number", call. = FALSE)
+    .cg_stop_bad_parameter("iira_steps must be a single nonnegative whole number")
   }
   a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0

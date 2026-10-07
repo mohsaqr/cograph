@@ -27,8 +27,8 @@ Low constraint marks access to structural holes.
 }
 \details{
 Ties are symmetrized as \eqn{w_{ij} + w_{ji}}{w_ij + w_ji} before the
-proportions are formed, so edge direction is ignored. Edge weights are
-always used, and \code{weighted = FALSE} has no effect. The values match
+proportions are formed, so edge direction is ignored. With
+\code{weighted = FALSE} every tie has weight one. The values match
 \code{igraph::constraint()}. An isolated node returns \code{NaN}, and a
 node whose only tie is a self-loop scores 0.
 }

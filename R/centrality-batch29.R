@@ -24,20 +24,18 @@ calculate_bridging_capital <- function(cg, weights = NULL, steps = 2,
                                        values = NULL, normalized = FALSE) {
   if (!is.numeric(steps) || length(steps) != 1L || !is.finite(steps) ||
         steps < 0 || steps != floor(steps) || steps > .Machine$integer.max) {
-    stop("bridging_steps must be a nonnegative integer", call. = FALSE)
+    .cg_stop_bad_parameter("bridging_steps must be a nonnegative integer")
   }
   p <- .cg_candidate_adjacency(cg, weights, "bridging_capital")
   if (any(p > 1)) {
-    stop("bridging_capital transmission probabilities must be in [0,1]",
-         call. = FALSE)
+    .cg_stop_bad_parameter("bridging_capital transmission probabilities must be in [0,1]")
   }
   n <- nrow(p)
   if (is.null(values)) values <- matrix(1, n, n)
   if (!is.matrix(values) || !is.numeric(values) ||
         !identical(dim(values), c(n, n)) ||
         any(!is.finite(values)) || any(values < 0)) {
-    stop("bridging_values must be a finite nonnegative n by n matrix",
-         call. = FALSE)
+    .cg_stop_bad_parameter("bridging_values must be a finite nonnegative n by n matrix")
   }
   if (!is.null(rownames(values)) || !is.null(colnames(values))) {
     nodes <- cg$labels
@@ -45,8 +43,7 @@ calculate_bridging_capital <- function(cg, weights = NULL, steps = 2,
       !is.null(labels) && !anyDuplicated(labels) && setequal(labels, nodes)
     }
     if (!valid(rownames(values)) || !valid(colnames(values))) {
-      stop("bridging_values row and column names must match node labels",
-           call. = FALSE)
+      .cg_stop_bad_parameter("bridging_values row and column names must match node labels")
     }
     values <- values[nodes, nodes, drop = FALSE]
   }

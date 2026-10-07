@@ -40,8 +40,9 @@ input. The \code{"kandhway_kuri"} form uses binary degrees, so edge
 weights are ignored, and \code{mode} sets both the degrees and the
 neighbor set. On a directed network \code{mode = "all"} uses total degrees
 and the undirected neighbor set. \code{lambda} multiplies every score. The
-\code{"power_series"} form uses the edge weights and ignores \code{mode},
-\code{lambda} and \code{weighted}. With \code{loops = FALSE} the diagonal
+\code{"power_series"} form uses the edge weights, or ones with
+\code{weighted = FALSE}, and ignores \code{mode} and \code{lambda}. With
+\code{loops = FALSE} the diagonal
 of \eqn{W} is set to zero. The \code{"power_series"} values match
 \code{tna::centralities(measures = "Diffusion")}.
 }

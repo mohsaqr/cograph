@@ -6,8 +6,7 @@ calculate_mixed_gravity <- function(cg, radius = 3, extended = FALSE) {
   if (!is.null(radius) && !automatic &&
         (!is.numeric(radius) || length(radius) != 1L || is.na(radius) ||
            radius < 0)) {
-    stop("gravity_radius must be nonnegative, NULL, or 'auto'",
-         call. = FALSE)
+    .cg_stop_bad_parameter("gravity_radius must be nonnegative, NULL, or 'auto'")
   }
   a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0

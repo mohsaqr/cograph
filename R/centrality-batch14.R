@@ -4,8 +4,9 @@
 .cg_candidate_adjacency <- function(cg, weights = NULL, measure) {
   w <- if (is.null(weights)) rep(1, nrow(cg$edges)) else weights
   if (any(!is.finite(w)) || any(w < 0)) {
-    stop(measure, " requires finite nonnegative edge weights",
-         call. = FALSE)
+    stop(errorCondition(
+      paste0(measure, " requires finite nonnegative edge weights"),
+      class = "cograph_negative_weights", call = NULL))
   }
   # Every canonical edge is a distinct cell, so placing the weights is the
   # same as accumulating them; the undirected mirror fills the lower triangle.
@@ -98,7 +99,7 @@ centrality_diffusion_centrality <- function(x, diffusion_q = 1,
 #' The scores lie between 0 and 1 and are unchanged when every arc is
 #' reversed, so \code{mode} has no effect. A network with spectral radius
 #' 0, such as any directed acyclic network, gives \code{NaN} for every
-#' node without a warning. An isolated node in a network with positive
+#' node with a \code{cograph_undefined_measure} warning. An isolated node in a network with positive
 #' spectral radius scores 0.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.

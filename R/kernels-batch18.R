@@ -7,7 +7,7 @@
 .cg_cda <- function(w, alpha = 0.5) {
   if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
         alpha < 0 || alpha > 1) {
-    stop("cda_alpha must be a finite number between 0 and 1", call. = FALSE)
+    .cg_stop_bad_parameter("cda_alpha must be a finite number between 0 and 1")
   }
   n <- nrow(w)
   if (!n || !any(w > 0)) return(numeric(n))

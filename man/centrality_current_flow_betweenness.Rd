@@ -31,11 +31,12 @@ the pseudoinverse of the Laplacian, and the inner sum is set to zero for
 }
 \details{
 The measure is defined for connected undirected networks. On a
-disconnected network every score is \code{NA}, with an unclassed warning.
+disconnected network every score is \code{NA}, with a
+\code{cograph_undefined_measure} warning.
 On a directed network the Laplacian is built from the asymmetric weight
-matrix, and \code{directed = FALSE} gives the undirected reading. With
-\code{weighted = FALSE} the potentials still come from the weighted
-Laplacian while the currents are read off the binary adjacency matrix.
+matrix, and \code{directed = FALSE} gives the undirected reading. The
+potentials and the currents come from the same weights, and
+\code{weighted = FALSE} gives every edge conductance one.
 The fixed factor \eqn{2/((n-1)(n-2))} is the normalization of
 \code{networkx::current_flow_betweenness_centrality()}.
 }

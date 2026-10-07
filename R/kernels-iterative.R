@@ -38,6 +38,35 @@
   if (m > 1e-15) v / m else v
 }
 
+#' Put a personalization vector in node order
+#'
+#' A named vector is matched to the node labels, an unnamed one is taken in
+#' node order. Every name must be a node label, used once, and every node
+#' must be named; anything else is a `cograph_bad_input` error, since a
+#' silently reordered reset distribution gives a confident wrong ranking.
+#'
+#' @param personalized NULL, or a numeric vector.
+#' @param labels Node labels in node order.
+#' @return NULL or a numeric vector in node order.
+#' @keywords internal
+#' @noRd
+.cg_match_personalized <- function(personalized, labels) {
+  if (is.null(personalized) || is.null(names(personalized))) {
+    return(personalized)
+  }
+  keys <- names(personalized)
+  if (anyNA(keys) || anyDuplicated(keys) ||
+        !setequal(keys, labels) || length(keys) != length(labels)) {
+    stop(errorCondition(
+      sprintf(paste0("The names of `personalized` must be the node labels, ",
+                     "each used once. Unmatched: %s."),
+              paste(setdiff(union(keys, labels), intersect(keys, labels)),
+                    collapse = ", ")),
+      class = "cograph_bad_input", call = NULL))
+  }
+  unname(personalized[match(labels, keys)])
+}
+
 #' PageRank by power iteration
 #'
 #' Dangling vertices redistribute their mass along the reset distribution --

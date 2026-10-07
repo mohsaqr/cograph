@@ -29,7 +29,9 @@
 #'   null graphs are generated with \code{igraph::sample_degseq()}, which fixes
 #'   the degree sequence. For a weighted rich club the observed edge weights
 #'   are also reshuffled across the null edges, following Opsahl et al.
-#'   (2008).
+#'   (2008). A null graph that \code{sample_degseq()} cannot draw is left
+#'   out with a warning of class \code{"cograph_null_draw_failed"} that
+#'   reports how many draws failed.
 #' @param n_random Integer. Number of random graphs for normalization. Default
 #'   100.
 #' @param directed Logical or NULL. Default NULL (auto-detect).
@@ -141,13 +143,17 @@ rich_club <- function(x,
   if (normalized) {
     deg_seq <- igraph::degree(g)
     rand_data <- lapply(seq_len(n_random), function(i) {
+      # A failed draw is kept as its condition so it can be reported below.
       g_rand <- tryCatch(
         igraph::sample_degseq(deg_seq, method = "fast.heur.simple"),
-        error = function(e) NULL)
-      if (is.null(g_rand)) return(NULL)
+        error = function(e) e)
+      if (inherits(g_rand, "error")) return(g_rand)
 
-      rand_wts <- if (has_weights && weighted) sample(edge_wts) else
+      rand_wts <- if (has_weights && weighted) {
+        edge_wts[sample.int(length(edge_wts))]
+      } else {
         rep(1, igraph::ecount(g_rand))
+      }
       if (has_weights && weighted) igraph::E(g_rand)$weight <- rand_wts
 
       list(g = g_rand,
@@ -156,7 +162,16 @@ rich_club <- function(x,
            prom = if (rich == "k") igraph::degree(g_rand) else
              igraph::strength(g_rand))
     })
-    rand_data <- Filter(Negate(is.null), rand_data)
+    failed <- vapply(rand_data, inherits, logical(1), what = "error")
+    if (any(failed)) {
+      warning(warningCondition(
+        sprintf(paste("%d of %d null graphs could not be drawn and were left",
+                      "out of the normalization; first error: %s"),
+                sum(failed), n_random,
+                conditionMessage(rand_data[[which(failed)[1]]])),
+        class = "cograph_null_draw_failed", call = NULL))
+    }
+    rand_data <- rand_data[!failed]
   }
 
   curve_rows <- lapply(thresholds, function(thr) {

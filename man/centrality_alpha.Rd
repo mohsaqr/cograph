@@ -9,8 +9,8 @@ centrality_alpha(x, mode = "all", ...)
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{Accepted for a uniform interface. It has no effect. Default
-\code{"all"}.}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"in"} or
+\code{"out"}.}
 
 \item{...}{Further arguments to \code{\link{centrality}}, such as
 \code{directed} and \code{normalized}.}
@@ -28,13 +28,19 @@ The attenuation is fixed at \eqn{\alpha = 1}{alpha = 1} and \eqn{e} is a
 vector of ones, the defaults of \code{igraph::alpha_centrality()}.
 }
 \details{
-\eqn{A} holds the edge weights with the diagonal set to zero. Edge weights
-are always used, and \code{weighted = FALSE} has no effect. The
+\eqn{A} holds the edge weights, or ones with \code{weighted = FALSE},
+with the diagonal set to zero. The
 \code{alpha} argument of \code{\link{centrality}} is the weight-inversion
 exponent, which this measure does not read. The
 scores are positive when the spectral radius of \eqn{A} is below one and
 can be negative otherwise. A singular system or a negative edge weight
 raises an error of class \code{cograph_singular_system}.
+
+On a directed network \code{mode = "in"} sums over incoming ties as above
+and equals \code{igraph::alpha_centrality()}, \code{mode = "out"} uses
+\eqn{A} in place of \eqn{A^{T}}{A^T} and so sums over outgoing ties, and
+\code{mode = "all"} (default) uses the symmetrized weights
+\eqn{A + A^{T}}{A + t(A)}. On an undirected network the three modes agree.
 }
 \examples{
 centrality_alpha(regulation_net)

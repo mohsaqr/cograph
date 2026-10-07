@@ -44,8 +44,7 @@ calculate_modularity_vitality <- function(cg, weights = NULL,
   n <- cg$n
   if (n == 0L) return(numeric(0))
   if (is.null(membership)) {
-    warning("modularity_vitality requires membership; returning NA",
-            call. = FALSE)
+    .cg_warn_no_membership("modularity_vitality")
     return(rep(NA_real_, n))
   }
   if (length(membership) != n || anyNA(membership)) {
@@ -217,7 +216,8 @@ centrality_local_information_dimension <- function(x, mode = "all", ...) {
 #' each node and recomputing \code{igraph::modularity()}. Self-loops enter
 #' the modularity, and \code{loops = FALSE} drops them. A node whose deletion
 #' leaves a graph with no edges returns \code{NaN}. Without
-#' \code{membership} the function raises an unclassed warning and returns
+#' \code{membership} the function raises a warning of classes \code{cograph_bad_membership} and
+#' \code{cograph_undefined_measure} and returns
 #' \code{NA} for every node. A \code{membership} that is not one
 #' non-missing label per node raises an error of class
 #' \code{cograph_bad_membership}.

@@ -17,8 +17,10 @@
 #'   pair counts once. Otherwise a function of the pair distance returning
 #'   the weight that pair carries, which is what turns the same traversal
 #'   into the length-scaled and distance-decayed variants (Brandes 2008,
-#'   Algorithm 5). The weight depends only on the distance between the two
-#'   endpoints, so it is shared by every inner vertex of a geodesic.
+#'   Algorithm 5). It is called as `pair_weight(d, h)`, with `d` the
+#'   distance between the two endpoints and `h` the smallest number of edges
+#'   on a shortest path between them, so the weight is shared by every inner
+#'   vertex of a geodesic.
 #' @return Numeric vector.
 #' @references Brandes, U. (2001). A faster algorithm for betweenness
 #'   centrality. *Journal of Mathematical Sociology*, 25(2), 163-177.
@@ -38,6 +40,7 @@
     pred <- vector("list", n)
     sigma <- numeric(n); sigma[s] <- 1
     dist <- rep(Inf, n); dist[s] <- 0
+    hops <- rep(Inf, n); hops[s] <- 0
     visited <- rep(FALSE, n)
     order_stack <- integer(0)
     for (step in seq_len(n)) {
@@ -52,8 +55,10 @@
         nd <- dist[u] + edge[v]
         if (nd < dist[v] - eps) {
           dist[v] <- nd; sigma[v] <- sigma[u]; pred[[v]] <- u
+          hops[v] <- hops[u] + 1
         } else if (abs(nd - dist[v]) < eps) {
           sigma[v] <- sigma[v] + sigma[u]; pred[[v]] <- c(pred[[v]], u)
+          hops[v] <- min(hops[v], hops[u] + 1)
         }
       }
     }
@@ -62,7 +67,7 @@
     for (wn in rev(order_stack)) {
       if (limited && dist[wn] > cutoff) next
       p <- pred[[wn]]
-      credit <- if (is.null(pair_weight)) 1 else pair_weight(dist[wn])
+      credit <- if (is.null(pair_weight)) 1 else pair_weight(dist[wn], hops[wn])
       if (length(p) > 0L) {
         delta[p] <- delta[p] + (sigma[p] / sigma[wn]) * (credit + delta[wn])
       }

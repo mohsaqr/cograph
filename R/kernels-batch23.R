@@ -23,7 +23,12 @@
   h <- .cg_alr_hindex(b, h_mode)
   n <- nrow(b)
   if (!n) return(numeric(0))
-  if (!any(h > 0)) return(rep(NaN, n))
+  if (!any(h > 0)) {
+    .cg_warn_undefined("adaptive_leaderrank is undefined when every H-index ",
+                       "is 0: the ground node has no outgoing weight; ",
+                       "returning NaN")
+    return(rep(NaN, n))
+  }
   w <- sweep(b, 2, h, "*")
   p <- w / (rowSums(w) + 1)
   q <- h / sum(h)

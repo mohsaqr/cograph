@@ -77,6 +77,20 @@
   ctx
 }
 
+#' Binary copy of a graph context
+#'
+#' Same nodes, edges and direction, every edge of weight one and no stored
+#' weight vector, so a kernel that falls back to `cg$weights` or reads `cg$w`
+#' sees the unweighted graph. Used by `centrality(weighted = FALSE)`.
+#' @param cg A `cg_graph` context.
+#' @return A new `cg_graph` context.
+#' @keywords internal
+#' @noRd
+.cg_unweighted <- function(cg) {
+  .cg_graph_from_matrix(cg$b, cg$directed, cg$labels, cg$has_names,
+                        weighted = FALSE)
+}
+
 # Resolve any input to (from, to, weight, n, labels, directed, weighted).
 .cg_graph_source <- function(x, directed) {
   if (inherits(x, "igraph")) {

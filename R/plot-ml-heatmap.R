@@ -28,10 +28,12 @@
 #' @param cell_border_color Color for cell borders. Default "white".
 #' @param cell_border_width Width of cell borders. Default 0.2.
 #' @param show_labels Show layer name labels? Default TRUE.
-#' @param show_node_labels Show the row and column names? Default TRUE. The
-#'   names of the first layer are shown once, along the left and lower edges
-#'   of the front plane, so they identify the cells of every plane only when
-#'   all layers share one node ordering.
+#' @param show_node_labels Show the row and column names? Default TRUE. When
+#'   all layers have the same row and column names, the names are shown once,
+#'   along the left and lower edges of the front plane. When the layers hold
+#'   different nodes, each plane shows its own row names along its left edge
+#'   and the column names below the front plane are those of the front
+#'   (last) layer.
 #' @param node_label_size Size of the row and column names. Default 3.
 #' @param label_size Size of layer labels. Default 5.
 #' @param show_legend Show color legend? Default TRUE.
@@ -198,11 +200,12 @@ plot_ml_heatmap <- function(
         l = max(
           if (show_labels) .ml_label_margin(names(layers), label_size) else 5.5,
           if (show_node_labels)
-            .ml_label_margin(rownames(layers[[1]]), node_label_size) else 5.5
+            .ml_label_margin(unlist(lapply(layers, rownames)),
+                             node_label_size) else 5.5
         ),
         # Column names run below the front plane and need room of their own.
         b = if (show_node_labels)
-          .ml_label_margin(colnames(layers[[1]]), node_label_size) else 5.5,
+          .ml_label_margin(colnames(layers[[n_layers]]), node_label_size) else 5.5,
         unit = "pt"
       )
     )
@@ -354,13 +357,16 @@ plot_ml_heatmap <- function(
 }
 
 
-#' Row and column names for the front plane
+#' Row and column names of the planes
 #'
-#' Every plane in the stack shares one node ordering, so drawing the names on
-#' each would only repeat them and crowd the picture. They go once against the
-#' front plane, which is the last layer: `.transform_to_plane()` gives that
-#' layer a zero offset, so it sits at the bottom of the stack and nothing
-#' overlaps its lower or left edge.
+#' When every layer has the same row and column names, the names are drawn
+#' once against the front plane, which is the last layer:
+#' `.transform_to_plane()` gives that layer a zero offset, so it sits at the
+#' bottom of the stack and nothing overlaps its lower or left edge.
+#'
+#' When the layers hold different nodes (for example the submatrices of a
+#' `layer_list`), each plane gets its own row names along its left edge, and
+#' the column names below the front plane are those of the front layer.
 #'
 #' Row names sit left of column one at the row's mid-height; column names sit
 #' below row one at the column's mid-width, rotated so that long names do not
@@ -377,20 +383,35 @@ plot_ml_heatmap <- function(
                                   layer_spacing) {
   n_layers <- length(layers)
   front <- n_layers
-  row_names <- rownames(layers[[1]]) %||% as.character(seq_len(n_rows))
-  col_names <- colnames(layers[[1]]) %||% as.character(seq_len(n_cols))
+  row_names <- lapply(layers, \(m) rownames(m) %||% as.character(seq_len(nrow(m))))
+  col_names <- colnames(layers[[front]]) %||%
+    as.character(seq_len(ncol(layers[[front]])))
+  shared <- .ml_layers_share_names(layers)
+  row_planes <- if (shared) front else seq_len(n_layers)
 
-  rows <- .transform_to_plane(-0.25, seq_len(n_rows) - 0.5, front, n_layers,
-                              skew, compress, layer_spacing)
-  cols <- .transform_to_plane(seq_len(n_cols) - 0.5, -0.25, front, n_layers,
-                              skew, compress, layer_spacing)
+  row_df <- do.call(rbind, lapply(row_planes, \(li) {
+    rows <- .transform_to_plane(-0.25, seq_along(row_names[[li]]) - 0.5, li,
+                                n_layers, skew, compress, layer_spacing)
+    data.frame(x = rows$x, y = rows$y, label = row_names[[li]],
+               hjust = 1, vjust = 0.5, angle = 0)
+  }))
+  cols <- .transform_to_plane(seq_along(col_names) - 0.5, -0.25, front,
+                              n_layers, skew, compress, layer_spacing)
 
   rbind(
-    data.frame(x = rows$x, y = rows$y, label = row_names,
-               hjust = 1, vjust = 0.5, angle = 0),
+    row_df,
     data.frame(x = cols$x, y = cols$y, label = col_names,
                hjust = 1, vjust = 0.5, angle = 45)
   )
+}
+
+#' Do all layers have the same row and column names?
+#' @keywords internal
+#' @noRd
+.ml_layers_share_names <- function(layers) {
+  first <- layers[[1]]
+  all(vapply(layers, \(m) identical(rownames(m), rownames(first)) &&
+               identical(colnames(m), colnames(first)), logical(1)))
 }
 
 #' Left margin needed to keep layer labels legible

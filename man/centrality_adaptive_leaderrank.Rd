@@ -38,7 +38,7 @@ simple undirected skeleton, \code{"out"} uses the out-degrees of
 out-neighbors and \code{"in"} the in-degrees of in-neighbors. The
 returned scores omit the ground, so they sum to less than \eqn{N}. A
 node with H-index 0 scores 0, and when every H-index is 0 all scores are
-\code{NaN} without a warning.
+\code{NaN} with a \code{cograph_undefined_measure} warning.
 }
 \examples{
 centrality_adaptive_leaderrank(regulation_net)

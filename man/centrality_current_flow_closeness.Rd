@@ -30,10 +30,12 @@ with \eqn{L^{+}}{L+} the pseudoinverse of the Laplacian.
 }
 \details{
 The measure is defined for connected undirected networks. On a
-disconnected network every score is \code{NA}, with an unclassed warning.
+disconnected network every score is \code{NA}, with a
+\code{cograph_undefined_measure} warning.
 On a directed network the Laplacian is built from the asymmetric weight
 matrix, and \code{directed = FALSE} gives the undirected reading. Edge
-weights are always used, and \code{weighted = FALSE} has no effect.
+weights are conductances, and \code{weighted = FALSE} gives every edge
+conductance one.
 }
 \examples{
 centrality_current_flow_closeness(regulation_net, directed = FALSE)

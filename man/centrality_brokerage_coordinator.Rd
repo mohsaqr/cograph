@@ -27,9 +27,11 @@ in the notation of the source.
 }
 \details{
 The measure is defined for directed networks. On an undirected network it
-raises an unclassed warning and returns \code{NA}, and the same happens when
-\code{membership} is missing. A \code{membership} whose length differs from
-the number of nodes raises an unclassed error. Group labels may be numbers
+returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+same happens when \code{membership} is missing, where the warning also has
+class \code{cograph_bad_membership}. A \code{membership} whose length
+differs from the number of nodes raises a \code{cograph_bad_membership}
+error. Group labels may be numbers
 or strings. Edge weights and self-loops are ignored. The other four roles
 are \code{\link{centrality_brokerage_itinerant}},
 \code{\link{centrality_brokerage_representative}},

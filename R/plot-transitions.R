@@ -1150,8 +1150,10 @@ plot_transitions <- function(x,
   n_columns <- ncol(df)
   n_individuals <- nrow(df)
 
-  # Get all unique states
+  # Get all unique states. A missing value (NA) is not a state: an individual
+  # with a missing time point has no line into or out of that column.
   all_states <- unique(unlist(lapply(df, as.character)))
+  all_states <- all_states[!is.na(all_states)]
   n_states <- length(all_states)
 
   # Default colors
@@ -1267,8 +1269,10 @@ plot_transitions <- function(x,
   # rbind produces a regular matrix and column indexing replaces the
   # 4 * (n_columns - 1) sapply calls the segment loop used to run.
   traj_mat <- do.call(rbind, trajectories)
-  first_states <- traj_mat[, 1L]
-  last_states <- traj_mat[, n_columns]
+  # First and last observed states, so a sequence that starts late or ends
+  # early (NA padding) is still colored by "first" / "last".
+  first_states <- apply(traj_mat, 1L, \(r) r[!is.na(r)][1L])
+  last_states <- apply(traj_mat, 1L, \(r) utils::tail(r[!is.na(r)], 1L)[1L])
 
   # For each segment, compute proper alluvial ordering
   for (seg in seq_len(n_columns - 1)) {
@@ -1285,6 +1289,9 @@ plot_transitions <- function(x,
       last_state = last_states,
       stringsAsFactors = FALSE
     )
+    # Only individuals observed at both ends of the segment get a line.
+    seg_data <- seg_data[!is.na(seg_data$from_state) &
+                           !is.na(seg_data$to_state), , drop = FALSE]
 
     # Pre-calculate destination positions: for each destination, stack sources
     dest_positions <- list()
@@ -1791,7 +1798,12 @@ plot_alluvial <- function(x,
 #'
 #' @inheritParams plot_transitions
 #' @param x Data frame with one column per time point and one row per
-#'   individual trajectory, or a \code{tna} object with sequence data.
+#'   individual trajectory, or a \code{tna} object with sequence data. In a
+#'   data frame, a missing value (\code{NA}) marks a time point at which the
+#'   individual was not observed: no line enters or leaves that column for
+#'   the individual, and the node sizes count the observed states only. Colors by
+#'   \code{"first"} and \code{"last"} use the first and last observed
+#'   states.
 #' @param from_title Column titles. Default \code{NULL}, which uses the
 #'   column names of \code{x}. Pass a character vector to override them.
 #' @param flow_color_by Color trajectory lines by state. Supports

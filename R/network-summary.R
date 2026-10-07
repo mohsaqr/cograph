@@ -673,8 +673,8 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #' @param directed Logical or NULL. Consider edge direction? Default NULL,
 #'   which follows the directedness of the converted graph.
 #' @param weights Numeric vector of edge weights. Default NULL uses the
-#'   graph's \code{weight} attribute when present. NA ignores weights when
-#'   \code{invert_weights} is FALSE.
+#'   graph's \code{weight} attribute when present. NA ignores weights, so
+#'   every edge has length 1, whatever \code{invert_weights} is.
 #' @param invert_weights Logical or NULL. If TRUE, weights are converted to
 #'   distances as \eqn{1/w^{\alpha}}{1/w^{alpha}}, so stronger ties give shorter paths. If
 #'   FALSE, weights are used as distances. Default NULL uses TRUE for tna
@@ -715,8 +715,11 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
     weights <- igraph::E(g)$weight
   }
 
+  # A single NA means "unweighted": hand it to igraph untouched
+  ignore_weights <- length(weights) == 1L && is.na(weights)
+
   # Invert weights for path calculation (higher weight = shorter path)
-  if (!is.null(weights) && invert_weights) {
+  if (!is.null(weights) && !ignore_weights && invert_weights) {
     weights <- 1 / (weights ^ alpha)
     weights[!is.finite(weights)] <- .Machine$double.xmax
   }
@@ -747,8 +750,8 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param weights Numeric vector of edge weights. Default NULL uses the
-#'   graph's \code{weight} attribute when present. NA ignores weights when
-#'   \code{invert_weights} is FALSE.
+#'   graph's \code{weight} attribute when present. NA ignores weights, so
+#'   every edge has length 1, whatever \code{invert_weights} is.
 #' @param invert_weights Logical or NULL. If TRUE, weights are converted to
 #'   distances as \eqn{1/w^{\alpha}}{1/w^{alpha}}, so stronger ties give shorter paths. If
 #'   FALSE, weights are used as distances. Default NULL uses TRUE for tna
@@ -786,8 +789,11 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
     weights <- igraph::E(g)$weight
   }
 
+  # A single NA means "unweighted": hand it to igraph untouched
+  ignore_weights <- length(weights) == 1L && is.na(weights)
+
   # Invert weights on the graph for path calculation
-  if (!is.null(weights) && invert_weights) {
+  if (!is.null(weights) && !ignore_weights && invert_weights) {
     inv_weights <- 1 / (weights ^ alpha)
     inv_weights[!is.finite(inv_weights)] <- .Machine$double.xmax
     igraph::E(g)$weight <- inv_weights
@@ -1004,9 +1010,9 @@ network_rich_club <- function(x, k = NULL, normalized = FALSE, n_random = 10, ..
 #' Edge weights are ignored. For an undirected network the index equals
 #' \eqn{\sum_k M_k / k!}{sum_k M_k / k!}, where \eqn{M_k} is the number of closed walks of
 #' length \eqn{k}, and it is the sum of the subgraph centralities of all
-#' nodes. For a directed network the function sums \eqn{e^{Re(\lambda_i)}}{e^{Re(lambda_i)}}
-#' over the real parts of the eigenvalues, which differs from the closed-walk
-#' sum when the adjacency matrix has complex eigenvalues.
+#' nodes. For a directed network the eigenvalues may be complex. They come in
+#' conjugate pairs, so the sum of their exponentials is real and again equals
+#' the trace of \eqn{e^A}{exp(A)}, the weighted count of closed walks.
 #'
 #' @param x Network input (matrix, igraph, network, cograph_network, tna object).
 #'
@@ -1027,7 +1033,7 @@ estrada_index <- function(x) {
   if (cg$n == 0L) return(0)
   A <- unname(cg$b)
   ev <- eigen(A, only.values = TRUE, symmetric = isSymmetric(A))$values
-  sum(exp(Re(ev)))
+  Re(sum(exp(ev)))
 }
 
 

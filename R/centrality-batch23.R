@@ -26,7 +26,7 @@ calculate_adaptive_leaderrank <- function(cg, h_mode = "all") {
 #' out-neighbors and \code{"in"} the in-degrees of in-neighbors. The
 #' returned scores omit the ground, so they sum to less than \eqn{N}. A
 #' node with H-index 0 scores 0, and when every H-index is 0 all scores are
-#' \code{NaN} without a warning.
+#' \code{NaN} with a \code{cograph_undefined_measure} warning.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param alr_h_mode Neighbors and degrees used for the H-index:

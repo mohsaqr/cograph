@@ -12,7 +12,8 @@ centrality_pagerank(x, damping = 0.85, personalized = NULL, ...)
 \item{damping}{Probability \eqn{d} of following an edge (default 0.85).}
 
 \item{personalized}{Reset distribution \eqn{p}, a non-negative numeric
-vector with one entry per node in input node order. The default
+vector with one entry per node, named by node or in input node order.
+The default
 \code{NULL} gives the uniform distribution.}
 
 \item{...}{Further arguments to \code{\link{centrality}}.}
@@ -31,14 +32,15 @@ where \eqn{P} is the row-normalized weight matrix and \eqn{d} is
 \code{damping}.
 }
 \details{
-Edge weights are always used, and \code{weighted = FALSE} has no effect.
-A node without out-edges passes its score to the reset distribution. The
-scores sum to one and equal \code{igraph::page_rank()}. The vector
-\code{personalized} is rescaled to sum to one and matched to nodes by
-position; its names are ignored. A negative weight raises a
+\code{weighted = FALSE} gives every edge weight one. A node without
+out-edges passes its score to the reset distribution. The scores sum to
+one and equal \code{igraph::page_rank()}. The vector \code{personalized}
+is rescaled to sum to one. A named vector is matched to the node names,
+and its names must be the node names, each used once; an unnamed vector
+is matched by position. A negative weight raises a
 \code{cograph_negative_weights} error, an invalid \code{personalized} a
 \code{cograph_bad_input} error, and a \code{damping} outside
-\eqn{[0, 1]} an error.
+\eqn{[0, 1]} a \code{cograph_bad_parameter} error.
 }
 \examples{
 centrality_pagerank(regulation_net)

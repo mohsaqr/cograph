@@ -361,6 +361,10 @@ cograph <- function(input, layout = NULL, directed = NULL,
 #' @examples
 #' cograph(regulation_net) |> sn_layout("circle") |> splot()
 sn_layout <- function(network, layout, seed = 42, ...) {
+  # Two-letter igraph layout codes
+  igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
+  .check_sn_layout_name(layout, igraph_codes)
+
   # Auto-convert matrix/data.frame/igraph to cograph_network
   network <- ensure_cograph_network(network, layout = layout, seed = seed, ...)
 
@@ -370,9 +374,6 @@ sn_layout <- function(network, layout, seed = 42, ...) {
     on.exit(.restore_rng(saved_rng), add = TRUE)
     set.seed(seed)
   }
-
-  # Two-letter igraph layout codes
-  igraph_codes <- c("kk", "fr", "drl", "mds", "go", "tr", "st", "gr", "rd", "ni", "ci", "lgl", "sp")
 
   # Create a temporary R6 network for layout computation
   temp_net <- CographNetwork$new()
@@ -400,9 +401,6 @@ sn_layout <- function(network, layout, seed = 42, ...) {
   } else if (is.matrix(layout) || is.data.frame(layout)) {
     coords <- .validate_layout_coords(layout, nrow(get_nodes(network)), "layout")
     layout_info <- list(name = "custom", seed = seed, coords = coords)
-  } else {
-    stop("layout must be a string, CographLayout object, igraph layout function, or coordinate matrix",
-         call. = FALSE)
   }
 
   # Update nodes with layout coordinates
@@ -582,3 +580,40 @@ sn_palette <- function(network, palette, target = "nodes", by = NULL) {
 
   network
 }
+
+# Validate the `layout` argument of sn_layout() before any work is done, so an
+# unknown name or an unsupported type fails with one classed error that lists
+# the accepted values.
+.check_sn_layout_name <- function(layout, igraph_codes) {
+  layout <- .unwrap_saved_layout(layout)
+  if (is.function(layout) || inherits(layout, "CographLayout") ||
+      is.matrix(layout) || is.data.frame(layout)) {
+    return(invisible(NULL))
+  }
+  if (!is.character(layout)) {
+    stop(errorCondition(
+      paste0("layout must be a string, CographLayout object, igraph layout ",
+             "function, or coordinate matrix; got an object of class ",
+             class(layout)[1], "."),
+      class = c("cograph_bad_parameter", "cograph_error"), call = NULL))
+  }
+  if (length(layout) != 1L || is.na(layout)) {
+    stop(errorCondition(
+      sprintf("layout must be a single layout name, not a character vector of length %d.",
+              length(layout)),
+      class = c("cograph_bad_parameter", "cograph_error"), call = NULL))
+  }
+  known <- layout %in% c(list_layouts(), igraph_codes, "custom") ||
+    grepl("^(igraph_|layout_)", layout)
+  if (!known) {
+    stop(errorCondition(
+      sprintf(paste0("Unknown layout type: \"%s\". Use one of the registered ",
+                     "layouts (%s), a two-letter igraph code (%s), or an igraph ",
+                     "layout name such as \"layout_with_kk\"."),
+              layout, paste(sort(list_layouts()), collapse = ", "),
+              paste(igraph_codes, collapse = ", ")),
+      class = c("cograph_bad_parameter", "cograph_error"), call = NULL))
+  }
+  invisible(NULL)
+}
+

@@ -33,9 +33,9 @@ shortest-path distance to a node it reaches:
 Lower values mark more central nodes.
 }
 \details{
-Edge weights are read as path lengths. The raw weights are always used,
-so \code{weighted = FALSE} and \code{invert_weights} have no effect. On an
-unweighted input the distances are hop counts. \code{mode = "out"} follows
+Edge weights are read as path lengths, and \code{invert_weights} has no
+effect. \code{weighted = FALSE}, or an unweighted input, gives hop
+counts. \code{mode = "out"} follows
 paths leaving the node and \code{mode = "in"} paths arriving at it.
 \code{centrality_outeccentricity()} and \code{centrality_ineccentricity()}
 are these two forms. A node that reaches no other node scores 0.

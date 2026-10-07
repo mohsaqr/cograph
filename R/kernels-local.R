@@ -128,15 +128,17 @@
 
 #' Local transitivity (clustering coefficient)
 #'
-#' The denominator uses igraph's `mode = "all"` degree, so on a directed
-#' graph a reciprocated dyad counts twice. That is why a vertex with a single
-#' reciprocated neighbor scores 0 rather than `NaN`: it has degree two, and
-#' therefore a triple that simply is not closed. Triangles are counted over
-#' the distinct neighbor set.
+#' Computed on the undirected skeleton, as
+#' `igraph::transitivity(type = "local")` does for directed and undirected
+#' graphs alike: the degree is the number of distinct neighbors, so a
+#' reciprocated dyad counts once, and triangles are counted over that
+#' neighbor set.
 #'
 #' @param b Binary adjacency matrix. @param n Vertex count.
-#' @param directed Whether the graph is directed.
-#' @return Numeric vector; `NaN` where the vertex has fewer than two edges.
+#' @param directed Whether the graph is directed. Kept for the call
+#'   signature; the skeleton is the same either way.
+#' @return Numeric vector; `NaN` where the vertex has fewer than two
+#'   distinct neighbors.
 #' @keywords internal
 #' @noRd
 .cg_local_transitivity <- function(b, n, directed = FALSE) {
@@ -145,14 +147,12 @@
   diag(bb) <- 0
   u <- ((bb + t(bb)) != 0) * 1
   diag(u) <- 0
-  # Directed: in + out, so a reciprocated dyad counts twice. Undirected: the
-  # neighbor count. Taking out-degree here would let an asymmetric matrix
-  # read as undirected produce a coefficient above 1.
-  k <- if (directed) rowSums(bb) + colSums(bb) else rowSums(u)
+  # The skeleton degree. Counting in + out on a directed graph would count a
+  # reciprocated dyad twice and push the coefficient below igraph's.
+  k <- rowSums(u)
   vapply(seq_len(n), function(i) {
     if (k[i] < 2L) return(NaN)
     nbs <- which(u[i, ] != 0)
-    if (length(nbs) < 2L) return(0)
     sub <- u[nbs, nbs, drop = FALSE]
     2 * (sum(sub) / 2) / (k[i] * (k[i] - 1))
   }, numeric(1L))

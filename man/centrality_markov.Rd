@@ -25,10 +25,13 @@ the first visit of \eqn{j} and \eqn{m_{jj} = 0}{m_jj = 0}.
 }
 \details{
 The walk moves from a node to each of its out-neighbors with equal
-probability, so edge weights are ignored. A disconnected network gives
-\code{NA} for every node with a warning that carries no condition class.
-On a directed network that is connected but not strongly connected some
-scores are \code{NA} without a warning. The values equal
+probability, so edge weights are ignored. A disconnected network, or a
+directed network with a node that has no outgoing edge, gives \code{NA}
+for every node with a \code{cograph_undefined_measure} warning. On a
+directed network that is not strongly connected, a node that some other
+node cannot reach has an infinite mean passage time, and its score is
+\code{NA} with the same warning. On connected undirected and strongly
+connected directed networks the values equal
 \code{centiserve::markovcent()}.
 }
 \examples{

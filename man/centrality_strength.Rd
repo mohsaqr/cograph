@@ -34,8 +34,9 @@ outgoing weights. \code{centrality_instrength()} and
 \code{centrality_outstrength()} are these two forms.
 }
 \details{
-The stored weights are always summed, and \code{weighted = FALSE} has no
-effect; \code{\link{centrality_degree}} counts edges. A self-loop
+The stored weights are summed, and \code{weighted = FALSE} gives every
+edge weight one, so the scores equal \code{\link{centrality_degree}}. A
+self-loop
 counts twice on an undirected network and under \code{mode = "all"}, and
 once under \code{"in"} or \code{"out"}; \code{loops = FALSE} drops it.
 Negative weights are summed with their sign. \code{normalized = TRUE}

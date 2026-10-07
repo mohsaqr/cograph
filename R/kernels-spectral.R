@@ -32,12 +32,9 @@
 
 #' Communicability centrality: row sums of the matrix exponential
 #'
-#' Mirrors `calculate_communicability()` exactly, **including a defect**: the
-#' identity `expm(A) = V diag(exp(lambda)) t(V)` holds only for symmetric `A`,
-#' yet `t(V)` is applied unconditionally, so directed graphs get a wrong
-#' answer. Since these kernels are wired into `centrality()`, deviating here
-#' would silently change cograph's public output; the fix belongs in the
-#' reference and in this kernel together, not in one of them.
+#' Total communicability (Benzi & Klymko 2013), `rowSums(expm(A))` on the
+#' binary adjacency with the diagonal cleared. `.cg_expm()` handles both
+#' symmetric and directed `A`.
 #'
 #' @param w Weight matrix. @param n Vertex count.
 #' @return Numeric vector.
@@ -48,31 +45,81 @@
   if (n == 1L) return(1)
   a <- (w != 0) * 1
   diag(a) <- 0
-  sym <- isSymmetric(unname(a))
-  e <- eigen(a, symmetric = sym)
-  vecs <- Re(e$vectors)
-  rowSums(vecs %*% (diag(exp(Re(e$values)), n, n) %*% t(vecs)))
+  rowSums(.cg_expm(unname(a)))
 }
 
-#' Matrix exponential by eigendecomposition, reference-compatible
+#' Matrix exponential of a square numeric matrix
 #'
-#' Uses `t(V)` when the input is symmetric and `solve(V)` otherwise, matching
-#' `.expm_sym()` in the reference. A computationally singular eigenbasis
-#' propagates as `NA` rather than being rescued by a Pade expansion, because
-#' that is what the reference reports.
+#' A symmetric matrix takes the eigendecomposition fast path
+#' `V diag(exp(lambda)) t(V)`, which is exact up to rounding. Any other matrix
+#' goes through scaling and squaring with a diagonal Pade approximant of
+#' degree 6 (Moler & Van Loan 2003, method 3; Golub & Van Loan, Algorithm
+#' 11.3.1): `A` is scaled by `2^-s` until its 1-norm is at most 1/2, the
+#' approximant `D^-1 N` is formed, and the result is squared `s` times. The
+#' denominator `D` is well conditioned at that norm, so no eigenvector matrix
+#' is ever inverted and a defective or nearly defective `A` (common for
+#' directed graphs) is handled correctly.
 #'
-#' @param mm Numeric matrix. @param symmetric Whether `mm` is symmetric.
-#' @return A numeric matrix, or a matrix of `NA` when the basis is singular.
+#' @param a Numeric square matrix.
+#' @return A numeric matrix of the same dimension.
+#' @references Moler, C., & Van Loan, C. (2003). Nineteen dubious ways to
+#'   compute the exponential of a matrix, twenty-five years later. SIAM
+#'   Review, 45(1), 3-49.
 #' @keywords internal
 #' @noRd
-.cg_expm_eigen <- function(mm, symmetric) {
-  e <- eigen(mm, symmetric = symmetric)
-  v <- Re(e$vectors)
-  ev <- exp(Re(e$values))
-  if (symmetric) return(v %*% (ev * t(v)))
-  inv <- tryCatch(solve(v), error = function(err) NULL)
-  if (is.null(inv)) return(matrix(NA_real_, nrow(mm), ncol(mm)))
-  v %*% diag(ev, nrow = nrow(mm)) %*% inv
+.cg_expm <- function(a) {
+  n <- nrow(a)
+  if (n == 0L) return(matrix(0, 0L, 0L))
+  if (isSymmetric(unname(a))) {
+    e <- eigen(a, symmetric = TRUE)
+    return(e$vectors %*% (exp(e$values) * t(e$vectors)))
+  }
+  norm1 <- max(colSums(abs(a)))
+  squarings <- if (norm1 > 0.5) max(0L, as.integer(ceiling(log2(norm1 / 0.5)))) else 0L
+  x <- a / 2^squarings
+  q <- 6L
+  # Pade coefficients c_k = (2q - k)! q! / ((2q)! k! (q - k)!), by recursion.
+  coefs <- cumprod(c(1, vapply(seq_len(q), function(k)
+    (q - k + 1) / (k * (2 * q - k + 1)), numeric(1L))))
+  # Powers X^0 .. X^q; each depends on the previous one.
+  powers <- Reduce(function(p, k) p %*% x, seq_len(q),
+                   accumulate = TRUE, init = diag(1, n, n))
+  signs <- (-1)^(seq_len(q + 1L) - 1L)
+  num <- Reduce(`+`, Map(function(p, ck) ck * p, powers, coefs))
+  den <- Reduce(`+`, Map(function(p, ck, sg) sg * ck * p, powers, coefs, signs))
+  out <- solve(den, num)
+  # Undo the scaling: exp(A) = exp(A / 2^s)^(2^s).
+  Reduce(function(m, i) m %*% m, seq_len(squarings), init = out)
+}
+
+#' Orient a matrix so the walk kernels read the ties `mode` asks for
+#'
+#' The walk kernels read one fixed direction: `.cg_alpha()` sums incoming
+#' ties (`t(a)` inside) and `.cg_power()` outgoing ties (`a` as given).
+#' `native` names that direction. Asking for the other one transposes the
+#' matrix; `"all"` uses the symmetrized network, `a + t(a)` for weights
+#' (the summed collapse of `igraph::as.undirected()`) or the binary skeleton
+#' when `binary = TRUE`. Undirected input is returned unchanged. The
+#' diagonal is cleared.
+#'
+#' @param a Square numeric matrix. @param directed Whether directed.
+#' @param mode One of `"all"`, `"out"`, `"in"`.
+#' @param native The direction the kernel reads, `"in"` or `"out"`.
+#' @param binary Symmetrize to the 0/1 skeleton instead of summing.
+#' @return A numeric matrix with a zero diagonal.
+#' @keywords internal
+#' @noRd
+.cg_mode_matrix <- function(a, directed, mode = c("all", "out", "in"),
+                            native = c("in", "out"), binary = FALSE) {
+  mode <- match.arg(mode)
+  native <- match.arg(native)
+  diag(a) <- 0
+  if (!directed || identical(mode, native)) return(a)
+  if (identical(mode, "all")) {
+    s <- a + t(a)
+    return(if (binary) (s != 0) * 1 else s)
+  }
+  t(a)
 }
 
 #' Alpha centrality (Bonacich & Lloyd 2001)

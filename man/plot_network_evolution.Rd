@@ -28,7 +28,8 @@ etc.).}
 data frame input and ignored if \code{x} is a list.}
 
 \item{slices}{Integer or NULL. Number of equal-width bins of the numeric
-time column. Default NULL uses the unique time values.}
+time column. Default NULL uses the unique time values. Bins work with
+\code{cumulative = TRUE} as well.}
 
 \item{cumulative}{Logical. If TRUE, each panel shows all edges up to that
 time point (growing network). If FALSE (default), each panel shows only
@@ -38,9 +39,12 @@ edges from that period.}
 default NULL uses the time values, or \code{"T1"}, \code{"T2"}, ...
 for list input.}
 
-\item{layout}{Character. Any character value computes one
-Fruchterman-Reingold layout from the union of all edges and uses it for
-every panel. Default \code{"spring"}.}
+\item{layout}{Character, or a matrix or data frame of coordinates. Any
+character value computes one Fruchterman-Reingold layout from the union
+of all edges and uses it for every panel. A matrix or data frame gives
+the x and y coordinates of the nodes in its first two columns, one row
+per node; rows named after the nodes are matched by name, otherwise they
+are taken in node order. Default \code{"spring"}.}
 
 \item{ncol}{Integer. Number of grid columns. The default NULL uses
 \code{min(number of periods, 4)}.}

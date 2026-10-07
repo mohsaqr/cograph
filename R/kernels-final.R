@@ -123,12 +123,9 @@
 
 #' Density of maximum neighborhood component
 #'
-#' Reproduces a reference quirk deliberately: the neighbor list carries
-#' reciprocation multiplicity (`2 2 3 3`), component membership is computed on
-#' the deduplicated subgraph, and the result is then indexed back into the
-#' *multiplied* list. That mismatch can select the same vertex twice. It is
-#' wrong, but it is what `calculate_dmnc()` and the reference implementation
-#' both do, so matching it is the contract.
+#' The neighbor list can carry reciprocation multiplicity (`2 2 3 3`) on a
+#' directed graph, so components are computed on the deduplicated neighbor
+#' set and their positions index that same set, as in `calculate_dmnc()`.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @param mode Neighbor mode. @param epsilon Exponent on component size.
@@ -146,8 +143,7 @@
     sizes <- lengths(comps)
     max_size <- max(sizes)
     positions <- sort(unlist(comps[sizes == max_size], use.names = FALSE))
-    selected <- unique(nbs[positions])
-    selected <- selected[!is.na(selected)]
+    selected <- sub_nodes[positions]
     e <- if (length(selected) < 2L) 0 else {
       sm <- b[selected, selected, drop = FALSE]
       diag(sm) <- 0
@@ -159,7 +155,15 @@
 }
 
 #' Gateway coefficient (Vargas & Wahl 2014)
-#' @param b Binary adjacency matrix. @param membership Integer community labels.
+#'
+#' Row `i` of `b` holds the ties of node `i` in one direction, so the
+#' degree `k_i`, the module links `k_is` and the neighbor set `V_i` all read
+#' the same ties. For an undirected graph `b` is symmetric and this is
+#' `brainGraph::gateway_coeff(centr = "degree")`.
+#'
+#' @param b Binary adjacency matrix oriented by the caller (`b`, `t(b)` or a
+#'   symmetrized matrix). @param membership Integer community labels,
+#'   `1..max(membership)`.
 #' @return Numeric vector; `NaN` without a partition.
 #' @keywords internal
 #' @noRd
@@ -168,7 +172,7 @@
   if (is.null(membership) || length(membership) == 0L) return(rep(NaN, n))
   modules <- max(membership)
   if (modules <= 1L) return(rep(0, n))
-  ki <- colSums(b)
+  ki <- rowSums(b)
   cn <- max(vapply(seq_len(modules), function(m) sum(ki[membership == m]), numeric(1L)))
   kis <- t(vapply(seq_len(n), function(i)
     vapply(seq_len(modules), function(s) sum(b[i, membership == s]), numeric(1L)),
@@ -179,9 +183,9 @@
     if (ki[i] == 0) return(0)
     denom <- kjs[membership[i], ]
     bar_kis <- ifelse(denom > 0, kis[i, ] / denom, 0)
-    incoming <- which(b[, i] > 0)
+    nbs <- which(b[i, ] > 0)
     cis <- vapply(seq_len(modules), function(s)
-      sum(ki[incoming[membership[incoming] == s]]), numeric(1L))
+      sum(ki[nbs[membership[nbs] == s]]), numeric(1L))
     bar_cis <- if (cn > 0) cis / cn else rep(0, modules)
     gis <- 1 - bar_kis * bar_cis
     1 - sum(kis[i, ]^2 * gis^2) / ki[i]^2

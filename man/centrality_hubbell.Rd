@@ -28,9 +28,10 @@ where \eqn{W} is the weighted adjacency matrix and \eqn{w} is
 }
 \details{
 The system is solvable when the spectral radius of \eqn{wW} is below one.
-Otherwise every score is \code{NA} with a warning that carries no
-condition class. A \code{hubbell_weight} of zero or below raises an error.
-Edge weights are always used, and \code{weighted = FALSE} has no effect.
+Otherwise every score is \code{NA} with a \code{cograph_undefined_measure}
+warning. A \code{hubbell_weight} of zero or below raises a
+\code{cograph_bad_parameter} error. \code{weighted = FALSE} gives every
+edge weight one.
 The rows of \eqn{W} are outgoing ties, so on a directed network the score
 sums attenuated walks that leave the node. \code{centiserve::hubbell()}
 with \code{weights = NULL} sets every weight to 1, so it reproduces these

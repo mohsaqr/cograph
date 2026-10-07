@@ -253,6 +253,30 @@ plot_degree_correlation <- function(x,
 }
 
 
+# Coordinates supplied as `layout` to plot_network_evolution(): a matrix or
+# data frame with one row per node. Rows named after the nodes are matched by
+# name, unnamed rows are taken in node order.
+.evolution_layout_coords <- function(layout, node_names) {
+  if (!(is.matrix(layout) || is.data.frame(layout)) || ncol(layout) < 2L) {
+    stop(errorCondition(
+      "layout must be a character string or a matrix or data frame of x and y coordinates.",
+      class = c("cograph_bad_parameter", "cograph_error"), call = NULL))
+  }
+  coords <- as.matrix(layout)[, 1:2, drop = FALSE]
+  storage.mode(coords) <- "double"
+  if (!is.null(rownames(coords)) && all(node_names %in% rownames(coords))) {
+    coords <- coords[node_names, , drop = FALSE]
+  } else if (nrow(coords) != length(node_names)) {
+    stop(errorCondition(
+      sprintf("layout has %d rows but the network has %d nodes.",
+              nrow(coords), length(node_names)),
+      class = c("cograph_bad_parameter", "cograph_error"), call = NULL))
+  }
+  dimnames(coords) <- list(node_names, c("x", "y"))
+  coords
+}
+
+
 #' Plot Network Evolution (Small Multiples)
 #'
 #' Plots a network at different time points side by side. The input is an
@@ -267,16 +291,20 @@ plot_degree_correlation <- function(x,
 #' @param time Character. Name of the time column in \code{x}. Required for
 #'   data frame input and ignored if \code{x} is a list.
 #' @param slices Integer or NULL. Number of equal-width bins of the numeric
-#'   time column. Default NULL uses the unique time values.
+#'   time column. Default NULL uses the unique time values. Bins work with
+#'   \code{cumulative = TRUE} as well.
 #' @param cumulative Logical. If TRUE, each panel shows all edges up to that
 #'   time point (growing network). If FALSE (default), each panel shows only
 #'   edges from that period.
 #' @param labels Character vector of panel labels, one per period. The
 #'   default NULL uses the time values, or \code{"T1"}, \code{"T2"}, ...
 #'   for list input.
-#' @param layout Character. Any character value computes one
-#'   Fruchterman-Reingold layout from the union of all edges and uses it for
-#'   every panel. Default \code{"spring"}.
+#' @param layout Character, or a matrix or data frame of coordinates. Any
+#'   character value computes one Fruchterman-Reingold layout from the union
+#'   of all edges and uses it for every panel. A matrix or data frame gives
+#'   the x and y coordinates of the nodes in its first two columns, one row
+#'   per node; rows named after the nodes are matched by name, otherwise they
+#'   are taken in node order. Default \code{"spring"}.
 #' @param ncol Integer. Number of grid columns. The default NULL uses
 #'   \code{min(number of periods, 4)}.
 #' @param node_size Numeric. Node size passed to \code{\link{splot}}.
@@ -341,16 +369,14 @@ plot_network_evolution <- function(x,
     periods <- sort(unique(time_vals))
     if (is.null(labels)) labels <- as.character(periods)
 
-    # Build one edge list per period
-    if (cumulative) {
-      nets <- lapply(seq_along(periods), function(i) {
-        x[time_vals <= periods[i], , drop = FALSE]
-      })
-    } else {
-      nets <- lapply(periods, function(p) {
-        x[time_vals == p, , drop = FALSE]
-      })
-    }
+    # Build one edge list per period. Periods are compared by their rank in
+    # the sorted periods, which works for numbers, dates, strings and the
+    # unordered factor that `slices` produces.
+    period_idx <- match(time_vals, periods)
+    nets <- lapply(seq_along(periods), function(i) {
+      keep <- if (cumulative) period_idx <= i else period_idx == i
+      x[keep %in% TRUE, , drop = FALSE]
+    })
   } else if (is.list(x)) {
     nets <- x
     if (is.null(labels)) labels <- paste0("T", seq_along(nets))
@@ -366,13 +392,13 @@ plot_network_evolution <- function(x,
   n_row <- ceiling(n_nets / ncol)
 
   # Shared layout from the full network (union of all edges)
+  if (is.data.frame(x)) {
+    ecols <- intersect(names(x), c("from", "to", "weight"))
+    full_net <- as_cograph(x[, ecols, drop = FALSE])
+  } else {
+    full_net <- nets[[n_nets]]
+  }
   if (is.character(layout)) {
-    if (is.data.frame(x)) {
-      ecols <- intersect(names(x), c("from", "to", "weight"))
-      full_net <- as_cograph(x[, ecols, drop = FALSE])
-    } else {
-      full_net <- nets[[n_nets]]
-    }
     if (!is.null(seed)) {
       saved_rng <- .save_rng()
       on.exit(.restore_rng(saved_rng), add = TRUE)
@@ -386,7 +412,8 @@ plot_network_evolution <- function(x,
     }
     rownames(shared_layout) <- node_names
   } else {
-    shared_layout <- layout
+    node_names <- get_labels(as_cograph(full_net))
+    shared_layout <- .evolution_layout_coords(layout, node_names)
   }
 
   if (combined) {

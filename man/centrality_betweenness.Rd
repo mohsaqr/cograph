@@ -32,8 +32,8 @@ those through \eqn{v}.
 On a directed network the sum runs over ordered pairs along the edge
 direction, and on an undirected network over unordered pairs. Edge weights
 are read as path lengths, and \code{invert_weights = TRUE} uses
-\eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
-\code{weighted = FALSE} has no effect. \code{cutoff} drops paths longer
+\eqn{1/w^\alpha}{1/w^alpha} instead. \code{weighted = FALSE} uses hop
+counts. \code{cutoff} drops paths longer
 than the given length. \code{normalized = TRUE} divides the scores by
 their maximum.
 }

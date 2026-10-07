@@ -52,7 +52,7 @@
 .cg_mdd <- function(b, lambda = 0.7) {
   if (!is.numeric(lambda) || length(lambda) != 1L ||
         !is.finite(lambda) || lambda < 0 || lambda > 1) {
-    stop("mdd_lambda must be a finite number between 0 and 1", call. = FALSE)
+    .cg_stop_bad_parameter("mdd_lambda must be a finite number between 0 and 1")
   }
   n <- nrow(b)
   out <- numeric(n)

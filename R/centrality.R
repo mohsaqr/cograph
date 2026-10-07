@@ -144,10 +144,13 @@
 #'   maximum, which scales non-negative measures to 0-1. A measure whose
 #'   maximum is not positive is left unchanged. Closeness follows igraph's
 #'   normalization instead, multiplying each value by the number of nodes
-#'   the node reaches. Under \code{psych_network = TRUE} expected influence
+#'   the node reaches, and harmonic centrality is divided by \eqn{n - 1}
+#'   only. Under \code{psych_network = TRUE} expected influence
 #'   is divided by its maximum absolute value and keeps its sign. Default
 #'   \code{FALSE}.
 #' @param weighted Logical. Use edge weights if available. Default TRUE.
+#'   With \code{FALSE} every measure works on the binary adjacency, every
+#'   edge with weight one.
 #' @param directed Logical or NULL. If NULL (default), auto-detect from matrix
 #'   symmetry. Set TRUE to force directed, FALSE to force undirected.
 #' @param loops Logical. If TRUE (default), keep self-loops. Set to FALSE to
@@ -184,16 +187,18 @@
 #'   increase the influence of weight differences on path lengths.
 #' @param damping PageRank damping factor. Default 0.85. Must be between 0 and 1.
 #' @param personalized Non-negative numeric vector of reset probabilities
-#'   for personalized PageRank, one value per node in node order. Names are
-#'   not used for matching. The vector is rescaled to sum to 1. Default
+#'   for personalized PageRank, one value per node. A named vector is
+#'   matched to the node names, an unnamed one is taken in node order. The
+#'   vector is rescaled to sum to 1. Default
 #'   NULL (standard PageRank).
 #' @param transitivity_type Type of transitivity to calculate: "local" (default),
 #'   "global", "undirected", "localundirected", "barrat" (weighted),
 #'   "weighted", or "onnela". The first six follow the conventions of
 #'   \code{igraph::transitivity()}. \code{"global"} and \code{"undirected"}
 #'   give one graph-level value, repeated on every row. \code{"onnela"}
-#'   computes the Onnela weighted clustering coefficient on the symmetrized
-#'   matrix \code{x + t(x)} and matches
+#'   computes the weighted clustering coefficient of Zhang and Horvath
+#'   (2005) on the symmetrized matrix \code{x + t(x)}, the form tna uses
+#'   under that name, and matches
 #'   \code{tna::centralities(x, "Clustering")}. \code{tna_network = TRUE}
 #'   changes the default to \code{"onnela"}.
 #' @param isolates Value of local transitivity at nodes where it is
@@ -219,14 +224,18 @@
 #'   gives every node state 1, which makes percolation equal to betweenness
 #'   divided by \eqn{(n-1)(n-2)}.
 #' @param decay_parameter Numeric. Decay parameter for decay and generalized
-#'   closeness centrality. A value between 0 and 1 discounts distant nodes.
-#'   Default 0.5.
+#'   closeness centrality, strictly between 0 and 1; smaller values discount
+#'   distant nodes more. Other values raise a \code{cograph_bad_parameter}
+#'   error when one of these measures is requested. Default 0.5.
 #' @param dmnc_epsilon Numeric. Epsilon exponent for DMNC (Density of Maximum
-#'   Neighborhood Component). Default 1.7, as recommended by Lin et al.
-#'   (2008). centiserve uses 1.67.
+#'   Neighborhood Component), a single positive number. Default 1.7, as
+#'   recommended by Lin et al. (2008). centiserve uses 1.67. Other values
+#'   raise a \code{cograph_bad_parameter} error when \code{"dmnc"} is
+#'   requested.
 #' @param membership Integer vector of community assignments (one per node) for
 #'   the community-aware measures listed under \code{measures}. Default NULL.
-#'   Without it those measures warn and return \code{NA}.
+#'   Without it those measures return \code{NA} with a warning of classes
+#'   \code{cograph_bad_membership} and \code{cograph_undefined_measure}.
 #'   \code{"map_equation"} uses it when supplied.
 #' @param katz_alpha Attenuation factor for Katz centrality. The Katz series
 #'   converges only for \eqn{\alpha < 1 / \rho(A)}{alpha < 1 / rho(A)}. Otherwise the measure
@@ -466,8 +475,8 @@
 #'   \item{authority}{HITS authority score}
 #'   \item{hub}{HITS hub score}
 #'   \item{eccentricity}{Maximum distance to other nodes (supports mode).
-#'     Distances use the raw edge weights, whatever \code{weighted} and
-#'     \code{invert_weights} say.}
+#'     Distances use the raw edge weights whatever \code{invert_weights}
+#'     says, and hop counts with \code{weighted = FALSE}.}
 #'   \item{coreness}{K-core membership (supports mode: in/out/all)}
 #'   \item{constraint}{Burt's constraint (structural holes)}
 #'   \item{transitivity}{Local clustering coefficient (supports multiple types)}
@@ -482,9 +491,10 @@
 #'   \item{kreach}{K-reach centrality. Number of nodes reachable within
 #'     \code{k} steps (supports mode: in/out/all)}
 #'   \item{alpha}{Alpha centrality. Influence through paths, attenuated by
-#'     length, with a unit exogenous contribution at every node}
+#'     length, with a unit exogenous contribution at every node (supports mode:
+#'     in/out/all)}
 #'   \item{power}{Bonacich power centrality. Influence based on connections
-#'     to other influential nodes}
+#'     to other influential nodes (supports mode: in/out/all)}
 #'   \item{subgraph}{Subgraph centrality. Participation in closed walks,
 #'     with shorter walks weighted more heavily}
 #'   \item{laplacian}{Laplacian centrality with the local formula of Qi et
@@ -655,7 +665,9 @@
 #'   \item{length_scaled_betweenness}{Betweenness with each separated pair
 #'     weighted by \eqn{1 / d(s,t)}.}
 #'   \item{delta_betweenness}{Betweenness with the pair weight
-#'     \eqn{(d(s,t) - 1)^{-\delta}}{(d(s,t) - 1)^{-delta}} (\code{betweenness_delta}).}
+#'     \eqn{(h(s,t) - 1)^{-\delta}}{(h(s,t) - 1)^{-delta}}
+#'     (\code{betweenness_delta}), where \eqn{h(s,t)} is the number of edges
+#'     on a shortest path.}
 #'   \item{ego_betweenness}{Betweenness inside the node's own ego network.}
 #'   \item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}{sum_j d_{ij}^{-delta} / (n-1)}
 #'     (\code{closeness_delta}).}
@@ -898,9 +910,11 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   if (is.null(tna_network)) {
     tna_network <- is_tna_input
   }
-  stopifnot(is.logical(tna_network), length(tna_network) == 1L, !is.na(tna_network))
-  if (!is.null(psych_network)) {
-    stopifnot(is.logical(psych_network), length(psych_network) == 1L, !is.na(psych_network))
+  if (!isTRUE(tna_network) && !isFALSE(tna_network)) {
+    .cg_stop_bad_parameter("`tna_network` must be NULL, TRUE or FALSE")
+  }
+  if (!is.null(psych_network) && !isTRUE(psych_network) && !isFALSE(psych_network)) {
+    .cg_stop_bad_parameter("`psych_network` must be NULL, TRUE or FALSE")
   }
 
   # Capture which args the caller explicitly passed so tna_network only fills
@@ -944,12 +958,16 @@ centrality <- function(x, type = c("basic", "extended", "all"),
 
   if (!is.numeric(damping) || length(damping) != 1L ||
         !is.finite(damping) || damping < 0 || damping > 1) {
-    stop("damping must be between 0 and 1", call. = FALSE)
+    .cg_stop_bad_parameter("damping must be between 0 and 1")
   }
 
   # Native graph context (R/kernels-graph.R): dense weights, canonical edge
   # order, loops and duplicate edges resolved once, no igraph needed.
   cg <- .cg_graph(x, directed = directed, loops = loops, simplify = simplify)
+  # `weighted = FALSE` means the binary adjacency for every measure. The
+  # context itself is made binary, so no kernel can fall back to the stored
+  # weights (`weights %||% cg$weights`, `cg$w`) when it is handed NULL.
+  if (!isTRUE(weighted)) cg <- .cg_unweighted(cg)
 
   # Define which measures support mode parameter
   mode_measures <- .cg_mode_measures()
@@ -993,8 +1011,10 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     tier_measures <- character()
     invalid <- setdiff(measures, all_measures)
     if (length(invalid) > 0) {
-      stop("Unknown measures: ", paste(invalid, collapse = ", "),
-           "\nAvailable: ", paste(all_measures, collapse = ", "), call. = FALSE)
+      stop(errorCondition(
+        paste0("Unknown measures: ", paste(invalid, collapse = ", "),
+               "\nAvailable: ", paste(all_measures, collapse = ", ")),
+        class = "cograph_unknown_measure", call = NULL))
     }
   }
 
@@ -1009,6 +1029,22 @@ centrality <- function(x, type = c("basic", "extended", "all"),
         class = "cograph_unknown_measure", call = NULL))
     }
     measures <- union(measures, include)
+  }
+
+  # Decay centrality (Jackson 2008) is defined for 0 < delta < 1: at 1 an
+  # unreachable node counts fully (1^Inf is 1 in R), above 1 its term is Inf.
+  if (any(c("decay", "generalized_closeness") %in% measures) &&
+        !(is.numeric(decay_parameter) && length(decay_parameter) == 1L &&
+            is.finite(decay_parameter) && decay_parameter > 0 &&
+            decay_parameter < 1)) {
+    .cg_stop_bad_parameter("`decay_parameter` must be a single number ",
+                           "strictly between 0 and 1")
+  }
+  if ("dmnc" %in% measures &&
+        !(is.numeric(dmnc_epsilon) && length(dmnc_epsilon) == 1L &&
+            is.finite(dmnc_epsilon) && dmnc_epsilon > 0)) {
+    .cg_stop_bad_parameter("`dmnc_epsilon` must be a single positive ",
+                           "finite number")
   }
 
   # Get node labels
@@ -1035,7 +1071,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                            "flow_betweenness", "integration", "gilschmidt",
                            "markov", "local_efficiency", "fragmentation",
                            "length_scaled_betweenness", "delta_betweenness",
-                           "delta_closeness")
+                           "delta_closeness", "percolation")
   needs_path_weights <- any(measures %in% path_based_measures)
 
   weights_for_paths <- weights
@@ -1156,8 +1192,10 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     value <- .cg_tier_guard(m, m %in% tier_measures, cg$n,
                             compute())
 
-    # Normalize if requested (except for closeness which is handled by igraph)
-    if (normalized && m != "closeness" && any(!is.na(value))) {
+    # Normalize if requested. Closeness (igraph's rule) and harmonic
+    # (divided by n - 1) carry their own normalization in the kernel.
+    if (normalized && !m %in% c("closeness", "harmonic") &&
+          any(!is.na(value))) {
       max_val <- if (isTRUE(psych_network) && m %in% psychometric_measures) {
         max(abs(value), na.rm = TRUE)
       } else {
@@ -1184,7 +1222,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   # Sort if sort_by specified
   if (!is.null(sort_by)) {
     if (!sort_by %in% names(df)) {
-      stop("sort_by column '", sort_by, "' not found in results", call. = FALSE)
+      .cg_stop_bad_parameter("sort_by column '", sort_by, "' not found in results")
     }
     df <- df[order(df[[sort_by]], decreasing = TRUE), ]
     rownames(df) <- NULL
@@ -1193,7 +1231,7 @@ centrality <- function(x, type = c("basic", "extended", "all"),
   df
 }
 
-#' Calculate Onnela-style weighted clustering coefficient (matches tna)
+#' Zhang-Horvath weighted clustering coefficient, tna's "onnela" (matches tna)
 #'
 #' Implements `wcc(x + t(x))` per the formula used by `tna::centralities(.,
 #' "Clustering")`: symmetrize the directed weight matrix, zero the diagonal,
@@ -1289,7 +1327,7 @@ calculate_kreach <- function(cg, mode = "all", weights = NULL, k = 3) {
   if (n == 0) return(numeric(0))
 
   if (k <= 0) {
-    stop("The k parameter must be greater than 0.", call. = FALSE)
+    .cg_stop_bad_parameter("The k parameter must be greater than 0.")
   }
 
   # Count nodes within distance k (excluding self)
@@ -1374,7 +1412,8 @@ calculate_current_flow_closeness <- function(cg, weights = NULL) {
 
   # Must be connected for current flow
   if (.cg_n_components(cg$b) > 1L) {
-    warning("Graph is not connected; current-flow closeness undefined for disconnected nodes")
+    .cg_warn_undefined("Graph is not connected; current-flow closeness ",
+                       "undefined for disconnected nodes")
     return(rep(NA_real_, n))
   }
 
@@ -1430,16 +1469,15 @@ calculate_current_flow_betweenness <- function(cg, weights = NULL) {
 
   # Must be connected and undirected
   if (.cg_n_components(cg$b) > 1L) {
-    warning("Graph is not connected; current-flow betweenness undefined")
+    .cg_warn_undefined("Graph is not connected; current-flow betweenness undefined")
     return(rep(NA_real_, n))
   }
 
   L_pinv <- .cg_laplacian_pinv(cg, weights)
   if (is.null(L_pinv)) return(rep(NA_real_, n)) # nocov
-  # Throughput is read off the graph's own weights when weights are given
-  # and off the binary adjacency otherwise, which is what the igraph-era
-  # code did (the Laplacian above always sees weights).
-  A_mat <- if (is.null(weights)) cg$b else cg$w
+  # Throughput uses the same conductances as the Laplacian above, so the
+  # potentials and the currents they drive come from one network.
+  A_mat <- .cg_attr_matrix(cg, weights)
 
   # Brandes & Fleischer: one unit of current per (s, t) pair; the pairs
   # cannot be collapsed because each induces a different potential field.
@@ -1507,7 +1545,7 @@ calculate_percolation <- function(cg, states = NULL, weights = NULL, directed = 
       states <- states[as.character(cg$labels)]
     }
     if (length(states) != n) {
-      stop("states vector length must match number of nodes", call. = FALSE)
+      .cg_stop_bad_parameter("states vector length must match number of nodes")
     }
     states[is.na(states)] <- 1.0
     states <- pmax(0, pmin(1, states))
@@ -1675,15 +1713,13 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
     # which measure failed and why through cograph_singular_system.
     "alpha" = .cg_solve_or_stop("alpha", function() {
       if (n == 0L) stop("there is no system to solve on an empty graph")
-      a <- .cg_attr_matrix(cg, weights)
-      diag(a) <- 0
+      a <- .cg_mode_matrix(.cg_attr_matrix(cg, weights), directed, mode, "in")
       out <- .cg_alpha(a, n, alpha = 1)
       if (anyNA(out)) stop("the system (I - alpha A) is singular")
       out
     }),
     "power" = .cg_solve_or_stop("power", function() {
-      b <- cg$b
-      diag(b) <- 0
+      b <- .cg_mode_matrix(cg$b, directed, mode, "out", binary = TRUE)
       out <- .cg_power(b, n, alpha = 1)
       # An edgeless graph is NaN by definition (0/0), not a failed solve.
       if (anyNA(out) && any(b != 0)) stop("the system (I - alpha A) is singular")
@@ -1705,7 +1741,9 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
                                     cutoff = cutoff),
     "eigenvector" = .cg_eigenvector(.cg_attr_matrix(cg, weights), n),
     "pagerank" = .cg_pagerank(.cg_attr_matrix(cg, weights), n,
-                              damping = damping, personalized = personalized),
+                              damping = damping,
+                              personalized = .cg_match_personalized(
+                                personalized, cg$labels)),
     "authority" = hits_result$authority,
     "hub" = hits_result$hub,
     "constraint" = {
@@ -1963,7 +2001,8 @@ calculate_measure <- function(cg, measure, mode, weights, normalized,
     "extended_gravity" = calculate_extended_core(cg, "extended_gravity",
                                                 gravity_radius),
 
-    stop("Unknown measure: ", measure, call. = FALSE)
+    stop(errorCondition(paste0("Unknown measure: ", measure),
+                        class = "cograph_unknown_measure", call = NULL))
   )
 
   # Remove names to ensure consistent output
@@ -2026,8 +2065,9 @@ centrality_outdegree <- function(x, ...) {
 #' \code{centrality_outstrength()} are these two forms.
 #'
 #' @details
-#' The stored weights are always summed, and \code{weighted = FALSE} has no
-#' effect; \code{\link{centrality_degree}} counts edges. A self-loop
+#' The stored weights are summed, and \code{weighted = FALSE} gives every
+#' edge weight one, so the scores equal \code{\link{centrality_degree}}. A
+#' self-loop
 #' counts twice on an undirected network and under \code{mode = "all"}, and
 #' once under \code{"in"} or \code{"out"}; \code{loops = FALSE} drops it.
 #' Negative weights are summed with their sign. \code{normalized = TRUE}
@@ -2084,8 +2124,8 @@ centrality_outstrength <- function(x, ...) {
 #' On a directed network the sum runs over ordered pairs along the edge
 #' direction, and on an undirected network over unordered pairs. Edge weights
 #' are read as path lengths, and \code{invert_weights = TRUE} uses
-#' \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
-#' \code{weighted = FALSE} has no effect. \code{cutoff} drops paths longer
+#' \eqn{1/w^\alpha}{1/w^alpha} instead. \code{weighted = FALSE} uses hop
+#' counts. \code{cutoff} drops paths longer
 #' than the given length. \code{normalized = TRUE} divides the scores by
 #' their maximum.
 #'
@@ -2121,8 +2161,8 @@ centrality_betweenness <- function(x, ...) {
 #'
 #' @details
 #' Edge weights are read as path lengths, and \code{invert_weights = TRUE}
-#' uses \eqn{1/w^\alpha}{1/w^alpha} instead. Edge weights are always used, and
-#' \code{weighted = FALSE} has no effect. \code{mode = "out"} follows paths
+#' uses \eqn{1/w^\alpha}{1/w^alpha} instead. \code{weighted = FALSE} uses
+#' hop counts. \code{mode = "out"} follows paths
 #' leaving the node and \code{mode = "in"} paths arriving at it.
 #' \code{centrality_outcloseness()} and \code{centrality_incloseness()} are
 #' these two forms. A node that reaches no other node returns \code{NaN}.
@@ -2176,8 +2216,8 @@ centrality_outcloseness <- function(x, ...) {
 #' The vector is scaled to a maximum of one.
 #'
 #' @details
-#' \eqn{A} holds the edge weights. Edge weights are always used, and
-#' \code{weighted = FALSE} has no effect. On a directed network a node gains
+#' \eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}.
+#' On a directed network a node gains
 #' standing from its incoming edges. The scores lie between 0 and 1. A
 #' network without edges gives every node a score of one.
 #'
@@ -2211,19 +2251,21 @@ centrality_eigenvector <- function(x, ...) {
 #' \code{damping}.
 #'
 #' @details
-#' Edge weights are always used, and \code{weighted = FALSE} has no effect.
-#' A node without out-edges passes its score to the reset distribution. The
-#' scores sum to one and equal \code{igraph::page_rank()}. The vector
-#' \code{personalized} is rescaled to sum to one and matched to nodes by
-#' position; its names are ignored. A negative weight raises a
+#' \code{weighted = FALSE} gives every edge weight one. A node without
+#' out-edges passes its score to the reset distribution. The scores sum to
+#' one and equal \code{igraph::page_rank()}. The vector \code{personalized}
+#' is rescaled to sum to one. A named vector is matched to the node names,
+#' and its names must be the node names, each used once; an unnamed vector
+#' is matched by position. A negative weight raises a
 #' \code{cograph_negative_weights} error, an invalid \code{personalized} a
 #' \code{cograph_bad_input} error, and a \code{damping} outside
-#' \eqn{[0, 1]} an error.
+#' \eqn{[0, 1]} a \code{cograph_bad_parameter} error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param damping Probability \eqn{d} of following an edge (default 0.85).
 #' @param personalized Reset distribution \eqn{p}, a non-negative numeric
-#'   vector with one entry per node in input node order. The default
+#'   vector with one entry per node, named by node or in input node order.
+#'   The default
 #'   \code{NULL} gives the uniform distribution.
 #' @param ... Further arguments to \code{\link{centrality}}.
 #' @return A named numeric vector with one score per node, in input node
@@ -2254,8 +2296,8 @@ centrality_pagerank <- function(x, damping = 0.85, personalized = NULL, ...) {
 #' the dominant eigenvector of \eqn{A A^{T}}{A A^T}.
 #'
 #' @details
-#' \eqn{A} holds the edge weights. Edge weights are always used, and
-#' \code{weighted = FALSE} has no effect. Both scores are scaled to a maximum
+#' \eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}.
+#' Both scores are scaled to a maximum
 #' of one, so they lie between 0 and 1. On an undirected network both equal
 #' eigenvector centrality. A network without edges gives every node a score
 #' of one. \code{centrality_hub()} returns the hub scores.
@@ -2296,9 +2338,9 @@ centrality_hub <- function(x, ...) {
 #' Lower values mark more central nodes.
 #'
 #' @details
-#' Edge weights are read as path lengths. The raw weights are always used,
-#' so \code{weighted = FALSE} and \code{invert_weights} have no effect. On an
-#' unweighted input the distances are hop counts. \code{mode = "out"} follows
+#' Edge weights are read as path lengths, and \code{invert_weights} has no
+#' effect. \code{weighted = FALSE}, or an unweighted input, gives hop
+#' counts. \code{mode = "out"} follows
 #' paths leaving the node and \code{mode = "in"} paths arriving at it.
 #' \code{centrality_outeccentricity()} and \code{centrality_ineccentricity()}
 #' are these two forms. A node that reaches no other node scores 0.
@@ -2385,8 +2427,8 @@ centrality_coreness <- function(x, mode = "all", ...) {
 #'
 #' @details
 #' Ties are symmetrized as \eqn{w_{ij} + w_{ji}}{w_ij + w_ji} before the
-#' proportions are formed, so edge direction is ignored. Edge weights are
-#' always used, and \code{weighted = FALSE} has no effect. The values match
+#' proportions are formed, so edge direction is ignored. With
+#' \code{weighted = FALSE} every tie has weight one. The values match
 #' \code{igraph::constraint()}. An isolated node returns \code{NaN}, and a
 #' node whose only tie is a self-loop scores 0.
 #'
@@ -2415,21 +2457,25 @@ centrality_constraint <- function(x, ...) {
 #' \eqn{k_i} its degree.
 #'
 #' @details
-#' Triangles are counted on the undirected skeleton and edge weights are
-#' ignored. On a directed network \eqn{k_i} is the total degree, in plus
-#' out, so a reciprocated tie counts twice and the values can be lower than
-#' \code{igraph::transitivity(type = "local")}, which uses the skeleton
-#' degree. \code{"localundirected"} gives the same values as
-#' \code{"local"}. \code{"global"} and \code{"undirected"} return the
-#' network-level ratio of closed to connected triples for every node.
-#' \code{"barrat"} and \code{"weighted"} compute the weighted coefficient of
-#' Barrat et al. (2004) and raise a \code{cograph_directed_unsupported}
-#' error on directed input. \code{"onnela"} computes
+#' Triangles and degrees are counted on the undirected skeleton, so a
+#' reciprocated tie counts once, and edge weights are ignored. The values
+#' equal \code{igraph::transitivity(type = "local")} on directed and
+#' undirected networks. \code{"localundirected"} gives the same values as
+#' \code{"local"}, as in igraph. \code{"global"} and \code{"undirected"}
+#' return the network-level ratio of closed to connected triples for every
+#' node. \code{"barrat"} and \code{"weighted"} compute the weighted
+#' coefficient of Barrat et al. (2004) and raise a
+#' \code{cograph_directed_unsupported} error on directed input.
+#' \code{"onnela"} computes the weighted clustering coefficient of Zhang and
+#' Horvath (2005),
 #' \eqn{(M^3)_{ii} / (s_i^2 - \sum_j M_{ij}^2)}{(M^3)_ii / (s_i^2 - sum_j M_ij^2)}
-#' on \eqn{M = W + W^{T}}{M = W + t(W)} with strengths \eqn{s_i}, the value
-#' \code{tna::centralities()} reports as Clustering, and it is the default
-#' for tna input. Under the local and Barrat types a node with fewer than
-#' two ties is \code{NaN}, or 0 with \code{isolates = "zero"}.
+#' on \eqn{M = W + W^{T}}{M = W + t(W)} with strengths \eqn{s_i}. This is the
+#' value \code{tna::centralities()} reports as Clustering, and it is the
+#' default for tna input. The option keeps the name \code{"onnela"} used by
+#' tna, but the formula multiplies the raw weights of a triangle and differs
+#' from the geometric-mean form of Onnela et al. (2005). Under the local and
+#' Barrat types a node with fewer than two neighbors is \code{NaN}, or 0
+#' with \code{isolates = "zero"}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param transitivity_type One of \code{"local"} (default), \code{"global"},
@@ -2450,6 +2496,14 @@ centrality_constraint <- function(x, ...) {
 #'   The architecture of complex weighted networks. Proceedings of the
 #'   National Academy of Sciences, 101(11), 3747-3752.
 #'   \doi{10.1073/pnas.0400087101}.
+#'
+#' Zhang, B., & Horvath, S. (2005). A general framework for weighted gene
+#'   co-expression network analysis. Statistical Applications in Genetics and
+#'   Molecular Biology, 4(1), Article 17. \doi{10.2202/1544-6115.1128}.
+#'
+#' Onnela, J.-P., Saramaki, J., Kertesz, J., & Kaski, K. (2005). Intensity
+#'   and coherence of motifs in weighted complex networks. Physical Review E,
+#'   71(6), 065103. \doi{10.1103/PhysRevE.71.065103}.
 #' @seealso \code{\link{centrality_clusterrank}},
 #'   \code{\link{centrality_topological_coefficient}},
 #'   \code{\link{centrality}}.
@@ -2477,13 +2531,12 @@ centrality_transitivity <- function(x, transitivity_type = "local",
 #' @details
 #' Edge weights are read as distances, and \code{invert_weights = TRUE}
 #' converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
-#' \code{weighted = FALSE} has no effect, because the measure then reads the
-#' weights stored in the network; hop-count harmonic centrality needs a
-#' binary input such as \code{(x != 0) * 1}. \code{mode = "all"} treats edges
+#' \code{weighted = FALSE} uses hop counts. \code{mode = "all"} treats edges
 #' as undirected, \code{"out"} uses distances from the node and \code{"in"}
 #' distances to it. The scores equal \code{igraph::harmonic_centrality()} on
-#' the weighted graph. \code{normalized = TRUE} divides the scores by their
-#' maximum.
+#' the weighted graph. \code{normalized = TRUE} divides the scores by
+#' \eqn{n - 1}, as \code{igraph::harmonic_centrality(normalized = TRUE)}
+#' does.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -2543,8 +2596,9 @@ centrality_outharmonic <- function(x, ...) {
 #' weights are ignored, and \code{mode} sets both the degrees and the
 #' neighbor set. On a directed network \code{mode = "all"} uses total degrees
 #' and the undirected neighbor set. \code{lambda} multiplies every score. The
-#' \code{"power_series"} form uses the edge weights and ignores \code{mode},
-#' \code{lambda} and \code{weighted}. With \code{loops = FALSE} the diagonal
+#' \code{"power_series"} form uses the edge weights, or ones with
+#' \code{weighted = FALSE}, and ignores \code{mode} and \code{lambda}. With
+#' \code{loops = FALSE} the diagonal
 #' of \eqn{W} is set to zero. The \code{"power_series"} values match
 #' \code{tna::centralities(measures = "Diffusion")}.
 #'
@@ -2617,12 +2671,10 @@ centrality_leverage <- function(x, mode = "all", ...) {
 #' compared with the summed weights along a path; on \code{regulation_net},
 #' whose weights lie below one, every node reaches all others within
 #' \eqn{k = 1}. \code{invert_weights = TRUE} converts a weight \eqn{w} to the
-#' distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} has no
-#' effect, because the measure then reads the weights stored in the network;
-#' a hop-count reach needs a binary input such as \code{(x != 0) * 1}.
-#' \code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
+#' distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} uses hop
+#' counts. \code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
 #' reached from the node and \code{"in"} nodes that reach it. A \code{k} of
-#' zero or below raises an error.
+#' zero or below raises a \code{cograph_bad_parameter} error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -2658,17 +2710,23 @@ centrality_kreach <- function(x, mode = "all", k = 3, ...) {
 #' vector of ones, the defaults of \code{igraph::alpha_centrality()}.
 #'
 #' @details
-#' \eqn{A} holds the edge weights with the diagonal set to zero. Edge weights
-#' are always used, and \code{weighted = FALSE} has no effect. The
+#' \eqn{A} holds the edge weights, or ones with \code{weighted = FALSE},
+#' with the diagonal set to zero. The
 #' \code{alpha} argument of \code{\link{centrality}} is the weight-inversion
 #' exponent, which this measure does not read. The
 #' scores are positive when the spectral radius of \eqn{A} is below one and
 #' can be negative otherwise. A singular system or a negative edge weight
 #' raises an error of class \code{cograph_singular_system}.
 #'
+#' On a directed network \code{mode = "in"} sums over incoming ties as above
+#' and equals \code{igraph::alpha_centrality()}, \code{mode = "out"} uses
+#' \eqn{A} in place of \eqn{A^{T}}{A^T} and so sums over outgoing ties, and
+#' \code{mode = "all"} (default) uses the symmetrized weights
+#' \eqn{A + A^{T}}{A + t(A)}. On an undirected network the three modes agree.
+#'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param mode Accepted for a uniform interface. It has no effect. Default
-#'   \code{"all"}.
+#' @param mode For directed networks: \code{"all"} (default), \code{"in"} or
+#'   \code{"out"}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
 #'   \code{directed} and \code{normalized}.
 #' @return A named numeric vector with one score per node, in input node
@@ -2697,18 +2755,21 @@ centrality_alpha <- function(x, mode = "all", ...) {
 #' the scores so that their squares sum to \eqn{n}.
 #'
 #' @details
-#' The exponent is fixed at 1, and the values equal
-#' \code{igraph::power_centrality(exponent = 1)}. Edge weights and self-loops
-#' are ignored. On a directed network the score sums over out-ties, and the
-#' argument \code{mode} has no effect. Where \eqn{I - A} is singular, as on a
+#' The exponent is fixed at 1. Edge weights and self-loops are ignored. On a
+#' directed network \code{mode = "out"} sums over out-ties and equals
+#' \code{igraph::power_centrality(exponent = 1)}, \code{mode = "in"} sums
+#' over in-ties, and \code{mode = "all"} (default) uses the undirected
+#' skeleton, the binary matrix with a tie wherever either direction has one.
+#' On an undirected network the three modes agree. Where \eqn{I - A} is
+#' singular, as on a
 #' network that contains an isolated edge, a \code{cograph_singular_system}
 #' error is raised, and a network without edges gives \code{NaN}. The scores
 #' can be negative, as on \code{regulation_net}, and \code{normalized = TRUE}
 #' leaves scores that are all negative unchanged.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param mode Accepted for a uniform interface; it has no effect on this
-#'   measure (default \code{"all"}).
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
 #' @param ... Further arguments to \code{\link{centrality}}.
 #' @return A named numeric vector with one score per node, in input node
 #'   order.
@@ -2844,10 +2905,12 @@ centrality_load <- function(x, ...) {
 #'
 #' @details
 #' The measure is defined for connected undirected networks. On a
-#' disconnected network every score is \code{NA}, with an unclassed warning.
+#' disconnected network every score is \code{NA}, with a
+#' \code{cograph_undefined_measure} warning.
 #' On a directed network the Laplacian is built from the asymmetric weight
 #' matrix, and \code{directed = FALSE} gives the undirected reading. Edge
-#' weights are always used, and \code{weighted = FALSE} has no effect.
+#' weights are conductances, and \code{weighted = FALSE} gives every edge
+#' conductance one.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
@@ -2888,11 +2951,12 @@ centrality_current_flow_closeness <- function(x, ...) {
 #'
 #' @details
 #' The measure is defined for connected undirected networks. On a
-#' disconnected network every score is \code{NA}, with an unclassed warning.
+#' disconnected network every score is \code{NA}, with a
+#' \code{cograph_undefined_measure} warning.
 #' On a directed network the Laplacian is built from the asymmetric weight
-#' matrix, and \code{directed = FALSE} gives the undirected reading. With
-#' \code{weighted = FALSE} the potentials still come from the weighted
-#' Laplacian while the currents are read off the binary adjacency matrix.
+#' matrix, and \code{directed = FALSE} gives the undirected reading. The
+#' potentials and the currents come from the same weights, and
+#' \code{weighted = FALSE} gives every edge conductance one.
 #' The fixed factor \eqn{2/((n-1)(n-2))} is the normalization of
 #' \code{networkx::current_flow_betweenness_centrality()}.
 #'
@@ -2968,7 +3032,8 @@ centrality_voterank <- function(x, ...) {
 #'
 #' @details
 #' Edge weights are read as distances, \code{weighted = FALSE} uses hop
-#' counts, and \code{invert_weights} has no effect on this measure. Paths
+#' counts, and \code{invert_weights = TRUE} uses the distance
+#' \eqn{1/w^\alpha}{1/w^alpha}, so tna input is inverted by default. Paths
 #' follow edge direction on a directed network. \code{states} is matched to
 #' nodes by name when it has names and by position otherwise. Its values are
 #' clipped to \eqn{[0, 1]} and missing values are set to 1, and a vector of
@@ -2979,7 +3044,9 @@ centrality_voterank <- function(x, ...) {
 #' @param states Percolation state of each node, between 0 and 1. The
 #'   default \code{NULL} gives every node state 1.
 #' @param ... Further arguments to \code{\link{centrality}}. The measure uses
-#'   \code{weighted} (default \code{TRUE}).
+#'   \code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+#'   \code{NULL}, which inverts for tna input only) and \code{alpha}
+#'   (inversion exponent, default 1).
 #' @return A named numeric vector with one score per node, in input node
 #'   order.
 #' @references
@@ -3098,9 +3165,9 @@ centrality_lin <- function(x, mode = "all", ...) {
 #' @details
 #' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
 #' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
-#' counts hops. \code{mode} sets the direction of the paths. The value of
-#' \code{decay_parameter} is not checked, and values above 1 give more weight
-#' to distant nodes. \code{\link{centrality_generalized_closeness}} computes
+#' counts hops. \code{mode} sets the direction of the paths.
+#' \code{decay_parameter} must lie strictly between 0 and 1, and other values
+#' raise a \code{cograph_bad_parameter} error. \code{\link{centrality_generalized_closeness}} computes
 #' the same quantity, and \code{decay_parameter = 0.5} gives
 #' \code{\link{centrality_dangalchev}}.
 #'
@@ -3222,7 +3289,8 @@ centrality_dangalchev <- function(x, mode = "all", ...) {
 #' \code{alpha} of \code{\link{centrality}}, and \code{weighted = FALSE}
 #' counts hops. \code{mode} sets the direction of the paths. The values equal
 #' those of \code{\link{centrality_decay}} with the same
-#' \code{decay_parameter}, which is not checked.
+#' \code{decay_parameter}, which must lie strictly between 0 and 1; other
+#' values raise a \code{cograph_bad_parameter} error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
@@ -3715,11 +3783,12 @@ centrality_mnc <- function(x, mode = "all", ...) {
 #' @details
 #' Edge weights are ignored, and \code{mode} sets the neighbor set. On an
 #' undirected network the result follows this definition. On a directed
-#' network the component is a strongly connected component, and its nodes are
-#' read from the neighbor list with each reciprocated neighbor listed twice,
-#' as in the centiserve package. The edge count can then belong to a
-#' different node set, and scores above one occur. The value of
-#' \code{dmnc_epsilon} is not checked.
+#' network the component is a strongly connected component of the induced
+#' subnetwork, \eqn{E} counts its directed edges, and a reciprocated
+#' neighbor enters the subnetwork once. When several components share the
+#' largest size, \eqn{E} counts the edges among all of their nodes. A
+#' \code{dmnc_epsilon} that is not a single positive finite number raises a
+#' \code{cograph_bad_parameter} error.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
@@ -3794,11 +3863,13 @@ centrality_lac <- function(x, mode = "all", ...) {
 #'   TC(v) = sum_w [exp(A)]_vw = sum_w sum_{k >= 0} (A^k)_vw / k!.}
 #'
 #' @details
-#' \eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
-#' matrix exponential is formed from an eigendecomposition that assumes a
-#' symmetric matrix. On a directed network the result therefore differs from
-#' the row sums of \eqn{e^{A}}{exp(A)}, and \code{directed = FALSE} gives the
-#' undirected reading for which the measure is defined.
+#' \eqn{A} is the binary adjacency matrix, so edge weights are ignored. On an
+#' undirected network the matrix exponential is formed from the
+#' eigendecomposition of the symmetric \eqn{A}. On a directed network it is
+#' computed by scaling and squaring with a Pade approximation (Moler and Van
+#' Loan 2003), and the scores are the row sums of \eqn{e^{A}}{exp(A)}, the
+#' walks that leave each node. \code{directed = FALSE} gives the undirected
+#' reading.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
@@ -3812,6 +3883,10 @@ centrality_lac <- function(x, mode = "all", ...) {
 #' Benzi, M., & Klymko, C. (2013). Total communicability as a centrality
 #'   measure. Journal of Complex Networks, 1(2), 124-149.
 #'   \doi{10.1093/comnet/cnt007}.
+#'
+#' Moler, C., & Van Loan, C. (2003). Nineteen dubious ways to compute the
+#'   exponential of a matrix, twenty-five years later. SIAM Review, 45(1),
+#'   3-49. \doi{10.1137/S00361445024180}.
 #' @seealso \code{\link{centrality_subgraph}},
 #'   \code{\link{centrality_communicability_betweenness}},
 #'   \code{\link{centrality}}.
@@ -3837,10 +3912,10 @@ centrality_communicability <- function(x, ...) {
 #' @details
 #' \eqn{A} is the binary adjacency matrix, so edge weights are ignored. The
 #' scores lie between 0 and 1. The measure is defined for undirected networks.
-#' On a directed network the matrix exponential needs the inverse of an
-#' eigenvector matrix, and when that matrix is singular the function stops
-#' with an unclassed error, as it does for \code{regulation_net}.
-#' \code{directed = FALSE} gives the undirected reading.
+#' On a directed network \eqn{G}{G} and \eqn{G^{(r)}}{G^(r)} are computed by
+#' scaling and squaring with a Pade approximation, as in
+#' \code{\link{centrality_communicability}}, so the measure is defined there
+#' as well. \code{directed = FALSE} gives the undirected reading.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
@@ -3871,11 +3946,11 @@ centrality_communicability_betweenness <- function(x, ...) {
 #' \eqn{j} of a walk that moves to each out-neighbor with equal probability.
 #'
 #' @details
-#' Edge weights are ignored. A disconnected network gives \code{NA} for every
-#' node with a warning that carries no condition class. On a directed
-#' network that is not strongly connected, some nodes have stationary
-#' probability zero, their passage times are set to 0, and the scores are
-#' then not random-walk distances. The passage times are symmetrized before
+#' Edge weights are ignored. The measure is defined for connected undirected
+#' and strongly connected directed networks. On any other network every
+#' score is \code{NA}, with a \code{cograph_undefined_measure} warning,
+#' because some passage times are infinite. The passage times are
+#' symmetrized before
 #' the sum, so the values differ from
 #' \code{tidygraph::centrality_random_walk()}, which sums them unsymmetrized.
 #'
@@ -3981,10 +4056,9 @@ centrality_flow_betweenness <- function(x, ...) {
 #' @details
 #' \code{mode = "out"} (the default here) sums the outgoing weights,
 #' \code{mode = "in"} the incoming weights and \code{mode = "all"} both, with
-#' a self-loop counted once. On an undirected network \code{"out"} and
-#' \code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
-#' are always used, and \code{weighted = FALSE} has no effect. On an
-#' unweighted input the score is the degree in the chosen mode. When the
+#' a self-loop counted once. On an undirected network the three modes
+#' agree and each edge is counted once. With \code{weighted = FALSE}, or on
+#' an unweighted input, the score is the degree in the chosen mode. When the
 #' network has a negative edge, \code{normalized = TRUE} divides by the
 #' largest absolute score and keeps the sign.
 #'
@@ -4020,9 +4094,9 @@ centrality_expected_influence_1 <- function(x, mode = "out", ...) {
 #' @details
 #' \code{mode = "out"} (the default here) follows outgoing edges at both
 #' steps, \code{mode = "in"} incoming edges and \code{mode = "all"} both, with
-#' a self-loop counted once. On an undirected network \code{"out"} and
-#' \code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
-#' are always used, and \code{weighted = FALSE} has no effect. When the
+#' a self-loop counted once. On an undirected network the three modes
+#' agree and each edge is counted once. \code{weighted = FALSE} gives every
+#' edge weight one. When the
 #' network has a negative edge, \code{normalized = TRUE} divides by the
 #' largest absolute score and keeps the sign.
 #'
@@ -4093,8 +4167,8 @@ centrality_topological_coefficient <- function(x, ...) {
 #'
 #' @details
 #' The betweenness factor reads edge weights as path lengths and follows the
-#' edge direction of a directed network. Edge weights are always used, and
-#' \code{weighted = FALSE} and \code{invert_weights} have no effect. The
+#' edge direction of a directed network. \code{weighted = FALSE} uses hop
+#' counts, and \code{invert_weights} has no effect. The
 #' degrees are total degrees, and on a directed network a reciprocated
 #' neighbor enters the sum twice. An isolated node scores 0.
 #'
@@ -4191,9 +4265,8 @@ centrality_effective_size <- function(x, ...) {
 #'
 #' @details
 #' On a directed network incoming and outgoing edges are separate entries,
-#' and \eqn{k_v}{k_v} counts both. Edge weights are always used, and
-#' \code{weighted = FALSE} has no effect. On an unweighted input every node
-#' with two or more edges scores 1. A node with fewer than two edges, or
+#' and \eqn{k_v}{k_v} counts both. With \code{weighted = FALSE}, or on an
+#' unweighted input, every node with two or more edges scores 1. A node with fewer than two edges, or
 #' with edge weights summing to zero, scores 0.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4255,10 +4328,13 @@ centrality_cross_clique <- function(x, ...) {
 #'
 #' @details
 #' The walk moves from a node to each of its out-neighbors with equal
-#' probability, so edge weights are ignored. A disconnected network gives
-#' \code{NA} for every node with a warning that carries no condition class.
-#' On a directed network that is connected but not strongly connected some
-#' scores are \code{NA} without a warning. The values equal
+#' probability, so edge weights are ignored. A disconnected network, or a
+#' directed network with a node that has no outgoing edge, gives \code{NA}
+#' for every node with a \code{cograph_undefined_measure} warning. On a
+#' directed network that is not strongly connected, a node that some other
+#' node cannot reach has an infinite mean passage time, and its score is
+#' \code{NA} with the same warning. On connected undirected and strongly
+#' connected directed networks the values equal
 #' \code{centiserve::markovcent()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4392,7 +4468,7 @@ centrality_gilschmidt <- function(x, mode = "all", ...) {
 #'
 #' @details
 #' The measure needs a directed network. On undirected input every score is
-#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' \code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 #' ignored. The scores are scaled so that the largest is 1, and a node
 #' without incoming edges scores 0.
 #'
@@ -4423,7 +4499,7 @@ centrality_salsa <- function(x, ...) {
 #'
 #' @details
 #' The measure needs a directed network. On undirected input every score is
-#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' \code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 #' ignored; \code{\link{centrality_weighted_leaderrank}} uses them. The walk
 #' starts with one unit at every node and none at the ground node, so the
 #' scores sum to \eqn{n}. The values equal \code{centiserve::leaderrank()}.
@@ -4460,8 +4536,9 @@ centrality_leaderrank <- function(x, ...) {
 #' \code{mode = "all"} on a directed network a reciprocated tie counts twice.
 #' A node whose ties all stay in one community scores 0, as does an isolated
 #' node, and the score is below 1. Without \code{membership} every score is
-#' \code{NA} with a warning that carries no condition class, and a
-#' \code{membership} of the wrong length raises an error. On undirected
+#' \code{NA} with a warning of classes \code{cograph_bad_membership} and
+#' \code{cograph_undefined_measure}, and a \code{membership} of the wrong
+#' length raises a \code{cograph_bad_membership} error. On undirected
 #' networks the values equal \code{brainGraph::part_coeff()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4504,8 +4581,10 @@ centrality_participation <- function(x, membership = NULL, mode = "all", ...) {
 #' The standard deviation is the sample value. A community with one member,
 #' or whose members all have the same within-community degree, gives
 #' \code{NaN}. Without \code{membership} every score is \code{NA} with a
-#' warning that carries no condition class, and a \code{membership} of the
-#' wrong length raises an error. On undirected networks the values equal
+#' warning of classes \code{cograph_bad_membership} and
+#' \code{cograph_undefined_measure}, and a \code{membership} of the wrong
+#' length raises a \code{cograph_bad_membership} error. On undirected
+#' networks the values equal
 #' \code{brainGraph::within_module_deg_z_score()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4544,20 +4623,25 @@ centrality_within_module_z <- function(x, membership = NULL, mode = "all", ...) 
 #' \eqn{s} and \eqn{g_{is}}{g_is} lies between 0 and 1.
 #'
 #' @details
-#' Edge weights are ignored. On an undirected network the score lies between 0
-#' and 1. On a directed network \eqn{k_i}{k_i} is the in-degree while
-#' \eqn{k_{is}}{k_is} counts outgoing links, and the score can be negative, as
-#' on \code{regulation_net}. \code{membership} must hold integer codes
-#' \code{1, ..., m}. Without \code{membership} the function raises an
-#' unclassed warning and returns \code{NA}, and a \code{membership} of the
-#' wrong length or with character labels raises an unclassed error. With a
-#' single module every node scores 0, and so does a node without incoming
-#' links.
+#' Edge weights are ignored, and the score lies between 0 and 1. On a
+#' directed network \code{mode} chooses the ties: \code{"out"} uses outgoing
+#' links, \code{"in"} incoming links and \code{"all"} (default) both, with a
+#' reciprocated tie counted twice. The degree \eqn{k_i}{k_i}, the module
+#' links \eqn{k_{is}}{k_is} and the neighbors whose degrees enter
+#' \eqn{g_{is}}{g_is} all use the same ties. On an undirected network the
+#' three modes agree and equal \code{brainGraph::gateway_coeff(centr =
+#' "degree")}. \code{membership} can hold integer, character or factor
+#' labels. Without \code{membership} the function returns \code{NA} with a
+#' warning of classes \code{cograph_bad_membership} and
+#' \code{cograph_undefined_measure}, and a \code{membership} of the wrong
+#' length raises a \code{cograph_bad_membership} error. With a single module
+#' every node scores 0, and so does a node without links in the chosen mode.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
-#' @param membership Integer module codes, one per node.
-#' @param mode Accepted for a uniform interface. It has no effect. Default
-#'   \code{"all"}.
+#' @param membership Module labels, one per node: integer codes, character
+#'   labels or a factor.
+#' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
+#'   \code{"in"}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
 #'   \code{directed} and \code{normalized}.
 #' @return A named numeric vector with one score per node, in input node
@@ -4598,9 +4682,9 @@ centrality_gateway <- function(x, membership = NULL, mode = "all", ...) {
 #' \eqn{\rho(A)}{rho(A)} is the spectral radius. A divergent series is
 #' detected from scores below one and raises a \code{cograph_katz_diverged}
 #' warning that names the bound; the returned values are then not Katz
-#' scores. Edge weights are always used, and \code{weighted = FALSE} has no
-#' effect. On a directed network the score counts walks that arrive at the
-#' node. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
+#' scores. \code{weighted = FALSE} gives every edge weight one. On a
+#' directed network the score counts walks that arrive at the node. A
+#' network of one node without a self-loop scores 1. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
 #' same \code{alpha}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4634,9 +4718,10 @@ centrality_katz <- function(x, katz_alpha = 0.1, ...) {
 #'
 #' @details
 #' The system is solvable when the spectral radius of \eqn{wW} is below one.
-#' Otherwise every score is \code{NA} with a warning that carries no
-#' condition class. A \code{hubbell_weight} of zero or below raises an error.
-#' Edge weights are always used, and \code{weighted = FALSE} has no effect.
+#' Otherwise every score is \code{NA} with a \code{cograph_undefined_measure}
+#' warning. A \code{hubbell_weight} of zero or below raises a
+#' \code{cograph_bad_parameter} error. \code{weighted = FALSE} gives every
+#' edge weight one.
 #' The rows of \eqn{W} are outgoing ties, so on a directed network the score
 #' sums attenuated walks that leave the node. \code{centiserve::hubbell()}
 #' with \code{weights = NULL} sets every weight to 1, so it reproduces these
@@ -4678,8 +4763,9 @@ centrality_hubbell <- function(x, hubbell_weight = 0.5, ...) {
 #' The network is symmetrized with \eqn{(w_{ij} + w_{ji})/2}{(w_ij + w_ji)/2},
 #' so direction is ignored. Edge weights enter as tie strengths, and
 #' \code{weighted = FALSE} uses the binary matrix. Isolated nodes score 0 and
-#' are left out of \eqn{n}. When \eqn{B} is singular, as on some disconnected
-#' networks, every score is \code{NA} without a warning. On unweighted
+#' are left out of \eqn{n}. When the other nodes do not form one connected
+#' component, or \eqn{B} is singular, every score is \code{NA} with a
+#' \code{cograph_undefined_measure} warning. On unweighted
 #' undirected networks the values equal \code{sna::infocent()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4712,7 +4798,7 @@ centrality_information <- function(x, ...) {
 #'
 #' @details
 #' The measure needs a directed network. On undirected input every score is
-#' \code{NA} with a warning that carries no condition class. Reachability
+#' \code{NA} with a \code{cograph_undefined_measure} warning. Reachability
 #' uses hop counts, so edge weights are ignored. The score lies between 0
 #' and 1, and a network without reachable pairs scores 0 everywhere. The
 #' values equal \code{centiserve::pairwisedis()}.
@@ -4747,8 +4833,8 @@ centrality_pairwisedis <- function(x, ...) {
 #'
 #' @details
 #' A network counts as weighted unless every weight is 1, and
-#' \code{weighted = FALSE} has no effect. In the weighted form a shortest
-#' path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
+#' \code{weighted = FALSE} gives the unweighted form. In the weighted form
+#' a shortest path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
 #' edge weight, and each reached node contributes the mean edge weight along
 #' its path; the sum is divided by \eqn{n - 1}. With \code{mode = "out"} the
 #' weighted values equal \code{networkx.local_reaching_centrality()} with
@@ -4829,7 +4915,7 @@ reaching_global <- function(x, mode = "all", ...) {
 #'
 #' @details
 #' The measure needs a directed network. On undirected input every score is
-#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' \code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 #' ignored. The score is a whole number between 0 and \eqn{n - 1}. The values
 #' equal \code{sna::prestige(cmode = "domain")}.
 #'
@@ -4861,7 +4947,7 @@ centrality_prestige_domain <- function(x, ...) {
 #'
 #' @details
 #' The measure needs a directed network. On undirected input every score is
-#' \code{NA} with a warning that carries no condition class. Edge weights are
+#' \code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 #' ignored. A node that no other node reaches scores 0, and the score lies
 #' between 0 and 1. On strongly connected networks the values equal
 #' \code{sna::prestige(cmode = "domain.proximity")}. On other networks sna
@@ -4900,9 +4986,11 @@ centrality_prestige_domain_proximity <- function(x, ...) {
 #'
 #' @details
 #' The measure is defined for directed networks. On an undirected network it
-#' raises an unclassed warning and returns \code{NA}, and the same happens when
-#' \code{membership} is missing. A \code{membership} whose length differs from
-#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+#' same happens when \code{membership} is missing, where the warning also has
+#' class \code{cograph_bad_membership}. A \code{membership} whose length
+#' differs from the number of nodes raises a \code{cograph_bad_membership}
+#' error. Group labels may be numbers
 #' or strings. Edge weights and self-loops are ignored. The other four roles
 #' are \code{\link{centrality_brokerage_itinerant}},
 #' \code{\link{centrality_brokerage_representative}},
@@ -4941,9 +5029,11 @@ centrality_brokerage_coordinator <- function(x, membership = NULL, ...) {
 #'
 #' @details
 #' The measure is defined for directed networks. On an undirected network it
-#' raises an unclassed warning and returns \code{NA}, and the same happens when
-#' \code{membership} is missing. A \code{membership} whose length differs from
-#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+#' same happens when \code{membership} is missing, where the warning also has
+#' class \code{cograph_bad_membership}. A \code{membership} whose length
+#' differs from the number of nodes raises a \code{cograph_bad_membership}
+#' error. Group labels may be numbers
 #' or strings. Edge weights and self-loops are ignored.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -4978,9 +5068,11 @@ centrality_brokerage_itinerant <- function(x, membership = NULL, ...) {
 #'
 #' @details
 #' The measure is defined for directed networks. On an undirected network it
-#' raises an unclassed warning and returns \code{NA}, and the same happens when
-#' \code{membership} is missing. A \code{membership} whose length differs from
-#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+#' same happens when \code{membership} is missing, where the warning also has
+#' class \code{cograph_bad_membership}. A \code{membership} whose length
+#' differs from the number of nodes raises a \code{cograph_bad_membership}
+#' error. Group labels may be numbers
 #' or strings. Edge weights and self-loops are ignored.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -5015,9 +5107,11 @@ centrality_brokerage_representative <- function(x, membership = NULL, ...) {
 #'
 #' @details
 #' The measure is defined for directed networks. On an undirected network it
-#' raises an unclassed warning and returns \code{NA}, and the same happens when
-#' \code{membership} is missing. A \code{membership} whose length differs from
-#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+#' same happens when \code{membership} is missing, where the warning also has
+#' class \code{cograph_bad_membership}. A \code{membership} whose length
+#' differs from the number of nodes raises a \code{cograph_bad_membership}
+#' error. Group labels may be numbers
 #' or strings. Edge weights and self-loops are ignored.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -5051,9 +5145,11 @@ centrality_brokerage_gatekeeper <- function(x, membership = NULL, ...) {
 #'
 #' @details
 #' The measure is defined for directed networks. On an undirected network it
-#' raises an unclassed warning and returns \code{NA}, and the same happens when
-#' \code{membership} is missing. A \code{membership} whose length differs from
-#' the number of nodes raises an unclassed error. Group labels may be numbers
+#' returns \code{NA} with a \code{cograph_undefined_measure} warning, and the
+#' same happens when \code{membership} is missing, where the warning also has
+#' class \code{cograph_bad_membership}. A \code{membership} whose length
+#' differs from the number of nodes raises a \code{cograph_bad_membership}
+#' error. Group labels may be numbers
 #' or strings. With fewer than three groups every count is 0. Edge weights and
 #' self-loops are ignored.
 #'
@@ -5179,8 +5275,10 @@ edge_centrality <- function(x, measures = "all",
   } else {
     invalid <- setdiff(measures, all_measures)
     if (length(invalid) > 0) {
-      stop("Unknown edge measures: ", paste(invalid, collapse = ", "),
-           "\nAvailable: ", paste(all_measures, collapse = ", "), call. = FALSE)
+      stop(errorCondition(
+        paste0("Unknown edge measures: ", paste(invalid, collapse = ", "),
+               "\nAvailable: ", paste(all_measures, collapse = ", ")),
+        class = "cograph_unknown_measure", call = NULL))
     }
   }
 
@@ -5238,8 +5336,7 @@ edge_centrality <- function(x, measures = "all",
 
   # Edge reciprocity (directed only)
   if ("reciprocity" %in% measures && !directed) {
-    warning("Reciprocity skipped: only meaningful for directed networks.",
-            call. = FALSE)
+    .cg_warn_undefined("Reciprocity skipped: only meaningful for directed networks.")
   }
   if ("reciprocity" %in% measures && directed) {
     w_vec <- if (!is.null(weights)) weights else rep(1, nrow(result))
@@ -5261,7 +5358,7 @@ edge_centrality <- function(x, measures = "all",
   # Sort if requested
   if (!is.null(sort_by)) {
     if (!sort_by %in% names(result)) {
-      stop("sort_by column '", sort_by, "' not found in results", call. = FALSE)
+      .cg_stop_bad_parameter("sort_by column '", sort_by, "' not found in results")
     }
     result <- result[order(result[[sort_by]], decreasing = TRUE), ]
     rownames(result) <- NULL

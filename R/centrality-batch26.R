@@ -7,11 +7,12 @@ calculate_linerank <- function(cg, weights = NULL, damping = 0.85,
   aggregation <- match.arg(aggregation, c("probability", "weight"))
   if (!is.numeric(damping) || length(damping) != 1L ||
         !is.finite(damping) || damping < 0 || damping >= 1) {
-    stop("LineRank damping must be finite and in [0,1)", call. = FALSE)
+    .cg_stop_bad_parameter("LineRank damping must be finite and in [0,1)")
   }
   w <- if (is.null(weights)) rep(1, nrow(cg$edges)) else weights
   if (any(!is.finite(w)) || any(w < 0)) {
-    stop("linerank requires finite nonnegative edge weights", call. = FALSE)
+    stop(errorCondition("linerank requires finite nonnegative edge weights",
+                        class = "cograph_negative_weights", call = NULL))
   }
   edges <- cg$edges[w > 0, , drop = FALSE]
   w <- w[w > 0]

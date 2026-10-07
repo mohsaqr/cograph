@@ -27,16 +27,22 @@
 #' @noRd
 .cg_length_scaled_betweenness <- function(w, n, directed) {
   .cg_betweenness(w, n, directed,
-                  pair_weight = function(d) if (d > 0) 1 / d else 0)
+                  pair_weight = function(d, h) if (d > 0) 1 / d else 0)
 }
 
 #' Distance-decayed betweenness (Agneessens, Borgatti & Everett 2017)
 #'
-#' The same traversal with the pair weight `(d(s,t) - 1)^-delta`. At
-#' `delta = 0` every pair counts once and the measure is ordinary
-#' betweenness; raising `delta` concentrates the score on the pairs a node
-#' separates locally. Adjacent pairs have no intermediary at all, so they
-#' contribute nothing and the singularity at `d = 1` never arises.
+#' The same traversal with the pair weight `(h(s,t) - 1)^-delta`, where
+#' `h(s,t)` is the number of edges on the shortest `s`-`t` path (the fewest,
+#' when several shortest paths tie), so `h - 1` is the number of
+#' intermediaries. On a binary graph `h` is the distance and this is the
+#' published form. Reading `h` from the edge count keeps the measure
+#' meaningful on weighted distances: a weighted distance below one says
+#' nothing about whether the geodesic has an intermediary. At `delta = 0`
+#' every pair counts once and the measure is ordinary betweenness; raising
+#' `delta` concentrates the score on the pairs a node separates locally. A
+#' geodesic of one edge has no intermediary, so it contributes nothing and
+#' the singularity at `h = 1` never arises.
 #'
 #' @inheritParams .cg_length_scaled_betweenness
 #' @param delta Decay exponent.
@@ -45,7 +51,7 @@
 #' @noRd
 .cg_delta_betweenness <- function(w, n, directed, delta = 1) {
   .cg_betweenness(w, n, directed,
-                  pair_weight = function(d) if (d > 1) (d - 1)^(-delta) else 0)
+                  pair_weight = function(d, h) if (h > 1) (h - 1)^(-delta) else 0)
 }
 
 #' Ego betweenness (Everett & Borgatti 2005)

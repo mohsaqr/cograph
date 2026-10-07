@@ -127,10 +127,12 @@ wagg <- aggregate_weights
 #'     \item{"semi_markov"}{Row-normalize, identical to \code{"tna"}.}
 #'   }
 #'
-#' @param directed Logical. Default \code{TRUE}. The value is recorded in
-#'   \code{meta$directed} and does not change the weights. With
-#'   \code{type = "cooccurrence"} the weights are symmetrized and
-#'   \code{meta$directed} is \code{FALSE} whatever this value is.
+#' @param directed Logical. Default \code{TRUE}. With \code{FALSE} the
+#'   node-level weights are symmetrized as \eqn{(A + A^T) / 2}{(A + t(A)) / 2}
+#'   before aggregation, so the direction of a tie is ignored, and
+#'   \code{meta$directed} is \code{FALSE}. With \code{type = "cooccurrence"}
+#'   the aggregated weights are symmetrized and \code{meta$directed} is
+#'   \code{FALSE} whatever this value is.
 #'
 #' @param compute_within Logical. If \code{TRUE} (default), compute per-cluster
 #'   matrices, one \eqn{n_i \times n_i}{n_i x n_i} matrix of internal node-to-node
@@ -285,6 +287,12 @@ csum <- function(x,
   }
   if (nrow(mat) != ncol(mat)) {
     stop("x must be a square matrix", call. = FALSE)
+  }
+
+  # An undirected summary treats A->B and B->A as one tie: symmetrize the
+  # node-level weights before they are aggregated.
+  if (!isTRUE(directed)) {
+    mat <- (mat + t(mat)) / 2
   }
 
   n <- nrow(mat)
@@ -469,7 +477,9 @@ cluster_summary <- csum
 #'       auto-detected. Optional weight column (weight/w/value/strength).}
 #'     \item{data.frame without from/to columns}{Sequence data. Each row is a
 #'       sequence, columns are time steps. Consecutive pairs (t, t+1) become
-#'       transitions.}
+#'       transitions. A data frame with three or more columns that all have
+#'       the default names V1, V2, V3, ... is read as sequence data, even
+#'       though V1 and V2 are also from/to names.}
 #'     \item{tna object}{If \code{x$data} is non-NULL, uses sequence path on
 #'       the raw data. Otherwise falls back to \code{\link{csum}}.}
 #'     \item{cograph_network}{If \code{x$data} is non-NULL, detects edge list
@@ -503,8 +513,11 @@ cluster_summary <- csum
 #' @param type Post-processing: "tna" (row-normalize), "frequency" or "raw"
 #'   (no normalization), "cooccurrence" (symmetrize), or "semi_markov"
 #'   (row-normalize, identical to "tna"). Default "tna".
-#' @param directed Logical. Default \code{TRUE}. The value is recorded in
-#'   \code{meta$directed}; the weights are not modified.
+#' @param directed Logical. Default \code{TRUE}. With \code{FALSE} the
+#'   node-level weights are symmetrized as \eqn{(A + A^T) / 2}{(A + t(A)) / 2}
+#'   before aggregation: a matrix input is averaged with its transpose, and
+#'   each observed transition counts half in each direction. The value is
+#'   recorded in \code{meta$directed}.
 #' @param compute_within Logical. Compute within-cluster matrices? Default TRUE.
 #'
 #' @return Usually an \code{mcml} object. Existing \code{mcml} or
@@ -790,6 +803,12 @@ summarize_clusters <- function(x,
 
   if (is.data.frame(x)) {
     col_names <- tolower(names(x))
+    # Default data.frame names V1, V2, ... mark time steps of sequence data
+    # (as.data.frame() of a sequence matrix), not from/to columns.
+    # Two such columns read the same either way, so only 3+ are switched.
+    if (length(col_names) >= 3L && all(grepl("^v[0-9]+$", col_names))) {
+      return("sequence")
+    }
     from_cols <- c("from", "source", "src", "v1", "node1", "i")
     to_cols <- c("to", "target", "tgt", "v2", "node2", "j")
     has_from <- any(from_cols %in% col_names)
@@ -901,6 +920,19 @@ summarize_clusters <- function(x,
   cluster_list <- cluster_list[order(names(cluster_list))]
   cluster_names <- names(cluster_list)
   n_clusters <- length(cluster_names)
+
+  # The edges table reports the transitions as observed.
+  edges_from <- from_nodes
+  edges_to <- to_nodes
+  edges_weight <- weights
+
+  # Undirected: each transition counts half in each direction, which is the
+  # node-level symmetrization (A + t(A)) / 2 applied before aggregation.
+  if (!isTRUE(directed)) {
+    from_nodes <- c(edges_from, edges_to)
+    to_nodes <- c(edges_to, edges_from)
+    weights <- c(edges_weight, edges_weight) / 2
+  }
 
   # Recode to cluster labels
   from_clusters <- cluster_lookup[from_nodes]
@@ -1031,13 +1063,15 @@ summarize_clusters <- function(x,
   }
 
   # ---- Edges data.frame ----
-  edge_type <- ifelse(from_clusters == to_clusters, "within", "between")
+  edges_cl_from <- unname(cluster_lookup[edges_from])
+  edges_cl_to <- unname(cluster_lookup[edges_to])
+  edge_type <- ifelse(edges_cl_from == edges_cl_to, "within", "between")
   edges <- data.frame(
-    from = from_nodes,
-    to = to_nodes,
-    weight = weights,
-    cluster_from = unname(from_clusters),
-    cluster_to = unname(to_clusters),
+    from = edges_from,
+    to = edges_to,
+    weight = edges_weight,
+    cluster_from = edges_cl_from,
+    cluster_to = edges_cl_to,
     type = edge_type,
     stringsAsFactors = FALSE
   )
@@ -1609,9 +1643,13 @@ cluster_quality <- function(x,
     }
 
     # Metrics
+    # Density counts node pairs, so self-loops stay out of the numerator
+    # just as they are out of the n_S * (n_S - 1) denominator.
+    m_S_pairs <- sum(A[S, S]) - sum(diag(A)[S])
+    if (!directed) m_S_pairs <- m_S_pairs / 2
     max_internal <- n_S * (n_S - 1)
     if (!directed) max_internal <- max_internal / 2
-    internal_density <- if (max_internal > 0) m_S / max_internal else NA_real_
+    internal_density <- if (max_internal > 0) m_S_pairs / max_internal else NA_real_
 
     avg_internal_degree <- if (n_S > 0) 2 * m_S / n_S else NA_real_
 
@@ -1746,8 +1784,10 @@ cqual <- cluster_quality
 #' structure in the observed network than in random networks, independently
 #' of any detection algorithm.
 #'
-#' The observed modularity is computed with the edge weights of \code{x}. The
-#' null networks are unweighted.
+#' The observed modularity is computed with the edge weights of \code{x}.
+#' When \code{x} is weighted, each null network receives the observed edge
+#' weights, randomly reassigned to its edges, so the observed and null
+#' modularity are on the same scale.
 #'
 #' @references
 #' Reichardt, J., & Bornholdt, S. (2006).
@@ -1809,6 +1849,9 @@ cluster_significance <- function(x,
   null_mods <- numeric(n_random)
   n_nodes <- igraph::vcount(g)
   n_edges <- igraph::ecount(g)
+  # Observed edge weights; each null graph receives them in random order so
+  # observed and null modularity are on the same (weighted) scale.
+  obs_weights <- igraph::E(g)$weight
 
   for (i in seq_len(n_random)) {
     if (method == "configuration") {
@@ -1824,6 +1867,14 @@ cluster_significance <- function(x,
     } else {
       # G(n,m) model - same number of nodes and edges
       g_null <- igraph::sample_gnm(n_nodes, n_edges, directed = igraph::is_directed(g))
+    }
+    if (!is.null(obs_weights)) {
+      m_null <- igraph::ecount(g_null)
+      igraph::E(g_null)$weight <- if (m_null == length(obs_weights)) {
+        obs_weights[sample.int(length(obs_weights))]
+      } else { # nocov start
+        obs_weights[sample.int(length(obs_weights), m_null, replace = TRUE)]
+      } # nocov end
     }
 
     if (null == "detect") {
@@ -2345,8 +2396,9 @@ extract_interlayer <- supra_interlayer
 #' @param weights Optional numeric vector of layer weights, one per layer,
 #'   used only by \code{method = "sum"} to compute a weighted sum.
 #' @return The aggregated adjacency matrix, with the dimnames of the first
-#'   layer. A list with a single layer is returned unchanged for every
-#'   \code{method}.
+#'   layer. A list with a single layer is aggregated the same way, so
+#'   \code{"union"} and \code{"intersection"} binarize it and \code{"sum"}
+#'   multiplies it by its layer weight.
 #' @export
 #' @examples
 #' layers <- list(forward = regulation_net, backward = t(regulation_net))
@@ -2359,7 +2411,6 @@ aggregate_layers <- function(layers,
   L <- length(layers)
 
   if (L == 0) stop("Need at least 1 layer", call. = FALSE)
-  if (L == 1) return(layers[[1]])
 
   n <- nrow(layers[[1]])
   arr <- array(0, dim = c(n, n, L))
@@ -2382,20 +2433,8 @@ aggregate_layers <- function(layers,
     "mean" = rowMeans(arr, dims = 2),
     "max" = apply(arr, c(1, 2), max),
     "min" = apply(arr, c(1, 2), min),
-    "union" = {
-      result <- matrix(0, n, n)
-      for (l in seq_len(L)) {
-        result <- result | (layers[[l]] > 0)
-      }
-      result * 1
-    },
-    "intersection" = {
-      result <- matrix(1, n, n)
-      for (l in seq_len(L)) {
-        result <- result & (layers[[l]] > 0)
-      }
-      result * 1
-    }
+    "union" = (rowSums(arr > 0, dims = 2) > 0) * 1,
+    "intersection" = (rowSums(arr > 0, dims = 2) == L) * 1
   )
 
   dimnames(result) <- dimnames(layers[[1]])

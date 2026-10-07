@@ -29,9 +29,9 @@ of its neighbors, each weighted by the signed edge between them:
 \details{
 \code{mode = "out"} (the default here) follows outgoing edges at both
 steps, \code{mode = "in"} incoming edges and \code{mode = "all"} both, with
-a self-loop counted once. On an undirected network \code{"out"} and
-\code{"in"} agree, and \code{"all"} counts every edge twice. Edge weights
-are always used, and \code{weighted = FALSE} has no effect. When the
+a self-loop counted once. On an undirected network the three modes
+agree and each edge is counted once. \code{weighted = FALSE} gives every
+edge weight one. When the
 network has a negative edge, \code{normalized = TRUE} divides by the
 largest absolute score and keeps the sign.
 }

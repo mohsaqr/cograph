@@ -32,7 +32,9 @@ degree-preserving random graphs and report the null distribution. The
 null graphs are generated with \code{igraph::sample_degseq()}, which fixes
 the degree sequence. For a weighted rich club the observed edge weights
 are also reshuffled across the null edges, following Opsahl et al.
-(2008).}
+(2008). A null graph that \code{sample_degseq()} cannot draw is left
+out with a warning of class \code{"cograph_null_draw_failed"} that
+reports how many draws failed.}
 
 \item{n_random}{Integer. Number of random graphs for normalization. Default
 100.}

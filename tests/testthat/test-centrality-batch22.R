@@ -32,8 +32,12 @@ test_that("weighted LeaderRank handles zero degree and periodic chains", {
                setNames(numeric(0), character(0)))
   for (n in 1:4) {
     g <- igraph::make_empty_graph(n)
-    expect_true(all(is.nan(centrality_weighted_leaderrank(g))))
-    normalized <- centrality_weighted_leaderrank(g, normalized = TRUE)
+    expect_warning(raw <- centrality_weighted_leaderrank(g),
+                   class = "cograph_undefined_measure")
+    expect_true(all(is.nan(raw)))
+    expect_warning(
+      normalized <- centrality_weighted_leaderrank(g, normalized = TRUE),
+      class = "cograph_undefined_measure")
     expect_true(all(is.nan(normalized)))
     # Ordinary iteration has period two, but the stationary solution exists.
     expect_equal(unname(centrality_weighted_leaderrank(g, 0)),

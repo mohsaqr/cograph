@@ -25,7 +25,7 @@ where \eqn{|P(G)|} is the number of ordered pairs \eqn{(s, t)},
 }
 \details{
 The measure needs a directed network. On undirected input every score is
-\code{NA} with a warning that carries no condition class. Reachability
+\code{NA} with a \code{cograph_undefined_measure} warning. Reachability
 uses hop counts, so edge weights are ignored. The score lies between 0
 and 1, and a network without reachable pairs scores 0 everywhere. The
 values equal \code{centiserve::pairwisedis()}.

@@ -29,9 +29,9 @@ The series converges for \eqn{\alpha < 1/\rho(A)}{alpha < 1/rho(A)}, where
 \eqn{\rho(A)}{rho(A)} is the spectral radius. A divergent series is
 detected from scores below one and raises a \code{cograph_katz_diverged}
 warning that names the bound; the returned values are then not Katz
-scores. Edge weights are always used, and \code{weighted = FALSE} has no
-effect. On a directed network the score counts walks that arrive at the
-node. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
+scores. \code{weighted = FALSE} gives every edge weight one. On a
+directed network the score counts walks that arrive at the node. A
+network of one node without a self-loop scores 1. The values equal \code{igraph::alpha_centrality(exo = 1)} with the
 same \code{alpha}.
 }
 \examples{

@@ -36,8 +36,10 @@ Edge weights are ignored. \code{mode} selects the ties counted, and with
 The standard deviation is the sample value. A community with one member,
 or whose members all have the same within-community degree, gives
 \code{NaN}. Without \code{membership} every score is \code{NA} with a
-warning that carries no condition class, and a \code{membership} of the
-wrong length raises an error. On undirected networks the values equal
+warning of classes \code{cograph_bad_membership} and
+\code{cograph_undefined_measure}, and a \code{membership} of the wrong
+length raises a \code{cograph_bad_membership} error. On undirected
+networks the values equal
 \code{brainGraph::within_module_deg_z_score()}.
 }
 \examples{

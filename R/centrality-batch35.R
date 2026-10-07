@@ -57,29 +57,31 @@ calculate_map_equation <- function(cg, weights = NULL, membership = NULL,
                                    map_convention = "paper") {
   if (!is.character(map_flow) || length(map_flow) != 1L ||
         is.na(map_flow) || !map_flow %in% c("unrecorded", "recorded")) {
-    stop("map_flow must be 'unrecorded' or 'recorded'", call. = FALSE)
+    .cg_stop_bad_parameter("map_flow must be 'unrecorded' or 'recorded'")
   }
   if (!is.character(map_convention) || length(map_convention) != 1L ||
         is.na(map_convention) || !map_convention %in% c("paper", "infomap")) {
-    stop("map_convention must be 'paper' or 'infomap'", call. = FALSE)
+    .cg_stop_bad_parameter("map_convention must be 'paper' or 'infomap'")
   }
   if (!is.numeric(damping) || length(damping) != 1L ||
         !is.finite(damping) || damping < 0 || damping >= 1) {
-    stop("map_equation damping must be finite and in [0, 1)", call. = FALSE)
+    .cg_stop_bad_parameter("map_equation damping must be finite and in [0, 1)")
   }
   n <- cg$n
   if (is.null(membership)) membership <- rep(1L, n)
   if (!is.atomic(membership) || !is.null(dim(membership)) ||
         length(membership) != n || anyNA(membership)) {
-    stop("map_equation membership must give one nonmissing label per node",
-         call. = FALSE)
+    stop(errorCondition(
+      "map_equation membership must give one nonmissing label per node",
+      class = "cograph_bad_membership", call = NULL))
   }
   if (!is.null(names(membership))) {
     labels <- cg$labels
     if (anyDuplicated(names(membership)) ||
           !setequal(names(membership), labels)) {
-      stop("map_equation membership names must match node names exactly",
-           call. = FALSE)
+      stop(errorCondition(
+        "map_equation membership names must match node names exactly",
+        class = "cograph_bad_membership", call = NULL))
     }
     membership <- membership[match(labels, names(membership))]
   }

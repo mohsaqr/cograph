@@ -66,8 +66,9 @@ recommends. The prose of Gupta et al. writes \eqn{\mu_C}{mu_C} where their
 equation has \eqn{1 + \mu_C}{1 + mu_C}, and the equation is implemented.
 Nodes
 linked to one community only score 0 on the mediator measure. Without
-\code{membership} each function raises an unclassed warning and returns
-\code{NA}. A \code{membership} that is not one non-missing label per node
+\code{membership} each function raises a warning of classes \code{cograph_bad_membership} and
+\code{cograph_undefined_measure} and
+returns \code{NA}. A \code{membership} that is not one non-missing label per node
 raises an error of class \code{cograph_bad_membership}, and an invalid
 \code{comm_r} raises \code{cograph_bad_parameter}.
 }

@@ -6,15 +6,13 @@ calculate_ninl <- function(cg, ninl_order = 3, ninl_radius = NULL,
   if (!is.numeric(ninl_order) || length(ninl_order) != 1L ||
         !is.finite(ninl_order) || ninl_order < 0 ||
         ninl_order != floor(ninl_order) || ninl_order > 2^53 - 1) {
-    stop("ninl_order must be an integer between 0 and 2^53 - 1.",
-         call. = FALSE)
+    .cg_stop_bad_parameter("ninl_order must be an integer between 0 and 2^53 - 1.")
   }
   if (!is.null(ninl_radius) &&
         (!is.numeric(ninl_radius) || length(ninl_radius) != 1L ||
            is.na(ninl_radius) || ninl_radius < 0 ||
            (is.finite(ninl_radius) && ninl_radius != floor(ninl_radius)))) {
-    stop("ninl_radius must be NULL, a nonnegative integer, or Inf.",
-         call. = FALSE)
+    .cg_stop_bad_parameter("ninl_radius must be NULL, a nonnegative integer, or Inf.")
   }
   a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0

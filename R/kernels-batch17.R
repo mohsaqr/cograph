@@ -20,8 +20,7 @@
   if (!is.null(radius) && !automatic &&
         (!is.numeric(radius) || length(radius) != 1L || is.na(radius) ||
            radius < 0)) {
-    stop("gravity_radius must be nonnegative, NULL, or 'auto'",
-         call. = FALSE)
+    .cg_stop_bad_parameter("gravity_radius must be nonnegative, NULL, or 'auto'")
   }
   if (!nrow(b)) return(numeric(0))
   d <- .cg_distances(b, "all")

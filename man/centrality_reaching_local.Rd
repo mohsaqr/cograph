@@ -27,8 +27,8 @@ centrality divided by \eqn{n - 1}.
 }
 \details{
 A network counts as weighted unless every weight is 1, and
-\code{weighted = FALSE} has no effect. In the weighted form a shortest
-path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
+\code{weighted = FALSE} gives the unweighted form. In the weighted form
+a shortest path uses the edge lengths \eqn{W/w_e}{W / w_e}, with \eqn{W} the total
 edge weight, and each reached node contributes the mean edge weight along
 its path; the sum is divided by \eqn{n - 1}. With \code{mode = "out"} the
 weighted values equal \code{networkx.local_reaching_centrality()} with

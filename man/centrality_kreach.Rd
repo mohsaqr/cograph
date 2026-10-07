@@ -31,12 +31,10 @@ Edge weights are read as distances, so on a weighted network \eqn{k} is
 compared with the summed weights along a path; on \code{regulation_net},
 whose weights lie below one, every node reaches all others within
 \eqn{k = 1}. \code{invert_weights = TRUE} converts a weight \eqn{w} to the
-distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} has no
-effect, because the measure then reads the weights stored in the network;
-a hop-count reach needs a binary input such as \code{(x != 0) * 1}.
-\code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
+distance \eqn{1/w^\alpha}{1/w^alpha}. \code{weighted = FALSE} uses hop
+counts. \code{mode = "all"} treats edges as undirected, \code{"out"} counts nodes
 reached from the node and \code{"in"} nodes that reach it. A \code{k} of
-zero or below raises an error.
+zero or below raises a \code{cograph_bad_parameter} error.
 }
 \examples{
 centrality_kreach(regulation_net, k = 0.2)

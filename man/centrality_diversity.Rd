@@ -28,9 +28,8 @@ The score lies between 0 and 1 and reaches 1 when the weights are equal.
 }
 \details{
 On a directed network incoming and outgoing edges are separate entries,
-and \eqn{k_v}{k_v} counts both. Edge weights are always used, and
-\code{weighted = FALSE} has no effect. On an unweighted input every node
-with two or more edges scores 1. A node with fewer than two edges, or
+and \eqn{k_v}{k_v} counts both. With \code{weighted = FALSE}, or on an
+unweighted input, every node with two or more edges scores 1. A node with fewer than two edges, or
 with edge weights summing to zero, scores 0.
 }
 \examples{

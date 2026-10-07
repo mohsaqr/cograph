@@ -35,14 +35,12 @@ calculate_mcgm <- function(cg, mcgm_radius = 2, mcgm_alpha = NULL,
   if (is.null(mcgm_radius)) mcgm_radius <- Inf
   if (!is.numeric(mcgm_radius) || length(mcgm_radius) != 1L ||
         is.na(mcgm_radius) || mcgm_radius < 0) {
-    stop("mcgm_radius must be a nonnegative number, Inf or NULL",
-         call. = FALSE)
+    .cg_stop_bad_parameter("mcgm_radius must be a nonnegative number, Inf or NULL")
   }
   if (!is.null(mcgm_alpha) &&
         (!is.numeric(mcgm_alpha) || length(mcgm_alpha) != 1L ||
            !is.finite(mcgm_alpha) || mcgm_alpha < 0)) {
-    stop("mcgm_alpha must be NULL or a finite nonnegative number",
-         call. = FALSE)
+    .cg_stop_bad_parameter("mcgm_alpha must be NULL or a finite nonnegative number")
   }
   a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))
   diag(a) <- 0

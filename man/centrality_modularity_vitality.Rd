@@ -35,7 +35,8 @@ directed modularity, and the values equal those obtained by deleting
 each node and recomputing \code{igraph::modularity()}. Self-loops enter
 the modularity, and \code{loops = FALSE} drops them. A node whose deletion
 leaves a graph with no edges returns \code{NaN}. Without
-\code{membership} the function raises an unclassed warning and returns
+\code{membership} the function raises a warning of classes \code{cograph_bad_membership} and
+\code{cograph_undefined_measure} and returns
 \code{NA} for every node. A \code{membership} that is not one
 non-missing label per node raises an error of class
 \code{cograph_bad_membership}.

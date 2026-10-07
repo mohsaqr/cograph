@@ -38,7 +38,8 @@ Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
 \code{alpha} of \code{\link{centrality}}, and \code{weighted = FALSE}
 counts hops. \code{mode} sets the direction of the paths. The values equal
 those of \code{\link{centrality_decay}} with the same
-\code{decay_parameter}, which is not checked.
+\code{decay_parameter}, which must lie strictly between 0 and 1; other
+values raise a \code{cograph_bad_parameter} error.
 }
 \examples{
 centrality_generalized_closeness(regulation_net)

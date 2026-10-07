@@ -5,10 +5,10 @@ calculate_neighbor_distance <- function(cg, order = 2, decay = 0.2,
                                         mass = "degree") {
   if (!is.numeric(order) || length(order) != 1L || !is.finite(order) ||
         order < 0 || order != trunc(order)) {
-    stop("nd_order must be a single nonnegative whole number", call. = FALSE)
+    .cg_stop_bad_parameter("nd_order must be a single nonnegative whole number")
   }
   if (!is.numeric(decay) || length(decay) != 1L || !is.finite(decay)) {
-    stop("nd_decay must be a single finite number", call. = FALSE)
+    .cg_stop_bad_parameter("nd_decay must be a single finite number")
   }
   mass <- match.arg(mass, c("degree", "coreness"))
   a <- .cg_undirected_view(.cg_path_matrix(cg, NULL))

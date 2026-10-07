@@ -36,8 +36,12 @@ test_that("adaptive LeaderRank separates H-index direction and resource flow", {
                c(21, 18, 12) / 29)
   edge <- igraph::make_graph(c(1, 2), directed = TRUE)
   expect_equal(unname(centrality_adaptive_leaderrank(edge)), c(4 / 9, 2 / 3))
-  expect_true(all(is.nan(centrality_adaptive_leaderrank(edge, "out"))))
-  expect_true(all(is.nan(centrality_adaptive_leaderrank(edge, "in"))))
+  expect_warning(out_h <- centrality_adaptive_leaderrank(edge, "out"),
+                 class = "cograph_undefined_measure")
+  expect_true(all(is.nan(out_h)))
+  expect_warning(in_h <- centrality_adaptive_leaderrank(edge, "in"),
+                 class = "cograph_undefined_measure")
+  expect_true(all(is.nan(in_h)))
   # The ground connects components: adding an isolate changes total mass.
   isolated <- igraph::add_vertices(path, 1)
   expect_equal(unname(centrality_adaptive_leaderrank(isolated)),
@@ -50,8 +54,12 @@ test_that("adaptive LeaderRank covers undefined and empty cases", {
                setNames(numeric(0), character(0)))
   for (n in 1:3) {
     g <- igraph::make_empty_graph(n)
-    expect_true(all(is.nan(centrality_adaptive_leaderrank(g))))
-    normalized <- centrality_adaptive_leaderrank(g, normalized = TRUE)
+    expect_warning(raw <- centrality_adaptive_leaderrank(g),
+                   class = "cograph_undefined_measure")
+    expect_true(all(is.nan(raw)))
+    expect_warning(
+      normalized <- centrality_adaptive_leaderrank(g, normalized = TRUE),
+      class = "cograph_undefined_measure")
     expect_true(all(is.nan(normalized)))
   }
   expect_error(centrality_adaptive_leaderrank(empty, "bad"), "arg")

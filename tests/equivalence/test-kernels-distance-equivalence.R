@@ -340,9 +340,8 @@ test_that("constraint, transitivity, leverage and degree match igraph", {
 
         if (!agree(.cg_constraint(m, n), as.numeric(igraph::constraint(g))))
           mismatches <- c(mismatches, paste("constraint", tag))
-        # Compared against cograph's own centrality(), not raw
-        # igraph::transitivity(): on directed input the two disagree, and
-        # centrality() is the contract this kernel has to preserve.
+        # Compared against cograph's own centrality(), the contract this
+        # kernel has to preserve (it also equals igraph::transitivity()).
         ref_tr <- suppressWarnings(as.numeric(unlist(
           centrality(m, measures = "transitivity", mode = "all",
                      directed = directed, weighted = FALSE, normalized = FALSE,
@@ -358,12 +357,17 @@ test_that("constraint, transitivity, leverage and degree match igraph", {
   expect_identical(mismatches, character(0))
 })
 
-test_that("a reciprocated dyad counts twice on a directed graph", {
-  # igraph's mode="all" degree double-counts reciprocation, so a vertex whose
-  # only neighbour is reciprocated has degree 2 and scores 0, not NaN.
+test_that("a reciprocated dyad counts once on a directed graph", {
+  # igraph::transitivity(type = "local") works on the undirected skeleton, so
+  # a vertex whose only neighbour is reciprocated has one neighbour: NaN.
   m <- matrix(0, 3L, 3L)
   m[1L, 3L] <- 1; m[3L, 1L] <- 1; m[2L, 1L] <- 1
-  expect_equal(.cg_local_transitivity(m, 3L, directed = TRUE), c(0, NaN, 0))
+  expect_equal(.cg_local_transitivity(m, 3L, directed = TRUE), c(0, NaN, NaN))
+  if (requireNamespace("igraph", quietly = TRUE)) {
+    g <- igraph::graph_from_adjacency_matrix(m, mode = "directed")
+    expect_equal(.cg_local_transitivity(m, 3L, directed = TRUE),
+                 igraph::transitivity(g, type = "local"))
+  }
   expect_equal(.cg_degree(m, directed = TRUE, "all"), c(3, 1, 2))
   # Undirected reading of the same matrix collapses the dyad to one edge.
   expect_true(is.nan(.cg_local_transitivity(m, 3L, directed = FALSE)[3L]))
@@ -845,41 +849,36 @@ test_that("the kernels are actually reachable from centrality()", {
   }
 })
 
-test_that("communicability kernels stay faithful to their references", {
-  # The two reference functions differ: calculate_communicability() applies
-  # t(V) unconditionally (wrong on asymmetric input), while
-  # calculate_communicability_betweenness() correctly uses solve(V). Since
-  # these kernels are wired into centrality(), both must reproduce their own
-  # reference rather than one shared "corrected" behaviour.
+test_that("communicability kernels use a true matrix exponential", {
+  skip_if_not_installed("Matrix")
+  # A directed 3-cycle with a chord: asymmetric, so the eigenvector shortcut
+  # t(V) does not apply. Both kernels must agree with Matrix::expm().
   m <- matrix(c(0,0,1, 1,0,0, 1,0,0), 3L, 3L, byrow = TRUE)
-  ref <- suppressWarnings(as.numeric(centrality(m, measures = "communicability",
-    mode = "all", directed = TRUE, weighted = FALSE, normalized = FALSE,
-    loops = FALSE, invert_weights = FALSE)[[2L]]))
-  expect_equal(.cg_communicability(m, 3L), ref, tolerance = 1e-8)
-
-  # A singular reduced eigenbasis aborts the reference outright, so the whole
-  # vector is NA -- never a partially-filled result.
-  expect_true(all(is.na(.cg_communicability_betweenness(m, 3L))))
+  ref <- rowSums(as.matrix(Matrix::expm(Matrix::Matrix(m))))
+  expect_equal(.cg_communicability(m, 3L), ref, tolerance = 1e-10,
+               ignore_attr = TRUE)
+  wired <- as.numeric(centrality(m, measures = "communicability",
+    directed = TRUE)[[2L]])
+  expect_equal(wired, ref, tolerance = 1e-10, ignore_attr = TRUE)
+  # The eigenbasis of the reduced matrices is singular here; scaling and
+  # squaring does not need it, so the betweenness is finite.
+  expect_true(all(is.finite(.cg_communicability_betweenness(m, 3L))))
 })
 
-test_that("expm by eigendecomposition matches a known closed form", {
+test_that("expm by scaling and squaring matches Matrix::expm", {
   skip_if_not_installed("Matrix")
-  # Symmetric route, checked against the terminating series for a nilpotent
-  # matrix embedded symmetrically.
   s <- matrix(c(0,1,1, 1,0,1, 1,1,0), 3L, 3L)
-  expect_equal(.cg_expm_eigen(s, TRUE),
-               as.matrix(Matrix::expm(Matrix::Matrix(s))),
-               tolerance = 1e-9, ignore_attr = TRUE)
-  # Asymmetric route: with distinct, well-separated eigenvalues the
-  # eigendecomposition is well conditioned and agrees with a true matrix
-  # exponential. (On an ill-conditioned basis the two routes legitimately
-  # diverge -- which is exactly when the reference returns NA.)
+  expect_equal(.cg_expm(s), as.matrix(Matrix::expm(Matrix::Matrix(s))),
+               tolerance = 1e-10, ignore_attr = TRUE)
   a <- matrix(c(1, 2, 0,
                 0, 3, 0,
                 0, 0, 5), 3L, 3L, byrow = TRUE)
-  expect_equal(.cg_expm_eigen(a, FALSE),
-               as.matrix(Matrix::expm(Matrix::Matrix(a))),
-               tolerance = 1e-8, ignore_attr = TRUE)
+  expect_equal(.cg_expm(a), as.matrix(Matrix::expm(Matrix::Matrix(a))),
+               tolerance = 1e-10, ignore_attr = TRUE)
+  # Defective (nilpotent) input: the eigenvector matrix is singular.
+  nil <- matrix(0, 3L, 3L); nil[1L, 2L] <- 1; nil[2L, 3L] <- 1
+  expect_equal(.cg_expm(nil), diag(3L) + nil + nil %*% nil / 2,
+               tolerance = 1e-14)
 })
 
 test_that("weighted reaching centrality breaks shortest-path ties as the reference does", {

@@ -32,21 +32,25 @@ where \eqn{T_i} is the number of triangles through node \eqn{i} and
 \eqn{k_i} its degree.
 }
 \details{
-Triangles are counted on the undirected skeleton and edge weights are
-ignored. On a directed network \eqn{k_i} is the total degree, in plus
-out, so a reciprocated tie counts twice and the values can be lower than
-\code{igraph::transitivity(type = "local")}, which uses the skeleton
-degree. \code{"localundirected"} gives the same values as
-\code{"local"}. \code{"global"} and \code{"undirected"} return the
-network-level ratio of closed to connected triples for every node.
-\code{"barrat"} and \code{"weighted"} compute the weighted coefficient of
-Barrat et al. (2004) and raise a \code{cograph_directed_unsupported}
-error on directed input. \code{"onnela"} computes
+Triangles and degrees are counted on the undirected skeleton, so a
+reciprocated tie counts once, and edge weights are ignored. The values
+equal \code{igraph::transitivity(type = "local")} on directed and
+undirected networks. \code{"localundirected"} gives the same values as
+\code{"local"}, as in igraph. \code{"global"} and \code{"undirected"}
+return the network-level ratio of closed to connected triples for every
+node. \code{"barrat"} and \code{"weighted"} compute the weighted
+coefficient of Barrat et al. (2004) and raise a
+\code{cograph_directed_unsupported} error on directed input.
+\code{"onnela"} computes the weighted clustering coefficient of Zhang and
+Horvath (2005),
 \eqn{(M^3)_{ii} / (s_i^2 - \sum_j M_{ij}^2)}{(M^3)_ii / (s_i^2 - sum_j M_ij^2)}
-on \eqn{M = W + W^{T}}{M = W + t(W)} with strengths \eqn{s_i}, the value
-\code{tna::centralities()} reports as Clustering, and it is the default
-for tna input. Under the local and Barrat types a node with fewer than
-two ties is \code{NaN}, or 0 with \code{isolates = "zero"}.
+on \eqn{M = W + W^{T}}{M = W + t(W)} with strengths \eqn{s_i}. This is the
+value \code{tna::centralities()} reports as Clustering, and it is the
+default for tna input. The option keeps the name \code{"onnela"} used by
+tna, but the formula multiplies the raw weights of a triangle and differs
+from the geometric-mean form of Onnela et al. (2005). Under the local and
+Barrat types a node with fewer than two neighbors is \code{NaN}, or 0
+with \code{isolates = "zero"}.
 }
 \examples{
 centrality_transitivity(regulation_net)
@@ -60,6 +64,14 @@ Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A. (2004).
 The architecture of complex weighted networks. Proceedings of the
 National Academy of Sciences, 101(11), 3747-3752.
 \doi{10.1073/pnas.0400087101}.
+
+Zhang, B., & Horvath, S. (2005). A general framework for weighted gene
+co-expression network analysis. Statistical Applications in Genetics and
+Molecular Biology, 4(1), Article 17. \doi{10.2202/1544-6115.1128}.
+
+Onnela, J.-P., Saramaki, J., Kertesz, J., & Kaski, K. (2005). Intensity
+and coherence of motifs in weighted complex networks. Physical Review E,
+71(6), 065103. \doi{10.1103/PhysRevE.71.065103}.
 }
 \seealso{
 \code{\link{centrality_clusterrank}},

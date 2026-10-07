@@ -34,8 +34,9 @@ Edge weights are ignored. \code{mode} selects the ties counted, and with
 \code{mode = "all"} on a directed network a reciprocated tie counts twice.
 A node whose ties all stay in one community scores 0, as does an isolated
 node, and the score is below 1. Without \code{membership} every score is
-\code{NA} with a warning that carries no condition class, and a
-\code{membership} of the wrong length raises an error. On undirected
+\code{NA} with a warning of classes \code{cograph_bad_membership} and
+\code{cograph_undefined_measure}, and a \code{membership} of the wrong
+length raises a \code{cograph_bad_membership} error. On undirected
 networks the values equal \code{brainGraph::part_coeff()}.
 }
 \examples{

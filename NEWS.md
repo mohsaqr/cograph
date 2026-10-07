@@ -1,3 +1,55 @@
+# cograph 2.7.5
+
+## Bug fixes
+
+* `weighted = FALSE` is now honoured by every centrality measure. About twenty
+  measures, among them closeness, betweenness, harmonic, eigenvector, pagerank,
+  strength and katz, used the edge weights regardless of this argument.
+* Communicability is computed with a general matrix exponential, so its values
+  are correct on directed networks. Communicability betweenness no longer stops
+  with a singular-system error, and `centrality(x, type = "all")` runs on the
+  bundled `regulation_net`.
+* `centrality_gateway()` uses the same ties for degree and module links, so the
+  score lies between 0 and 1 on directed networks; it honours `mode` and accepts
+  character or factor membership.
+* `centrality_alpha()` and `centrality_power()` honour `mode`. With the default
+  `mode = "all"` a directed network is symmetrized, which changes their default
+  results on directed input.
+* `centrality_expected_influence_1()` and `_2()` no longer count each edge twice
+  on undirected networks with `mode = "all"`.
+* Local transitivity on directed networks equals `igraph::transitivity(type =
+  "local")`; DMNC no longer double-counts reciprocated neighbors.
+* Harmonic centrality with `normalized = TRUE` is divided by n - 1 only; a named
+  `personalized` vector in PageRank is matched to node names; percolation
+  honours `invert_weights`; Katz centrality of a single node is 1.
+* Delta betweenness weights each pair by the number of edges on its shortest
+  path, so it no longer returns zeros when all weights are below 1 and no longer
+  depends on the scale of the weights.
+* Undefined values (disconnected or degenerate networks, missing membership,
+  directed-only measures on undirected input) now come with a
+  `cograph_undefined_measure` warning, and invalid arguments raise classed
+  errors (`cograph_bad_parameter`, `cograph_bad_membership`). `decay_parameter`
+  and `dmnc_epsilon` are validated.
+* `estrada_index()` is correct on directed networks; the efficiency functions
+  accept tna input with `weights = NA`; `simplify()` keeps the weight matrix in
+  step with the merged edges; `is_bipartite()` works on named graphs;
+  `split_components()` handles an empty network.
+* `cluster_significance()` compares weighted modularity against null graphs that
+  carry the observed weights. `csum()` and `summarize_clusters()` symmetrize the
+  input when `directed = FALSE`, and sequence data with columns V1, V2, ... is
+  read as sequences. `aggregate_layers()` binarizes a single layer for union and
+  intersection; `cluster_quality()` density ignores self-loops.
+* `rich_club()` warns (`cograph_null_draw_failed`) when null graphs cannot be
+  drawn. `nodes()` now signals its deprecation.
+* `plot_mcml()` plots raw aggregated weights with `mode = "weights"` (the
+  default) and row-normalized weights with `mode = "tna"`.
+* `plot_trajectories()` handles missing states; `plot_network_evolution()`
+  accumulates slices correctly and accepts a coordinate layout;
+  `plot_heatmap()` builds a full diverging scale from one colour;
+  `plot_ml_heatmap()` labels every layer with its own nodes;
+  `layout_oval()` orders by node names; `sn_layout()` reports an unknown layout
+  clearly; `CographTheme` clone and merge keep added parameters.
+
 # cograph 2.7.4
 
 ## Documentation

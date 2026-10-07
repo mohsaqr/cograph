@@ -24,11 +24,11 @@ where \eqn{m_{ij}}{m_ij} is the mean first passage time from \eqn{i} to
 \eqn{j} of a walk that moves to each out-neighbor with equal probability.
 }
 \details{
-Edge weights are ignored. A disconnected network gives \code{NA} for every
-node with a warning that carries no condition class. On a directed
-network that is not strongly connected, some nodes have stationary
-probability zero, their passage times are set to 0, and the scores are
-then not random-walk distances. The passage times are symmetrized before
+Edge weights are ignored. The measure is defined for connected undirected
+and strongly connected directed networks. On any other network every
+score is \code{NA}, with a \code{cograph_undefined_measure} warning,
+because some passage times are infinite. The passage times are
+symmetrized before
 the sum, so the values differ from
 \code{tidygraph::centrality_random_walk()}, which sums them unsymmetrized.
 }

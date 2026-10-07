@@ -11,14 +11,12 @@
     value <- if (parameter == "beta") beta else mu
     if (!is.numeric(value) || length(value) != 1L || !is.finite(value) ||
           value < 0 || value > 1) {
-      stop("ds_", parameter, " must be a finite number between 0 and 1",
-           call. = FALSE)
+      .cg_stop_bad_parameter("ds_", parameter, " must be a finite number between 0 and 1")
     }
   }
   if (!is.numeric(steps) || length(steps) != 1L || !is.finite(steps) ||
         steps < 0 || steps != floor(steps) || steps > .Machine$integer.max) {
-    stop("ds_steps must be an integer in [0, .Machine$integer.max]",
-         call. = FALSE)
+    .cg_stop_bad_parameter("ds_steps must be an integer in [0, .Machine$integer.max]")
   }
   out <- numeric(nrow(b))
   if (!length(out) || steps == 0 || beta == 0) return(out)

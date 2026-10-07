@@ -237,7 +237,9 @@ is_bipartite <- function(x) {
     # Symmetrize for undirected check
     adj <- (x > 0 | t(x) > 0) * 1
     diag(adj) <- 0
-    g <- igraph::graph_from_adjacency_matrix(adj, mode = "undirected")
+    # Names are dropped: igraph's bipartite_mapping() fails on a named
+    # graph that is not bipartite (it names an empty type vector).
+    g <- igraph::graph_from_adjacency_matrix(unname(adj), mode = "undirected")
     bm <- igraph::bipartite_mapping(g)
     return(bm$res)
   }

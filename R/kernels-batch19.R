@@ -7,7 +7,7 @@
 .cg_improved_closeness <- function(b, alpha = 0.2) {
   if (!is.numeric(alpha) || length(alpha) != 1L || !is.finite(alpha) ||
         alpha < 0 || alpha > 1) {
-    stop("icc_alpha must be a finite number between 0 and 1", call. = FALSE)
+    .cg_stop_bad_parameter("icc_alpha must be a finite number between 0 and 1")
   }
   n <- nrow(b)
   out <- numeric(n)

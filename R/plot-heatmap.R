@@ -26,7 +26,9 @@ NULL
 #'   name ("viridis", "heat", "blues", "reds", "greens", "diverging"), or a
 #'   single color name, which gives a gradient from white to that color.
 #'   With a diverging scale the first three colors are used as low, mid and
-#'   high. Default "viridis".
+#'   high. Two colors are used as low and high around a white midpoint, and a
+#'   single color name is used as the high end, with the blue low end and the
+#'   light gray midpoint of the "diverging" palette. Default "viridis".
 #' @param limits Numeric vector c(min, max) for color scale. NULL for auto.
 #' @param midpoint Midpoint of a diverging scale. Supplying it makes the
 #'   scale diverging. With the default NULL, the scale is diverging around 0
@@ -290,8 +292,9 @@ plot_heatmap <- function(x,
   # Add color scale
   if (is_diverging) {
     mid <- midpoint %||% 0
+    div_vec <- .diverging_colors(colors, color_vec)
     p <- p + ggplot2::scale_fill_gradient2(
-      low = color_vec[1], mid = color_vec[2], high = color_vec[3],
+      low = div_vec[1], mid = div_vec[2], high = div_vec[3],
       midpoint = mid, limits = limits, na.value = na_color, name = legend_title
     )
   } else {
@@ -548,8 +551,9 @@ plot_heatmap <- function(x,
   # Add color scale
   if (is_diverging) {
     mid <- midpoint %||% 0
+    div_vec <- .diverging_colors(colors, color_vec)
     p <- p + ggplot2::scale_fill_gradient2(
-      low = color_vec[1], mid = color_vec[2], high = color_vec[3],
+      low = div_vec[1], mid = div_vec[2], high = div_vec[3],
       midpoint = mid, limits = limits, na.value = na_color, name = legend_title
     )
   } else {
@@ -588,6 +592,27 @@ plot_heatmap <- function(x,
   } else {
     colors
   }
+}
+
+
+#' Low, mid and high colors of a diverging heatmap scale
+#'
+#' Three or more colors give low, mid and high from the first three. Two
+#' colors are low and high around a white midpoint. A single color name that is
+#' not a palette name is the high end, with the low end and midpoint of the
+#' "diverging" palette, so no end of the scale is ever NA.
+#' @return A character vector of length 3.
+#' @keywords internal
+#' @noRd
+.diverging_colors <- function(colors, color_vec) {
+  diverging <- c("#2166AC", "#F7F7F7", "#B2182B")
+  if (is.character(colors) && length(colors) == 1L &&
+      !colors %in% c("viridis", "heat", "blues", "reds", "diverging", "greens")) {
+    return(c(diverging[1:2], colors))
+  }
+  if (length(color_vec) >= 3L) return(color_vec[1:3])
+  if (length(color_vec) == 2L) return(c(color_vec[1], "white", color_vec[2]))
+  c(diverging[1:2], color_vec[1])
 }
 
 

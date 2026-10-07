@@ -255,11 +255,14 @@ measures, most community-aware measures, and expected influence (the
 maximum, which scales non-negative measures to 0-1. A measure whose
 maximum is not positive is left unchanged. Closeness follows igraph's
 normalization instead, multiplying each value by the number of nodes
-the node reaches. Under \code{psych_network = TRUE} expected influence
+the node reaches, and harmonic centrality is divided by \eqn{n - 1}
+only. Under \code{psych_network = TRUE} expected influence
 is divided by its maximum absolute value and keeps its sign. Default
 \code{FALSE}.}
 
-\item{weighted}{Logical. Use edge weights if available. Default TRUE.}
+\item{weighted}{Logical. Use edge weights if available. Default TRUE.
+With \code{FALSE} every measure works on the binary adjacency, every
+edge with weight one.}
 
 \item{directed}{Logical or NULL. If NULL (default), auto-detect from matrix
 symmetry. Set TRUE to force directed, FALSE to force undirected.}
@@ -306,8 +309,9 @@ increase the influence of weight differences on path lengths.}
 \item{damping}{PageRank damping factor. Default 0.85. Must be between 0 and 1.}
 
 \item{personalized}{Non-negative numeric vector of reset probabilities
-for personalized PageRank, one value per node in node order. Names are
-not used for matching. The vector is rescaled to sum to 1. Default
+for personalized PageRank, one value per node. A named vector is
+matched to the node names, an unnamed one is taken in node order. The
+vector is rescaled to sum to 1. Default
 NULL (standard PageRank).}
 
 \item{transitivity_type}{Type of transitivity to calculate: "local" (default),
@@ -315,8 +319,9 @@ NULL (standard PageRank).}
 "weighted", or "onnela". The first six follow the conventions of
 \code{igraph::transitivity()}. \code{"global"} and \code{"undirected"}
 give one graph-level value, repeated on every row. \code{"onnela"}
-computes the Onnela weighted clustering coefficient on the symmetrized
-matrix \code{x + t(x)} and matches
+computes the weighted clustering coefficient of Zhang and Horvath
+(2005) on the symmetrized matrix \code{x + t(x)}, the form tna uses
+under that name, and matches
 \code{tna::centralities(x, "Clustering")}. \code{tna_network = TRUE}
 changes the default to \code{"onnela"}.}
 
@@ -348,16 +353,20 @@ gives every node state 1, which makes percolation equal to betweenness
 divided by \eqn{(n-1)(n-2)}.}
 
 \item{decay_parameter}{Numeric. Decay parameter for decay and generalized
-closeness centrality. A value between 0 and 1 discounts distant nodes.
-Default 0.5.}
+closeness centrality, strictly between 0 and 1; smaller values discount
+distant nodes more. Other values raise a \code{cograph_bad_parameter}
+error when one of these measures is requested. Default 0.5.}
 
 \item{dmnc_epsilon}{Numeric. Epsilon exponent for DMNC (Density of Maximum
-Neighborhood Component). Default 1.7, as recommended by Lin et al.
-(2008). centiserve uses 1.67.}
+Neighborhood Component), a single positive number. Default 1.7, as
+recommended by Lin et al. (2008). centiserve uses 1.67. Other values
+raise a \code{cograph_bad_parameter} error when \code{"dmnc"} is
+requested.}
 
 \item{membership}{Integer vector of community assignments (one per node) for
 the community-aware measures listed under \code{measures}. Default NULL.
-Without it those measures warn and return \code{NA}.
+Without it those measures return \code{NA} with a warning of classes
+\code{cograph_bad_membership} and \code{cograph_undefined_measure}.
 \code{"map_equation"} uses it when supplied.}
 
 \item{katz_alpha}{Attenuation factor for Katz centrality. The Katz series
@@ -678,8 +687,8 @@ The following centrality measures are available:
 \item{authority}{HITS authority score}
 \item{hub}{HITS hub score}
 \item{eccentricity}{Maximum distance to other nodes (supports mode).
-Distances use the raw edge weights, whatever \code{weighted} and
-\code{invert_weights} say.}
+Distances use the raw edge weights whatever \code{invert_weights}
+says, and hop counts with \code{weighted = FALSE}.}
 \item{coreness}{K-core membership (supports mode: in/out/all)}
 \item{constraint}{Burt's constraint (structural holes)}
 \item{transitivity}{Local clustering coefficient (supports multiple types)}
@@ -694,9 +703,10 @@ relative degree differences (supports mode: in/out/all)}
 \item{kreach}{K-reach centrality. Number of nodes reachable within
 \code{k} steps (supports mode: in/out/all)}
 \item{alpha}{Alpha centrality. Influence through paths, attenuated by
-length, with a unit exogenous contribution at every node}
+length, with a unit exogenous contribution at every node (supports mode:
+in/out/all)}
 \item{power}{Bonacich power centrality. Influence based on connections
-to other influential nodes}
+to other influential nodes (supports mode: in/out/all)}
 \item{subgraph}{Subgraph centrality. Participation in closed walks,
 with shorter walks weighted more heavily}
 \item{laplacian}{Laplacian centrality with the local formula of Qi et
@@ -867,7 +877,9 @@ it reproducible.}
 \item{length_scaled_betweenness}{Betweenness with each separated pair
 weighted by \eqn{1 / d(s,t)}.}
 \item{delta_betweenness}{Betweenness with the pair weight
-\eqn{(d(s,t) - 1)^{-\delta}}{(d(s,t) - 1)^{-delta}} (\code{betweenness_delta}).}
+\eqn{(h(s,t) - 1)^{-\delta}}{(h(s,t) - 1)^{-delta}}
+(\code{betweenness_delta}), where \eqn{h(s,t)} is the number of edges
+on a shortest path.}
 \item{ego_betweenness}{Betweenness inside the node's own ego network.}
 \item{delta_closeness}{\eqn{\sum_j d_{ij}^{-\delta} / (n-1)}{sum_j d_{ij}^{-delta} / (n-1)}
 (\code{closeness_delta}).}

@@ -23,7 +23,7 @@ other nodes.
 }
 \details{
 The measure needs a directed network. On undirected input every score is
-\code{NA} with a warning that carries no condition class. Edge weights are
+\code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 ignored; \code{\link{centrality_weighted_leaderrank}} uses them. The walk
 starts with one unit at every node and none at the ground node, so the
 scores sum to \eqn{n}. The values equal \code{centiserve::leaderrank()}.

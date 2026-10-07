@@ -20,9 +20,9 @@ where \eqn{\lambda_i}{lambda_i} are the eigenvalues of the binary adjacency matr
 Edge weights are ignored. For an undirected network the index equals
 \eqn{\sum_k M_k / k!}{sum_k M_k / k!}, where \eqn{M_k} is the number of closed walks of
 length \eqn{k}, and it is the sum of the subgraph centralities of all
-nodes. For a directed network the function sums \eqn{e^{Re(\lambda_i)}}{e^{Re(lambda_i)}}
-over the real parts of the eigenvalues, which differs from the closed-walk
-sum when the adjacency matrix has complex eigenvalues.
+nodes. For a directed network the eigenvalues may be complex. They come in
+conjugate pairs, so the sum of their exponentials is real and again equals
+the trace of \eqn{e^A}{exp(A)}, the weighted count of closed walks.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}

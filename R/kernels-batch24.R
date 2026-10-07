@@ -7,7 +7,7 @@
 .cg_graph_regularization <- function(a, gamma = 1) {
   if (!is.numeric(gamma) || length(gamma) != 1L || !is.finite(gamma) ||
         gamma < 0) {
-    stop("grc_gamma must be a finite nonnegative number", call. = FALSE)
+    .cg_stop_bad_parameter("grc_gamma must be a finite nonnegative number")
   }
   out <- rep(1, nrow(a))
   if (!nrow(a) || gamma == 0) return(out)

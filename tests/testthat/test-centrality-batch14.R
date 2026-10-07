@@ -110,8 +110,11 @@ test_that("dynamical importance measures actual spectral loss", {
   expect_equal(unname(centrality_dynamical_importance(empty)), numeric(0))
   for (n in 1:4) {
     dag <- igraph::make_tree(n, children = 1, mode = "out")
-    expect_true(all(is.nan(centrality_dynamical_importance(dag))))
-    expect_no_warning(centrality_dynamical_importance(dag, normalized = TRUE))
+    expect_warning(di <- centrality_dynamical_importance(dag),
+                   class = "cograph_undefined_measure")
+    expect_true(all(is.nan(di)))
+    expect_warning(centrality_dynamical_importance(dag, normalized = TRUE),
+                   class = "cograph_undefined_measure")
   }
 })
 

@@ -9,8 +9,8 @@ centrality_power(x, mode = "all", ...)
 \arguments{
 \item{x}{Network input accepted by \code{\link{centrality}}.}
 
-\item{mode}{Accepted for a uniform interface; it has no effect on this
-measure (default \code{"all"}).}
+\item{mode}{For directed networks: \code{"all"} (default), \code{"out"} or
+\code{"in"}.}
 
 \item{...}{Further arguments to \code{\link{centrality}}.}
 }
@@ -26,10 +26,13 @@ where \eqn{A} is the binary adjacency matrix and \eqn{\gamma}{g} scales
 the scores so that their squares sum to \eqn{n}.
 }
 \details{
-The exponent is fixed at 1, and the values equal
-\code{igraph::power_centrality(exponent = 1)}. Edge weights and self-loops
-are ignored. On a directed network the score sums over out-ties, and the
-argument \code{mode} has no effect. Where \eqn{I - A} is singular, as on a
+The exponent is fixed at 1. Edge weights and self-loops are ignored. On a
+directed network \code{mode = "out"} sums over out-ties and equals
+\code{igraph::power_centrality(exponent = 1)}, \code{mode = "in"} sums
+over in-ties, and \code{mode = "all"} (default) uses the undirected
+skeleton, the binary matrix with a tie wherever either direction has one.
+On an undirected network the three modes agree. Where \eqn{I - A} is
+singular, as on a
 network that contains an isolated edge, a \code{cograph_singular_system}
 error is raised, and a network without edges gives \code{NaN}. The scores
 can be negative, as on \code{regulation_net}, and \code{normalized = TRUE}

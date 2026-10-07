@@ -76,10 +76,12 @@ as computed.}
 \item{"semi_markov"}{Row-normalize, identical to \code{"tna"}.}
 }}
 
-\item{directed}{Logical. Default \code{TRUE}. The value is recorded in
-\code{meta$directed} and does not change the weights. With
-\code{type = "cooccurrence"} the weights are symmetrized and
-\code{meta$directed} is \code{FALSE} whatever this value is.}
+\item{directed}{Logical. Default \code{TRUE}. With \code{FALSE} the
+node-level weights are symmetrized as \eqn{(A + A^T) / 2}{(A + t(A)) / 2}
+before aggregation, so the direction of a tie is ignored, and
+\code{meta$directed} is \code{FALSE}. With \code{type = "cooccurrence"}
+the aggregated weights are symmetrized and \code{meta$directed} is
+\code{FALSE} whatever this value is.}
 
 \item{compute_within}{Logical. If \code{TRUE} (default), compute per-cluster
 matrices, one \eqn{n_i \times n_i}{n_i x n_i} matrix of internal node-to-node

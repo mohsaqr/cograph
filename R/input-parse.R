@@ -76,8 +76,8 @@ create_nodes_df <- function(n, labels = NULL, names = NULL) {
     id = seq_len(n),
     label = labels,
     name = names,
-    x = NA_real_,
-    y = NA_real_,
+    x = rep(NA_real_, n),
+    y = rep(NA_real_, n),
     stringsAsFactors = FALSE
   )
 }

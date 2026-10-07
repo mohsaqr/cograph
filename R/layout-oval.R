@@ -13,7 +13,9 @@ NULL
 #' @param network A CographNetwork or cograph_network object.
 #' @param ratio Aspect ratio (width/height). Values > 1 create horizontal ovals,
 #'   values < 1 create vertical ovals. Default 1.5.
-#' @param order Optional vector specifying node order (indices or labels).
+#' @param order Optional vector specifying node order, as node indices or as
+#'   node labels. Labels are matched for both \code{CographNetwork} and
+#'   \code{cograph_network} input.
 #' @param start_angle Starting angle in radians (default: pi/2 for top).
 #' @param clockwise Logical. Arrange nodes clockwise? Default TRUE.
 #' @param rotation Rotation angle in radians to tilt the entire oval. Default 0.
@@ -45,7 +47,11 @@ layout_oval <- function(network, ratio = 1.5, order = NULL, start_angle = pi/2,
   if (!is.null(order)) {
     if (is.character(order)) {
       # Convert labels to indices
-      labels <- network$node_labels
+      labels <- if (inherits(network, "cograph_network")) {
+        get_labels(network)
+      } else {
+        network$node_labels
+      }
       order <- match(order, labels)
       if (any(is.na(order))) {
         warning("Some labels not found, using default order")

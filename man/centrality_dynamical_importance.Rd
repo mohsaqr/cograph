@@ -32,7 +32,7 @@ self-loops are removed. Negative or non-finite weights raise an error.
 The scores lie between 0 and 1 and are unchanged when every arc is
 reversed, so \code{mode} has no effect. A network with spectral radius
 0, such as any directed acyclic network, gives \code{NaN} for every
-node without a warning. An isolated node in a network with positive
+node with a \code{cograph_undefined_measure} warning. An isolated node in a network with positive
 spectral radius scores 0.
 }
 \examples{

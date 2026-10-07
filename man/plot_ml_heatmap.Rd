@@ -72,10 +72,12 @@ the planes do not overlap. A positive number sets the spacing directly.}
 
 \item{show_labels}{Show layer name labels? Default TRUE.}
 
-\item{show_node_labels}{Show the row and column names? Default TRUE. The
-names of the first layer are shown once, along the left and lower edges
-of the front plane, so they identify the cells of every plane only when
-all layers share one node ordering.}
+\item{show_node_labels}{Show the row and column names? Default TRUE. When
+all layers have the same row and column names, the names are shown once,
+along the left and lower edges of the front plane. When the layers hold
+different nodes, each plane shows its own row names along its left edge
+and the column names below the front plane are those of the front
+(last) layer.}
 
 \item{node_label_size}{Size of the row and column names. Default 3.}
 

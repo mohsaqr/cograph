@@ -29,8 +29,8 @@ Authorities are the dominant eigenvector of \eqn{A^{T} A}{A^T A} and hubs
 the dominant eigenvector of \eqn{A A^{T}}{A A^T}.
 }
 \details{
-\eqn{A} holds the edge weights. Edge weights are always used, and
-\code{weighted = FALSE} has no effect. Both scores are scaled to a maximum
+\eqn{A} holds the edge weights, or ones with \code{weighted = FALSE}.
+Both scores are scaled to a maximum
 of one, so they lie between 0 and 1. On an undirected network both equal
 eigenvector centrality. A network without edges gives every node a score
 of one. \code{centrality_hub()} returns the hub scores.

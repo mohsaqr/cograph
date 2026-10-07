@@ -65,11 +65,18 @@ simplify.cograph_network <- function(x, remove_loops = TRUE,
     if (remove_loops) {
       edges <- edges[edges$from != edges$to, , drop = FALSE]
     }
+    n_before <- nrow(edges)
     if (remove_multiple) {
       edges <- aggregate_duplicate_edges(edges, method = edge_attr_comb,
                                          directed = directed)
     }
     x$edges <- edges
+    # Merged duplicates change the weights, so the stored matrix must be
+    # rebuilt from the merged edge table or it keeps the pre-merge values.
+    if (is.matrix(x$weights) && nrow(edges) < n_before) {
+      x$weights <- .network_weight_matrix(as.character(get_nodes(x)$label),
+                                          edges, directed)
+    }
   }
 
   if (!is.null(x$weights) && is.matrix(x$weights) && remove_loops) {

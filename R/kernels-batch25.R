@@ -9,7 +9,7 @@
 .cg_random_walk_decay <- function(a, decay, mass, normalized = FALSE) {
   if (!is.numeric(decay) || length(decay) != 1L || !is.finite(decay) ||
         decay < 0 || decay >= 1) {
-    stop("rwd_decay must be a finite number in [0,1)", call. = FALSE)
+    .cg_stop_bad_parameter("rwd_decay must be a finite number in [0,1)")
   }
   n <- nrow(a)
   if (!n) return(numeric(0))

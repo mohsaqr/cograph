@@ -13,7 +13,9 @@ centrality_percolation(x, states = NULL, ...)
 default \code{NULL} gives every node state 1.}
 
 \item{...}{Further arguments to \code{\link{centrality}}. The measure uses
-\code{weighted} (default \code{TRUE}).}
+\code{weighted} (default \code{TRUE}), \code{invert_weights} (default
+\code{NULL}, which inverts for tna input only) and \code{alpha}
+(inversion exponent, default 1).}
 }
 \value{
 A named numeric vector with one score per node, in input node
@@ -31,7 +33,8 @@ where \eqn{\sigma_{st}}{sigma_st} is the number of shortest paths from
 }
 \details{
 Edge weights are read as distances, \code{weighted = FALSE} uses hop
-counts, and \code{invert_weights} has no effect on this measure. Paths
+counts, and \code{invert_weights = TRUE} uses the distance
+\eqn{1/w^\alpha}{1/w^alpha}, so tna input is inverted by default. Paths
 follow edge direction on a directed network. \code{states} is matched to
 nodes by name when it has names and by position otherwise. Its values are
 clipped to \eqn{[0, 1]} and missing values are set to 1, and a vector of

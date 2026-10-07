@@ -123,43 +123,44 @@
 
 #' Communicability betweenness (Estrada, Higham & Hatano 2009)
 #'
-#' Unlike `.cg_communicability`, the reference for this one is **correct** --
-#' it already uses `solve(V)` on asymmetric input. It is reproduced faithfully,
-#' singular-eigenbasis `NA` included.
+#' For each vertex `r`, the share of the communicability `G = expm(A)`
+#' between other pairs `(s, t)` that is lost when `r` is removed,
+#' `sum_{s != t, s,t != r} (G_st - G(r)_st) / G_st`, divided by
+#' `(n - 1)(n - 2)`. `.cg_expm()` gives `G` for directed input as well.
 #'
 #' @param w Weight matrix; only its support is read, so the kernel is
 #'   unweighted (`w != 0`, diagonal cleared). @param n Vertex count.
-#' @return Numeric vector; `NA` throughout when any eigenbasis is singular.
+#' @return Numeric vector.
 #' @keywords internal
 #' @noRd
 .cg_communicability_betweenness <- function(w, n) {
   if (n <= 2L) return(rep(0, n))
   a <- (w != 0) * 1
   diag(a) <- 0
-  a <- unname(a)
-  sym <- isSymmetric(a)
-  g <- .cg_expm_eigen(a, sym)
-  if (anyNA(g)) return(rep(NA_real_, n))
+  .cg_comm_betweenness_kernel(unname(a), n)
+}
+
+#' Communicability betweenness on a prepared adjacency matrix
+#' @param a Numeric adjacency matrix (used as given). @param n Vertex count.
+#' @return Numeric vector.
+#' @keywords internal
+#' @noRd
+.cg_comm_betweenness_kernel <- function(a, n) {
+  g <- .cg_expm(a)
+  # A pair that cannot communicate (G_st = 0) contributes nothing.
   inv_g <- ifelse(g > 1e-15, 1 / g, 0)
   diag_mask <- diag(n) == 1
-  # The reference aborts the whole call the first time a reduced eigenbasis is
-  # singular, so a partial vector would not be reference-faithful: one failed
-  # vertex takes the entire result to NA.
   cb <- vapply(seq_len(n), function(r) {
     a_red <- a
     a_red[r, ] <- 0
     a_red[, r] <- 0
-    g_red <- .cg_expm_eigen(a_red, sym)
-    if (anyNA(g_red)) return(NA_real_)
-    ratio <- (g - g_red) * inv_g
+    ratio <- (g - .cg_expm(a_red)) * inv_g
     ratio[diag_mask] <- 0
     ratio[r, ] <- 0
     ratio[, r] <- 0
     sum(ratio)
   }, numeric(1L))
-  if (anyNA(cb)) return(rep(NA_real_, n))
-  denom <- (n - 1) * (n - 2)
-  if (denom > 0) cb / denom else cb
+  cb / ((n - 1) * (n - 2))
 }
 
 #' SALSA authority scores

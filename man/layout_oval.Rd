@@ -20,7 +20,9 @@ layout_oval(
 \item{ratio}{Aspect ratio (width/height). Values > 1 create horizontal ovals,
 values < 1 create vertical ovals. Default 1.5.}
 
-\item{order}{Optional vector specifying node order (indices or labels).}
+\item{order}{Optional vector specifying node order, as node indices or as
+node labels. Labels are matched for both \code{CographNetwork} and
+\code{cograph_network} input.}
 
 \item{start_angle}{Starting angle in radians (default: pi/2 for top).}
 

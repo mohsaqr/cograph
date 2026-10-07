@@ -153,7 +153,9 @@ List of parameters.
 \if{latex}{\out{\hypertarget{method-CographTheme-merge}{}}}
 \subsection{Method \code{merge()}}{
 Merge with another theme. Parameters in \code{other}
-replace the matching parameters of this theme.
+replace the matching parameters of this theme; parameters present in
+only one of the two, including ones added with \code{$set()}, are
+kept.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographTheme$merge(other)}\if{html}{\out{</div>}}
 }
@@ -173,7 +175,8 @@ A new CographTheme named \code{"merged"}.
 \if{html}{\out{<a id="method-CographTheme-clone_theme"></a>}}
 \if{latex}{\out{\hypertarget{method-CographTheme-clone_theme}{}}}
 \subsection{Method \code{clone_theme()}}{
-Clone the theme.
+Clone the theme. Parameters added with \code{$set()} are
+copied as well.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CographTheme$clone_theme()}\if{html}{\out{</div>}}
 }

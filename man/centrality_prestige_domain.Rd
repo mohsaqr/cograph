@@ -23,7 +23,7 @@ reach a node through a directed path:
 }
 \details{
 The measure needs a directed network. On undirected input every score is
-\code{NA} with a warning that carries no condition class. Edge weights are
+\code{NA} with a \code{cograph_undefined_measure} warning. Edge weights are
 ignored. The score is a whole number between 0 and \eqn{n - 1}. The values
 equal \code{sna::prestige(cmode = "domain")}.
 }

@@ -23,8 +23,10 @@ homophily(x, values, directed = NULL, digits = NULL, ...)
 
 - values:
 
-  Named vector of attribute values (names must match node names) or an
-  unnamed vector in node order.
+  Named vector of attribute values whose names cover every node name, or
+  an unnamed vector of length equal to the number of nodes, in node
+  order. A numeric vector is treated as scalar and any other vector as
+  nominal.
 
 - directed:
 
@@ -32,13 +34,13 @@ homophily(x, values, directed = NULL, digits = NULL, ...)
 
 - digits:
 
-  Integer or NULL. Round result. Default NULL.
+  Integer or NULL. Round the coefficient to this many decimal places.
+  Default NULL (no rounding).
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Not used. Any argument supplied here raises an `"unused argument"`
+  error.
 
 ## Value
 
@@ -54,23 +56,23 @@ An object of class `"cograph_assortativity"` with components:
 
 - directed:
 
-  Logical.
+  Logical: whether the network was treated as directed.
 
 - n_nodes:
 
-  Integer.
+  Numeric: number of nodes.
 
 - n_edges:
 
-  Integer.
+  Numeric: number of edges.
 
 - attribute_values:
 
-  The attribute values used.
+  The attribute values used, named by node and in node order.
 
 - network:
 
-  Original input.
+  The original input network.
 
 ## Details
 
@@ -102,14 +104,11 @@ Newman, M.E.J. (2003). Mixing patterns in networks. *Physical Review E*,
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0, 1,0,0,0, 1,0,0,1, 0,0,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-groups <- c(A = "x", B = "x", C = "y", D = "y")
-cograph::assortativity_attribute(adj, groups)
+cograph::assortativity_attribute(regulation_net, values = rep(c("self", "social"), each = 5))
 #> Assortativity (Nominal Attribute)
 #> =================================== 
-#>   Coefficient: 0.3333 
-#>   Interpretation: assortative 
-#>   Nodes: 4   Edges: 3 
-#>   Directed: FALSE 
+#>   Coefficient: -0.3755 
+#>   Interpretation: disassortative 
+#>   Nodes: 10   Edges: 30 
+#>   Directed: TRUE 
 ```

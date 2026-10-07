@@ -1,8 +1,8 @@
 # Degree Distribution Visualization
 
-Creates a histogram or cumulative distribution plot of node degrees. By
-default, bins are integer-aligned (one bar per degree value) so each bar
-maps to an exact degree.
+Plots a histogram or a complementary cumulative distribution of node
+degrees. When the degree range is at most 50, the default bins are
+integer-aligned, with one bar per degree value.
 
 ## Usage
 
@@ -69,13 +69,14 @@ degree_distribution(
 
 - bins:
 
-  Integer. Approximate number of bins. Overrides `bin_width`. Default
-  NULL.
+  Integer. Number of equal-width bins spanning the degree range.
+  Overrides `bin_width`. Default NULL.
 
 - bin_width:
 
-  Numeric. Width of each bin. Default NULL (auto: 1 when the degree
-  range is \\\le 50\\, otherwise Freedman-Diaconis).
+  Numeric. Width of each bin. Default NULL, which uses a width of 1 when
+  the degree range is at most 50 and the Freedman-Diaconis rule
+  otherwise.
 
 - normalize:
 
@@ -86,8 +87,7 @@ degree_distribution(
 
   Character. Axis log-scaling: "" (none, default), "x", "y", or "xy".
   Histogram plots apply y-axis log scaling for "y" or "xy"; cumulative
-  plots support x, y, and xy scaling, with "xy" producing a log-log CCDF
-  (standard for power-law inspection).
+  plots support x, y, and xy scaling, and "xy" gives a log-log CCDF.
 
 - main:
 
@@ -104,7 +104,7 @@ degree_distribution(
 
 - col:
 
-  Character. Bar/line fill color. Default "steelblue".
+  Character. Bar fill or line color. Default "steelblue".
 
 - border:
 
@@ -140,22 +140,11 @@ Invisibly returns a list with components:
 
   Bin proportions (`counts / sum(counts)`).
 
-All five components are returned for both the histogram and the
-cumulative plot; `cumulative = TRUE` only changes what is drawn.
+The same five components are returned for the histogram and the
+cumulative plot. The bin components always describe the histogram bins.
 
 ## Examples
 
 ``` r
-# Undirected network
-adj <- matrix(c(0, 1, 1, 0, 1, 0, 1, 1,
-                1, 1, 0, 1, 0, 1, 1, 0), 4, 4, byrow = TRUE)
-cograph::degree_distribution(adj)
-
-cograph::degree_distribution(adj, cumulative = TRUE)
-
-
-# Directed network, in-degree
-directed_adj <- matrix(c(0, 1, 0, 0, 0, 0, 1, 0,
-                         1, 0, 0, 1, 0, 1, 0, 0), 4, 4, byrow = TRUE)
-cograph::degree_distribution(directed_adj, mode = "in")
+cograph::degree_distribution(regulation_net)
 ```

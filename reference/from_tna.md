@@ -1,8 +1,8 @@
 # Convert a tna object to cograph parameters
 
 Extracts the transition matrix, labels, and initial state probabilities
-from a `tna` object and plots with cograph. Initial probabilities are
-mapped to donut fills.
+from a `tna` object and plots the network with a cograph engine. Initial
+probabilities are mapped to donut fills.
 
 ## Usage
 
@@ -43,11 +43,11 @@ from_tna(
 
 - show_zero_edges:
 
-  Logical. Zero is how this representation stores "no edge", so an edge
-  whose weight rounds to zero at `weight_digits` is dropped. With `TRUE`
-  such an edge is instead drawn at the smallest magnitude
-  `weight_digits` can express, carrying its sign; every other weight is
-  unchanged. Default: FALSE.
+  Logical. A zero weight means that the edge is absent, so an edge whose
+  weight rounds to zero at `weight_digits` is dropped. With `TRUE` each
+  such edge is plotted at the smallest magnitude that `weight_digits`
+  can express, with its original sign. Other weights are unchanged.
+  Default: `FALSE`.
 
 - ...:
 
@@ -56,68 +56,52 @@ from_tna(
 
 ## Value
 
-Invisibly, a named list of cograph parameters that can be passed to
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) or
-[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
+Invisibly, a named list of plotting parameters (the weight matrix `x`,
+`labels`, `directed`, the donut settings and the visual defaults above,
+after the overrides in `...`). It can be passed to
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) with
+[`do.call()`](https://rdrr.io/r/base/do.call.html). An input that is not
+a `tna` object raises an error.
 
 ## Details
 
 ### Conversion Process
 
-The tna object's transition matrix becomes edge weights, labels become
-node labels, and initial state probabilities (`inits`) are mapped to
-`donut_fill` values to visualize starting state distributions.
+The transition matrix (`weights`) supplies the edge weights, the state
+labels (`labels`) supply the node labels, and the initial state
+probabilities (`inits`) supply the `donut_fill` values. The donuts are
+plotted with `donut_inner_ratio = 0.8`.
 
-Directedness is read from the tna object when available; otherwise it is
-inferred from matrix symmetry. Transition matrices are usually directed,
-while symmetric co-occurrence matrices are treated as undirected.
-
-The default `donut_inner_ratio` of 0.8 creates thin rings that
-effectively visualize probability values without obscuring node labels.
-
-### Parameter Mapping
-
-The following tna properties are automatically extracted:
-
-- **weights**: Transition matrix `->` edge weights
-
-- **labels**: State labels `->` node labels
-
-- **inits**: Initial probabilities `->` donut_fill (0-1 scale)
+Directedness is read from the tna object when it is recorded there.
+Otherwise a symmetric matrix is treated as undirected and an asymmetric
+matrix as directed.
 
 ### TNA Visual Defaults
 
-The following visual defaults are applied for TNA plots (all can be
-overridden via `...`):
+The following defaults are applied. Each can be overridden through
+`...`.
 
-- `layout = "oval"`: Oval/elliptical node arrangement
+- `layout = "oval"`.
 
-- `node_fill`: Colors from TNA palette (Accent/Set3 based on state
-  count)
+- `node_fill`: the RColorBrewer Accent palette for up to 8 states, Set3
+  for 9 to 12 states, and a qualitative HCL palette for more.
 
-- `node_size = 7`: Larger nodes for readability
+- `node_size = 7`.
 
-- `arrow_size = 0.61`: Prominent directional arrows for directed
-  networks
+- `edge_color = "#003355"`.
 
-- `edge_color = "#003355"`: Dark blue edges
+- `edge_labels = TRUE`, with `edge_label_size = 0.4` and
+  `edge_label_position = 0.7`.
 
-- `edge_labels = TRUE`: Show transition weights on edges
+- `edge_label_style = "estimate"` and `edge_label_leading_zero = FALSE`,
+  so a label shows the weight alone without a leading zero (for example
+  `.42`).
 
-- `edge_label_size = 0.4`: Readable edge labels
+- `minimum = 0.01`, so transitions weaker than 0.01 are not plotted.
 
-- `edge_label_position = 0.7`: Labels positioned toward target
-
-- `edge_start_style = "dotted"`: Dotted line at edge source for directed
-  networks
-
-- `edge_start_length = 0.2`: 20% of directed edges are dotted
-
-- `edge_label_style = "estimate"` and `edge_label_leading_zero = FALSE`:
-  labels show the weight alone, written without a leading zero (`.42`,
-  not `0.42`)
-
-- `minimum = 0.01`: transitions weaker than 0.01 are not drawn
+- For directed networks, `arrow_size = 0.61`,
+  `edge_start_style = "dotted"` and `edge_start_length = 0.2` (the first
+  20 percent of each edge is dotted).
 
 ## See also
 
@@ -132,22 +116,5 @@ for qgraph object conversion
 ## Examples
 
 ``` r
-# Convert and plot a tna object
-model <- tna::tna(regulation_net)
-from_tna(model)  # Plots with donut rings showing initial probabilities
-
-
-# Use soplot engine instead
-from_tna(model, engine = "soplot")
-
-
-# Customize the visualization
-from_tna(model, layout = "circle", donut_color = c("steelblue", "gray90"))
-
-
-# Extract parameters without plotting
-params <- from_tna(model, plot = FALSE)
-# Modify and plot manually
-params$node_fill <- "coral"
-do.call(splot, params)
+from_tna(tna::tna(regulation_net))
 ```

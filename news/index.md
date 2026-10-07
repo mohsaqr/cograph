@@ -1,5 +1,25 @@
 # Changelog
 
+## cograph 2.7.4
+
+### Documentation
+
+- Help pages for print, summary and plot methods no longer stand alone.
+  The methods are described on the page of the function that creates the
+  object, and plot methods with their own arguments are documented
+  together in `?plot-results`. Network accessors, themes, palettes,
+  shapes and the layout registry each share one page.
+- Every `centrality_*()` page follows one layout: definition, the
+  arguments of
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  that tune the measure with their defaults, how direction and weights
+  are read, when the result is `NA` and which condition is raised,
+  references and one example on `regulation_net`.
+- The help pages were checked against the code, and statements that did
+  not match the behaviour of the functions were corrected.
+- Formulas print in readable plain text in the console help.
+- Examples are shorter and use the bundled data.
+
 ## cograph 2.7.3
 
 ### Bug fixes
@@ -286,12 +306,12 @@ documented `...` as reaching the detection method when it is discarded;
 marked three always-present components as conditional;
 `binarize(signed = TRUE)` was described as producing `-1` rather than
 `+1` or `-1`;
-[`get_edges()`](https://sonsoles.me/cograph/reference/get_edges.md) did
+[`get_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md) did
 not say its `from`/`to` are integer indices rather than labels; several
 verbs did not name the classed condition they raise; and the
-[`register_shape()`](https://sonsoles.me/cograph/reference/register_shape.md)
+[`register_shape()`](https://sonsoles.me/cograph/reference/shapes.md)
 and
-[`register_layout()`](https://sonsoles.me/cograph/reference/register_layout.md)
+[`register_layout()`](https://sonsoles.me/cograph/reference/layout_registry.md)
 examples overwrote a built-in shape and layout for the rest of the
 session. `show_zero_edges` in
 [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md) and
@@ -600,7 +620,7 @@ operation.
   error. It now requires an exact permutation.
 - [`add_edges()`](https://sonsoles.me/cograph/reference/add_edges.md)
   and
-  [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
+  [`set_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   accepted the same undirected edge twice (`A->B` and `B->A`), leaving
   the edge table and the weight matrix disagreeing about how many edges
   exist. Both now reject it.
@@ -731,13 +751,13 @@ the endpoint metrics.
   [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md)
   re-detected the result as directed and every downstream consumer saw
   half the strength.
-- [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
+- [`set_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   and
-  [`set_nodes()`](https://sonsoles.me/cograph/reference/set_nodes.md)
+  [`set_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   rebuild the stored weight matrix, so
   [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md)
   can no longer return the pre-edit network, and
-  [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
+  [`set_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   keeps extra edge columns.
 - Extra columns of an edge-list input (`session`, `time`, …) survive
   [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md)
@@ -2327,12 +2347,9 @@ blocks, 6 PASS).
   [`mcml()`](https://sonsoles.me/cograph/reference/mcml.md) remains
   hidden; it is a deprecated alias of
   [`csum()`](https://sonsoles.me/cograph/reference/csum.md). The `n` and
-  `...` arguments of
-  [`print.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  and
-  [`print.cograph_motifs()`](https://sonsoles.me/cograph/reference/motif_census.md)
-  are now documented (previously exempt from checking by the `internal`
-  keyword).
+  `...` arguments of `print.cograph_motif_analysis()` and
+  `print.cograph_motifs()` are now documented (previously exempt from
+  checking by the `internal` keyword).
 
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)’s
   new `difference` argument moved to the end of the signature, after
@@ -2366,7 +2383,7 @@ blocks, 6 PASS).
   [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md),
   [`layer_similarity_matrix()`](https://sonsoles.me/cograph/reference/layer_similarity_matrix.md)
   and
-  [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot_motifs.md)
+  [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot-results.md)
   now ship runnable examples. Their `\examples` sections were previously
   commented out (or entirely `\dontrun`), so they demonstrated nothing
   and were never checked. The remaining `\dontrun` blocks in
@@ -2415,7 +2432,7 @@ blocks, 6 PASS).
   [`subtract_networks()`](https://saqr.me/Nestimate/reference/subtract_networks.html)
   results the two are identical, so nothing changes there.
 
-- [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
+- [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md)
   /
   [`splot.net_permutation()`](https://sonsoles.me/cograph/reference/splot.md):
   the `title` and `layout` defaults now use exact `[[` indexing.
@@ -2763,7 +2780,7 @@ CRAN release: 2026-05-31
 - Full audit pass over the motifs subsystem: `type_summary` now holds
   real MAN-type counts in census mode, `min_count` is honored in census
   mode, and the swapped source/target color description in
-  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/motifs.md)
+  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/plot-results.md)
   is corrected.
 - Unbroke [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md)
   and
@@ -2782,18 +2799,18 @@ CRAN release: 2026-05-31
 - New `combined` argument (default `TRUE`) on every multi-panel plot
   function: [`splot()`](https://sonsoles.me/cograph/reference/splot.md)
   group-cascade,
-  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot_netobject_group.md),
-  [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot_netobject_ml.md),
-  [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot_net_bootstrap_group.md),
-  [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md),
+  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md),
   [`plot_compare()`](https://sonsoles.me/cograph/reference/plot_compare.md),
   [`splot.net_mlvar()`](https://sonsoles.me/cograph/reference/splot.md),
   [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md),
-  [`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
-  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/motifs.md),
-  [`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
+  [`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  [`plot.cograph_motif_result()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  [`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot-results.md),
   and
-  [`plot.tna_disparity()`](https://sonsoles.me/cograph/reference/plot.tna_disparity.md).
+  [`plot.tna_disparity()`](https://sonsoles.me/cograph/reference/plot-results.md).
   With `combined = FALSE` these functions draw panels into the active
   device without calling `graphics::par(mfrow=...)`, so callers can
   drive their own layout
@@ -2989,7 +3006,7 @@ CRAN release: 2026-05-31
   (`sum(A[idx, idx]) - sum(k_out[idx]) * sum(k_in[idx]) / m`), per the
   project “no for loops” rule. Results verified bit-exact against
   [`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html).
-- [`is_directed()`](https://sonsoles.me/cograph/reference/is_directed.md)
+- [`is_directed()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   now recognises `CographNetwork` R6 objects — previously only the
   `cograph_network` list format dispatched correctly.
 - `compute_layout_for_cograph()` uses `layout$get_type()` instead of the
@@ -3178,10 +3195,9 @@ Directed-only; warns and returns `NA` on undirected input.
   proper state labels, no manual extraction needed. New parameters:
   `method` (`"hon"` / `"hypa"`), `max_pathways`, `ncol`. Dismantled mode
   uses `gridExtra` grid layout with scaled nodes
-- [`print.cograph_network()`](https://sonsoles.me/cograph/reference/print.cograph_network.md)
-  now shows a structured summary: node/edge counts, density,
-  reciprocity, weight range, and top-degree nodes — replacing the
-  minimal R6 default output
+- `print.cograph_network()` now shows a structured summary: node/edge
+  counts, density, reciprocity, weight range, and top-degree nodes —
+  replacing the minimal R6 default output
 - Added `mcml` S3 class with
   [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md)
   generic for type-safe handling of Markov Chain Multi-Level models —
@@ -3460,7 +3476,7 @@ Directed-only; warns and returns `NA` on undirected input.
   [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md)
   wrappers
 - Added `plot_bootstrap()` and
-  [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
+  [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md)
   for significance-styled visualization of bootstrap and permutation
   test results — significant edges rendered solid on top,
   non-significant edges dashed behind
@@ -3500,7 +3516,7 @@ Directed-only; warns and returns `NA` on undirected input.
   [`select_edges()`](https://sonsoles.me/cograph/reference/select_edges.md)
   for flexible network subsetting
 - Added
-  [`set_groups()`](https://sonsoles.me/cograph/reference/set_groups.md)
+  [`set_groups()`](https://sonsoles.me/cograph/reference/get_nodes.md)
   for storing cluster assignments on cograph_network objects with
   automatic dispatch to
   [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) /

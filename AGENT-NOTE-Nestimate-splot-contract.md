@@ -71,23 +71,23 @@ include:
 - `"bootstrap"` / `"net_bootstrap"` -\>
   [`splot.net_bootstrap()`](https://sonsoles.me/cograph/reference/splot.md)
 - `"tna_bootstrap"` -\>
-  [`splot.tna_bootstrap()`](https://sonsoles.me/cograph/reference/splot.tna_bootstrap.md)
+  [`splot.tna_bootstrap()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"permutation"` / `"net_permutation"` -\>
   [`splot.net_permutation()`](https://sonsoles.me/cograph/reference/splot.md)
 - `"tna_permutation"` -\>
-  [`splot.tna_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md)
+  [`splot.tna_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"stability"` / `"net_stability"` -\>
-  [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot_net_stability.md)
+  [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"mlvar"` / `"net_mlvar"` -\>
   [`splot.net_mlvar()`](https://sonsoles.me/cograph/reference/splot.md)
 - `"netobject"` -\>
   [`splot.netobject()`](https://sonsoles.me/cograph/reference/splot.md)
 - `"netobject_group"` -\>
-  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot_netobject_group.md)
+  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"netobject_ml"` -\>
-  [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot_netobject_ml.md)
+  [`plot_netobject_ml()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"net_bootstrap_group"` -\>
-  [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot_net_bootstrap_group.md)
+  [`plot_net_bootstrap_group()`](https://sonsoles.me/cograph/reference/plot-results.md)
 - `"boot_glasso"` -\>
   [`splot.boot_glasso()`](https://sonsoles.me/cograph/reference/splot.md)
 - `"wtna_mixed"` -\>

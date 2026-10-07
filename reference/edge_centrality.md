@@ -1,8 +1,7 @@
 # Calculate Edge Centrality Measures
 
-Computes centrality measures for edges in a network and returns a tidy
-data frame. Unlike node centrality, these measures describe edge
-importance.
+Computes centrality measures for the edges of a network and returns a
+tidy data frame with one row per edge.
 
 ## Usage
 
@@ -27,7 +26,8 @@ edge_betweenness(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object)
+  Network input (matrix, edge-list data frame, igraph, network,
+  cograph_network, tna object).
 
 - measures:
 
@@ -50,12 +50,14 @@ edge_betweenness(x, ...)
 
 - invert_weights:
 
-  Logical or NULL. Invert weights for path-based measures? Default NULL
-  (auto-detect: TRUE for tna objects, FALSE otherwise).
+  Logical or NULL. Whether edge betweenness inverts the weights, so that
+  higher weights mean shorter paths. The default `NULL` is TRUE for tna
+  objects and FALSE otherwise.
 
 - alpha:
 
-  Numeric. Exponent for weight inversion. Default 1.
+  Numeric. Exponent of the inversion, which computes distances as
+  `1 / weight^alpha`. Default 1.
 
 - digits:
 
@@ -67,22 +69,24 @@ edge_betweenness(x, ...)
 
 - ...:
 
-  Additional arguments forwarded to the graph constructor, namely
-  `loops` and `simplify` (see
+  For `edge_centrality()`, the graph-construction arguments `loops` and
+  `simplify` (see
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)).
+  For `edge_betweenness()`, arguments passed to `edge_centrality()`.
 
 ## Value
 
-A base `data.frame` with one row per edge, in the canonical (row-major)
-edge order of the input. The first two columns are `from` and `to`
-(character when the input carried node names, numeric indices
-otherwise); the remaining columns are those the requested measures
-contribute, as listed in Details. `measures = "all"` on an undirected
-input therefore gives `from`, `to`, `weight`, `betweenness`, `overlap`,
-`shared_neighbors` and `triangles`, and a directed input adds
-`reciprocated`, `reverse_weight` and `weight_ratio`.
+`edge_centrality()` returns a base `data.frame` with one row per edge,
+in the canonical (row-major) edge order of the input. The first two
+columns are `from` and `to` (character when the input carried node
+names, numeric indices otherwise); the remaining columns are those the
+requested measures contribute, as listed in Details. `measures = "all"`
+on an undirected input therefore gives `from`, `to`, `weight`,
+`betweenness`, `overlap`, `shared_neighbors` and `triangles`, and a
+directed input adds `reciprocated`, `reverse_weight` and `weight_ratio`.
 
-Named numeric vector of edge betweenness values (named by `"from->to"`).
+`edge_betweenness()` returns a numeric vector of edge betweenness values
+named `"from->to"`, for directed and undirected inputs alike.
 
 ## Details
 
@@ -90,7 +94,8 @@ Edge measures available, with the column(s) each one adds:
 
 - betweenness:
 
-  Number of shortest paths passing through the edge. Adds `betweenness`.
+  Edge betweenness, the sum over node pairs of the share of their
+  shortest paths that pass through the edge. Adds `betweenness`.
 
 - weight:
 
@@ -118,36 +123,36 @@ undirected input.
 ## Examples
 
 ``` r
-# Create test network
-mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-
-# All edge measures
-edge_centrality(mat)
-#>   from to weight betweenness overlap shared_neighbors triangles
-#> 1    A  B      1           2     0.5                1         1
-#> 2    A  C      1           1     1.0                1         1
-#> 3    B  C      1           2     0.5                1         1
-#> 4    B  D      1           3     0.0                0         0
-
-# Just betweenness
-edge_centrality(mat, measures = "betweenness")
-#>   from to betweenness
-#> 1    A  B           2
-#> 2    A  C           1
-#> 3    B  C           2
-#> 4    B  D           3
-
-# Sort by betweenness to find bridge edges
-edge_centrality(mat, sort_by = "betweenness")
-#>   from to weight betweenness overlap shared_neighbors triangles
-#> 1    B  D      1           3     0.0                0         0
-#> 2    A  B      1           2     0.5                1         1
-#> 3    B  C      1           2     0.5                1         1
-#> 4    A  C      1           1     1.0                1         1
-mat <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,0, 0,1,0,0), 4, 4)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C", "D")
-edge_betweenness(mat)
-#> A->B A->C B->C B->D 
-#>    2    1    2    3 
+edge_centrality(regulation_net, measures = "betweenness")
+#>          from         to betweenness
+#> 1     Explore    Reflect         3.0
+#> 2     Explore      Share        11.0
+#> 3        Plan    Monitor         4.0
+#> 4        Plan    Discuss         4.0
+#> 5        Plan   Evaluate         7.0
+#> 6        Plan     Create         7.5
+#> 7        Plan      Share         2.0
+#> 8     Monitor      Adapt        21.0
+#> 9     Monitor     Create         6.0
+#> 10      Adapt    Explore         3.0
+#> 11      Adapt    Discuss         5.5
+#> 12      Adapt Synthesize        15.5
+#> 13    Reflect    Explore         6.0
+#> 14    Reflect    Monitor        13.0
+#> 15    Discuss    Explore         0.0
+#> 16    Discuss    Reflect         1.0
+#> 17    Discuss     Create         8.5
+#> 18 Synthesize       Plan         9.5
+#> 19 Synthesize    Monitor         3.0
+#> 20 Synthesize    Reflect         3.0
+#> 21   Evaluate    Monitor         0.0
+#> 22   Evaluate      Adapt         0.0
+#> 23   Evaluate    Reflect        12.0
+#> 24     Create    Explore         5.0
+#> 25     Create    Monitor         7.0
+#> 26     Create   Evaluate         5.0
+#> 27     Create      Share         5.0
+#> 28      Share       Plan        15.0
+#> 29      Share    Monitor         0.0
+#> 30      Share      Adapt         3.0
 ```

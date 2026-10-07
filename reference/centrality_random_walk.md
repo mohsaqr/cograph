@@ -1,6 +1,10 @@
 # Random Walk Centrality
 
-Inverse sum of random walk distances. Requires a connected graph.
+Random walk centrality is the inverse of the summed random-walk
+distances from a node to the others: \$\$RW(i) = \left(\sum\_{j}
+\frac{m\_{ij} + m\_{ji}}{2}\right)^{-1},\$\$ where \\m\_{ij}\\ is the
+mean first passage time from \\i\\ to \\j\\ of a walk that moves to each
+out-neighbor with equal probability.
 
 ## Usage
 
@@ -12,28 +16,41 @@ centrality_random_walk(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of random walk centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. A disconnected network gives `NA` for every
+node with a warning that carries no condition class. On a directed
+network that is not strongly connected, some nodes have stationary
+probability zero, their passage times are set to 0, and the scores are
+then not random-walk distances. The passage times are symmetrized before
+the sum, so the values differ from
+[`tidygraph::centrality_random_walk()`](https://tidygraph.data-imaginist.com/reference/centrality.html),
+which sums them unsymmetrized.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_markov`](https://sonsoles.me/cograph/reference/centrality_markov.md),
+[`centrality_current_flow_closeness`](https://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_random_walk(adj)
-#>    A    B    C 
-#> 0.25 0.25 0.25 
+centrality_random_walk(regulation_net)
+#>     Explore        Plan     Monitor       Adapt     Reflect     Discuss 
+#> 0.012216636 0.008002654 0.013333103 0.012968861 0.011194826 0.008290386 
+#>  Synthesize    Evaluate      Create       Share 
+#> 0.007141018 0.006606541 0.011334481 0.011743819 
 ```

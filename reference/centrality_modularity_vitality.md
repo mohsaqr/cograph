@@ -1,13 +1,10 @@
 # Modularity Vitality
 
-Contribution of a node to the modularity of a fixed partition
-(Magelinski, Bartulovic & Carley 2021): \$\$V_Q(i) = Q(G, C) - Q(G -
-i,\\ C \setminus \\i\\),\$\$ the drop in Newman modularity when node
-\\i\\ is deleted and the remaining nodes keep their communities.
-Positive values mark community hubs (removing them weakens the modular
-structure); negative values mark bridges (removing them sharpens it).
-Weighted graphs use edge weights; directed graphs use the Leicht-Newman
-directed modularity, as igraph does.
+Modularity vitality (Magelinski, Bartulovic and Carley 2021) is the drop
+in Newman modularity of a fixed partition \\C\\ when a node is deleted
+and the remaining nodes keep their communities: \$\$V_Q(i) = Q(G, C) -
+Q(G - i, C \setminus \\i\\).\$\$ Positive values mark community hubs and
+negative values mark bridges between communities.
 
 ## Usage
 
@@ -19,34 +16,37 @@ centrality_modularity_vitality(x, membership = NULL, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Community labels, one per node (integer, factor, or character).
-  Required; without it the function warns and returns `NA`. Obtain one
-  from
+  Community labels, one per node (integer, factor or character), for
+  example from
   [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (use edge weights, default `TRUE`) and
+  `loops` (keep self-loops, default `TRUE`).
 
 ## Value
 
-Named numeric vector, one value per node. `NaN` where deleting the node
-leaves a graph with no edges.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-All \\n\\ vitalities are computed in closed form from one matrix
-product, without recomputing modularity \\n\\ times.
-
-## Conditions
-
-Raises an error of class `cograph_bad_membership` when `membership` is
-not one non-missing label per node.
+Edge weights are used. A directed network uses the Leicht-Newman
+directed modularity, and the values equal those obtained by deleting
+each node and recomputing
+[`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html).
+Self-loops enter the modularity, and `loops = FALSE` drops them. A node
+whose deletion leaves a graph with no edges returns `NaN`. Without
+`membership` the function raises an unclassed warning and returns `NA`
+for every node. A `membership` that is not one non-missing label per
+node raises an error of class `cograph_bad_membership`.
 
 ## References
 
@@ -58,17 +58,15 @@ Transactions on Network Science and Engineering, 8(1), 707-723.
 
 [`centrality_participation`](https://sonsoles.me/cograph/reference/centrality_participation.md),
 [`centrality_within_module_z`](https://sonsoles.me/cograph/reference/centrality_within_module_z.md),
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Two triangles joined by one bridge edge (C -- D)
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_modularity_vitality(adj, membership = c(1, 1, 1, 2, 2, 2))
-#>           A           B           C           D           E           F 
-#>  0.13714286  0.13714286 -0.01785714 -0.01785714  0.13714286  0.13714286 
+centrality_modularity_vitality(regulation_net,
+                               membership = rep(1:2, each = 5))
+#>      Explore         Plan      Monitor        Adapt      Reflect      Discuss 
+#>  0.053967672 -0.101796335  0.004415560  0.004479664  0.039233478 -0.037692695 
+#>   Synthesize     Evaluate       Create        Share 
+#> -0.020910192  0.006336680  0.063488155 -0.030896476 
 ```

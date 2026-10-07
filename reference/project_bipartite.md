@@ -92,34 +92,27 @@ paths, weighted networks, and centrality. *Physical Review E*, 64(1),
 ## Examples
 
 ``` r
-# Incidence matrix: 4 students x 3 courses
-inc <- matrix(c(1, 1, 0,
-                1, 0, 1,
-                0, 1, 1,
-                1, 1, 1), 4, 3, byrow = TRUE)
-rownames(inc) <- paste0("S", 1:4)
-colnames(inc) <- paste0("C", 1:3)
-
-# Student co-enrollment (weighted)
-cograph::project_bipartite(inc, mode = "rows", method = "sum")
-#>    S1 S2 S3 S4
-#> S1  0  1  1  2
-#> S2  1  0  1  2
-#> S3  1  1  0  2
-#> S4  2  2  2  0
-
-# Course overlap (Jaccard similarity)
-cograph::project_bipartite(inc, mode = "columns", method = "jaccard")
-#>     C1  C2  C3
-#> C1 0.0 0.5 0.5
-#> C2 0.5 0.0 0.5
-#> C3 0.5 0.5 0.0
-
-# Newman's weighted projection
-cograph::project_bipartite(inc, mode = "rows", method = "newman")
-#>     S1  S2  S3 S4
-#> S1 0.0 0.5 0.5  1
-#> S2 0.5 0.0 0.5  1
-#> S3 0.5 0.5 0.0  1
-#> S4 1.0 1.0 1.0  0
+cograph::project_bipartite(regulation_net, mode = "rows", method = "jaccard")
+#>              Explore      Plan   Monitor     Adapt   Reflect   Discuss
+#> Explore    0.0000000 0.1666667 0.0000000 0.0000000 0.0000000 0.2500000
+#> Plan       0.1666667 0.0000000 0.1666667 0.1428571 0.1666667 0.1428571
+#> Monitor    0.0000000 0.1666667 0.0000000 0.0000000 0.0000000 0.2500000
+#> Adapt      0.0000000 0.1428571 0.0000000 0.0000000 0.2500000 0.2000000
+#> Reflect    0.0000000 0.1666667 0.0000000 0.2500000 0.0000000 0.2500000
+#> Discuss    0.2500000 0.1428571 0.2500000 0.2000000 0.2500000 0.0000000
+#> Synthesize 0.2500000 0.1428571 0.0000000 0.0000000 0.2500000 0.2000000
+#> Evaluate   0.2500000 0.1428571 0.2500000 0.0000000 0.2500000 0.2000000
+#> Create     0.2000000 0.5000000 0.0000000 0.1666667 0.5000000 0.1666667
+#> Share      0.0000000 0.1428571 0.2500000 0.0000000 0.2500000 0.0000000
+#>            Synthesize  Evaluate    Create     Share
+#> Explore     0.2500000 0.2500000 0.2000000 0.0000000
+#> Plan        0.1428571 0.1428571 0.5000000 0.1428571
+#> Monitor     0.0000000 0.2500000 0.0000000 0.2500000
+#> Adapt       0.0000000 0.0000000 0.1666667 0.0000000
+#> Reflect     0.2500000 0.2500000 0.5000000 0.2500000
+#> Discuss     0.2000000 0.2000000 0.1666667 0.0000000
+#> Synthesize  0.0000000 0.5000000 0.1666667 0.5000000
+#> Evaluate    0.5000000 0.0000000 0.1666667 0.5000000
+#> Create      0.1666667 0.1666667 0.0000000 0.1666667
+#> Share       0.5000000 0.5000000 0.1666667 0.0000000
 ```

@@ -1,14 +1,12 @@
 # Local Information Dimensionality
 
-Entropy-weighted local dimension (Wen & Deng 2020). With \\p_i(l) =
-B_i(l) / N\\ the share of the network inside the box of \\l\\ hops
-around \\i\\ (node included), the box information is \\I_i(l) = -p_i(l)
-\ln p_i(l)\\ and \$\$D^I_i = -\frac{d I_i(l)}{d \ln l},\$\$ estimated as
-minus the least-squares slope of \\I_i(l)\\ on \\\ln l\\ for \\l = 1,
-\ldots, \lceil d\_{\max}(i) / 2 \rceil\\. **Higher values mark more
-influential nodes.** When only one box size is available the discretized
-derivative of the source paper, \\l (1 + \ln p_i(l))\\ n_i(l) / N\\, is
-reported.
+Local information dimensionality (Wen and Deng 2020) weights the local
+dimension by information. With \\p_i(l) = B_i(l) / N\\ the share of the
+network within \\l\\ hops of \\i\\, the node included, and box
+information \\I_i(l) = -p_i(l) \ln p_i(l)\\, the measure is minus the
+least-squares slope of \\I_i(l)\\ on \\\ln l\\ for \\l = 1, \ldots,
+\lceil d\_{\max}(i) / 2 \rceil\\: \$\$D^I_i = -\frac{d I_i(l)}{d \ln
+l}.\$\$
 
 ## Usage
 
@@ -20,26 +18,30 @@ centrality_local_information_dimension(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"` (distances along
-  out-edges), or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node. `NaN` for a node that reaches
-no other node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Distances are hop counts; edge weights are ignored.
+Distances are hop counts, so edge weights are ignored. On a directed
+network `mode` sets the direction of the paths. Higher values mark more
+influential nodes. A node with a single box size returns the discretized
+derivative of the source, \\l (1 + \ln p_i(l))\\ n_i(l) / N\\. A node
+that reaches no other node returns `NaN`.
 
 ## References
 
@@ -49,15 +51,16 @@ networks by local information dimensionality. Information Sciences, 512,
 
 ## See also
 
-[`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md).
+[`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md),
+[`centrality_local_dimension_fixed`](https://sonsoles.me/cograph/reference/centrality_local_dimension_fixed.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_local_information_dimension(path5)
-#>          A          B          C          D          E 
-#> 0.08659188 0.18463688 0.19566975 0.18463688 0.08659188 
+centrality_local_information_dimension(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.2445872  0.3859950  0.5437995  0.3859950  0.2445872  0.2445872  0.1227411 
+#>   Evaluate     Create      Share 
+#>  0.2445872  0.3859950  0.2445872 
 ```

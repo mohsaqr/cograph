@@ -1,9 +1,9 @@
 # Plot Alluvial Diagram
 
-Creates an alluvial (Sankey) diagram showing aggregated flows between
-states. This is an alias for
+Creates an alluvial (Sankey) diagram of aggregated flows between states.
+It calls
 [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
-with aggregated flows (default).
+with `track_individuals = FALSE`.
 
 ## Usage
 
@@ -58,46 +58,61 @@ plot_alluvial(
 
 - x:
 
-  Input data in one of several formats:
+  Input data in one of these formats:
 
-  - A transition matrix (rows = from, cols = to, values = counts)
+  - A transition matrix (rows = from, columns = to, values = counts).
 
-  - Two vectors: pass `before` as x and `after` as second argument
-    (contingency table computed automatically, like chi-square)
+  - A vector of "before" states, with the vector of "after" states
+    passed as the second argument (`from_title`). Both vectors must have
+    the same length, greater than 2, and their contingency table is
+    computed.
 
-  - A 2-column data frame (raw observations; table computed
-    automatically)
+  - A data frame with two columns of raw observations, whose contingency
+    table is computed.
 
-  - A data frame with columns: from, to, count
+  - A data frame with three or more columns of raw observations, one
+    column per time point, plotted as a multi-step diagram.
 
-  - A list of matrices for multi-step transitions
+  - A data frame with columns `from`, `to` and `count`.
+
+  - A list of matrices for multi-step transitions.
+
+  - A `tna` object. Its sequence data are used as a data frame of time
+    points (rows with missing values are dropped), or its weight matrix
+    when no sequence data are stored.
 
 - from_title:
 
-  Title for the left column. Default "From". For multi-step, use a
-  vector of titles (e.g., c("T1", "T2", "T3", "T4")).
+  Title for the left column. Default "From". For multi-step and
+  individual-tracking plots, a vector with one title per column. Data
+  frame input then uses the column names by default, and a vector
+  shorter than the number of columns is replaced by "T1", "T2", ...
 
 - to_title:
 
-  Title for the right column. Default "To". Ignored for multi-step.
+  Title for the right column. Default "To". Ignored for multi-step
+  plots.
 
 - title:
 
-  Optional plot title. Applied via ggplot2::labs(title = title).
+  Optional plot title.
 
 - from_colors:
 
-  Colors for left-side nodes. Default uses palette.
+  Colors for the left-side nodes. In multi-step and individual-tracking
+  plots, the colors of all states. Default NULL uses the built-in
+  palette.
 
 - to_colors:
 
-  Colors for right-side nodes. Default uses palette.
+  Colors for the right-side nodes in two-column plots. Default NULL uses
+  the built-in palette.
 
 - flow_fill:
 
-  Fill color for flows. Default "#888888" (grey). In multi-step and
-  individual-tracking plots, ignored when `flow_color_by` is set; simple
-  two-column aggregate plots use `flow_fill`.
+  Fill color for flows. Default "#888888" (grey). In multi-step plots it
+  is replaced by the state colors when `flow_color_by` is set.
+  Individual-tracking lines do not use it.
 
 - flow_alpha:
 
@@ -105,10 +120,10 @@ plot_alluvial(
 
 - flow_color_by:
 
-  Color flows by state. For multi-step aggregate flows, use `"source"`
-  or `"destination"`; for individual trajectories, `"first"` and
-  `"last"` are also supported. Default NULL uses `flow_fill`; simple
-  two-column aggregate plots ignore this argument.
+  Color flows by state. Multi-step aggregate plots accept `"source"` or
+  `"destination"`. Individual-tracking plots also accept `"first"` and
+  `"last"`. Default NULL uses `flow_fill`. Two-column aggregate plots
+  ignore this argument.
 
 - flow_border:
 
@@ -137,24 +152,26 @@ plot_alluvial(
 - label_position:
 
   Position of node labels: "beside" (default), "inside", "above",
-  "below", or "outside".
+  "below", "outside". In multi-step and individual-tracking plots,
+  "beside" and "outside" label the first and last columns only. See
+  `mid_label_position` for middle columns.
 
 - label_halo:
 
-  Logical: add white halo around labels for readability? Default TRUE.
+  Logical: add a white halo around labels and column titles? Default
+  TRUE.
 
 - label_color:
 
   Color of state name labels. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
+  individual-tracking plots. Two-column aggregate plots use black
   external labels and white inside labels.
 
 - label_fontface:
 
   Font face of state name labels ("plain", "bold", "italic",
   "bold.italic"). Default "plain". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use fixed
-  label font faces.
+  individual-tracking plots.
 
 - label_nudge:
 
@@ -168,8 +185,7 @@ plot_alluvial(
 - title_color:
 
   Color of column title text. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
-  titles.
+  individual-tracking plots.
 
 - title_fontface:
 
@@ -188,6 +204,7 @@ plot_alluvial(
 
   Position of flow values: "center", "origin", "destination",
   "outside_origin", "outside_destination". Default "center".
+  Individual-tracking plots use "center", "origin" and "destination".
 
 - value_size:
 
@@ -199,9 +216,8 @@ plot_alluvial(
 
 - value_halo:
 
-  Logical: add halo around flow value labels? Default NULL (inherits
-  from `label_halo`). Applied to multi-step and individual-tracking
-  plots.
+  Logical: add halo around flow value labels? Default NULL uses
+  `label_halo`. Applied to multi-step and individual-tracking plots.
 
 - value_fontface:
 
@@ -216,9 +232,8 @@ plot_alluvial(
 - value_min:
 
   Minimum count to show a flow value label in multi-step and
-  individual-tracking plots. Default 0 (show all). Simple two-column
-  aggregate plots show all nonzero value labels when
-  `show_values = TRUE`.
+  individual-tracking plots. Default 0 (show all). Two-column aggregate
+  plots show every nonzero value label when `show_values = TRUE`.
 
 - show_totals:
 
@@ -234,22 +249,25 @@ plot_alluvial(
 
 - total_fontface:
 
-  Font face of total labels. Default "bold".
+  Font face of total labels. Default "bold". Applied to multi-step and
+  individual-tracking plots.
 
 - conserve_flow:
 
-  Logical: should left and right totals match? Default TRUE. When FALSE,
-  each side scales independently (allows for "lost" or "gained" items).
+  Logical. When TRUE (default), node heights on both sides of a
+  two-column plot are proportions of the same total flow. When FALSE,
+  each side is scaled to its own total. Ignored for multi-step and
+  individual-tracking plots.
 
 - min_flow:
 
-  Minimum flow value to display. Default 0 (show all).
+  Minimum flow value to display in aggregate plots. Default 0 (show
+  all).
 
 - threshold:
 
-  Minimum edge weight to display. Flows below this value are removed.
-  Combined with `min_flow`: effective minimum is
-  `max(threshold, min_flow)`. Default 0.
+  Minimum flow value to display in aggregate plots. Flows below
+  `max(threshold, min_flow)` are removed. Default 0.
 
 - value_digits:
 
@@ -259,12 +277,12 @@ plot_alluvial(
 - column_gap:
 
   Horizontal spread of columns (0-1) for multi-step and
-  individual-tracking plots. Default 1 uses full width. Use smaller
-  values (e.g., 0.6) to bring columns closer together.
+  individual-tracking plots. Default 1 uses the full width. Smaller
+  values (e.g., 0.6) bring the columns closer together.
 
 ## Value
 
-A ggplot2 object.
+A `ggplot` object.
 
 ## See also
 
@@ -274,9 +292,6 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-mat <- matrix(c(50, 10, 5, 15, 40, 10), 2, 3)
-rownames(mat) <- c("A", "B")
-colnames(mat) <- c("X", "Y", "Z")
-plot_alluvial(mat)
+plot_alluvial(regulation_net)
 
 ```

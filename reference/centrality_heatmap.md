@@ -1,6 +1,17 @@
-# Heatmap, Flow Coefficient, Local Entropy, Weighted h-index, Redundancy
+# Heatmap, Flow Coefficient, Local Entropy, Weighted h-index and Redundancy
 
-Five local measures.
+Five local measures. Heatmap centrality (Duron 2020) is the farness of a
+node minus the mean farness of its neighbors, \\C(v) = f(v) -
+\frac{1}{k_v} \sum\_{u \in N(v)} f(u)\\, with \\f\\ the sum of hop
+distances to the reachable nodes. The flow coefficient (Honey et al.
+2007) is the fraction of ordered pairs of distinct neighbors joined by a
+two-step path through the node and by no direct link, as in the Brain
+Connectivity Toolbox. Local entropy (Nie et al. 2016) is \\-\sum\_{j \in
+N(i)} k_j \ln k_j\\. The weighted h-index (Gao et al. 2019) is the
+h-index of the multiset in which each neighbor \\j\\ contributes the
+value \\k_i k_j\\ repeated \\k_j\\ times. Redundancy (Burt 1992;
+Borgatti 1997) is the mean degree of the neighbors of a node within its
+ego network.
 
 ## Usage
 
@@ -20,62 +31,36 @@ centrality_redundancy(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"` (distances along
-  out-edges), or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order. The
+weighted h-index is an integer vector.
 
 ## Details
 
-- `heatmap` (Duron 2020):
-
-  Farness minus the mean farness of the neighbors, \\C(v) = f(v) -
-  \frac{1}{k_v} \sum\_{u \in N(v)} f(u)\\, with \\f\\ the sum of hop
-  distances to reachable nodes. **Lower is more central.** Isolates
-  score `NaN`. Reproduces Table 1 of the paper.
-
-- `flow_coefficient` (Honey et al. 2007):
-
-  Among ordered pairs of distinct neighbors, the fraction joined by a
-  two-step path through the node but not by a direct link, as
-  implemented in the Brain Connectivity Toolbox. On an undirected graph
-  it equals one minus the clustering coefficient; it carries new
-  information only on directed graphs. Nodes with fewer than two
-  neighbors score 0.
-
-- `local_entropy` (Nie et al. 2016):
-
-  \\-\sum\_{j \in N(i)} k_j \ln k_j\\, as printed by the sources. Always
-  non-positive and more negative for larger, denser neighborhoods, so
-  **lower is more central**; isolates score 0, the maximum. The original
-  article is closed access; the formula is that of the Zoo and of Omar
-  and Plapper's 2021 survey, which agree.
-
-- `weighted_h_index` (Gao et al. 2019):
-
-  h-index of the multiset in which each neighbor \\j\\ contributes the
-  topological weight \\k_i k_j\\ repeated \\k_j\\ times. Edge weights on
-  the input play no role.
-
-- `redundancy` (Burt 1992; Borgatti 1997):
-
-  Mean degree of the node's neighbors within its ego network, \\2 t_i /
-  k_i\\; equal to degree minus effective size. Higher = fewer structural
-  holes. Reproduces Borgatti's worked example.
-
-`heatmap`, `local_entropy` and `weighted_h_index` follow `mode`; the
-others ignore direction. Edge weights are ignored.
+Edge weights are ignored by all five. Heatmap, local entropy and the
+weighted h-index follow `mode`. Redundancy ignores direction, and the
+flow coefficient uses the direction of the links. On an undirected
+network the flow coefficient of a node with at least two neighbors
+equals one minus its clustering coefficient, and redundancy equals
+degree minus effective size. Lower values mark more central nodes for
+heatmap and local entropy. Isolated nodes return `NaN` for heatmap and 0
+for local entropy, and nodes with fewer than two neighbors score 0 on
+the flow coefficient. The formula for local entropy follows the
+Centrality Zoo and the survey of Omar and Plapper (2021), which agree.
 
 ## References
 
@@ -98,21 +83,35 @@ measures. Connections, 20(1), 35-38.
 ## See also
 
 [`centrality_effective_size`](https://sonsoles.me/cograph/reference/centrality_effective_size.md),
-[`centrality_transitivity`](https://sonsoles.me/cograph/reference/centrality_transitivity.md).
+[`centrality_transitivity`](https://sonsoles.me/cograph/reference/centrality_transitivity.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_heatmap(star5)
-#>  A  B  C  D  E 
-#> -3  3  3  3  3 
-centrality_weighted_h_index(star5)
-#> A B C D E 
-#> 4 4 4 4 4 
-centrality_redundancy(star5)
-#> A B C D E 
-#> 0 0 0 0 0 
+centrality_heatmap(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.4000000 -0.6666667 -1.7142857 -0.8333333  0.2000000  0.6000000  2.0000000 
+#>   Evaluate     Create      Share 
+#>  1.0000000 -0.5000000  1.0000000 
+centrality_flow_coefficient(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.2500000  0.2333333  0.1904762  0.3000000  0.2000000  0.2000000  0.2500000 
+#>   Evaluate     Create      Share 
+#>  0.2000000  0.2333333  0.3000000 
+centrality_local_entropy(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  -45.64268  -54.05867  -61.93842  -51.35531  -43.30812  -48.34605  -43.16967 
+#>   Evaluate     Create      Share 
+#>  -53.92023  -56.56069  -53.92023 
+centrality_weighted_h_index(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         25         28         33         27         22         25         20 
+#>   Evaluate     Create      Share 
+#>         25         30         25 
+centrality_redundancy(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   2.000000   2.333333   3.142857   1.666667   1.200000   1.600000   1.500000 
+#>   Evaluate     Create      Share 
+#>   2.000000   2.666667   2.400000 
 ```

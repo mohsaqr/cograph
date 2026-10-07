@@ -1,9 +1,9 @@
-# Expected Influence (one-step)
+# One-Step Expected Influence
 
-Signed-weight sum of a node's edges (Robinaugh, Millner & McNally 2016).
-The appropriate centrality for networks with positive *and* negative
-edges (partial-correlation, glasso, signed correlation networks) where
-treating negative edges as positive magnitudes can be misleading.
+One-step expected influence (Robinaugh, Millner and McNally 2016) sums
+the signed weights of a node's edges: \$\$EI_1(i) = \sum\_{j}
+w\_{ij}.\$\$ Negative edges lower the score, which makes the measure
+suited to partial-correlation and other signed networks.
 
 ## Usage
 
@@ -15,44 +15,53 @@ centrality_expected_influence_1(x, mode = "out", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  One of "all", "in", "out" for directed graphs. Default "out".
+  For directed networks: `"out"` (default), `"in"` or `"all"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` and `psych_network`.
 
 ## Value
 
-Named numeric vector of expected-influence values (signed).
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+`mode = "out"` (the default here) sums the outgoing weights,
+`mode = "in"` the incoming weights and `mode = "all"` both, with a
+self-loop counted once. On an undirected network `"out"` and `"in"`
+agree, and `"all"` counts every edge twice. Edge weights are always
+used, and `weighted = FALSE` has no effect. On an unweighted input the
+score is the degree in the chosen mode. When the network has a negative
+edge, `normalized = TRUE` divides by the largest absolute score and
+keeps the sign.
 
 ## References
 
-Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying highly
-influential nodes in the complicated grief network. *Journal of Abnormal
-Psychology*, 125(6), 747-757.
+Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+highly influential nodes in the complicated grief network. Journal of
+Abnormal Psychology, 125(6), 747-757.
+[doi:10.1037/abn0000181](https://doi.org/10.1037/abn0000181) .
 
 ## See also
 
-[`centrality_expected_influence_2`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md)
-for the two-step variant,
-[`centrality_strength`](https://sonsoles.me/cograph/reference/centrality_strength.md)
-for the weighted-degree analogue.
+[`centrality_expected_influence_2`](https://sonsoles.me/cograph/reference/centrality_expected_influence_2.md),
+[`centrality_strength`](https://sonsoles.me/cograph/reference/centrality_strength.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Signed weight matrix (partial correlations, for example)
-W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-               0.5,  0.0,  0.4, -0.1,
-              -0.3,  0.4,  0.0,  0.6,
-               0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-centrality_expected_influence_1(W)
-#>   A   B   C   D 
-#> 0.4 0.8 0.7 0.7 
+centrality_expected_influence_1(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>       0.62       1.58       0.53       0.79       0.20       0.79       0.60 
+#>   Evaluate     Create      Share 
+#>       0.83       0.93       1.09 
 ```

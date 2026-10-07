@@ -38,11 +38,13 @@ Create a new CographLayout object.
 
 - `type`:
 
-  Layout type (e.g., "circle", "spring", "groups").
+  Layout name. One of the names returned by
+  [`list_layouts()`](https://sonsoles.me/cograph/reference/layout_registry.md),
+  or `"custom"` together with a `coords` argument.
 
 - `...`:
 
-  Additional parameters for the layout algorithm.
+  Additional parameters stored and passed to the layout function.
 
 #### Returns
 
@@ -66,17 +68,21 @@ Compute layout coordinates for a network.
 
 - `...`:
 
-  Additional parameters passed to the layout function.
+  Additional parameters passed to the layout function. They override
+  parameters given to `$new()`.
 
 #### Returns
 
-Data frame with x, y coordinates.
+A data frame with columns `x` and `y`, one row per node, rescaled by
+`$normalize_coords()`.
 
 ------------------------------------------------------------------------
 
 ### Method `normalize_coords()`
 
-Normalize coordinates to 0-1 range with padding.
+Rescale coordinates into the unit square. Both axes are scaled by the
+same factor, so the larger spread spans `[padding, 1 - padding]` and the
+layout is centered at 0.5.
 
 #### Usage
 
@@ -86,15 +92,16 @@ Normalize coordinates to 0-1 range with padding.
 
 - `coords`:
 
-  Matrix or data frame with x, y columns.
+  Matrix or data frame. Columns `x` and `y` are used, or the first two
+  columns when these names are absent.
 
 - `padding`:
 
-  Numeric. Padding around edges (default 0.1).
+  Numeric. Margin left on each side of the larger spread.
 
 #### Returns
 
-Normalized coordinates.
+A data frame with rescaled `x` and `y` columns.
 
 ------------------------------------------------------------------------
 
@@ -108,7 +115,7 @@ Get layout type.
 
 #### Returns
 
-Character string.
+A character string.
 
 ------------------------------------------------------------------------
 
@@ -122,7 +129,7 @@ Get layout parameters.
 
 #### Returns
 
-List of parameters.
+A list of the parameters given to `$new()`.
 
 ------------------------------------------------------------------------
 
@@ -157,11 +164,17 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Create a circular layout
 layout <- CographLayout$new("circle")
-
-# Apply to network
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-coords <- layout$compute(net)
+layout$compute(CographNetwork$new(regulation_net))
+#>            x         y
+#> 1  0.7351141 0.8236068
+#> 2  0.8804226 0.6236068
+#> 3  0.8804226 0.3763932
+#> 4  0.7351141 0.1763932
+#> 5  0.5000000 0.1000000
+#> 6  0.2648859 0.1763932
+#> 7  0.1195774 0.3763932
+#> 8  0.1195774 0.6236068
+#> 9  0.2648859 0.8236068
+#> 10 0.5000000 0.9000000
 ```

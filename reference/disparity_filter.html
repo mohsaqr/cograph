@@ -9,7 +9,7 @@ using the disparity filter method (Serrano, Boguna, &amp;amp; Vespignani, 2009).
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,10 +91,13 @@ a sparser backbone (fewer edges retained).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For matrices: a binary matrix (0/1) indicating significant edges.
-For tna, cograph_network, and igraph objects: a <code>tna_disparity</code> object
-containing the significance matrix, original weights, filtered weights,
-and summary statistics.</p>
+    <p>For a matrix, an integer matrix of the same dimensions and
+dimnames with 1 for significant edges and 0 otherwise. For tna,
+cograph_network and igraph objects, a <code>tna_disparity</code> list with
+elements <code>significant</code> (the 0/1 matrix), <code>weights_orig</code>,
+<code>weights_filtered</code> (original weights times the 0/1 matrix),
+<code>level</code>, <code>n_edges_orig</code> and <code>n_edges_filtered</code>. Any other
+input raises an error.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -105,7 +108,12 @@ are distributed uniformly at random.</p>
 with normalized weight \(p_{ij} = w_{ij} / s_i\) (where \(s_i\) is
 the node's strength), the p-value is:</p>
 <p>$$p = (1 - p_{ij})^{(k_i - 1)}$$</p>
-<p>Edges are significant if \(p &lt; level\) for either endpoint.</p>
+<p>The p-value is computed from the outgoing weights of the source node
+(row strength and out-degree) and from the incoming weights of the target
+node (column strength and in-degree). An edge is significant if the
+smaller of the two p-values is below <code>level</code>. Self-loops are never
+retained. For igraph input, unweighted edges get weight 1 and multiple
+edges are summed before filtering.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -120,26 +128,29 @@ Proceedings of the National Academy of Sciences, 106(16), 6483-6488.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a weighted network</span></span></span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">0.1</span>, <span class="fl">0.0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0.3</span>, <span class="fl">0.0</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.0</span>, <span class="fl">0.5</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0.0</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.0</span></span></span>
-<span class="r-in"><span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Extract backbone at 5% significance level</span></span></span>
-<span class="r-in"><span><span class="va">backbone</span> <span class="op">&lt;-</span> <span class="fu">disparity_filter</span><span class="op">(</span><span class="va">mat</span>, level <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">backbone</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 0 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0 0 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0 0 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 0 0 0 0</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># More stringent filter (1% level)</span></span></span>
-<span class="r-in"><span><span class="va">backbone_strict</span> <span class="op">&lt;-</span> <span class="fu">disparity_filter</span><span class="op">(</span><span class="va">mat</span>, level <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">disparity_filter</span><span class="op">(</span><span class="va">regulation_net</span>, level <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Explore Plan Monitor Adapt Reflect Discuss Synthesize Evaluate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore          0    0       0     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan             0    0       0     0       0       0          0        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor          0    0       0     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt            1    0       0     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect          0    0       1     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss          1    0       0     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize       0    0       0     0       1       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate         0    0       1     1       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create           0    0       0     0       0       0          0        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share            0    0       1     0       0       0          0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Create Share</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore         0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan            0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor         1     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt           0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect         0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss         0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize      0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate        0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create          0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share           0     0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,12 +1,82 @@
 # Color Palettes
 
-Built-in color palettes for network visualization.
+The `palette_*()` functions generate a vector of `n` colors for nodes or
+edges. They are registered under their short names (for example
+`"colorblind"`), which
+[`sn_palette`](https://sonsoles.me/cograph/reference/sn_palette.md)
+accepts, and `list_palettes()` returns the registered names.
+
+- `palette_rainbow()`:
+
+  Rainbow hues.
+
+- `palette_colorblind()`:
+
+  The colorblind-safe colors of Wong.
+
+- `palette_pastel()`:
+
+  Soft pastel colors.
+
+- `palette_viridis()`:
+
+  The viridis family, chosen by `option`.
+
+- `palette_blues()`, `palette_reds()`:
+
+  Sequential blue or red shades.
+
+- `palette_diverging()`:
+
+  Blue to red through `midpoint`.
+
+## Usage
+
+``` r
+list_palettes()
+
+palette_rainbow(n, alpha = 1)
+
+palette_colorblind(n, alpha = 1)
+
+palette_pastel(n, alpha = 1)
+
+palette_viridis(n, alpha = 1, option = "viridis")
+
+palette_blues(n, alpha = 1)
+
+palette_reds(n, alpha = 1)
+
+palette_diverging(n, alpha = 1, midpoint = "white")
+```
+
+## Arguments
+
+- n:
+
+  Number of colors to generate.
+
+- alpha:
+
+  Transparency, from 0 (transparent) to 1 (opaque).
+
+- option:
+
+  Viridis option, one of `"viridis"`, `"magma"`, `"plasma"`,
+  `"inferno"`, `"cividis"`. Any other value gives the `"viridis"`
+  colors.
+
+- midpoint:
+
+  Color of the midpoint of the diverging palette.
+
+## Value
+
+The `palette_*()` functions return a character vector of `n` colors.
+`list_palettes()` returns a character vector of palette names.
 
 ## Examples
 
 ``` r
-palette_blues(5)
-#> [1] "#F7FBFF" "#CCDEF1" "#84BBDB" "#3989C1" "#084594"
-palette_reds(5)
-#> [1] "#FFF5F0" "#FCC4AD" "#FB7D5D" "#E53228" "#99000D"
+splot(regulation_net, node_fill = palette_colorblind(n = 10))
 ```

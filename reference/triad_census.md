@@ -1,6 +1,7 @@
 # Triad Census
 
-Count the 16 types of triads in a directed network using MAN notation.
+Counts the 16 types of triads in a directed network using MAN notation.
+Edge weights are ignored.
 
 ## Usage
 
@@ -12,7 +13,7 @@ triad_census(x)
 
 - x:
 
-  A matrix, igraph object, or cograph_network
+  A matrix, igraph object, or cograph_network.
 
 ## Value
 
@@ -21,20 +22,15 @@ type, in the order listed under Details.
 
 ## Details
 
-Triad census is defined only for directed networks. Matrix input is
-built as directed; existing igraph and cograph inputs must already be
-directed.
+The triad census is defined only for directed networks. Matrix input is
+read as directed. An undirected igraph or cograph_network input raises
+an error.
 
-MAN notation describes triads by:
-
-- M: number of Mutual (reciprocal) edges
-
-- A: number of Asymmetric edges
-
-- N: number of Null (absent) edges
-
-The 16 triad types are: 003, 012, 102, 021D, 021U, 021C, 111D, 111U,
-030T, 030C, 201, 120D, 120U, 120C, 210, 300
+A MAN code gives the number of mutual (reciprocated) dyads, the number
+of asymmetric dyads and the number of null (absent) dyads of a triad,
+followed by a letter that separates types with the same counts. The 16
+triad types, in the order of the result, are 003, 012, 102, 021D, 021U,
+021C, 111D, 111U, 030T, 030C, 201, 120D, 120U, 120C, 210 and 300.
 
 ## See also
 
@@ -48,18 +44,12 @@ Other motifs:
 [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
 [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
 [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
 
 ## Examples
 
 ``` r
-set.seed(1)
-mat <- matrix(sample(0:1, 100, replace = TRUE), 10, 10)
-diag(mat) <- 0
-# igraph and sna also export triad_census(); qualify the call.
-cograph::triad_census(mat)
+cograph::triad_census(regulation_net)
 #>  003  012  102 021D 021U 021C 111D 111U 030T 030C  201 120D 120U 120C  210  300 
-#>    2   12    8    3    5    5   12   12    5    3   13    3    5   10   22    0 
+#>    7   27    2    9   11   29    9    7   11    2    0    2    1    3    0    0 
 ```

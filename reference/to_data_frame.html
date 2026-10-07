@@ -9,7 +9,7 @@ target, and weight."><meta property="og:image" content="https://sonsoles.me/cogr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,10 +78,10 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 columns:</p><ul><li><p><code>from</code>: Source node name/label</p></li>
 <li><p><code>to</code>: Target node name/label</p></li>
 <li><p><code>weight</code>: Edge weight</p></li>
-</ul><p>Any further edge columns the network carries (for example <code>session</code>
-or <code>time</code> from temporal edge lists) are <em>not</em> included; use
-<code><a href="get_edges.html">get_edges</a></code>, which returns the edge table whole. An
-undirected network contributes one row per unordered pair, not two.</p>
+</ul><p>Further edge columns, such as <code>session</code> or <code>time</code> from
+temporal edge lists, are dropped. <code><a href="get_nodes.html">get_edges</a></code> returns the
+full edge table. An undirected network contributes one row per unordered
+pair.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -90,29 +90,38 @@ undirected network contributes one row per unordered pair, not two.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Convert to edge list</span></span></span>
-<span class="r-in"><span><span class="fu">to_data_frame</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   from to weight</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    A  B    0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    A  C    0.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    B  C    0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    B  D    0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    C  D    0.4</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use alias</span></span></span>
-<span class="r-in"><span><span class="fu">to_df</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   from to weight</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    A  B    0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    A  C    0.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    B  C    0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    B  D    0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    C  D    0.4</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">to_data_frame</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          from         to weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       Adapt    Explore   0.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     Reflect    Explore   0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     Discuss    Explore   0.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      Create    Explore   0.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Synthesize       Plan   0.11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       Share       Plan   0.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        Plan    Monitor   0.13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     Reflect    Monitor   0.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  Synthesize    Monitor   0.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   Evaluate    Monitor   0.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     Create    Monitor   0.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      Share    Monitor   0.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13    Monitor      Adapt   0.16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14   Evaluate      Adapt   0.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      Share      Adapt   0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16    Explore    Reflect   0.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17    Discuss    Reflect   0.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 Synthesize    Reflect   0.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19   Evaluate    Reflect   0.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20       Plan    Discuss   0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21      Adapt    Discuss   0.34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22      Adapt Synthesize   0.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23       Plan   Evaluate   0.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24     Create   Evaluate   0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25       Plan     Create   0.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26    Monitor     Create   0.37</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27    Discuss     Create   0.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28    Explore      Share   0.27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29       Plan      Share   0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30     Create      Share   0.23</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

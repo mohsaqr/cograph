@@ -1,8 +1,10 @@
 # Convert a qgraph object to cograph parameters
 
-Extracts the network, layout, and all relevant arguments from a qgraph
-object and passes them to a cograph plotting engine. Reads resolved
-values from `graphAttributes` rather than raw `Arguments`.
+Extracts the network, the layout and the plotting arguments from a
+qgraph object and passes them to a cograph plotting engine. Node, edge
+and graph settings are read from the resolved `graphAttributes` of the
+object. The colors `posCol`, `negCol` and the `theme` are read from its
+`Arguments`.
 
 ## Usage
 
@@ -42,11 +44,11 @@ from_qgraph(
 
 - show_zero_edges:
 
-  Logical. Zero is how this representation stores "no edge", so an edge
-  whose weight rounds to zero at `weight_digits` is dropped. With `TRUE`
-  such an edge is instead drawn at the smallest magnitude
-  `weight_digits` can express, carrying its sign; every other weight is
-  unchanged. Default: FALSE.
+  Logical. A zero weight means that the edge is absent, so an edge whose
+  weight rounds to zero at `weight_digits` is dropped. With `TRUE` each
+  such edge is plotted at the smallest magnitude that `weight_digits`
+  can express, with its original sign. Other weights are unchanged.
+  Default: `FALSE`.
 
 - preserve_node_size:
 
@@ -55,23 +57,27 @@ from_qgraph(
 
 - ...:
 
-  Override any extracted parameter. Use qgraph-style names (e.g.,
-  `minimum`) or cograph names (e.g., `threshold`).
+  Overrides for any extracted parameter, given by cograph name (for
+  example `threshold`). The qgraph names `minimum` and `cut` are
+  translated to `threshold` and `edge_cutoff`.
 
 ## Value
 
-Invisibly, a named list of cograph parameters that can be passed to
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) or
-[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
+Invisibly, a named list of plotting parameters (the weight matrix `x`,
+`weight_digits`, the layout and the extracted node, edge and graph
+settings, after the overrides in `...`). It can be passed to
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) with
+[`do.call()`](https://rdrr.io/r/base/do.call.html). An input without an
+`Arguments` field that does not inherit from `"qgraph"` raises an error.
 
 ## Details
 
 ### Parameter Mapping
 
-The following qgraph parameters are automatically extracted and mapped
-to cograph equivalents:
+The following qgraph parameters are extracted and mapped to their
+cograph equivalents.
 
-**Node properties:**
+Node properties:
 
 - `labels`/`names` `->` `labels`
 
@@ -90,7 +96,7 @@ to cograph equivalents:
 
 - `label.color` `->` `label_color`
 
-**Edge properties:**
+Edge properties:
 
 - `labels` `->` `edge_labels`
 
@@ -105,7 +111,7 @@ to cograph equivalents:
 
 - `edge.label.position` `->` `edge_label_position`
 
-**Graph properties:**
+Graph properties:
 
 - `minimum` `->` `threshold`
 
@@ -119,25 +125,24 @@ to cograph equivalents:
 
 - `theme` `->` `theme`
 
-**Pie/Donut:**
+Pie and donut:
 
 - `pie` values `->` `donut_fill` with `donut_inner_ratio = 0.8` and
   `donut_empty = FALSE`
 
 - `pieColor` `->` `donut_color`
 
-### Important Notes
+### Settings that are not extracted
 
-- **edge_color and edge_width are NOT extracted** because qgraph bakes
-  its cut-based fading into these vectors, producing near-invisible
-  edges. cograph applies its own weight-based styling instead.
+The edge colors and widths are not extracted, because qgraph stores them
+with its `cut`-based fading applied. cograph styles the edges by weight
+instead. The `cut` value is not extracted either.
 
-- The `cut` parameter is also not passed because it causes faint edges
-  with hanging labels.
+### Layout
 
-- Layout coordinates from qgraph are preserved with `rescale=FALSE`.
-
-- If you override layout, rescale is automatically re-enabled.
+The qgraph layout coordinates are kept with `rescale = FALSE`. When
+`layout` is supplied in `...`, `rescale` is removed and the new layout
+is rescaled.
 
 ## See also
 
@@ -151,34 +156,6 @@ for tna object conversion
 ## Examples
 
 ``` r
-# Convert and plot a qgraph object
-adj <- matrix(c(0, .5, .3, .5, 0, .4, .3, .4, 0), 3, 3)
-q <- qgraph::qgraph(adj)
-
-from_qgraph(q)  # Plots with splot
-
-
-# Use soplot engine instead
-from_qgraph(q, engine = "soplot")
-
-
-# Override extracted parameters
-from_qgraph(q, node_fill = "steelblue", layout = "circle")
-
-
-# Extract parameters without plotting
-params <- from_qgraph(q, plot = FALSE)
-names(params)  # See what was extracted
-#>  [1] "x"                   "weight_digits"       "layout"             
-#>  [4] "rescale"             "labels"              "node_fill"          
-#>  [7] "node_shape"          "node_border_color"   "node_border_width"  
-#> [10] "label_size"          "label_color"         "edge_labels"        
-#> [13] "edge_label_size"     "edge_style"          "arrow_size"         
-#> [16] "edge_label_position" "threshold"           "maximum"            
-#> [19] "groups"              "directed"           
-
-# Works with themed qgraph objects
-q_themed <- qgraph::qgraph(adj, theme = "colorblind", posCol = "blue")
-
-from_qgraph(q_themed)
+q <- qgraph::qgraph(regulation_net, DoNotPlot = TRUE)
+from_qgraph(q)
 ```

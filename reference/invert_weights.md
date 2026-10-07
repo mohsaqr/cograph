@@ -1,7 +1,8 @@
 # Invert Edge Weights (Similarity to Distance and Back)
 
-Turns strong ties into short distances, which is what path-based
-measures need when the weights are similarities rather than costs.
+Turns strong ties into short distances. Path-based measures treat
+weights as costs, so similarity weights are inverted before such
+measures are computed.
 
 ## Usage
 
@@ -26,8 +27,7 @@ invert_weights(
 
   `"reciprocal"`
 
-  :   (default) `1 / w`. The standard similarity-to-distance map;
-      requires non-zero weights, which every stored edge has.
+  :   (default) `1 / w`, the standard similarity-to-distance map.
 
   `"max_minus"`
 
@@ -36,8 +36,8 @@ invert_weights(
 
   `"reflect"`
 
-  :   `max(w) + min(w) - w`. Reverses the order of the weights while
-      keeping every edge, so no edge is lost.
+  :   `max(w) + min(w) - w`. Reverses the order of the weights and keeps
+      every edge when all weights are positive.
 
 - keep_format:
 
@@ -60,38 +60,18 @@ A `cograph_network` with inverted weights, or the input format when
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-invert_weights(adj)
-#> Cograph network: 4 nodes, 5 edges ( undirected )
+invert_weights(regulation_net, method = "reciprocal")
+#> Cograph network: 10 nodes, 30 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 5 / 6 (density: 83.3%)
-#>   Weights: [1.250, 3.333]  |  mean: 2.150
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [2.041, 20.000]  |  mean: 5.421
 #>   Strongest edges:
-#>     B -- C  3.333
-#>     C -- D  2.500
-#>     A -- B  2.000
-#>     B -- D  1.667
-#>     A -- C  1.250
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-invert_weights(adj, method = "reflect")
-#> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 5 / 6 (density: 83.3%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.580
-#>   Strongest edges:
-#>     B -- C  0.800
-#>     C -- D  0.700
-#>     A -- B  0.600
-#>     B -- D  0.500
-#>     A -- C  0.300
+#>     Reflect -> Explore  20.000
+#>     Synthesize -> Monitor  14.286
+#>     Evaluate -> Reflect  14.286
+#>     Synthesize -> Plan  9.091
+#>     Plan -> Monitor  7.692
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

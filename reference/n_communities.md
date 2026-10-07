@@ -12,17 +12,16 @@ n_communities(x)
 
 - x:
 
-  A cograph_communities object
+  A `cograph_communities` object.
 
 ## Value
 
-Integer count of communities
+A single integer, the number of distinct communities.
 
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
+comm <- community_walktrap(regulation_net)
 n_communities(comm)
-#> [1] 4
+#> [1] 2
 ```

@@ -1,9 +1,9 @@
 # Plot Centrality
 
-Publication-quality visualization of one or more centrality measures.
-Accepts the data frame from
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-directly or any network input.
+Plots one or more centrality measures, one facet per measure. Accepts
+the data frame from
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) or
+any network input.
 
 ## Usage
 
@@ -37,10 +37,10 @@ plot_centrality(
 
 - measures:
 
-  Character vector of measure names. Default pulls the classical five
-  (degree, strength, betweenness, closeness, eigenvector) when `x` is a
-  network; default `NULL` keeps all columns when `x` is already a
-  centrality data frame.
+  Character vector of measure names. When `x` is a network and
+  `measures` is NULL (default), degree, strength, betweenness, closeness
+  and eigenvector are computed. When `x` is a centrality data frame,
+  NULL keeps all its measure columns.
 
 - style:
 
@@ -53,42 +53,45 @@ plot_centrality(
 
 - scale:
 
-  Character: "raw" (default, native units; in the "line" style this
-  forces free y-axis per measure via faceting), "normalized" (\[0, 1\]
-  within measure), "z" (standardized within measure), or "rank" (1..n,
-  highest value = 1).
+  Character: "raw" (default, native units with a free value axis per
+  facet), "normalized" (min-max scaled to \[0, 1\] within measure), "z"
+  (standardized within measure), or "rank" (1 = highest value within
+  measure).
 
 - order_by:
 
-  Character. For "bar"/"lollipop": which measure sorts nodes. Defaults
-  to the first measure. Use `"alpha"` for alphabetical. For "line", this
-  also controls node ordering unless `"alpha"` is requested.
+  Character. Name of the measure column that sorts the nodes (e.g.,
+  "degree_all"), or `"alpha"` for alphabetical order. Defaults to the
+  first measure. In the "bar", "lollipop" and "dot" styles an unknown
+  name raises an error; in the "line" style it falls back to the first
+  measure.
 
 - top_n:
 
-  Optional integer to keep only the top-N nodes (by `order_by`). Useful
-  for large graphs.
+  Optional integer. Keeps only the top-N nodes by `order_by` (by the
+  first measure when `order_by = "alpha"`).
 
 - highlight:
 
-  Optional integer: highlight the top-N bars/lines per measure in full
-  color; mute the rest. Default 0 (no highlighting).
+  Integer. In the "bar", "lollipop" and "dot" styles, the top-N nodes
+  per measure are plotted in full color and the rest are muted. Default
+  0 (no highlighting). Ignored by the "line" style.
 
 - cluster:
 
-  Optional named vector or data-frame column mapping each node to a
-  cluster/community. Colors nodes by cluster when supplied.
+  Optional cluster assignment of the nodes, given as the name of a
+  column of `x`, a vector in node order, or a vector named by node.
+  Colors the nodes by cluster in the "bar", "lollipop" and "dot" styles.
 
 - palette:
 
-  Character or vector. `"cograph"` (default) uses cograph's
-  teal-gold-leaf palette; `"okabe"` uses Okabe-Ito; `"viridis"` uses
-  viridis; or supply a character vector of colors.
+  Currently unused. Cluster colors are taken from the built-in cograph
+  palette.
 
 - ncol:
 
-  For faceted styles ("bar", "lollipop"): number of columns. Default
-  `NULL` chooses sensibly based on measure count.
+  Number of facet columns. Default `NULL` uses up to three columns for
+  eight or fewer measures and four otherwise.
 
 - title:
 
@@ -114,30 +117,23 @@ Four styles are available:
 
 - `"line"`:
 
-  Faceted line view with one panel per measure. Nodes are ordered along
-  the requested orientation and connected within each measure.
+  Points connected by a line within each measure, with nodes in the
+  order set by `order_by`.
 
 - `"bar"`:
 
-  Horizontal bars, one facet per measure. Best for reading individual
-  measure values.
+  Bars of the measure values.
 
 - `"lollipop"`:
 
-  Like `"bar"` but with a dot at the tip. Softer visual weight; useful
-  on dense grids.
+  Segments ending in a dot.
 
 - `"dot"`:
 
-  Dot-only variant of the lollipop style.
+  Dots only.
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-              5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-plot_centrality(adj)
-
-plot_centrality(adj, style = "bar", highlight = 2)
+plot_centrality(regulation_net)
 ```

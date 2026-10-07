@@ -1,8 +1,9 @@
 # Rich Club Coefficient
 
-Computes the rich club coefficient for a given degree threshold k.
-Measures the tendency of high-degree nodes to connect to each other. A
-normalized version compares to random graphs.
+Computes the rich club coefficient for a degree threshold `k`, the
+density of ties among nodes with degree above `k`. It measures the
+tendency of high-degree nodes to connect to each other. Degrees are
+taken on the undirected simple skeleton of the network.
 
 ## Usage
 
@@ -18,12 +19,13 @@ network_rich_club(x, k = NULL, normalized = FALSE, n_random = 10, ...)
 
 - k:
 
-  Degree threshold. Only nodes with degree \> k are included. If NULL,
-  uses median degree.
+  Degree threshold. Only nodes with degree greater than `k` are
+  included. Default NULL uses the median degree.
 
 - normalized:
 
-  Logical. Normalize by random graph expectation? Default FALSE.
+  Logical. If TRUE, divide by the mean coefficient of random graphs with
+  the same degree sequence. Default FALSE.
 
 - n_random:
 
@@ -38,8 +40,8 @@ network_rich_club(x, k = NULL, normalized = FALSE, n_random = 10, ...)
 
 ## Value
 
-Numeric: rich club coefficient (\> 1 indicates rich club effect when
-normalized). `NA` when fewer than two nodes exceed `k`.
+Numeric scalar: the rich club coefficient. A normalized value above 1
+indicates a rich club effect. `NA` when fewer than two nodes exceed `k`.
 
 ## Reproducibility
 
@@ -55,10 +57,6 @@ curve.
 ## Examples
 
 ``` r
-# Scale-free networks often show rich-club effect
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-  network_rich_club(g, k = 5)
-}
-#> [1] 0.4166667
+network_rich_club(regulation_net, k = 5)
+#> [1] 0.6666667
 ```

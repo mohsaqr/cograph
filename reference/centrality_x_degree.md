@@ -1,12 +1,10 @@
-# X-degree centrality
+# X-Degree Centrality
 
-Computes Torres et al.'s X-degree (equation 3.15): \$\$Xdeg(i) =
-(\sum\_{j\in N(i)}(d_j-1))^2 - \sum\_{j\in N(i)}(d_j-1)^2.\$\$ Degrees
-are measured in the original simple undirected graph. The score counts
-oriented nonbacktracking walks of four edges whose middle vertex is i.
-Walks can revisit a vertex provided they do not immediately reverse an
-edge. It is also the sum of entries of the paper's matrix DFE, where D,
-F and E are blocks of the nonbacktracking matrix around i.
+X-degree (Torres et al. 2021, equation 3.15) counts the oriented
+nonbacktracking walks of four edges whose middle node is \\i\\. It
+depends only on the degrees \\d_j\\ of the neighbors of \\i\\:
+\$\$Xdeg(i) = \Big(\sum\_{j \in N(i)} (d_j - 1)\Big)^2 - \sum\_{j \in
+N(i)} (d_j - 1)^2.\$\$
 
 ## Usage
 
@@ -23,32 +21,22 @@ centrality_x_degree(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides scores by their maximum; an all-zero
-  result stays zero.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the simple undirected skeleton: direction, weights, mode, inversion
-and cutoff do not affect results. Loops are removed and parallel edges
-count once. This projection is a cograph convention extending the
-published simple, unweighted, undirected domain. Isolates and leaves
-score zero; every vertex of a star also scores zero. Empty graphs return
-no scores. Disconnected components are independent before maximum
-normalization. These cases follow directly from the local formula.
-
-Native arithmetic accumulates nonnegative pair products instead of
-subtracting two squares. Aggregation takes O(n+m) time after neighbor
-construction; the current dense skeleton conversion uses O(n squared)
-time and memory. This is a score on the supplied graph, not the paper's
-iterative node-removal immunization algorithm. Agreement with the author
-function and matrix definition does not establish immunization efficacy,
-exact eigendrop prediction or an unconditional spectral upper bound.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+Isolated nodes and leaves score zero, and every node of a star scores
+zero. Components are scored independently. The function computes the
+score on the supplied network. The iterative node-removal immunization
+procedure of the paper is a separate algorithm.
 
 ## References
 
@@ -58,14 +46,18 @@ Targeted Immunization. SIAM Journal on Mathematics of Data Science,
 3(2), 656-675.
 [doi:10.1137/20M1352132](https://doi.org/10.1137/20M1352132) .
 
+## See also
+
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality_dynamical_importance`](https://sonsoles.me/cograph/reference/centrality_dynamical_importance.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_x_degree(igraph::make_graph("Zachary"))
-#>    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16 
-#> 2540 1478 2646 1204  162  202  202  974 2224  288  162    0  150 2158  352  352 
-#>   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32 
-#>   18  240  352  976  352  240  352  826   62   76   96  604  538  630 1064 1690 
-#>   33   34 
-#> 1984 2068 
+centrality_x_degree(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        386        558        768        516        348        422        298 
+#>   Evaluate     Create      Share 
+#>        498        604        498 
 ```

@@ -1,18 +1,12 @@
-# Neighborhood centrality, and its neighbor distance special case
+# Neighborhood Centrality
 
-Neighborhood centrality adds to a node's own benchmark centrality the
-benchmark centrality of the nodes its walks reach, discounted once per
-step: \\C^n_i(\theta)=\theta_i+a\sum\_{j\in\Gamma_i}\theta_j
-+a^2\sum\_{l\in\Gamma_j\setminus i}\theta_l+\dots
-+a^n\sum\_{s\in\Gamma\_{s-1}\setminus x}\theta_s\\. The sums are nested
-and each level excludes only the node the walk just came from, so the
-\\k\\-th term sums \\\theta\\ over the endpoints of the
-**non-backtracking walks of length \\k\\** that start at \\i\\, once per
-walk. A walk may revisit a node it passed earlier, including \\i\\
-itself; only immediate backtracking is barred. The Zoo calls the setting
-`nd_mass = "degree"`, `nd_order = 2`, `nd_decay = 0.2` the *neighbor
-distance centrality*, and that is the default here; it is the
-configuration the source recommends.
+Neighborhood centrality (Liu et al. 2016) adds to a node's benchmark
+centrality \\\theta\\ the benchmark centrality of the endpoints of its
+non-backtracking walks of length 1 to \\n\\, discounted by \\a^k\\ at
+step \\k\\. With the defaults (degree benchmark, two steps, \\a = 0.2\\)
+it is the neighbor distance centrality. \$\$C_i = \theta_i + a \sum\_{j
+\in \Gamma_i} \theta_j + a^2 \sum\_{j \in \Gamma_i} \sum\_{l \in
+\Gamma_j \setminus i} \theta_l + \dots\$\$
 
 ## Usage
 
@@ -35,69 +29,37 @@ centrality_neighbor_distance(
 
 - nd_order:
 
-  Number of steps \\n\\, a single nonnegative whole number; default two,
-  the source's recommended setting. The source studies one to four
-  steps. Zero returns the benchmark centrality.
+  Number of steps \\n\\, a nonnegative whole number (default 2).
 
 - nd_decay:
 
-  Per-step decay \\a\\, a single finite number; default 0.2, the
-  source's own value. The source's domain is \\\[0,1\]\\.
+  Per-step decay \\a\\, a finite number (default 0.2).
 
 - nd_mass:
 
   Benchmark centrality \\\theta\\: `"degree"` (default) or `"coreness"`.
-  These are the two the source uses.
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-**This is not the same as summing over distance shells.** The Centrality
-Zoo (section 2.279, equation 2.1) paraphrases the measure with sums over
-\\N^{(k)}(i)\\, "the set of \\k\\-hop neighbors", which visits each node
-at most once per level and never revisits a closer one. The two readings
-agree on trees and disagree on any graph carrying a triangle or a cycle
-of length at most \\2n\\, and the difference is a per-node offset, not a
-rescaling. On the triangle-plus-pendant `A-B, A-C, B-C, A-D` with the
-defaults, the walk sums of the source give `4.16, 3.24, 3.24, 1.76`
-while distance shells would give `4.00, 3.04, 3.04, 1.76`. cograph
-implements the source equation. No shell variant is offered: the shell
-form appears only in a secondary paraphrase, which also attributes the
-measure to a different paper whose text does not contain it.
-
-The source states no normalization, so raw scores grow with `nd_decay`
-and `nd_order`; `normalized = TRUE` max-scales the finished vector and
-is a cograph convention. `nd_decay` is \\a\in\[0,1\]\\ in the source,
-which sweeps 0.1 to 0.5; cograph accepts any finite value, and a
-negative or larger one leaves the source's domain. `nd_order = 0` drops
-every sum and returns \\\theta\\ itself, which is what the source says
-\\a=0\\ does.
-
-Uses the simple undirected unweighted skeleton, which is the source
-domain: either arc creates one edge, parallel edges count once, and
-loops are removed, since a loop would make "the node the walk just came
-from" ambiguous. Edge weights, mode, cutoff and path-weight inversion
-are ignored. Isolates have every sum empty and score \\\theta_i\\, which
-is zero for both benchmarks; walks never leave a component, so the raw
-score of a node is unchanged by adding a disconnected component. Empty
-graphs return no scores. Core numbers follow
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md)'s
-`"coreness"`, so an isolate sits in the zero-shell. Cost is `nd_order`
-dense matrix-vector products, O(n^2) each. Walk counts grow
-geometrically in `nd_order`, so a large order overflows to infinity; the
-source considers one to four steps.
-
-Numerical verification establishes agreement with the source equation as
-printed in the author preprint, not parity with author software, which
-does not exist, and not any claim about spreading performance.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+Each level excludes only the node the walk came from, so a walk may
+revisit a node. Isolates score \\\theta_i\\, which is zero for both
+benchmarks, and `nd_order = 0` returns the benchmark itself. The source
+takes \\a\\ in \\\[0, 1\]\\, and the function accepts any finite value.
+The Centrality Zoo paraphrases the measure with sums over distance
+shells, which agree with the source's walk sums on trees and differ on
+graphs with short cycles. The implementation follows the source.
 
 ## References
 
@@ -109,24 +71,16 @@ Statistical Mechanics and its Applications, 452, 289-298.
 
 ## See also
 
-[`centrality_semilocal`](https://sonsoles.me/cograph/reference/centrality_semilocal.md)
-and
-[`centrality_extended_coreness`](https://sonsoles.me/cograph/reference/centrality_extended_coreness.md)
-for other neighborhood sums, and
-[`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)
-for the catalogue.
+[`centrality_semilocal`](https://sonsoles.me/cograph/reference/centrality_semilocal.md),
+[`centrality_extended_coreness`](https://sonsoles.me/cograph/reference/centrality_extended_coreness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Neighbor distance centrality: degree benchmark, two steps, a = 0.2
-centrality_neighbor_distance(igraph::make_ring(6))
-#>    1    2    3    4    5    6 
-#> 2.96 2.96 2.96 2.96 2.96 2.96 
-
-# The source's other benchmark, and a wider neighborhood
-centrality_neighbor_distance(igraph::make_star(7, mode = "undirected"),
-                             nd_order = 3, nd_mass = "coreness")
-#>   1   2   3   4   5   6   7 
-#> 2.2 1.4 1.4 1.4 1.4 1.4 1.4 
+centrality_neighbor_distance(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>      15.32      18.24      20.68      17.80      15.04      15.56      13.20 
+#>   Evaluate     Create      Share 
+#>      16.36      18.52      16.40 
 ```

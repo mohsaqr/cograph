@@ -1,9 +1,8 @@
 # Consensus Community Detection
 
-Runs a stochastic community detection algorithm multiple times and finds
-consensus communities via co-occurrence matrix thresholding. This
-approach produces more robust and stable community assignments than
-single runs.
+Runs a stochastic community detection algorithm repeatedly and derives
+consensus communities by thresholding the co-occurrence matrix of the
+runs.
 
 ## Usage
 
@@ -31,23 +30,24 @@ com_consensus(
 
 - x:
 
-  Network input: matrix, igraph, network, cograph_network, or tna object
+  Network input: matrix, igraph, network, cograph_network, or tna
+  object. The louvain and leiden methods require an undirected network.
 
 - method:
 
-  Community detection algorithm to use. Default "louvain". Must be a
-  stochastic method (louvain, leiden, infomap, label_propagation,
-  spinglass).
+  Community detection algorithm, one of `"louvain"` (default),
+  `"leiden"`, `"infomap"`, `"label_propagation"` or `"spinglass"`. The
+  current code runs louvain for `"spinglass"`.
 
 - n_runs:
 
-  Number of times to run the algorithm. Default 100.
+  Number of runs. Default 100.
 
 - threshold:
 
-  Co-occurrence threshold for consensus. Default 0.5. Nodes that appear
-  together in \>= threshold proportion of runs are placed in the same
-  community.
+  Co-occurrence threshold. Default 0.5. Pairs of nodes that share a
+  community in at least this proportion of runs are linked in the
+  consensus graph.
 
 - seed:
 
@@ -56,33 +56,25 @@ com_consensus(
 
 - ...:
 
-  Currently ignored. Each run calls the underlying `igraph::cluster_*()`
-  function with its own defaults; no extra arguments are forwarded.
+  Ignored. Each run calls the igraph function with its own defaults and
+  without weights or resolution settings. For leiden this is the CPM
+  objective with resolution 1.
 
 ## Value
 
 A `cograph_communities` data frame (columns `node` and `community`)
 holding the consensus membership. Its `"algorithm"` attribute is
-`"consensus_<method>"` and its `"modularity"` attribute is that of the
-final walktrap partition of the consensus graph, not of the original
-network.
+`"consensus_<method>"` and its `"modularity"` attribute is the
+modularity of the final walktrap partition computed on the consensus
+graph.
 
 ## Details
 
-The algorithm works as follows:
-
-1.  Run the specified algorithm `n_runs` times using the current RNG
-    stream
-
-2.  Build a co-occurrence matrix counting how often each pair of nodes
-    appears in the same community
-
-3.  Normalize to proportions (0-1)
-
-4.  Threshold to create a consensus graph (edge if co-occurrence \>=
-    threshold)
-
-5.  Run walktrap on the consensus graph to get final communities
+The algorithm is run `n_runs` times on the current random number stream.
+The proportion of runs in which each pair of nodes shares a community
+forms the co-occurrence matrix. Pairs with a proportion of at least
+`threshold` are linked in an unweighted consensus graph, and walktrap on
+that graph gives the final communities.
 
 ## References
 
@@ -97,53 +89,21 @@ complex networks. *Scientific Reports*, 2, 336.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Consensus from 50 Louvain runs
-  cc <- community_consensus(g, method = "louvain", n_runs = 50)
-  print(cc)
-
-  # Stricter threshold for more robust communities
-  cc2 <- community_consensus(g, threshold = 0.7, n_runs = 100)
-}
+community_consensus(to_undirected(regulation_net), method = "louvain",
+                    n_runs = 10, seed = 1)
 #> Community structure (consensus_louvain)
-#>   Nodes: 34  | Communities: 4  | Modularity: 0.6409 
-#>   Sizes: 12, 11, 5, 6 
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.5 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     1         1
-#>     2         1
-#>     3         1
-#>     4         1
-#>     5         3
-#>     6         3
-#>     7         3
-#>     8         1
-#>     9         2
-#>    10         1
-#>    11         3
-#>    12         1
-#>    13         1
-#>    14         1
-#>    15         2
-#>    16         2
-#>    17         3
-#>    18         1
-#>    19         2
-#>    20         1
-#>    21         2
-#>    22         1
-#>    23         2
-#>    24         4
-#>    25         4
-#>    26         4
-#>    27         2
-#>    28         4
-#>    29         4
-#>    30         2
-#>    31         2
-#>    32         4
-#>    33         2
-#>    34         2
+#>        node community
+#>     Explore         2
+#>        Plan         1
+#>     Monitor         1
+#>       Adapt         2
+#>     Reflect         2
+#>     Discuss         2
+#>  Synthesize         2
+#>    Evaluate         1
+#>      Create         1
+#>       Share         1
 ```

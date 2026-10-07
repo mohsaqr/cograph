@@ -1,7 +1,7 @@
 # Plot Individual Trajectories
 
-Creates an alluvial-style diagram where each individual's trajectory is
-shown as a separate line. This is an alias for
+Creates an alluvial-style diagram in which each individual's trajectory
+is plotted as a separate line. It calls
 [`plot_transitions()`](https://sonsoles.me/cograph/reference/plot_transitions.md)
 with `track_individuals = TRUE`.
 
@@ -61,7 +61,7 @@ plot_trajectories(
 - x:
 
   Data frame with one column per time point and one row per individual
-  trajectory.
+  trajectory, or a `tna` object with sequence data.
 
 - from_title:
 
@@ -70,11 +70,13 @@ plot_trajectories(
 
 - title:
 
-  Optional plot title. Applied via ggplot2::labs(title = title).
+  Optional plot title.
 
 - from_colors:
 
-  Colors for left-side nodes. Default uses palette.
+  Colors for the left-side nodes. In multi-step and individual-tracking
+  plots, the colors of all states. Default NULL uses the built-in
+  palette.
 
 - flow_color_by:
 
@@ -100,31 +102,32 @@ plot_trajectories(
 - label_position:
 
   Position of node labels: "beside" (default), "inside", "above",
-  "below", "outside". Applied to first and last columns. See
+  "below", "outside". In multi-step and individual-tracking plots,
+  "beside" and "outside" label the first and last columns only. See
   `mid_label_position` for middle columns.
 
 - mid_label_position:
 
   Position of labels for intermediate (middle) columns in
   individual-tracking plots. Same options as `label_position`. Default
-  NULL uses `label_position` value.
+  NULL uses `label_position`.
 
 - label_halo:
 
-  Logical: add white halo around labels for readability? Default TRUE.
+  Logical: add a white halo around labels and column titles? Default
+  TRUE.
 
 - label_color:
 
   Color of state name labels. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
+  individual-tracking plots. Two-column aggregate plots use black
   external labels and white inside labels.
 
 - label_fontface:
 
   Font face of state name labels ("plain", "bold", "italic",
   "bold.italic"). Default "plain". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use fixed
-  label font faces.
+  individual-tracking plots.
 
 - label_nudge:
 
@@ -138,8 +141,7 @@ plot_trajectories(
 - title_color:
 
   Color of column title text. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
-  titles.
+  individual-tracking plots.
 
 - title_fontface:
 
@@ -152,15 +154,20 @@ plot_trajectories(
 
 - line_alpha:
 
-  Alpha for individual tracking lines. Default 0.3.
+  Alpha for individual tracking lines. Default 0.3. When bundling is
+  active, values up to 0.3 are raised to 0.9 and larger values are
+  increased by 0.3, capped at 1.
 
 - line_width:
 
-  Width of individual tracking lines. Default 0.5.
+  Width of individual tracking lines. Default 0.5. When bundling is
+  active, widths range from `line_width` to twice that value according
+  to the number of cases per line.
 
 - jitter_amount:
 
-  Vertical jitter for individual lines (0-1). Default 0.8.
+  Currently unused. Lines are spaced evenly within each node. Default
+  0.8.
 
 - show_totals:
 
@@ -176,7 +183,8 @@ plot_trajectories(
 
 - total_fontface:
 
-  Font face of total labels. Default "bold".
+  Font face of total labels. Default "bold". Applied to multi-step and
+  individual-tracking plots.
 
 - show_values:
 
@@ -197,9 +205,8 @@ plot_trajectories(
 
 - value_halo:
 
-  Logical: add halo around flow value labels? Default NULL (inherits
-  from `label_halo`). Applied to multi-step and individual-tracking
-  plots.
+  Logical: add halo around flow value labels? Default NULL uses
+  `label_halo`. Applied to multi-step and individual-tracking plots.
 
 - value_fontface:
 
@@ -214,9 +221,8 @@ plot_trajectories(
 - value_min:
 
   Minimum count to show a flow value label in multi-step and
-  individual-tracking plots. Default 0 (show all). Simple two-column
-  aggregate plots show all nonzero value labels when
-  `show_values = TRUE`.
+  individual-tracking plots. Default 0 (show all). Two-column aggregate
+  plots show every nonzero value label when `show_values = TRUE`.
 
 - value_digits:
 
@@ -226,32 +232,35 @@ plot_trajectories(
 - column_gap:
 
   Horizontal spread of columns (0-1) for multi-step and
-  individual-tracking plots. Default 1 uses full width. Use smaller
-  values (e.g., 0.6) to bring columns closer together.
+  individual-tracking plots. Default 1 uses the full width. Smaller
+  values (e.g., 0.6) bring the columns closer together.
 
 - proportional_nodes:
 
   Logical: size nodes proportionally to counts in individual-tracking
-  plots? Default TRUE.
+  plots? When FALSE, all states in a column have equal height. Default
+  TRUE.
 
 - node_label_format:
 
   Format string for node labels with `{state}` and `{count}`
-  placeholders in individual-tracking plots. Default NULL (plain state
-  name). Example: `"{state} (n={count})"`.
+  placeholders in individual-tracking plots, for example
+  `"{state} (n={count})"`. Default NULL (plain state name).
 
 - bundle_size:
 
-  Controls line bundling for large datasets. Default NULL (no bundling).
-  Integer \>= 2: each drawn line represents that many cases. Numeric in
-  (0,1): reduce to this fraction of original lines (e.g., 0.15 keeps
-  about 15 percent of lines).
+  Controls line bundling for large datasets in individual-tracking
+  plots. Default NULL (no bundling). A value of 1 or more sets the
+  number of cases each line represents. A value in (0, 1) sets the
+  fraction of the original number of lines to keep (e.g., 0.15 keeps
+  about 15 percent). Paths with fewer than half the cases of one line
+  are dropped.
 
 - bundle_legend:
 
-  Logical or character: show annotation when bundling is active? Default
-  TRUE shows "Each line ~ N cases" below the plot. Pass a string to use
-  custom text (with `{n}` placeholder for count).
+  Logical or character: show an annotation when bundling is active?
+  Default TRUE shows "Each line ~ N cases". A string is used as custom
+  text, with `{n}` as the placeholder for the number of cases.
 
 - bundle_legend_size:
 
@@ -271,7 +280,7 @@ plot_trajectories(
 
 ## Value
 
-A ggplot2 object.
+A `ggplot` object.
 
 ## See also
 

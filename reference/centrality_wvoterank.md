@@ -1,9 +1,17 @@
 # WVoteRank, EnRenew and VoteRank++
 
-Three further spreader-selection procedures in the VoteRank family. All
-three elect one node per round until every node is placed and return the
-election order as a score, 1 for the first elected down to \\1 / n\\;
-ties go to the lowest node index. Direction and self-loops are ignored.
+Three spreader-selection procedures in the VoteRank family that elect
+one node per round. WVoteRank (Sun et al. 2019) scores a node by \\s_v =
+\sqrt{k_v \sum\_{u \in N(v)} va_u w\_{vu}}\\ and lowers the ability of
+the neighbors of a winner by \\1 / \langle w \rangle\\, the inverse of
+the average strength. EnRenew (Guo et al. 2020) elects the largest
+neighbor entropy \\E_v = -\sum\_{u \in N(v)} p\_{uv} \ln p\_{uv}\\,
+\\p\_{uv} = k_u / \sum\_{l \in N(v)} k_l\\, and scales the entropy terms
+within `enrenew_depth` steps by \\1 - 1 / (2^{d-1} \ln \langle k
+\rangle)\\. VoteRank++ (Liu et al. 2021) starts from ability \\\ln(1 +
+k_i / k\_{\max})\\, splits votes in proportion to degree, and multiplies
+abilities by \\\lambda\\ one step from a winner and by
+\\\sqrt{\lambda}\\ two steps away.
 
 ## Usage
 
@@ -19,57 +27,38 @@ centrality_voterank_plus(x, voterank_lambda = 0.1, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  WVoteRank uses `weighted` (use edge weights, default `TRUE`).
 
 - enrenew_depth:
 
-  Renewal radius \\l\\ for `enrenew`. Default 2.
+  Renewal radius \\l\\ for EnRenew (default 2).
 
 - voterank_lambda:
 
-  Suppression factor \\\lambda\\ for `voterank_plus`. Default 0.1.
+  Suppression factor \\\lambda\\ for VoteRank++ (default 0.1).
 
 ## Value
 
-Named numeric vector in \\(0, 1\]\\, one score per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-- `wvoterank` (Sun, Chen, He & Ch'ng 2019):
-
-  VoteRank for weighted graphs: \\s_v = \sqrt{k_v \sum\_{u \in N(v)}
-  va_u w\_{vu}}\\. After an election the winner's ability is 0 and its
-  neighbors lose \\1 / \langle w \rangle\\, where \\\langle w \rangle\\
-  is the average strength (the paper's Figure 1 pins strength, not
-  degree). Uses edge weights; with unit weights it is VoteRank with a
-  square-root score. Reproduces all sixty numbers of the paper's Figure
-  1.
-
-- `enrenew` (Guo, Yang, Guo, Pan & Chen 2020):
-
-  Entropy-based selection: \\E_v = \sum\_{u \in N(v)} -p\_{uv} \ln
-  p\_{uv}\\ with \\p\_{uv} = k_u / \sum\_{l \in N(v)} k_l\\; after
-  electing the largest \\E\\, every entropy term flowing outward to
-  depth \\d \le l\\ is scaled by \\1 - 1 / (2^{d-1} \ln \langle k
-  \rangle)\\, with \\l\\ = `enrenew_depth` (default 2). Reproduces the
-  paper's Figure 1. The authors' released code differs from the paper in
-  several ways; the paper is implemented. Note the factor turns negative
-  when \\\langle k \rangle \< e\\.
-
-- `voterank_plus` (Liu, Li, Fang & Yao 2021):
-
-  Initial ability \\\ln(1 + k_i / k\_{\max})\\, degree-proportional vote
-  shares over unelected neighbors, score \\\sqrt{k_i \sum_j va_j w\_{j
-  \to i}}\\, and after an election abilities are multiplied by
-  \\\lambda\\ one step away and \\\sqrt{\lambda}\\ two steps away
-  (`voterank_lambda`, default 0.1). The article is closed access; the
-  implementation matches the authors' released code exactly, including
-  its exclusion of elected nodes from the vote-share denominator.
+Elections continue until every node is placed. The first elected scores
+1 and the last \\1/n\\, so scores lie in \\(0, 1\]\\, and ties go to the
+lowest node index. Direction and self-loops are ignored. WVoteRank uses
+edge weights, and with unit weights it is VoteRank with a square-root
+score. The other two ignore weights. The renewal factor of EnRenew is
+negative when \\\langle k \rangle \< e\\. EnRenew follows the article
+where the released code of the authors differs from it. VoteRank++
+follows the released code of the authors, including the exclusion of
+elected nodes from the vote-share denominator.
 
 ## References
 
@@ -88,22 +77,25 @@ nodes in social networks: A voting approach. Chaos, Solitons & Fractals,
 ## See also
 
 [`centrality_voterank`](https://sonsoles.me/cograph/reference/centrality_voterank.md),
-[`centrality_ncvoterank`](https://sonsoles.me/cograph/reference/centrality_ncvoterank.md).
+[`centrality_ncvoterank`](https://sonsoles.me/cograph/reference/centrality_ncvoterank.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_wvoterank(adj)
-#>         A         B         C         D         E         F 
-#> 0.6666667 0.3333333 1.0000000 0.8333333 0.5000000 0.1666667 
-centrality_enrenew(adj)
-#>         A         B         C         D         E         F 
-#> 0.6666667 0.3333333 1.0000000 0.8333333 0.5000000 0.1666667 
-centrality_voterank_plus(adj)
-#>         A         B         C         D         E         F 
-#> 0.6666667 0.3333333 1.0000000 0.8333333 0.5000000 0.1666667 
+centrality_wvoterank(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        0.7        0.6        1.0        0.9        0.5        0.8        0.4 
+#>   Evaluate     Create      Share 
+#>        0.3        0.2        0.1 
+centrality_enrenew(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        0.4        0.8        1.0        0.6        0.2        0.3        0.1 
+#>   Evaluate     Create      Share 
+#>        0.7        0.9        0.5 
+centrality_voterank_plus(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        0.4        0.6        1.0        0.9        0.5        0.7        0.3 
+#>   Evaluate     Create      Share 
+#>        0.2        0.8        0.1 
 ```

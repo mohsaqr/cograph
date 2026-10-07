@@ -25,30 +25,45 @@ rename_nodes(x, from, to = NULL, keep_format = FALSE, directed = NULL)
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. If NULL (default), auto-detect.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input.
 
 ## Value
 
 A `cograph_network` with the renamed nodes, or the input format when
-`keep_format = TRUE`. Labels not named in `from` are left alone.
+`keep_format = TRUE`. Labels not named in `from` are unchanged. A
+`cograph_bad_selection` error is raised when `from` names a node that is
+not in the network or when the renaming would give two nodes the same
+label.
 
 ## See also
 
 [`reorder_nodes`](https://sonsoles.me/cograph/reference/reorder_nodes.md),
-[`set_nodes`](https://sonsoles.me/cograph/reference/set_nodes.md)
+[`set_nodes`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 0), 2, 2)
-rownames(adj) <- colnames(adj) <- c("A", "B")
-
-get_labels(rename_nodes(adj, from = "A", to = "Alpha"))
-#> [1] "Alpha" "B"    
-get_labels(rename_nodes(adj, from = c(A = "Alpha", B = "Beta")))
-#> [1] "Alpha" "Beta" 
+rename_nodes(regulation_net, from = "Plan", to = "Planning")
+#> Cograph network: 10 nodes, 30 edges ( directed )
+#> Source: matrix 
+#>   Nodes (10): Explore, Planning, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.265
+#>   Strongest edges:
+#>     Share -> Monitor  0.490
+#>     Planning -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Planning -> Discuss  0.400
+#> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

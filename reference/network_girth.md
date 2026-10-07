@@ -1,7 +1,10 @@
 # Network Girth (Shortest Cycle Length)
 
-Computes the girth of a network - the length of the shortest cycle.
-Returns Inf for acyclic graphs (trees, DAGs).
+Computes the girth of a network, the length of its shortest cycle. Edge
+direction, self-loops and repeated undirected edges are ignored. A pair
+of reciprocal directed edges counts as a cycle of length 2, so a
+directed network with any mutual tie has girth 2. An undirected forest
+has girth Inf.
 
 ## Usage
 
@@ -24,18 +27,12 @@ network_girth(x, ...)
 
 ## Value
 
-Integer: length of shortest cycle, or Inf if no cycles exist
+Numeric scalar: the length of the shortest cycle, or Inf if the graph
+has no cycle.
 
 ## Examples
 
 ``` r
-# Triangle has girth 3
-triangle <- matrix(c(0,1,1, 1,0,1, 1,1,0), 3, 3)
-network_girth(triangle)  # 3
+network_girth(regulation_net)
 #> [1] 3
-
-# Tree has no cycles (Inf)
-tree <- matrix(c(0,1,0, 1,0,1, 0,1,0), 3, 3)
-network_girth(tree)  # Inf
-#> [1] Inf
 ```

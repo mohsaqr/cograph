@@ -37,7 +37,7 @@ neighborhood_overlap(x, top = NULL, directed = NULL, digits = NULL, ...)
 ## Value
 
 A data frame sorted by `overlap` (descending) with columns: `from`,
-`to`, `weight` (if weighted), `overlap`, `shared_neighbors`.
+`to`, `weight`, `overlap`, `shared_neighbors`.
 
 ## See also
 
@@ -47,11 +47,11 @@ A data frame sorted by `overlap` (descending) with columns: `from`,
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::neighborhood_overlap(adj)
-#>   from to weight overlap shared_neighbors
-#> 1    A  B      1       1                1
-#> 2    A  C      1       1                1
-#> 3    B  C      1       1                1
+cograph::neighborhood_overlap(regulation_net, top = 5)
+#>         from      to weight   overlap shared_neighbors
+#> 1       Plan  Create   0.20 0.6666667                4
+#> 2   Evaluate Monitor   0.33 0.6666667                4
+#> 3    Discuss Explore   0.30 0.6000000                3
+#> 4       Plan Monitor   0.13 0.5714286                4
+#> 5 Synthesize Monitor   0.07 0.5000000                3
 ```

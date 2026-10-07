@@ -1,9 +1,9 @@
-# Expected Influence (two-step)
+# Two-Step Expected Influence
 
-Two-step signed-weight sum: a node's own expected influence (EI1) plus
-the weighted sum of its neighbors' EI1 (Robinaugh, Millner & McNally
-2016). Captures both the node's direct influence and the influence it
-exerts indirectly via highly-connected neighbors.
+Two-step expected influence (Robinaugh, Millner and McNally 2016) adds
+to the one-step expected influence of a node the one-step expected
+influence of its neighbors, each weighted by the signed edge between
+them: \$\$EI_2(i) = EI_1(i) + \sum\_{j} w\_{ij} EI_1(j).\$\$
 
 ## Usage
 
@@ -15,41 +15,52 @@ centrality_expected_influence_2(x, mode = "out", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  One of "all", "in", "out" for directed graphs. Default "out".
+  For directed networks: `"out"` (default), `"in"` or `"all"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` and `psych_network`.
 
 ## Value
 
-Named numeric vector of two-step expected-influence values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+`mode = "out"` (the default here) follows outgoing edges at both steps,
+`mode = "in"` incoming edges and `mode = "all"` both, with a self-loop
+counted once. On an undirected network `"out"` and `"in"` agree, and
+`"all"` counts every edge twice. Edge weights are always used, and
+`weighted = FALSE` has no effect. When the network has a negative edge,
+`normalized = TRUE` divides by the largest absolute score and keeps the
+sign.
 
 ## References
 
-Robinaugh DJ, Millner AJ, McNally RJ (2016). Identifying highly
-influential nodes in the complicated grief network. *Journal of Abnormal
-Psychology*, 125(6), 747-757.
+Robinaugh, D. J., Millner, A. J., & McNally, R. J. (2016). Identifying
+highly influential nodes in the complicated grief network. Journal of
+Abnormal Psychology, 125(6), 747-757.
+[doi:10.1037/abn0000181](https://doi.org/10.1037/abn0000181) .
 
 ## See also
 
-[`centrality_expected_influence_1`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md)
-for the one-step variant.
+[`centrality_expected_influence_1`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md),
+[`centrality_strength`](https://sonsoles.me/cograph/reference/centrality_strength.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-W <- matrix(c( 0.0,  0.5, -0.3,  0.2,
-               0.5,  0.0,  0.4, -0.1,
-              -0.3,  0.4,  0.0,  0.6,
-               0.2, -0.1,  0.6,  0.0), 4, 4, byrow = TRUE)
-rownames(W) <- colnames(W) <- c("A", "B", "C", "D")
-centrality_expected_influence_2(W)
-#>    A    B    C    D 
-#> 0.73 1.21 1.32 1.12 
+centrality_expected_influence_2(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>     0.9843     2.9500     1.0005     1.3342     0.3105     1.1762     0.8949 
+#>   Evaluate     Create      Share 
+#>     1.3586     1.6813     1.9896 
 ```

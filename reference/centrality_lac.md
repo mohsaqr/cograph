@@ -1,8 +1,10 @@
-# Local Average Connectivity (LAC)
+# Local Average Connectivity
 
-Average degree of neighbors within the neighborhood subgraph. Measures
-how interconnected a node's neighbors are. Proposed by Li et al. (2011)
-for identifying essential proteins in PPI networks.
+Local average connectivity (Li et al. 2011) is the mean degree of the
+neighbors of a node within the subgraph \\C_v\\ induced by those
+neighbors: \$\$LAC(v) = \frac{1}{k_v} \sum\_{u \in N(v)} k_u^{C_v},\$\$
+where \\k_u^{C_v}\\ is the degree of \\u\\ inside \\C_v\\. High values
+mark nodes whose neighbors are tied to each other.
 
 ## Usage
 
@@ -14,21 +16,28 @@ centrality_lac(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of LAC values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. `mode` selects the neighbors and the degree
+counted inside \\C_v\\. With `mode = "all"` on a directed network
+in-ties and out-ties are both counted, so a reciprocated tie counts
+twice. An isolated node scores 0.
 
 ## References
 
@@ -38,17 +47,16 @@ network level. *Computational Biology and Chemistry*, 35(3), 143-150.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_dmnc`](https://sonsoles.me/cograph/reference/centrality_dmnc.md)
-for another neighborhood density measure.
+[`centrality_dmnc`](https://sonsoles.me/cograph/reference/centrality_dmnc.md),
+[`centrality_mnc`](https://sonsoles.me/cograph/reference/centrality_mnc.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lac(adj)
-#> A B C 
-#> 1 1 1 
+centrality_lac(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   1.666667   2.285714   3.000000   1.666667   1.000000   2.000000   1.500000 
+#>   Evaluate     Create      Share 
+#>   2.400000   2.571429   2.333333 
 ```

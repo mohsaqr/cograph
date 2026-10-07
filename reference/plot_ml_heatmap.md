@@ -1,7 +1,8 @@
 # Multilayer Network Heatmap
 
 Visualizes multiple network layers as heatmaps on tilted 3D-perspective
-planes, similar to the plot_mlna network visualization style.
+planes, in the style of
+[`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
 
 ## Usage
 
@@ -38,26 +39,28 @@ plot_ml_heatmap(
 
 - x:
 
-  A list of matrices (one per layer), a group_tna object,
-  cograph_network, or a single matrix with layer_list specified.
+  A list of matrices (one per layer), a group_tna object, a
+  cograph_network, or a single matrix with `layer_list` specified.
 
 - layer_list:
 
-  Optional list defining layers, column name string, or NULL for
-  auto-detection from cograph_network nodes.
+  Named list of node vectors, one per layer. For a matrix `x` each layer
+  is the submatrix of its nodes. For a cograph_network it can also be
+  the name of a node column, and when `NULL` a node column named
+  `layers`, `layer`, `level` or `levels` is used.
 
 - colors:
 
   Color palette: "viridis", "heat", "blues", "reds", "inferno",
-  "plasma", or a vector of colors. Default "viridis".
+  "plasma", or a vector of colors. Any other single name gives the
+  viridis colors. Default "viridis".
 
 - layer_spacing:
 
-  Vertical spacing between layers, in data units. A plane is
-  `nrow(x) * compress` units tall, so a fixed spacing that suits a small
-  network makes a larger one overlap itself. `NULL` (the default) scales
-  the spacing to the plane so planes never collide; pass a number for
-  the older absolute behavior.
+  Vertical spacing between layers, in data units. `NULL` (the default)
+  uses 1.1 times the plane height, which is the number of rows of a
+  layer times `compress`, with a minimum of 1, so the planes do not
+  overlap. A positive number sets the spacing directly.
 
 - skew:
 
@@ -105,11 +108,10 @@ plot_ml_heatmap(
 
 - show_node_labels:
 
-  Show the row and column names of the matrix? Default TRUE. Without
-  them a plane is an anonymous grid and a reader cannot tell which cell
-  is which pair. Every plane shares one node ordering, so the names are
-  drawn once, against the front plane: rows down its left edge, columns
-  along its lower edge.
+  Show the row and column names? Default TRUE. The names of the first
+  layer are shown once, along the left and lower edges of the front
+  plane, so they identify the cells of every plane only when all layers
+  share one node ordering.
 
 - node_label_size:
 
@@ -142,7 +144,7 @@ plot_ml_heatmap(
 - threshold:
 
   Minimum absolute value to display. Cells with `abs(value) < threshold`
-  are set to NA (rendered as background). Default 0.
+  are set to NA and shown in `na_color`. Default 0.
 
 ## Value
 
@@ -151,13 +153,8 @@ A ggplot2 object.
 ## Examples
 
 ``` r
-set.seed(1)
-layers <- list(
-  L1 = matrix(runif(16), 4, 4),
-  L2 = matrix(runif(16), 4, 4),
-  L3 = matrix(runif(16), 4, 4))
-plot_ml_heatmap(layers)
-
-plot_ml_heatmap(layers, show_connections = TRUE, colors = "plasma")
+clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+plot_ml_heatmap(regulation_net, layer_list = clusters)
 
 ```

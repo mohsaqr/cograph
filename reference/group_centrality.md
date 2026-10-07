@@ -1,7 +1,8 @@
 # Group Centrality (Everett-Borgatti 1999)
 
-Group centrality measures the importance of a *set* of nodes \\C
-\subseteq V\\ rather than a single node. Three variants are supported:
+Computes the centrality of a set of nodes \\C \subseteq V\\. Distances
+are unweighted hop counts in the direction of the edges. The measures
+are defined as follows.
 
 ## Usage
 
@@ -28,13 +29,13 @@ group_centrality(
 
 - measure:
 
-  One of `"betweenness"`, `"closeness"`, `"degree"`.
+  One of `"betweenness"` (default), `"closeness"`, or `"degree"`.
 
 - mode:
 
   For directed graphs with `measure = "degree"`: `"all"` (both
-  directions), `"out"` (outgoing), or `"in"` (incoming). Ignored for
-  undirected graphs and other measures.
+  directions, default), `"out"` (outgoing), or `"in"` (incoming).
+  Ignored for undirected graphs and other measures.
 
 - normalized:
 
@@ -43,7 +44,8 @@ group_centrality(
 
 ## Value
 
-A single numeric scalar — the group centrality of the set `nodes`.
+Numeric scalar: the group centrality of the set `nodes`. Unknown node
+names and out-of-range indices raise an error.
 
 ## Details
 
@@ -60,24 +62,22 @@ A single numeric scalar — the group centrality of the set `nodes`.
   \\GCC(C) = (\|V\| - \|C\|) / \sum\_{v \in V \setminus C} d(v, C)\\,
   where \\d(v, C) = \min\_{c \in C} d(v, c)\\ is the shortest distance
   from \\v\\ to any group member. Unreachable nodes contribute 0 to the
-  denominator sum (matching NetworkX convention). For directed graphs,
-  cograph uses \\d(v, c)\\ in the original direction, equivalent to
-  NetworkX's "reverse then multi-source".
+  denominator sum. For directed graphs, \\d(v, c)\\ follows the edges
+  from \\v\\ to \\c\\.
 
 - degree:
 
   \\GDC(C) = \|N(C) \setminus C\| / (\|V\| - \|C\|)\\, the fraction of
-  non-group nodes adjacent to at least one group member. `mode = "in"` /
-  `"out"` pick the corresponding directed neighborhood.
+  non-group nodes adjacent to at least one group member. For directed
+  graphs, `mode` selects the neighborhood.
 
-## Divergence from NetworkX on betweenness
+## Group betweenness
 
-`networkx.group_betweenness_centrality` uses the Puzis-Elovici-Dolev
-iterative algorithm, which produces results that diverge from the
-textbook Everett-Borgatti / Puzis 2007 "at least one node in C"
-definition on some graph topologies (verified via an independent Python
-brute-force). cograph implements the textbook formula directly;
-group_closeness and group_degree match NetworkX exactly.
+Group betweenness is computed directly from the Everett and Borgatti
+definition, counting the shortest paths that pass through at least one
+node in \\C\\. On some graphs the result differs from
+`networkx.group_betweenness_centrality`, which uses the iterative
+algorithm of Puzis, Elovici and Dolev.
 
 ## References
 
@@ -98,11 +98,6 @@ per-node measures.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-group_centrality(g, nodes = c(1, 2, 3), measure = "betweenness")
-#> [1] 0.5754019
-group_centrality(g, nodes = c(1, 2, 3), measure = "closeness")
-#> [1] 0.7045455
-group_centrality(g, nodes = c(1, 2, 3), measure = "degree")
-#> [1] 0.6129032
+group_centrality(regulation_net, nodes = c("Plan", "Monitor"), measure = "betweenness")
+#> [1] 0.3428571
 ```

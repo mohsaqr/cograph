@@ -9,7 +9,7 @@ all-pairs, single-source, and point-to-point queries."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,8 +87,8 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Currently unused; <code>directed</code> is already an explicit
-argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
+<dd><p>Not used. Any argument supplied here raises an
+<code>"unused argument"</code> error.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -105,12 +105,9 @@ value</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Uses <code><a href="https://r.igraph.org/reference/distances.html" class="external-link">igraph::distances()</a></code> internally. For weighted networks, edge
-weights are used as distances by default. Pass <code>weights = NA</code> to
-ignore weights and treat all edges as having unit distance.</p>
-<p>Note: <code><a href="https://r.igraph.org/reference/distances.html" class="external-link">igraph::distances()</a></code> with <code>weights = NULL</code> automatically
-uses edge weight attributes if present. To force unweighted computation,
-pass <code>weights = NA</code> explicitly.</p>
+    <p>Distances are computed with <code><a href="https://r.igraph.org/reference/distances.html" class="external-link">igraph::distances()</a></code>. For weighted
+networks, edge weights are used as distances by default. With
+<code>weights = NA</code>, every edge has unit distance.</p>
 <p>igraph also exports a <code>shortest_paths()</code> with a different signature and
 return value; when both packages are attached, qualify the call as
 <code>cograph::shortest_paths()</code>.</p>
@@ -122,29 +119,11 @@ return value; when both packages are attached, qualify the call as
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># All-pairs distances</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">shortest_paths</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 1 2 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 1 0 1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 2 1 0 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 3 2 1 0</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Single source to all</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">shortest_paths</span><span class="op">(</span><span class="va">adj</span>, from <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A B C D </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0 1 2 3 </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Point-to-point</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">shortest_paths</span><span class="op">(</span><span class="va">adj</span>, from <span class="op">=</span> <span class="st">"A"</span>, to <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">shortest_paths</span><span class="op">(</span><span class="va">regulation_net</span>, from <span class="op">=</span> <span class="st">"Plan"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.34       0.00       0.13       0.29       0.56       0.40       0.46 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.49       0.20       0.36 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

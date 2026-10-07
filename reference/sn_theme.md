@@ -21,46 +21,46 @@ sn_theme(network, theme, ...)
 
 - ...:
 
-  Additional theme parameters to override.
+  Theme parameters to override, such as `background`, `node_fill` or
+  `edge_color`. An unknown parameter name raises an error.
 
 ## Value
 
-Modified cograph_network object.
+The `cograph_network` with the theme stored in its `theme` element.
 
 ## Details
 
 ### Available Themes
 
-- **classic**:
+- `"classic"`:
 
-  Default theme with white background, blue nodes, gray edges.
+  White background, blue nodes and gray edges.
 
-- **dark**:
+- `"dark"`:
 
-  Dark background with light nodes. Good for presentations.
+  Dark background with bright nodes, for presentations.
 
-- **minimal**:
+- `"minimal"`:
 
   Subtle styling with thin edges and muted colors.
 
-- **colorblind**:
+- `"colorblind"`:
 
   Optimized for color vision deficiency.
 
-- **gray**/**grey**:
+- `"gray"`/`"grey"`:
 
   Black and white theme suitable for print.
 
-- **viridis**:
+- `"viridis"`:
 
   Perceptually uniform colors.
 
-- **nature**:
+- `"nature"`:
 
   Nature-inspired colors.
 
-Use
-[`list_themes()`](https://sonsoles.me/cograph/reference/list_themes.md)
+Use [`list_themes()`](https://sonsoles.me/cograph/reference/themes.md)
 to see all available themes.
 
 ## See also
@@ -73,18 +73,13 @@ color palettes,
 customization,
 [`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md) for edge
 customization,
-[`list_themes`](https://sonsoles.me/cograph/reference/list_themes.md) to
-see available themes,
+[`list_themes`](https://sonsoles.me/cograph/reference/themes.md) to see
+available themes,
 [`splot`](https://sonsoles.me/cograph/reference/splot.md) and
 [`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for plotting
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> sn_theme("dark") |> splot()
-
-
-# Override a theme property
-cograph(adj) |> sn_theme("classic", background = "lightgray") |> splot()
+cograph(regulation_net) |> sn_theme("dark") |> splot()
 ```

@@ -1,12 +1,12 @@
 # Dyad Census
 
 Classifies every dyad (unordered pair of nodes) in a directed network
-into one of three mutually exclusive states: **mutual** (M, edges in
-both directions), **asymmetric** (A, an edge in exactly one direction),
-or **null** (N, no edge between the pair). The dyad census is the
-dyad-level companion to
+into one of three mutually exclusive states: mutual (M, edges in both
+directions), asymmetric (A, an edge in exactly one direction), or null
+(N, no edge between the pair). The dyad census is the dyad-level
+counterpart of
 [`triad_census`](https://sonsoles.me/cograph/reference/triad_census.md)
-and underlies dyad-based reciprocity.
+and is the basis of dyad-based reciprocity.
 
 ## Usage
 
@@ -28,9 +28,10 @@ dyad_census(x, directed = NULL, ...)
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which accepts no further arguments. Any argument supplied here raises
+  an error.
 
 ## Value
 
@@ -50,14 +51,15 @@ type and columns:
   Numeric: count divided by the total number of dyads (\\n(n-1)/2\\).
 
 The dyad-based reciprocity \\2M / (2M + A)\\ is attached as the
-`"reciprocity"` attribute.
+`"reciprocity"` attribute (`NA` for a network without edges). The
+attributes `"directed"` and `"n_dyads"` record the directedness and the
+total number of dyads.
 
 ## Details
 
-For *undirected* networks every present edge is counted as a mutual dyad
-and the asymmetric count is always zero, so the census reduces to a
-present/absent split. The total number of dyads is \\n(n-1)/2\\
-regardless of direction.
+In an undirected network every present edge is counted as a mutual dyad
+and the asymmetric count is zero. The total number of dyads is
+\\n(n-1)/2\\ in both cases.
 
 ## References
 
@@ -73,22 +75,14 @@ Applications*. Cambridge University Press.
 ## Examples
 
 ``` r
-# Directed network with a mix of mutual and asymmetric ties
-adj <- matrix(c(
-  0, 1, 1, 0,
-  1, 0, 0, 1,
-  0, 0, 0, 1,
-  0, 0, 0, 0
-), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::dyad_census(adj)
+cograph::dyad_census(regulation_net)
 #> Dyad Census
 #> =================================== 
 #>        type count proportion
-#>      mutual     1  0.1666667
-#>  asymmetric     3  0.5000000
-#>        null     2  0.3333333
+#>      mutual     3 0.06666667
+#>  asymmetric    24 0.53333333
+#>        null    18 0.40000000
 #> 
-#>   Dyads: 6   Directed: TRUE 
-#>   Reciprocity (2M / (2M + A)): 0.4 
+#>   Dyads: 45   Directed: TRUE 
+#>   Reciprocity (2M / (2M + A)): 0.2 
 ```

@@ -36,6 +36,8 @@ color_communities(x, method = "louvain", palette = NULL, ...)
 
   - A palette name: "rainbow", "colorblind", "pastel", "viridis"
 
+  Any other single string is used as one color for every community.
+
 - ...:
 
   Additional arguments passed to
@@ -43,9 +45,9 @@ color_communities(x, method = "louvain", palette = NULL, ...)
 
 ## Value
 
-A named character vector of colors (one per node), suitable for use with
-[`splot()`](https://sonsoles.me/cograph/reference/splot.md) `node_fill`
-parameter.
+A character vector of colors with one element per node, named by node,
+for use as the `node_fill` argument of
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md).
 
 ## See also
 
@@ -55,16 +57,9 @@ parameter.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Basic usage with splot
-splot(adj, node_fill = color_communities(adj))
-
-
-# Custom palette
-splot(adj, node_fill = color_communities(adj, palette = c("red", "blue")))
+color_communities(regulation_net, method = "walktrap")
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  "#000000"  "#E69F00"  "#E69F00"  "#000000"  "#000000"  "#000000"  "#000000" 
+#>   Evaluate     Create      Share 
+#>  "#E69F00"  "#E69F00"  "#E69F00" 
 ```

@@ -1,14 +1,12 @@
 # Plot Network Difference (alias of plot_difference)
 
 `plot_compare()` is an alias of
-[`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
-It is **not deprecated**:
-[`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
-delegates to it by name (`cograph::plot_compare(x, y, ...)`), so the
-alias is part of the tna integration and must keep working. New cograph
-code may prefer the
 [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
-name; both call the same implementation.
+and calls the same implementation.
+[`tna::plot_compare()`](https://sonsoles.me/tna/reference/plot_compare.html)
+calls it by name.
+[`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
+is the preferred name.
 
 ## Usage
 
@@ -40,9 +38,5 @@ Invisibly, the value of
 ## Examples
 
 ``` r
-m1 <- matrix(stats::runif(25), 5, 5)
-m2 <- matrix(stats::runif(25), 5, 5)
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_compare(m1, m2)
+plot_compare(regulation_net, t(regulation_net))
 ```

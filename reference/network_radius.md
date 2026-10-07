@@ -1,8 +1,9 @@
 # Network Radius
 
-Computes the radius of a network - the minimum eccentricity across all
-nodes. The eccentricity of a node is the maximum shortest path distance
-to any other node. The radius is the smallest such maximum distance.
+Computes the radius of a network, the minimum eccentricity across all
+nodes. The eccentricity of a node is its largest shortest-path distance
+to any other node. Edge weights are used as distances, and directed
+networks use outgoing paths.
 
 ## Usage
 
@@ -23,19 +24,18 @@ network_radius(x, directed = NULL, ...)
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which accepts no arguments besides `directed`; anything else raises an
+  "unused argument" error.
 
 ## Value
 
-Numeric: the network radius
+Numeric scalar: the network radius.
 
 ## Examples
 
 ``` r
-# Star graph: center has eccentricity 1, leaves have 2, so radius = 1
-star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_radius(star)  # 1
-#> [1] 1
+network_radius(regulation_net)
+#> [1] 0.56
 ```

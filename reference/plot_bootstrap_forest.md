@@ -1,15 +1,11 @@
 # Forest Plot for Bootstrap Network Results
 
-A ggplot2-based forest plot for `net_bootstrap`, `net_bootstrap_group`,
-`tna_bootstrap`, and `boot_glasso` objects. Each row is one network
-edge; horizontal bars span the confidence interval and a filled square
-marks the point estimate. A dashed reference line runs through zero.
-
-Produces a ggplot2 forest plot where each row is one network edge, the
-square marks the bootstrap mean estimate, and the horizontal bar spans
-the selected interval. A dashed reference line runs through zero.
-Significant edges are highlighted in color; non-significant ones appear
-in grey (only shown when `show_nonsig = TRUE`).
+Plots bootstrap results of `net_bootstrap`, `net_bootstrap_group`,
+`tna_bootstrap` and `boot_glasso` objects as a ggplot2 forest plot. Each
+row is one non-zero network edge. A square marks the point estimate, a
+horizontal bar spans the selected interval, and a dashed reference line
+marks zero. Significant edges are plotted in `sig_color` and
+non-significant edges in a faded `nonsig_color`.
 
 ## Usage
 
@@ -142,10 +138,12 @@ plot_bootstrap_forest(
 
 - layout:
 
-  `"linear"` (default) draws the classic tall forest plot; `"circular"`
+  `"linear"` (default) gives the standard forest plot; `"circular"`
   arranges each edge as a spoke around a circle, with the inner ring at
-  the data minimum and the outer ring at the data maximum; `"grouped"`
-  arranges edges in sectors by source node where supported.
+  the smallest lower bound and the outer ring just beyond the largest
+  upper bound; `"grouped"` arranges edges in sectors by source node. The
+  `net_bootstrap_group` method supports `"linear"` and `"circular"`
+  only.
 
 - interval:
 
@@ -155,27 +153,31 @@ plot_bootstrap_forest(
 
 - show_nonsig:
 
-  Logical: include non-significant edges (greyed out)? Default `TRUE`.
+  Logical. Include non-significant edges. Default `TRUE`.
 
 - sort_by:
 
-  How to order edges on the y-axis (linear layout) or clockwise from top
-  (radial layout): `"estimate"` (default, ascending), `"significance"`
-  (most significant at top), or `"name"` (alphabetical).
+  Order of edges on the y-axis in the linear layout: `"estimate"`
+  (default, ascending), `"significance"` (most significant at top), or
+  `"name"` (alphabetical). When `n_top` is set, the retained edges are
+  ordered by estimate. The circular layout orders edges alphabetically,
+  clockwise from the top.
 
 - n_top:
 
-  Integer: restrict to the `n_top` edges with the largest absolute
+  Integer. Keeps only the `n_top` edges with the largest absolute
   estimate. Applied after significance filtering. Default `NULL`.
 
 - node_colors:
 
-  Optional node-color vector for grouped radial layouts.
+  Optional named vector of node colors for the grouped layout. When
+  NULL, node colors stored in the original network or tna model are used
+  if present.
 
 - sig_color:
 
-  Color for significant CI bars and points. Default `"#2C6E8A"`
-  (teal-blue).
+  Color for significant CI bars and points (linear and circular
+  layouts). Default `"#2C6E8A"` (teal-blue).
 
 - cr_color:
 
@@ -184,33 +186,35 @@ plot_bootstrap_forest(
 
 - nonsig_color:
 
-  Color for non-significant edges. Default `"#CCCCCC"`.
+  Color for non-significant edges (linear and circular layouts). Default
+  `"#CCCCCC"`.
 
 - ring_color:
 
-  Color for the reference rings (radial layout only). Default
+  Color for the reference rings (circular and grouped layouts). Default
   `"#C8C8C8"`.
 
 - median_color:
 
-  Color for the dashed median ring (radial layout only). Default
-  `"#AAAAAA"`.
+  Color for the dashed median ring (circular and grouped layouts).
+  Default `"#AAAAAA"`.
 
 - label_size:
 
-  Text size for edge labels (radial and grouped layouts). Default `NULL`
-  for automatic sizing in the main methods, or `2.8` for
-  `net_bootstrap_group`.
+  Text size for edge labels (circular and grouped layouts). Default
+  `NULL`, which gives `2.9` in the circular layout and automatic sizing
+  in the grouped layout. The `net_bootstrap_group` method defaults to
+  `2.8`.
 
 - label_color:
 
-  Fixed color for edge labels (radial layout only). `NULL` (default)
-  inherits the edge color (teal for significant, grey for
-  non-significant).
+  Fixed color for edge labels (circular and grouped layouts). `NULL`
+  (default) uses the edge color.
 
 - point_size:
 
-  Size of the estimate square. Default `3` (linear) or `2` (radial).
+  Size of the estimate square. Default `NULL`, which gives `3` (linear),
+  `2` (circular), or automatic sizing (grouped).
 
 - r_inner:
 
@@ -269,18 +273,21 @@ A `ggplot` object.
 
 ## Details
 
-For `net_bootstrap` objects from stability inference, both a bootstrap
-confidence interval (`ci_lower`/`ci_upper`) and a consistency range
-(`cr_lower`/`cr_upper`) are available. Use `interval = "both"` to
-overlay both on the same plot.
+Objects from stability inference (`net_bootstrap` and `tna_bootstrap`)
+carry both a bootstrap confidence interval and a consistency range, and
+`interval = "both"` overlays the two. When the consistency range is
+requested but absent, a message is issued and the confidence interval is
+shown. For `boot_glasso`, an edge is significant when its inclusion
+proportion is at least `1 - alpha`.
+
+The `net_bootstrap_group` method plots the groups side by side in the
+linear layout, with the edges ordered by their mean estimate across
+groups. Its `interval = "both"` shows the confidence interval only, and
+its circular layout shows the first group only.
 
 ## Examples
 
 ``` r
-# Bootstrap a TNA built from sequence data (required by tna::bootstrap)
-Mod  <- tna::tna(head(tna::group_regulation, 100))
-boot <- tna::bootstrap(Mod, iter = 50)
-plot_bootstrap_forest(boot, n_top = 8)
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_vline()`).
+boot <- tna::bootstrap(tna::tna(coding), iter = 50)
+plot_bootstrap_forest(boot)
 ```

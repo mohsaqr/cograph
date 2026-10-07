@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,49 +69,54 @@
 
 
 <dl><dt id="arg-layers">layers<a class="anchor" aria-label="anchor" href="#arg-layers"></a></dt>
-<dd><p>List of adjacency matrices</p></dd>
+<dd><p>List of adjacency matrices of the same dimensions</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Aggregation: "sum", "mean", "max", "min", "union", "intersection"</p></dd>
+<dd><p>Aggregation: "sum" (default), "mean", "max", "min", "union"
+or "intersection". <code>"union"</code> and <code>"intersection"</code> return a
+binary matrix of the cells with a positive weight in any or in every
+layer.</p></dd>
 
 
 <dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
-<dd><p>Optional layer weights (for weighted sum)</p></dd>
+<dd><p>Optional numeric vector of layer weights, one per layer,
+used only by <code>method = "sum"</code> to compute a weighted sum.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Aggregated adjacency matrix</p>
+    <p>The aggregated adjacency matrix, with the dimnames of the first
+layer. A list with a single layer is returned unchanged for every
+<code>method</code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">l1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">nodes</span>, <span class="va">nodes</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">l2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">nodes</span>, <span class="va">nodes</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">l1</span>, L2 <span class="op">=</span> <span class="va">l2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"sum"</span><span class="op">)</span>           <span class="co"># total edge weight</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 2 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 2 0 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 1 1 0</span>
-<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"mean"</span><span class="op">)</span>          <span class="co"># average edge weight</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 1.0 0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 1.0 0.0 0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.5 0.5 0.0</span>
-<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"union"</span><span class="op">)</span>         <span class="co"># edge present in any layer</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 1 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 1 0 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 1 1 0</span>
-<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, <span class="st">"intersection"</span><span class="op">)</span>  <span class="co"># edge present in every layer</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A B C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0 1 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 1 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0 0 0</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>forward <span class="op">=</span> <span class="va">regulation_net</span>, backward <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">aggregate_layers</span><span class="op">(</span><span class="va">layers</span>, method <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Explore  Plan Monitor Adapt Reflect Discuss Synthesize Evaluate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore      0.000 0.000   0.000 0.140   0.200   0.150      0.000    0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan         0.000 0.000   0.065 0.000   0.000   0.200      0.055    0.245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor      0.000 0.065   0.000 0.080   0.075   0.000      0.035    0.165</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt        0.140 0.000   0.080 0.000   0.000   0.170      0.085    0.215</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect      0.200 0.000   0.075 0.000   0.000   0.175      0.210    0.035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss      0.150 0.200   0.000 0.170   0.175   0.000      0.000    0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize   0.000 0.055   0.035 0.085   0.210   0.000      0.000    0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate     0.000 0.245   0.165 0.215   0.035   0.000      0.000    0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create       0.070 0.100   0.270 0.000   0.000   0.070      0.000    0.195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share        0.135 0.285   0.245 0.195   0.000   0.000      0.000    0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Create Share</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore     0.070 0.135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan        0.100 0.285</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor     0.270 0.245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt       0.000 0.195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect     0.000 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss     0.070 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize  0.000 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate    0.195 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create      0.000 0.115</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share       0.115 0.000</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

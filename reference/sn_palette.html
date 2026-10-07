@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,20 +64,26 @@ Matrices and other inputs are auto-converted.</p></dd>
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
-<dd><p>Palette name or function.</p></dd>
+<dd><p>Palette name (see <code><a href="palettes.html">list_palettes</a></code>) or a function
+that takes <code>n</code> and returns <code>n</code> colors.</p></dd>
 
 
 <dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
-<dd><p>What to apply the palette to: "nodes", "edges", or "both".</p></dd>
+<dd><p>What to apply the palette to: "nodes" (default), "edges", or
+"both". For edges, the first two palette colors become the colors of
+positive and negative edges.</p></dd>
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>Variable to map colors to (for nodes: column name or "group").</p></dd>
+<dd><p>Name of a node-table column whose values are mapped to palette
+colors. When <code>by</code> is NULL or not a column of the node table, every
+node gets the first palette color.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Modified cograph_network object.</p>
+    <p>The <code>cograph_network</code> with the node fill colors and edge colors
+stored in its <code>node_aes</code> and <code>edge_aes</code> elements.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -86,28 +92,26 @@ Matrices and other inputs are auto-converted.</p></dd>
 <h3 id="available-palettes">Available Palettes<a class="anchor" aria-label="anchor" href="#available-palettes"></a></h3>
 
 
-<p>Use <code><a href="list_palettes.html">list_palettes()</a></code> to see all available palettes. Common options:</p><dl><dt><strong>viridis</strong></dt>
+<p>Use <code><a href="palettes.html">list_palettes()</a></code> to see all available palettes. Common options:</p><dl><dt><code>"viridis"</code></dt>
 <dd><p>Perceptually uniform, colorblind-friendly.</p></dd>
 
-<dt><strong>colorblind</strong></dt>
+<dt><code>"colorblind"</code></dt>
 <dd><p>Optimized for color vision deficiency.</p></dd>
 
-<dt><strong>pastel</strong></dt>
+<dt><code>"pastel"</code></dt>
 <dd><p>Soft, muted colors.</p></dd>
 
-<dt><strong>blues</strong></dt>
+<dt><code>"blues"</code></dt>
 <dd><p>Blue sequential palette.</p></dd>
 
-<dt><strong>reds</strong></dt>
+<dt><code>"reds"</code></dt>
 <dd><p>Red sequential palette.</p></dd>
 
-<dt><strong>diverging</strong></dt>
+<dt><code>"diverging"</code></dt>
 <dd><p>Blue-white-red diverging palette.</p></dd>
 
 
-</dl><p>You can also pass a custom palette function that takes <code>n</code> and returns
-<code>n</code> colors.</p>
-</div>
+</dl></div>
 
     </div>
     <div class="section level2">
@@ -115,18 +119,14 @@ Matrices and other inputs are auto-converted.</p></dd>
     <div class="dont-index"><p><code><a href="cograph.html">cograph</a></code> for network creation,
 <code><a href="sn_theme.html">sn_theme</a></code> for visual themes,
 <code><a href="sn_nodes.html">sn_nodes</a></code> for node customization,
-<code><a href="list_palettes.html">list_palettes</a></code> to see available palettes,
+<code><a href="palettes.html">list_palettes</a></code> to see available palettes,
 <code><a href="splot.html">splot</a></code> and <code><a href="soplot.html">soplot</a></code> for plotting</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_palette</span><span class="op">(</span><span class="st">"viridis"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_palette</span><span class="op">(</span><span class="st">"viridis"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_palette-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Apply to edges</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_palette</span><span class="op">(</span><span class="st">"colorblind"</span>, target <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

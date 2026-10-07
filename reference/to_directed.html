@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,16 +69,23 @@
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
 <dd><p><code>"mutual"</code> (default) creates an arc in both directions for
-every undirected edge; <code>"arbitrary"</code> keeps one arc per edge, running
-from the lower node index to the higher.</p></dd>
+every undirected edge. <code>"arbitrary"</code> keeps one arc per edge, running
+from the lower node index to the higher. For a directed input,
+<code>"mutual"</code> gives both arcs of a pair the larger of the two weights,
+and <code>"arbitrary"</code> drops every arc from a higher to a lower index.</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
-<dd><p>Logical. Return the input format when TRUE.</p></dd>
+<dd><p>Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a <code>cograph_network</code> with a
+<code>cograph_no_format_roundtrip</code> warning. Default FALSE returns a
+<code>cograph_network</code>.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical or NULL. Directedness to read the input with.</p></dd>
+<dd><p>Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -93,33 +100,18 @@ from the lower node index to the higher.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">to_directed</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 4 edges ( directed )</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">to_directed</span><span class="op">(</span><span class="fu"><a href="to_undirected.html">to_undirected</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 10 nodes, 54 edges ( directed )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 4 / 6 (density: 66.7%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 54 / 90 (density: 60.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.070, 0.490]  |  mean: 0.279</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -&gt; A  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -&gt; B  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     C -&gt; B  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -&gt; C  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
-<span class="r-in"><span><span class="fu">to_directed</span><span class="op">(</span><span class="va">adj</span>, mode <span class="op">=</span> <span class="st">"arbitrary"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( directed )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): A, B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 6 (density: 33.3%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -&gt; B  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -&gt; C  1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Plan  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Share -&gt; Monitor  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan -&gt; Evaluate  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Monitor -&gt; Share  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Adapt  0.430</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>

@@ -1,7 +1,10 @@
 # Gil-Schmidt Power Index
 
-Sum of 1/d(v,w) normalized by (n-1). Variant of closeness using harmonic
-mean of distances.
+The Gil-Schmidt power index sums the reciprocal hop distances from a
+node to the nodes it reaches and divides by \\n - 1\\: \$\$GS(v) =
+\frac{1}{n - 1} \sum\_{w \ne v} \frac{1}{d(v, w)}.\$\$ Unreachable nodes
+contribute 0, so the score lies between 0 and 1, and a node adjacent to
+every other node scores 1.
 
 ## Usage
 
@@ -13,35 +16,43 @@ centrality_gilschmidt(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector of Gil-Schmidt power index values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Distances are hop counts, so edge weights are ignored and
+`invert_weights` has no effect. `mode` sets the direction of the paths.
+With `mode = "out"` the values match
+[`sna::gilschmidt()`](https://rdrr.io/pkg/sna/man/gilschmidt.html) with
+its default settings.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md)
-for a related measure.
+[`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md),
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_gilschmidt(adj)
-#>         A         B         C         D 
-#> 0.6111111 0.8333333 0.8333333 0.6111111 
+centrality_gilschmidt(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.7777778  0.8333333  0.8888889  0.8333333  0.7777778  0.7777778  0.7222222 
+#>   Evaluate     Create      Share 
+#>  0.7777778  0.8333333  0.7777778 
 ```

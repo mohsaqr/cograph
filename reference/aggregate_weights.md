@@ -1,7 +1,7 @@
 # Aggregate Edge Weights
 
-Aggregates a vector of edge weights using various methods. Compatible
-with igraph's edge.attr.comb parameter.
+Aggregates a vector of edge weights into a single value. The method
+names follow those of igraph's `edge.attr.comb` argument.
 
 ## Usage
 
@@ -22,6 +22,7 @@ wagg(w, method = "sum", n_possible = NULL)
 
   Aggregation method: "sum", "mean", "median", "max", "min", "prod",
   "density", "geomean". Default "sum". Any other value is an error.
+  `"geomean"` uses only the positive weights.
 
 - n_possible:
 
@@ -36,11 +37,6 @@ A single numeric value, or 0 when no non-zero, non-NA weight remains.
 ## Examples
 
 ``` r
-w <- c(0.5, 0.8, 0.3, 0.9)
-aggregate_weights(w, "sum")   # 2.5
-#> [1] 2.5
-aggregate_weights(w, "mean")  # 0.625
-#> [1] 0.625
-aggregate_weights(w, "max")   # 0.9
-#> [1] 0.9
+aggregate_weights(regulation_net, method = "mean")
+#> [1] 0.2653333
 ```

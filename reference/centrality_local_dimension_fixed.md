@@ -1,9 +1,15 @@
 # Fixed-Radius, Fuzzy and Volume Local Dimensions
 
-Three further members of the local-dimension family, all computed from
-hop counts (edge weights are ignored) with the center node counted in
-its own ball, as in
-[`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md).
+Three members of the local-dimension family, with the center node
+counted in its own ball. The fixed-radius local dimension (Silva and
+Costa 2013) is \\D_i(r) = r\\ n_i(r) / B_i(r)\\ at one radius \\r\\,
+where \\n_i(r)\\ counts the nodes at distance \\r\\ and \\B_i(r)\\ those
+within it. The fuzzy local dimension (Wen and Jiang 2019) is the slope
+of \\\log N_i(r)\\ on \\\log r\\ for the fuzzy ball \$\$N_i(r) =
+\frac{\sum\_{d\_{ij} \le r} e^{-d\_{ij}^2 / r^2}} {\|\\j : d\_{ij} \le
+r\\\|}.\$\$ The local volume dimension (Li and Deng 2021) is the slope
+of \\\ln V_i(l)\\ on \\\ln l\\ for the volume \\V_i(l) = \sum\_{d\_{ij}
+\le l} k_j\\.
 
 ## Usage
 
@@ -19,58 +25,38 @@ centrality_local_volume_dimension(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"` (distances along
-  out-edges), or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ld_radius:
 
-  Radius \\r\\ for `local_dimension_fixed`, in hops. A single number of
-  at least 1; default 2. Anything else raises a `cograph_bad_parameter`
-  error.
+  Radius \\r\\ for `local_dimension_fixed`, in hops (default 2).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-- `local_dimension_fixed` (Silva & Costa 2013):
-
-  The discretized estimator \\D_i(r) = r\\ n_i(r) / B_i(r)\\ at one
-  radius `ld_radius` (default 2), where \\n_i(r)\\ is the ring at
-  distance \\r\\ and \\B_i(r)\\ the ball within it. A structural
-  descriptor rather than an importance ranking; nodes with eccentricity
-  below the radius score 0. The paper defines a curve in \\r\\ and fixes
-  \\r\\ per figure; the Zoo lists this fixed-radius form separately from
-  Pu et al.'s regression form.
-
-- `fuzzy_local_dimension` (Wen & Jiang 2019):
-
-  Fuzzy ball \\N_i(r) = \sum\_{d\_{ij} \le r} e^{-d\_{ij}^2 / r^2} /
-  \|\\j : d\_{ij} \le r\\\|\\ for \\r = 1, \ldots, d\_{\max}(i)\\; the
-  measure is the slope of \\\log N_i(r)\\ on \\\log r\\. Larger = more
-  influential. Reproduces Table 1 of the paper (Krackhardt kite) and its
-  karate-club top ten in order.
-
-- `local_volume_dimension` (Li & Deng 2021):
-
-  Volume \\V_i(l) = \sum\_{d\_{ij} \le l} k_j\\, \\l = 1, \ldots,
-  ecc(i)\\; the measure is the slope of \\\ln V_i(l)\\ on \\\ln l\\.
-  Smaller = more important. The article is closed access; the definition
-  follows the authors' own later preprint and the Zoo entry, and no
-  published per-node values exist to check against.
-
-The two regression measures return `NaN` for a node with fewer than two
-radii.
+Distances are hop counts, so edge weights are ignored. On a directed
+network `mode` sets the direction of the paths. The fixed-radius form is
+a structural descriptor, and nodes whose eccentricity is below the
+radius score 0. Larger fuzzy dimensions and smaller volume dimensions
+mark more influential nodes. The two regression forms return `NaN` for a
+node with fewer than two radii. The volume dimension follows a later
+preprint of the authors and the Centrality Zoo entry. A `ld_radius` that
+is not a single number of at least 1 raises an error of class
+`cograph_bad_parameter`.
 
 ## References
 
@@ -88,21 +74,25 @@ Journal of Modern Physics B, 35(5), 2150069.
 ## See also
 
 [`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md),
-[`centrality_local_information_dimension`](https://sonsoles.me/cograph/reference/centrality_local_information_dimension.md).
+[`centrality_local_information_dimension`](https://sonsoles.me/cograph/reference/centrality_local_information_dimension.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_local_dimension_fixed(path5)
-#>         A         B         C         D         E 
-#> 0.6666667 0.5000000 0.8000000 0.5000000 0.6666667 
-centrality_fuzzy_local_dimension(path5)
-#>          A          B          C          D          E 
-#> 0.04895549 0.25765248 0.18702827 0.25765248 0.04895549 
-centrality_local_volume_dimension(path5)
-#>         A         B         C         D         E 
-#> 0.7252466 0.4340194 0.4150375 0.4340194 0.7252466 
+centrality_local_dimension_fixed(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        0.8        0.6        0.4        0.6        0.8        0.8        1.0 
+#>   Evaluate     Create      Share 
+#>        0.8        0.6        0.8 
+centrality_fuzzy_local_dimension(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.4277285  0.5646062  0.6855285  0.5646062  0.4277285  0.4277285  0.2686074 
+#>   Evaluate     Create      Share 
+#>  0.4277285  0.5646062  0.4277285 
+centrality_local_volume_dimension(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.7548875  0.5069600  0.2954559  0.5454341  0.8006912  0.7104934  0.9475326 
+#>   Evaluate     Create      Share 
+#>  0.6256045  0.4694853  0.6256045 
 ```

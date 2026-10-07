@@ -1,10 +1,13 @@
-# Shapley Value Centrality (Games 1, 2 and 3)
+# Shapley Value Centrality
 
-Game-theoretic centrality of Michalak, Aadithya, Szczepanski, Ravindran
-and Jennings (2013): the Shapley value of each node in a coalition game
-whose worth \\v(C)\\ is the number of nodes a coalition \\C\\ "covers".
-Each game has a closed form, so the values are exact and cost linear
-time.
+Shapley value centrality (Michalak et al. 2013) is the Shapley value of
+each node in a coalition game whose worth \\v(C)\\ counts the nodes a
+coalition \\C\\ covers. Each game has an exact closed form. In game 1 a
+coalition covers its members and their neighbors, and \$\$SV(v) =
+\sum\_{u \in \\v\\ \cup N(v)} \frac{1}{1 + k_u}.\$\$ In game 2 a
+coalition covers its members and the nodes with at least \\k\\ neighbors
+in it. In game 3 it covers the nodes within `shapley_cutoff` hops of it,
+and \\N(v)\\ is replaced by the set of nodes within that distance.
 
 ## Usage
 
@@ -20,56 +23,35 @@ centrality_shapley_game3(x, shapley_cutoff = 2, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 - shapley_k:
 
-  Neighbor threshold \\k\\ for game 2. Default 2.
+  Neighbor threshold \\k\\ for game 2 (default 2).
 
 - shapley_cutoff:
 
-  Hop cutoff for game 3. Default 2.
+  Hop cutoff for game 3 (default 2).
 
 ## Value
 
-Named numeric vector, one Shapley value per node.
+A named numeric vector with one Shapley value per node, in input node
+order.
 
 ## Details
 
-- Game 1 (`shapley_game1`):
-
-  \\v(C)\\ = nodes in \\C\\ or adjacent to it. \\SV(v) = \sum\_{u \in
-  \\v\\ \cup N(v)} 1 / (1 + k_u)\\.
-
-- Game 2 (`shapley_game2`):
-
-  \\v(C)\\ = nodes in \\C\\ or with at least \\k\\ neighbors in \\C\\.
-  \\SV(v) = \min(1, k / (1 + k_v)) + \sum\_{u \in N(v)} \max(0, (k_u -
-  k + 1) / (k_u (1 + k_u)))\\. With \\k = 1\\ this is game 1. Threshold
-  via `shapley_k` (default 2).
-
-- Game 3 (`shapley_game3`):
-
-  \\v(C)\\ = nodes within `shapley_cutoff` hops of \\C\\ (default 2).
-  \\SV(v) = \sum\_{u \in \\v\\ \cup N_d(v)} 1 / (1 + \|N_d(u)\|)\\,
-  where \\N_d(u)\\ is the set of nodes within \\d\\ hops of \\u\\. With
-  cutoff 1 this is game 1.
-
-Values in every game sum to the number of nodes (efficiency). Higher
-values mark nodes whose presence adds more coverage to a typical
-coalition. Degrees exclude self-loops, as in the paper. On a directed
-graph the coverage runs along out-edges and the denominators use
-in-degrees (the paper's stated extension); distances for game 3 are hop
-counts, so edge weights are ignored.
-
-Validated against exact Shapley values obtained by enumerating every
-coalition on random graphs of up to eight nodes, including graphs with
-isolates, self-loops and several components.
+The values of every game sum to the number of nodes. Game 2 with \\k =
+1\\ and game 3 with cutoff 1 equal game 1. Degrees exclude self-loops,
+and edge weights are ignored. On a directed network coverage runs along
+out-edges and the denominators use in-degrees, the extension the source
+states. Distances in game 3 are hop counts.
 
 ## References
 
@@ -80,22 +62,25 @@ Research, 46, 607-650.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_shapley_game1(star5)
-#>   A   B   C   D   E 
-#> 2.2 0.7 0.7 0.7 0.7 
-centrality_shapley_game2(star5, shapley_k = 2)
-#>    A    B    C    D    E 
-#> 0.40 1.15 1.15 1.15 1.15 
-centrality_shapley_game3(star5, shapley_cutoff = 1)
-#>   A   B   C   D   E 
-#> 2.2 0.7 0.7 0.7 0.7 
+centrality_shapley_game1(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.6500000  1.6428571  0.6428571  1.2833333  0.5428571  0.9833333  1.1761905 
+#>   Evaluate     Create      Share 
+#>  0.9261905  1.1761905  0.9761905 
+centrality_shapley_game2(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.7166667  1.4523810  0.6190476  0.8166667  0.6690476  1.1333333  1.4357143 
+#>   Evaluate     Create      Share 
+#>  1.1023810  1.1023810  0.9523810 
+centrality_shapley_game3(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.7138889  1.1107143  1.0190476  1.1678571  0.6583333  0.8329365  1.3107143 
+#>   Evaluate     Create      Share 
+#>  1.0329365  0.9678571  1.1857143 
 ```

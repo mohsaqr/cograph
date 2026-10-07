@@ -1,7 +1,8 @@
 # Simplicial Complex Visualization
 
-Visualize higher-order pathways as smooth blobs overlaid on a network
-layout. Source nodes are blue, target nodes are red.
+Visualizes higher-order pathways as smooth blobs overlaid on a network
+layout. Source nodes are filled with `node_color` (blue by default) and
+target nodes with `target_color` (orange by default).
 
 ## Usage
 
@@ -49,59 +50,55 @@ plot_simplicial(
 - x:
 
   A network object: `tna`, `netobject`, matrix, `igraph`,
-  `cograph_network`, `net_hon`, `net_hypa`, or `simplicial_complex` (an
-  unordered complex — see `ordered`). When `x` is a `tna` or `netobject`
-  with sequence data and `pathways` is `NULL`, higher-order pathways are
-  built automatically using the `method` parameter.
+  `cograph_network`, `net_hon`, `net_hypa`, `net_association_rules`,
+  `net_link_prediction` or `simplicial_complex`. A data frame with a
+  `path` column is used as `pathways`, and the states are then taken
+  from the path strings.
 
 - pathways:
 
   Character vector of pathway strings, a list of character vectors, a
-  `net_hon` / `net_hypa` object, or any data.frame with a `path` column
-  (e.g., the output of
-  [`Nestimate::mogen_transitions()`](https://saqr.me/Nestimate/reference/mogen_transitions.html)).
-  If a data.frame with a `path` column is passed as `x` and `pathways`
-  is `NULL`, it is auto-promoted to `pathways` and the state set is
-  derived from the path strings — `plot_simplicial(mgt)` works directly.
-  String separators: `"A B -> C"`, `"A -> B -> C"`, `"A, B, C"`,
-  `"A - B - C"`, `"A B C"`. Last state is the target. When a data.frame
-  is passed and a `count` column is present, rows are sorted by count
-  descending before `max_pathways` is applied. When `NULL` and `x` is a
-  model with sequence data, pathways are built automatically.
+  `net_hon`, `net_hypa`, `net_association_rules`, `net_link_prediction`
+  or `simplicial_complex` object, or a data frame with a `path` column,
+  such as the output of
+  [`Nestimate::mogen_transitions()`](https://saqr.me/Nestimate/reference/mogen_transitions.html).
+  Accepted string forms are `"A B -> C"`, `"A -> B -> C"`, `"A, B, C"`,
+  `"A - B - C"` and `"A B C"`, and the last state is the target. The
+  rows of a data frame with a `count` column are sorted by count in
+  decreasing order before `max_pathways` is applied. When `NULL` and `x`
+  is a model with sequence data, pathways are built with `method`.
 
 - method:
 
-  Pathway source when auto-building from a `tna`/`netobject`: `"hon"`
-  (default, higher-order network), `"hypa"` (anomalous paths via
-  hypergeometric null), or `"rules"` (association-rule itemsets via
-  [`Nestimate::association_rules`](https://saqr.me/Nestimate/reference/association_rules.html);
-  rules are rendered as single-colored blobs because itemsets are
-  undirected).
+  Pathway source when building from a `tna` or `netobject`: `"hon"`
+  (default) for a higher-order network, `"hypa"` for paths that are
+  anomalous under a hypergeometric null model, or `"rules"` for
+  association-rule itemsets from
+  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html),
+  which are plotted as sets.
 
 - max_pathways:
 
   Maximum number of pathways to display. HON pathways are ranked by
-  count, HYPA by anomaly ratio. `NULL` shows all. Default `10`.
+  count and HYPA pathways by anomaly ratio. `NULL` shows all. Default
+  `10`.
 
 - pathway_index:
 
-  Optional positive integer vector selecting ranked pathways after
-  extraction and ranking, before `max_pathways` is applied. For example,
-  `2` plots the second-ranked pathway and `2:4` plots pathways ranked
-  second through fourth.
+  Optional positive integer vector selecting ranked pathways before
+  `max_pathways` is applied. For example, `2` plots the second-ranked
+  pathway and `2:4` plots the pathways ranked second through fourth.
 
 - anomaly:
 
-  HYPA anomaly type to display when plotting a `net_hypa` object or
-  auto-building HYPA pathways via `method = "hypa"`. One of `"all"`,
-  `"over"`, or `"under"`. Default `"all"`. Ignored (with a warning) for
-  non-HYPA inputs such as `net_hon`, `net_association_rules`,
-  `net_link_prediction`, character pathway vectors, or `method = "hon"`
-  / `"rules"`, which have no anomaly concept.
+  HYPA anomaly type to display, one of `"all"` (default), `"over"` or
+  `"under"`. It applies to a `net_hypa` input and to `method = "hypa"`.
+  For any other input an explicitly supplied value is ignored with a
+  warning.
 
 - layout:
 
-  `"circle"` (default) or a coordinate matrix.
+  `"circle"` (default) or a coordinate matrix with one row per state.
 
 - labels:
 
@@ -129,39 +126,31 @@ plot_simplicial(
 
 - label_color:
 
-  Label text color (default `"#e8e8e8"`, very light grey). Light grey
-  reads on both white and dark fills when the auto-contrast halo is
-  enabled (it is by default). Applied to both source and target labels
-  unless `target_label_color` overrides for targets.
+  Label text color for source and target nodes. Default `"#e8e8e8"`, a
+  very light grey.
 
 - target_label_color:
 
-  Target-node label color. `NULL` (default) reuses `label_color`.
+  Target-node label color. `NULL` (default) uses `label_color`.
 
 - label_halo:
 
-  Logical. Draw a contrasting halo behind each label so it stays
-  readable on any fill — node disc, blob, or the white canvas. Default
-  `TRUE`. The halo is the only reliable way to keep, e.g., white labels
-  legible when `node_color` is also light.
+  Logical. Place a contrasting halo behind each label so that it stays
+  readable on node, blob and background fills. Default `TRUE`.
 
 - label_halo_color:
 
-  Halo color. `NULL` (default) auto-picks black or white based on the
-  luminance of `label_color`, so a white label gets a dark halo and vice
-  versa.
+  Halo color. `NULL` (default) chooses black or white from the luminance
+  of `label_color`.
 
 - label_halo_width:
 
-  Halo thickness in plot units. Default `0.035`; raise for chunkier
-  outlines, lower for subtler ones, or set to `0` to disable without
-  touching `label_halo`.
+  Halo thickness in plot units. Default `0.035`. A value of `0` removes
+  the halo.
 
 - label_halo_alpha:
 
-  Halo opacity (0–1). Default `0.6` reads as a soft glow rather than a
-  hard outline; raise toward `1` for sharper contrast on very busy
-  backgrounds.
+  Halo opacity, from 0 to 1. Default `0.6`.
 
 - blob_alpha:
 
@@ -185,93 +174,86 @@ plot_simplicial(
 
 - shadow:
 
-  Draw soft drop shadows?
+  Add soft drop shadows?
 
 - title:
 
-  Plot title.
+  Plot title of the combined overlay.
 
 - dismantled:
 
-  If `TRUE`, one panel per pathway arranged in a grid layout.
+  If `TRUE`, one panel per pathway arranged in a grid.
 
 - ncol:
 
-  Number of columns in the grid when `dismantled = TRUE`. Default `NULL`
-  auto-selects based on the number of pathways.
+  Number of columns in the grid when `dismantled = TRUE`. `NULL`
+  (default) uses the ceiling of the square root of the number of
+  pathways.
 
 - ordered:
 
-  Is each higher-order structure a PATH or a SET? `TRUE` treats the last
-  state of every pathway as its target (HON / HYPA / MOGen). `FALSE`
-  treats every member as co-equal: there is no target, so no node is
-  painted with `target_color`, no direction cue is drawn, and the panel
-  title is a member list rather than an arrow. `NULL` (default) reads it
-  off the input — `net_association_rules` and `simplicial_complex` are
-  sets, everything else is a path.
+  Logical. `TRUE` treats each pathway as a path whose last state is the
+  target. `FALSE` treats it as a set of equal members, so no node gets
+  `target_color`, no direction cue is shown and the panel title lists
+  the members. `NULL` (default) treats `net_association_rules`,
+  `simplicial_complex` and `method = "rules"` pathways as sets and all
+  other inputs as paths.
 
 - direction:
 
-  Draw the traversal inside each per-pathway panel: a light-to-dark core
-  ramp along the path, a ring whose gold peaks on the side facing the
-  next state, and an arrowhead just outside each node aimed at its
-  successor. `NULL` (default) enables them exactly when
-  `dismantled = TRUE`. A simplex is a set of vertices, so the combined
-  overlay — where blobs overlap and a state can sit in several pathways
-  at once — cannot express direction; `direction = TRUE` with
-  `dismantled = FALSE` is an error rather than a silent no-op. Also
-  forced off when the caller has collapsed the source/target two-tone
-  (undirected input such as `net_association_rules`).
+  Logical. Show the order of traversal in each per-pathway panel by a
+  light-to-dark shading of the node cores along the path, a ring whose
+  `ring_color` is strongest on the side facing the next state, and an
+  arrowhead pointing to the successor. `NULL` (default) enables it when
+  `dismantled = TRUE`. `direction = TRUE` with `dismantled = FALSE`
+  raises a `cograph_direction_needs_panels` error, because a state
+  shared by several pathways in the overlay has no single successor.
+  Direction is turned off for sets and when `target_color` equals
+  `node_color`.
 
 - direction_cues:
 
-  Which cues to draw, any of `"shade"`, `"ring"`, `"arrows"`. Default
-  all three.
+  Which direction cues to show, any of `"shade"`, `"ring"` and
+  `"arrows"`. Default all three.
 
 - node_radius:
 
-  Node core radius in data units, used only on the directed path (rings
-  and cores become polygons there so the ring gradient and the arrow
-  offset are expressible; `geom_point()` sizes are device millimeters
-  and cannot answer either). `NULL` (default) scales it to the panel
-  extent so the nodes keep the size they have today.
+  Node core radius in data units, used in panels that show direction.
+  `NULL` (default) scales it to the panel extent.
 
 - legend:
 
-  Draw the in-figure legend strip beneath a dismantled grid. Default
-  `TRUE` when `direction` is on.
+  Add a legend strip beneath a dismantled grid. `NULL` (default) adds it
+  when `direction` is on.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html)
-  or
+  [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html),
   [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html)
-  when auto-building.
+  or
+  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
+  when pathways are built from a model.
 
 ## Value
 
 Invisibly, a `ggplot` object for the combined overlay. With
-`dismantled = TRUE` the arranged grid is returned instead: a `gtable`
-when gridExtra is available, otherwise a plain list of the per-pathway
-`ggplot` objects. `NULL` is returned when there is nothing to draw (no
-pathways could be extracted). Called for the side effect of drawing.
+`dismantled = TRUE` the arranged grid is returned instead, as a `gtable`
+when gridExtra is available and otherwise as a list of the per-pathway
+`ggplot` objects. `NULL` is returned, with a message, when no pathways
+could be extracted. The figure is printed as a side effect.
 
 ## Details
 
-Supports direct use with `tna` and `netobject` models: when `x` has
-sequence data, HON or HYPA pathways are built automatically (requires
-the Nestimate package). Pathways can also be passed as `net_hon` or
-`net_hypa` objects, with labels auto-translated when `x` is a
-`tna`/`netobject`.
+When `x` is a `tna` or `netobject` model with sequence data and
+`pathways` is `NULL`, the pathways are built from the sequences with the
+Nestimate package. Pathways passed as `net_hon` or `net_hypa` objects
+have their numeric state identifiers translated to labels when `x` is a
+`tna` or `netobject`.
 
 ## Examples
 
 ``` r
-set.seed(1)
-mat <- matrix(runif(16), 4, 4,
-              dimnames = list(LETTERS[1:4], LETTERS[1:4]))
-diag(mat) <- 0
-plot_simplicial(mat, c("A B -> C", "B C -> D"))
+plot_simplicial(regulation_net, c("Plan Monitor -> Adapt", "Explore Reflect -> Plan"))
 
 ```

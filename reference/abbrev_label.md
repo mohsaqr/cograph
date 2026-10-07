@@ -24,7 +24,9 @@ label_abbrev(label, abbrev = NULL, n_labels = NULL)
 
   - Integer: Maximum character length (truncate + ellipsis)
 
-  - "auto": Adaptive abbreviation based on label count
+  - "auto": Length chosen from the label count. Up to 5 labels are kept
+    whole, and up to 8, 12, 20 or more labels are cut to 15, 10, 6 or 4
+    characters.
 
 - n_labels:
 
@@ -37,17 +39,6 @@ Character vector of (possibly abbreviated) labels.
 ## Examples
 
 ``` r
-labels <- c("VeryLongStateName", "Short", "AnotherLongName")
-
-# No abbreviation
-abbrev_label(labels, NULL)
-#> [1] "VeryLongStateName" "Short"             "AnotherLongName"  
-
-# Fixed max length
-abbrev_label(labels, 5)  # "Very…", "Short", "Anot…"
-#> [1] "Very…" "Short" "Anot…"
-
-# Auto-adaptive
-abbrev_label(labels, "auto")
-#> [1] "VeryLongStateName" "Short"             "AnotherLongName"  
+abbrev_label(colnames(regulation_net), abbrev = 4)
+#>  [1] "Exp…" "Plan" "Mon…" "Ada…" "Ref…" "Dis…" "Syn…" "Eva…" "Cre…" "Sha…"
 ```

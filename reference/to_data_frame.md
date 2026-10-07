@@ -33,11 +33,11 @@ A base `data.frame` with one row per edge and exactly three columns:
 
 - `weight`: Edge weight
 
-Any further edge columns the network carries (for example `session` or
-`time` from temporal edge lists) are *not* included; use
-[`get_edges`](https://sonsoles.me/cograph/reference/get_edges.md), which
-returns the edge table whole. An undirected network contributes one row
-per unordered pair, not two.
+Further edge columns, such as `session` or `time` from temporal edge
+lists, are dropped.
+[`get_edges`](https://sonsoles.me/cograph/reference/get_nodes.md)
+returns the full edge table. An undirected network contributes one row
+per unordered pair.
 
 ## See also
 
@@ -48,27 +48,36 @@ per unordered pair, not two.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Convert to edge list
-to_data_frame(adj)
-#>   from to weight
-#> 1    A  B    0.5
-#> 2    A  C    0.8
-#> 3    B  C    0.3
-#> 4    B  D    0.6
-#> 5    C  D    0.4
-
-# Use alias
-to_df(adj)
-#>   from to weight
-#> 1    A  B    0.5
-#> 2    A  C    0.8
-#> 3    B  C    0.3
-#> 4    B  D    0.6
-#> 5    C  D    0.4
+to_data_frame(regulation_net)
+#>          from         to weight
+#> 1       Adapt    Explore   0.28
+#> 2     Reflect    Explore   0.05
+#> 3     Discuss    Explore   0.30
+#> 4      Create    Explore   0.14
+#> 5  Synthesize       Plan   0.11
+#> 6       Share       Plan   0.21
+#> 7        Plan    Monitor   0.13
+#> 8     Reflect    Monitor   0.15
+#> 9  Synthesize    Monitor   0.07
+#> 10   Evaluate    Monitor   0.33
+#> 11     Create    Monitor   0.17
+#> 12      Share    Monitor   0.49
+#> 13    Monitor      Adapt   0.16
+#> 14   Evaluate      Adapt   0.43
+#> 15      Share      Adapt   0.39
+#> 16    Explore    Reflect   0.35
+#> 17    Discuss    Reflect   0.35
+#> 18 Synthesize    Reflect   0.42
+#> 19   Evaluate    Reflect   0.07
+#> 20       Plan    Discuss   0.40
+#> 21      Adapt    Discuss   0.34
+#> 22      Adapt Synthesize   0.17
+#> 23       Plan   Evaluate   0.49
+#> 24     Create   Evaluate   0.39
+#> 25       Plan     Create   0.20
+#> 26    Monitor     Create   0.37
+#> 27    Discuss     Create   0.14
+#> 28    Explore      Share   0.27
+#> 29       Plan      Share   0.36
+#> 30     Create      Share   0.23
 ```

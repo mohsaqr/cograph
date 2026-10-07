@@ -1,8 +1,10 @@
 # Burt's Constraint
 
-Network constraint measuring the extent to which a node's connections
-are redundant. Low constraint indicates access to structural holes
-(brokerage opportunities).
+Burt's constraint measures how much a node's ties are concentrated in
+contacts that are themselves tied to each other. With \\p\_{ij}\\ the
+proportion of the tie strength of \\i\\ invested in \\j\\, \$\$C_i =
+\sum\_{j \ne i} \Big( p\_{ij} + \sum\_{q \ne i, j} p\_{iq} p\_{qj}
+\Big)^2.\$\$ Low constraint marks access to structural holes.
 
 ## Usage
 
@@ -14,29 +16,40 @@ centrality_constraint(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector of constraint values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Ties are symmetrized as \\w\_{ij} + w\_{ji}\\ before the proportions are
+formed, so edge direction is ignored. Edge weights are always used, and
+`weighted = FALSE` has no effect. The values match
+[`igraph::constraint()`](https://r.igraph.org/reference/constraint.html).
+An isolated node returns `NaN`, and a node whose only tie is a self-loop
+scores 0.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_effective_size`](https://sonsoles.me/cograph/reference/centrality_effective_size.md),
+[`centrality_bridging`](https://sonsoles.me/cograph/reference/centrality_bridging.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_constraint(adj)
-#>     A     B     C 
-#> 1.125 1.125 1.125 
+centrality_constraint(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.3938089  0.3609471  0.4445897  0.2953747  0.3318307  0.3363414  0.4122426 
+#>   Evaluate     Create      Share 
+#>  0.3801232  0.4686083  0.3627823 
 ```

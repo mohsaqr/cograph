@@ -1,7 +1,9 @@
-# Lobby Index (H-Index of Neighborhood)
+# Lobby Index
 
-Largest k such that the node's closed neighborhood contains at least k
-nodes with degree \>= k. Network analogue of the h-index.
+The lobby index (Korn et al. 2009) is the h-index of the degrees in the
+closed neighborhood of a node. It is the largest \\k\\ such that the
+node and its neighbors include at least \\k\\ nodes of degree \\k\\ or
+more.
 
 ## Usage
 
@@ -13,33 +15,49 @@ centrality_lobby(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named integer vector of lobby index values.
+A named integer vector with one index per node, in input node order.
+
+## Details
+
+Edge weights are ignored. `mode` selects both the degree and the
+neighbors, and with `mode = "all"` on a directed network the degree is
+in plus out. An isolated node scores 0. On undirected networks the
+values equal
+[`centiserve::lobby()`](https://rdrr.io/pkg/centiserve/man/lobby.html).
+
+## References
+
+Korn, A., Schubert, A., & Telcs, A. (2009). Lobby index in networks.
+Physica A, 388(11), 2221-2226.
+[doi:10.1016/j.physa.2009.02.013](https://doi.org/10.1016/j.physa.2009.02.013)
+.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality_coreness`](https://sonsoles.me/cograph/reference/centrality_coreness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lobby(adj)
-#> A B C 
-#> 2 2 2 
+centrality_lobby(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>          6          5          6          5          5          5          4 
+#>   Evaluate     Create      Share 
+#>          5          6          6 
 ```

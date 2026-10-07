@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,33 +72,47 @@ mapping old label to new (in which case <code>to</code> is not used).</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
-<dd><p>Logical. Return the input format when TRUE.</p></dd>
+<dd><p>Logical. If TRUE, a matrix, igraph, statnet network or
+tna input is returned in its own format. An edge-list data frame or a
+qgraph object is returned as a <code>cograph_network</code> with a
+<code>cograph_no_format_roundtrip</code> warning. Default FALSE returns a
+<code>cograph_network</code>.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical or NULL. If NULL (default), auto-detect.</p></dd>
+<dd><p>Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>cograph_network</code> with the renamed nodes, or the input format
-when <code>keep_format = TRUE</code>. Labels not named in <code>from</code> are left
-alone.</p>
+when <code>keep_format = TRUE</code>. Labels not named in <code>from</code> are
+unchanged. A <code>cograph_bad_selection</code> error is raised when
+<code>from</code> names a node that is not in the network or when the renaming
+would give two nodes the same label.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="reorder_nodes.html">reorder_nodes</a></code>, <code><a href="set_nodes.html">set_nodes</a></code></p></div>
+    <div class="dont-index"><p><code><a href="reorder_nodes.html">reorder_nodes</a></code>, <code><a href="get_nodes.html">set_nodes</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="get_labels.html">get_labels</a></span><span class="op">(</span><span class="fu">rename_nodes</span><span class="op">(</span><span class="va">adj</span>, from <span class="op">=</span> <span class="st">"A"</span>, to <span class="op">=</span> <span class="st">"Alpha"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Alpha" "B"    </span>
-<span class="r-in"><span><span class="fu"><a href="get_labels.html">get_labels</a></span><span class="op">(</span><span class="fu">rename_nodes</span><span class="op">(</span><span class="va">adj</span>, from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>A <span class="op">=</span> <span class="st">"Alpha"</span>, B <span class="op">=</span> <span class="st">"Beta"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Alpha" "Beta" </span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">rename_nodes</span><span class="op">(</span><span class="va">regulation_net</span>, from <span class="op">=</span> <span class="st">"Plan"</span>, to <span class="op">=</span> <span class="st">"Planning"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 10 nodes, 30 edges ( directed )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (10): Explore, Planning, Monitor, Adapt, Reflect, Discuss, ... +4 more</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 30 / 90 (density: 33.3%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.050, 0.490]  |  mean: 0.265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Share -&gt; Monitor  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Planning -&gt; Evaluate  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Adapt  0.430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Synthesize -&gt; Reflect  0.420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Planning -&gt; Discuss  0.400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

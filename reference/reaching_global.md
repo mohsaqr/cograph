@@ -14,7 +14,8 @@ reaching_global(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input (matrix, edge-list data frame, igraph, network,
+  cograph_network, tna object).
 
 - mode:
 
@@ -27,14 +28,16 @@ reaching_global(x, mode = "all", ...)
 
 ## Value
 
-A single numeric value in \\\[0, 1\]\\.
+A single numeric value. On an unweighted graph it lies in \\\[0, 1\]\\.
+On a weighted graph the local reaching centralities scale with the edge
+weights, so the value is unbounded. A graph with at most one node
+returns 0.
 
 ## Details
 
-Values close to 0 indicate a flat network (all nodes reach equal
-proportions of the graph); values close to 1 indicate strong
-hierarchical structure. Matches `networkx.global_reaching_centrality`
-exactly.
+Values close to 0 indicate a flat network in which all nodes reach equal
+proportions of the graph. Larger values indicate a more hierarchical
+structure. The result matches `networkx.global_reaching_centrality`.
 
 ## References
 
@@ -49,10 +52,6 @@ complex networks. *PLoS ONE*, 7(3), e33799.
 ## Examples
 
 ``` r
-# Star graph: highly hierarchical (directed out from center)
-adj <- matrix(0, 5, 5)
-adj[1, 2:5] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-reaching_global(adj, mode = "out")
-#> [1] 1
+reaching_global(regulation_net, mode = "out")
+#> [1] 0.08522634
 ```

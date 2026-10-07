@@ -1,8 +1,10 @@
 # Plot Degree-Degree Correlation
 
 Scatter plot of each node's degree against the average degree of its
-neighbors. Reveals assortative (positive slope) or disassortative
-(negative slope) mixing patterns.
+neighbors. A positive slope indicates assortative mixing and a negative
+slope indicates disassortative mixing. When more than two nodes have
+neighbors, a least-squares line is added and the Pearson correlation is
+printed in the top margin.
 
 ## Usage
 
@@ -25,8 +27,8 @@ plot_degree_correlation(
 
 - mode:
 
-  Character. For directed networks: `"all"`, `"in"`, or `"out"`. Default
-  `"all"`.
+  Character. Degree type and neighborhood used for directed networks:
+  `"all"` (default), `"in"`, or `"out"`.
 
 - directed:
 
@@ -47,8 +49,9 @@ plot_degree_correlation(
 
 ## Value
 
-Invisibly returns a data frame with columns `node`, `degree`,
-`avg_neighbor_degree`.
+Invisibly, a data frame with one row per node and columns `node`,
+`degree` and `avg_neighbor_degree`. The average neighbor degree is `NA`
+for nodes without neighbors.
 
 ## See also
 
@@ -59,6 +62,5 @@ Invisibly returns a data frame with columns `node`, `degree`,
 ## Examples
 
 ``` r
-g <- igraph::sample_pa(100, m = 3, directed = FALSE)
-cograph::plot_degree_correlation(g)
+cograph::plot_degree_correlation(student_interactions)
 ```

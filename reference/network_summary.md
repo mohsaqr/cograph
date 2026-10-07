@@ -1,8 +1,8 @@
 # Network-Level Summary Statistics
 
-Computes comprehensive network-level statistics for a network. Returns a
-data frame with one row containing various metrics including density,
-centralization scores, transitivity, and more.
+Computes network-level statistics and returns them as a one-row data
+frame. The basic set covers size, density, connectivity, path lengths,
+centralization, transitivity, reciprocity and degree assortativity.
 
 ## Usage
 
@@ -40,8 +40,9 @@ network_summary(
 
 - mode:
 
-  For directed networks: "all", "in", or "out". Affects degree-based
-  calculations. Default "all".
+  For directed networks: "all", "in", or "out". Used by the degree,
+  strength and closeness statistics added by `detailed = TRUE`. Default
+  "all".
 
 - loops:
 
@@ -55,18 +56,19 @@ network_summary(
 
 - detailed:
 
-  Logical. If TRUE, include mean/sd centrality statistics. Default FALSE
-  returns 18 basic metrics; TRUE returns 29 metrics.
+  Logical. If TRUE, add 11 summary statistics of node-level centralities
+  to the 16 basic metrics. Default FALSE.
 
 - extended:
 
-  Logical. If TRUE, include additional structural metrics (girth,
-  radius, clique size, cut vertices, bridges, efficiency). Default
-  FALSE.
+  Logical. If TRUE, add 8 structural metrics (girth, radius, vertex
+  connectivity, clique size, cut vertices, bridges, global and local
+  efficiency). Default FALSE.
 
 - digits:
 
   Integer. Round numeric results to this many decimal places. Default 3.
+  NULL skips rounding.
 
 - ...:
 
@@ -74,9 +76,7 @@ network_summary(
 
 ## Value
 
-A data frame with one row containing network-level statistics:
-
-**Basic measures (always computed):**
+A data frame with one row. The basic measures are always computed:
 
 - node_count:
 
@@ -104,11 +104,12 @@ A data frame with one row containing network-level statistics:
 
 - min_cut:
 
-  Minimum cut value (edge connectivity)
+  Minimum number of edges whose removal disconnects the network. Edge
+  weights are not used.
 
 - centralization_degree:
 
-  Degree centralization (0-1)
+  Degree centralization over all ties (0-1)
 
 - centralization_in_degree:
 
@@ -142,7 +143,7 @@ A data frame with one row containing network-level statistics:
 
   Degree assortativity coefficient
 
-**Extended measures (when extended = TRUE):**
+The extended measures are added when `extended = TRUE`:
 
 - girth:
 
@@ -150,7 +151,7 @@ A data frame with one row containing network-level statistics:
 
 - radius:
 
-  Minimum eccentricity (shortest max-distance from any node)
+  Minimum eccentricity over all nodes
 
 - vertex_connectivity:
 
@@ -176,7 +177,7 @@ A data frame with one row containing network-level statistics:
 
   Average local efficiency across nodes
 
-**Detailed measures (when detailed = TRUE):**
+The detailed measures are added when `detailed = TRUE`:
 
 - mean_degree, sd_degree, median_degree:
 
@@ -213,78 +214,13 @@ A data frame with one row containing network-level statistics:
 ## Examples
 
 ``` r
-# Basic usage with adjacency matrix
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-network_summary(adj)
+network_summary(regulation_net)
 #>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1          3          3       1               1        1             1       2
+#> 1         10         30   0.333               1     0.97         0.435       1
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                     0                       NA                        NA
+#> 1                 0.123                    0.333                     0.222
 #>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                          0                        0                    0
+#> 1                      0.149                    0.238                0.479
 #>   transitivity reciprocity assortativity_degree
-#> 1            1          NA                  NaN
-
-# With detailed statistics
-network_summary(adj, detailed = TRUE)
-#>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1          3          3       1               1        1             1       2
-#>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                     0                       NA                        NA
-#>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree mean_degree sd_degree
-#> 1            1          NA                  NaN           2         0
-#>   median_degree mean_strength sd_strength mean_betweenness mean_closeness
-#> 1             2             2           0                0            0.5
-#>   mean_eigenvector mean_pagerank mean_constraint mean_local_transitivity
-#> 1                1         0.333           1.125                       1
-
-# With extended structural metrics
-network_summary(adj, extended = TRUE)
-#>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1          3          3       1               1        1             1       2
-#>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                     0                       NA                        NA
-#>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree girth radius
-#> 1            1          NA                  NaN     3      1
-#>   vertex_connectivity largest_clique_size cut_vertex_count bridge_count
-#> 1                   2                   3                0            0
-#>   global_efficiency local_efficiency
-#> 1                 1                1
-
-# All metrics
-network_summary(adj, detailed = TRUE, extended = TRUE)
-#>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1          3          3       1               1        1             1       2
-#>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                     0                       NA                        NA
-#>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                          0                        0                    0
-#>   transitivity reciprocity assortativity_degree girth radius
-#> 1            1          NA                  NaN     3      1
-#>   vertex_connectivity largest_clique_size cut_vertex_count bridge_count
-#> 1                   2                   3                0            0
-#>   global_efficiency local_efficiency mean_degree sd_degree median_degree
-#> 1                 1                1           2         0             2
-#>   mean_strength sd_strength mean_betweenness mean_closeness mean_eigenvector
-#> 1             2           0                0            0.5                1
-#>   mean_pagerank mean_constraint mean_local_transitivity
-#> 1         0.333           1.125                       1
-
-# From igraph object
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_gnp(20, 0.3)
-  network_summary(g)
-}
-#>   node_count edge_count density component_count diameter mean_distance min_cut
-#> 1         20         52   0.274               1        4         1.921       1
-#>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                   0.2                       NA                        NA
-#>   centralization_betweenness centralization_closeness centralization_eigen
-#> 1                      0.112                    0.276                0.468
-#>   transitivity reciprocity assortativity_degree
-#> 1         0.22          NA               -0.064
+#> 1        0.423       0.111               -0.116
 ```

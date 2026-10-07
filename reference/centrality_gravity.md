@@ -1,8 +1,13 @@
-# Gravity centrality
+# Gravity Centrality
 
-\\G(i) = \sum_j m_i m_j / d\_{ij}^{2}\\, optionally truncated at
-`gravity_radius`. The published members of the family differ only in the
-mass and the reach:
+Gravity centrality (Ma et al. 2016) treats node masses as attracting
+each other with a force that falls with the squared hop distance, summed
+over the nodes within a radius \\r\\: \$\$G(i) = \sum\_{j:\\ 0 \<
+d\_{ij} \le r} \frac{m_i m_j}{d\_{ij}^2}.\$\$ The default uses the
+k-shell index as mass and \\r = 3\\ (Ma et al. 2016). Degree mass
+without truncation is the gravity model of Li et al. (2019, eq. 1), and
+degree mass with `gravity_radius = "auto"` is their local gravity model
+(eq. 2).
 
 ## Usage
 
@@ -20,58 +25,43 @@ centrality_gravity(
 
 - x:
 
-  Network input: matrix, igraph, network, cograph_network, or tna
-  object.
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  Direction: `"all"`, `"out"` or `"in"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - gravity_mass:
 
-  `"kshell"` (default), `"degree"`, or `"legacy"`.
+  Node mass: `"kshell"` (default), `"degree"` or `"legacy"`.
 
 - gravity_radius:
 
-  Largest distance to include: a number, `"auto"` for half the mean
-  distance, or `NULL` for the whole graph. Default 3.
+  Largest hop distance included: a number (default 3), `"auto"`, or
+  `NULL` for the whole network.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-- Gravity centrality (Ma, Ma, Zhang & Wang 2016):
-
-  k-shell mass, radius 3 – the default.
-
-- Gravity model (Li, Ren, Ma, Liu, Zhang & Zhou 2019, eq. 1):
-
-  `gravity_mass = "degree"`, `gravity_radius = NULL`.
-
-- Local gravity model (same paper, eq. 2):
-
-  `gravity_mass = "degree"`, `gravity_radius = "auto"`, which uses their
-  empirical half-mean-distance heuristic (eq. 5). cograph rounds to the
-  nearest integer (ties to even), with minimum 1, using finite positive
-  distances on disconnected graphs. These rounding and
-  disconnected-graph rules are cograph conventions.
-
-## Change in 2.4.8
-
-Before 2.4.8 this measure computed \\\sum_j k_j s_j / d\_{ij}^2\\: the
-product of degree and k-shell on the partner, no mass at all on the
-focal node, and no truncation. That is not the formula of Li et al.
-(2019) that its help page cited, and dropping the focal mass changes the
-ranking rather than the scale. The default is now Ma et al. (2016).
-`gravity_mass = "legacy"` with `gravity_radius = NULL` reproduces the
-earlier values exactly.
+Distances are hop counts, so edge weights are ignored. `mode` sets the
+direction of both the distances and the degree or k-shell masses, and
+`mode = "all"` treats edges as undirected. The `"auto"` radius is half
+the mean finite positive distance, rounded to the nearest integer with a
+minimum of 1 (Li et al. 2019, eq. 5). A radius below 1 gives a score of
+0 for every node. `gravity_mass = "legacy"` with `gravity_radius = NULL`
+computes \\\sum_j k_j s_j / d\_{ij}^2\\, with \\k_j\\ the degree,
+\\s_j\\ the k-shell index and no mass on the focal node. This form
+differs from the formula of Li et al. (2019).
 
 ## References
 
@@ -85,21 +75,16 @@ Identifying influential spreaders by gravity model. Scientific Reports,
 
 ## See also
 
+[`centrality_extended_gravity`](https://sonsoles.me/cograph/reference/centrality_extended_gravity.md),
 [`centrality_coreness`](https://sonsoles.me/cograph/reference/centrality_coreness.md),
-[`centrality_kreach`](https://sonsoles.me/cograph/reference/centrality_kreach.md),
 [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_gravity(adj)
-#>         A         B         C         D         E         F 
-#>  9.888889  9.888889 14.000000 14.000000  9.888889  9.888889 
-centrality_gravity(adj, gravity_mass = "degree", gravity_radius = NULL)
-#>        A        B        C        D        E        F 
-#> 12.38889 12.38889 24.00000 24.00000 12.38889 12.38889 
+centrality_gravity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>     148.75     163.75     182.50     163.75     145.00     148.75     105.00 
+#>   Evaluate     Create      Share 
+#>     148.75     167.50     148.75 
 ```

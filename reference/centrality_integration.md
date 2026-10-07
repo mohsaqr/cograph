@@ -1,6 +1,9 @@
 # Integration Centrality
 
-Distance-based influence: sum of 1 - (d-1)/max(d) over all nodes.
+Integration centrality (Valente and Foreman 1998) scores each distance
+against the diameter \\D\\, the largest finite hop distance, and sums:
+\$\$I(i) = \sum\_{j} \left(1 - \frac{d\_{ij} - 1}{D}\right),\$\$ where
+an unreachable node contributes 0.
 
 ## Usage
 
@@ -12,33 +15,52 @@ centrality_integration(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of integration centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Distances are hop counts, so edge weights are ignored. The sum includes
+the node itself, which contributes \\1 + 1/D\\, and is not divided by
+\\n - 1\\; the values equal
+[`tidygraph::centrality_integration()`](https://tidygraph.data-imaginist.com/reference/centrality.html).
+`mode = "all"` treats edges as undirected, `"out"` uses distances from
+the node and `"in"` distances to it. On a network without edges every
+node scores \\n\\.
+
+## References
+
+Valente, T. W., & Foreman, R. K. (1998). Integration and radiality:
+Measuring the extent of an individual's connectedness and reachability
+in a network. Social Networks, 20(1), 89-105.
+[doi:10.1016/S0378-8733(97)00007-5](https://doi.org/10.1016/S0378-8733%2897%2900007-5)
+.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_radiality`](https://sonsoles.me/cograph/reference/centrality_radiality.md),
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_integration(adj)
-#>   A   B   C 
-#> 3.0 3.5 3.0 
+centrality_integration(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        8.5        9.0        9.5        9.0        8.5        8.5        8.0 
+#>   Evaluate     Create      Share 
+#>        8.5        9.0        8.5 
 ```

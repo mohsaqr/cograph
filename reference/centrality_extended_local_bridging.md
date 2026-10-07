@@ -1,13 +1,11 @@
-# Extended local bridging centrality
+# Extended Local Bridging Centrality
 
-Macker's two-hop localized bridging centrality multiplies betweenness of
-the focal node in its induced closed two-hop neighborhood by its
-bridging coefficient. Degrees for that coefficient come from the
-original graph. The ego network includes every edge between the selected
-vertices. Its shortest paths can be up to four edges long; this is not
-global betweenness with a path-length cutoff of two. Betweenness uses
-unordered pairs, excludes endpoints, and is not normalized by
-ego-network size.
+Extended local bridging centrality (Macker 2016) multiplies a node's
+betweenness in its two-hop ego network by its bridging coefficient, the
+reciprocal of its degree divided by the sum of the reciprocal degrees of
+its neighbors. The two-hop ego network contains every node within two
+hops and every edge among them, so its shortest paths can have up to
+four edges.
 
 ## Usage
 
@@ -24,26 +22,23 @@ centrality_extended_local_bridging(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides final scores by their maximum; all-zero
-  scores remain zero. Ego betweenness is never scaled by ego size.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the same simple undirected unweighted projection and zero
-conventions as
-[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md).
-Macker's separate weighted model uses link quality for degree and costs
-for paths; that model is outside this implementation. Native
-breadth-first path counts cost O(sum over ego networks of n_ego times
-(n_ego + m_ego)), at worst O(n to the fourth power), with O(n squared)
-memory. This measure is marked costly and must be selected explicitly or
-through `include`.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+Degrees are taken from the whole network. Ego betweenness counts
+unordered pairs, excludes endpoints and is not normalized. Isolated
+nodes, leaves and every node of a complete graph score zero. The
+weighted model of Macker (2016), with link quality and path costs, is
+not implemented.
 
 ## References
 
@@ -52,18 +47,18 @@ distributed network analytics. MILCOM, pp. 600-605.
 [doi:10.1109/MILCOM.2016.7795393](https://doi.org/10.1109/MILCOM.2016.7795393)
 .
 
+## See also
+
+[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md),
+[`centrality_bridging`](https://sonsoles.me/cograph/reference/centrality_bridging.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_extended_local_bridging(igraph::make_graph("Zachary"))
-#>          1          2          3          4          5          6          7 
-#>  2.0189267  0.9933652  3.3244479  0.6045079  0.1720430  1.7090909  1.7090909 
-#>          8          9         10         11         12         13         14 
-#>  0.0000000  9.5411745  1.4091711  0.1720430  0.0000000  0.0000000  9.1625292 
-#>         15         16         17         18         19         20         21 
-#>  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000 22.6422477  0.0000000 
-#>         22         23         24         25         26         27         28 
-#>  0.0000000  0.0000000  2.0092462  0.5185185  0.6507937  0.0000000  3.8618643 
-#>         29         30         31         32         33         34 
-#>  0.9704532  0.4382172  4.2075394  9.3565470  1.1317356  1.1801784 
+centrality_extended_local_bridging(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.3000000  0.3473648  0.3104056  0.4191617  0.4364508  0.3185185  0.2403169 
+#>   Evaluate     Create      Share 
+#>  0.2610169  0.2879113  0.2333333 
 ```

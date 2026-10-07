@@ -1,8 +1,7 @@
 # Symmetrize a Directed Network
 
 Combines each pair of opposite arcs into one undirected edge. The result
-is an undirected network, so measures that branch on directedness see
-the change.
+is an undirected network. Self-loops are kept unchanged.
 
 ## Usage
 
@@ -77,11 +76,9 @@ is exactly zero disappears: every unreciprocated arc under
 ## Details
 
 `"max"`, `"min"`, `"mean"` and `"sum"` combine two values only where
-both arcs exist; an unreciprocated edge keeps its own weight rather than
-being compared against the zero that stands for the missing arc. That
-distinction matters for signed networks, where comparing a negative
-weight against a structural zero would delete the edge. Use `"mutual"`
-when an edge should survive only if it was reciprocated.
+both arcs exist. An unreciprocated edge keeps its own weight. In a
+signed network an unreciprocated negative edge is therefore kept.
+`"mutual"` keeps only reciprocated edges.
 
 ## References
 
@@ -96,42 +93,18 @@ Statistical Software*, 24(6), 1–51.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, 0,
-                .2, 0, .7,
-                0, .1, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-symmetrize(adj, method = "max")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+symmetrize(regulation_net, method = "mean")
+#> Cograph network: 10 nodes, 27 edges ( undirected )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [0.500, 0.700]  |  mean: 0.600
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 27 / 45 (density: 60.0%)
+#>   Weights: [0.070, 0.490]  |  mean: 0.267
 #>   Strongest edges:
-#>     B -- C  0.700
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-symmetrize(adj, method = "mean")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [0.350, 0.400]  |  mean: 0.375
-#>   Strongest edges:
-#>     B -- C  0.400
-#>     A -- B  0.350
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-symmetrize(adj, method = "mutual")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [0.100, 0.200]  |  mean: 0.150
-#>   Strongest edges:
-#>     A -- B  0.200
-#>     B -- C  0.100
+#>     Plan -- Evaluate  0.490
+#>     Monitor -- Share  0.490
+#>     Adapt -- Evaluate  0.430
+#>     Reflect -- Synthesize  0.420
+#>     Plan -- Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

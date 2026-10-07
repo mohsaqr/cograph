@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -246,8 +246,8 @@ robustness curves.</p>
 </tr>
 <tr class="even">
 <td>
-<code><a href="../reference/plot_permutation.html">plot_permutation()</a></code> /
-<code><a href="../reference/plot_group_permutation.html">plot_group_permutation()</a></code>
+<code><a href="../reference/plot-results.html">plot_permutation()</a></code> /
+<code><a href="../reference/plot-results.html">plot_group_permutation()</a></code>
 </td>
 <td>Permutation test results</td>
 </tr>
@@ -266,7 +266,7 @@ robustness curves.</p>
 <td>Centrality across nodes and groups</td>
 </tr>
 <tr class="odd">
-<td><code><a href="../reference/plot_net_stability.html">plot_net_stability()</a></code></td>
+<td><code><a href="../reference/plot-results.html">plot_net_stability()</a></code></td>
 <td>Centrality stability results</td>
 </tr>
 <tr class="even">
@@ -277,7 +277,7 @@ robustness curves.</p>
 <td>Edge-weight distribution and degree-degree correlation</td>
 </tr>
 <tr class="odd">
-<td><code><a href="../reference/plot_motifs.html">plot_motifs()</a></code></td>
+<td><code><a href="../reference/plot-results.html">plot_motifs()</a></code></td>
 <td>Motif and subgraph results</td>
 </tr>
 <tr class="even">
@@ -411,7 +411,7 @@ Centrality measures named in a selection are computed when the verb
 runs.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_nodes.html">select_nodes</a></span><span class="op">(</span><span class="va">regulation_net</span>, top <span class="op">=</span> <span class="fl">3</span>, by <span class="op">=</span> <span class="st">"betweenness"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_labels.html">get_labels</a></span><span class="op">(</span><span class="va">top3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_nodes.html">get_labels</a></span><span class="op">(</span><span class="va">top3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Plan"    "Monitor" "Adapt"</span></span></code></pre></div>
 <p><code><a href="../reference/filter_nodes.html">filter_nodes()</a></code> keeps the nodes that satisfy logical
 expressions over node attributes, any centrality measure, and structural

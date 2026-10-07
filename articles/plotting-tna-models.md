@@ -31,7 +31,7 @@ data.frame(
 )
 #>   package version
 #> 1     tna   1.3.1
-#> 2 cograph   2.7.3
+#> 2 cograph   2.7.4
 ```
 
 ## Shared fixtures
@@ -304,8 +304,7 @@ plot(group_clique_result, n = 1, ask = FALSE)
 
 ### TNA bootstrap method
 
-Exercises
-[`plot.tna_bootstrap()`](https://sonsoles.me/cograph/reference/splot.tna_bootstrap.md).
+Exercises `plot.tna_bootstrap()`.
 
 ``` r
 
@@ -328,7 +327,7 @@ plot(group_bootstrap_result)
 ### Cograph bootstrap render modes
 
 These plots verify all enhanced
-[`splot.tna_bootstrap()`](https://sonsoles.me/cograph/reference/splot.tna_bootstrap.md)
+[`splot.tna_bootstrap()`](https://sonsoles.me/cograph/reference/plot-results.md)
 display modes.
 
 ``` r
@@ -549,5 +548,5 @@ data.frame(
   rendered_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
 )
 #>   status   tna cograph             rendered_at
-#> 1   PASS 1.3.1   2.7.3 2026-09-30 21:24:29 UTC
+#> 1   PASS 1.3.1   2.7.4 2026-10-07 19:06:04 UTC
 ```

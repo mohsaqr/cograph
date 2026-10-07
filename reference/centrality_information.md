@@ -1,11 +1,11 @@
-# Information Centrality (Stephenson-Zelen)
+# Information Centrality
 
-Information centrality (Stephenson & Zelen 1989) measures a node's
-importance in terms of the "information" contained in all paths (not
-only shortest) passing through it. Defined via the inverse of a
-Laplacian-like matrix, yielding per-node \\IC_i = 1 / (C\_{ii} +
-(\mathrm{tr}(C) - 2 R_i) / n)\\ where \\C = A^{-1}\\ and \\R_i\\ is the
-row sum of \\C\\.
+Information centrality (Stephenson and Zelen 1989) measures the
+information carried by all paths between a node and the others, each
+path weighted by its length. With \\C = B^{-1}\\, where \\B\\ has
+diagonal \\1 + s_i\\ (\\s_i\\ the strength) and off-diagonal entries
+\\1 - w\_{ij}\\, \$\$I_i = \frac{1}{C\_{ii} + (T - 2R_i)/n},\$\$ where
+\\T\\ is the trace of \\C\\ and \\R_i\\ the sum of row \\i\\.
 
 ## Usage
 
@@ -17,23 +17,28 @@ centrality_information(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (default `TRUE`).
 
 ## Value
 
-Named numeric vector of information centrality values.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Bit-exact match against
-[`sna::infocent`](https://rdrr.io/pkg/sna/man/infocent.html) on
-connected undirected graphs (cograph mirrors sna's exact construction
-and call sequence).
+The network is symmetrized with \\(w\_{ij} + w\_{ji})/2\\, so direction
+is ignored. Edge weights enter as tie strengths, and `weighted = FALSE`
+uses the binary matrix. Isolated nodes score 0 and are left out of
+\\n\\. When \\B\\ is singular, as on some disconnected networks, every
+score is `NA` without a warning. On unweighted undirected networks the
+values equal
+[`sna::infocent()`](https://rdrr.io/pkg/sna/man/infocent.html).
 
 ## References
 
@@ -42,15 +47,16 @@ examples. *Social Networks*, 11(1), 1-37.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
-[`centrality_current_flow_closeness`](https://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md).
+[`centrality_current_flow_closeness`](https://sonsoles.me/cograph/reference/centrality_current_flow_closeness.md),
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-centrality_information(adj)
-#>        A        B        C        D 
-#> 1.777778 2.285714 2.285714 1.777778 
+centrality_information(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.3947689  0.4512245  0.4449921  0.4508582  0.3776635  0.4159092  0.2730538 
+#>   Evaluate     Create      Share 
+#>  0.4250643  0.4172676  0.4531011 
 ```

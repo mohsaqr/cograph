@@ -1,9 +1,8 @@
 # Convert a Directed Network to Undirected
 
-Collapses each pair of opposite arcs into one undirected edge. The
-counterpart of
+Collapses each pair of opposite arcs into one undirected edge, as
 [`igraph::as_undirected()`](https://r.igraph.org/reference/as_directed.html)
-and tidygraph's `to_undirected()`.
+and tidygraph's `to_undirected()` do.
 
 ## Usage
 
@@ -24,25 +23,33 @@ to_undirected(
 
 - method:
 
-  How to combine `w[i, j]` and `w[j, i]`: `"max"` (default), `"sum"`,
-  `"mean"`, `"min"`, or `"mutual"` (keep only reciprocated pairs, taking
-  the minimum weight).
+  How to combine `w[i, j]` and `w[j, i]`. One of `"max"` (default),
+  `"sum"`, `"mean"`, `"min"` or `"mutual"`. The first four combine the
+  two weights when both arcs exist, and an arc without a reverse arc
+  keeps its own weight. `"mutual"` keeps only reciprocated pairs, at the
+  smaller of the two weights.
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. Directedness to read the input with.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input.
 
 ## Value
 
 An undirected `cograph_network`, or the input format when
-`keep_format = TRUE`. Zero is how this representation stores "no edge",
-so any pair whose combined weight is exactly zero disappears: every
-unreciprocated arc under `method = "mutual"`, and a cancelling pair
-under `"sum"`. A `cograph_edges_dropped` warning says how many.
+`keep_format = TRUE`. Self-loops keep their weight. A weight of zero
+means no edge, so a pair whose combined weight is exactly zero is
+dropped. Under `method = "mutual"` this applies to every unreciprocated
+arc, and under `"sum"` to a pair of opposite weights that cancel.
+Dropped edges raise a `cograph_edges_dropped` warning.
 
 ## See also
 
@@ -52,31 +59,18 @@ under `"sum"`. A `cograph_edges_dropped` warning says how many.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, 0,
-                .2, 0, .7,
-                0, 0, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-to_undirected(adj, method = "sum")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+to_undirected(regulation_net, method = "sum")
+#> Cograph network: 10 nodes, 27 edges ( undirected )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [0.700, 0.700]  |  mean: 0.700
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 27 / 45 (density: 60.0%)
+#>   Weights: [0.070, 0.570]  |  mean: 0.295
 #>   Strongest edges:
-#>     A -- B  0.700
-#>     B -- C  0.700
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-to_undirected(adj, method = "mutual")
-#> Warning: 2 edge(s) combined to weight zero and were dropped; zero is how this representation stores 'no edge'.
-#> Cograph network: 3 nodes, 1 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 1 / 3 (density: 33.3%)
-#>   Weights: [0.200, 0.200]  |  mean: 0.200
-#>   Strongest edges:
-#>     A -- B  0.200
+#>     Plan -- Share  0.570
+#>     Monitor -- Create  0.540
+#>     Plan -- Evaluate  0.490
+#>     Monitor -- Share  0.490
+#>     Adapt -- Evaluate  0.430
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

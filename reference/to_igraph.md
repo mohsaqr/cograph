@@ -45,11 +45,17 @@ An igraph object.
 ## Examples
 
 ``` r
-# From matrix
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-g <- to_igraph(adj)
-
-# Force directed
-g_dir <- to_igraph(adj, directed = TRUE)
+to_igraph(regulation_net)
+#> IGRAPH 3d28e61 DNW- 10 30 -- 
+#> + attr: name (v/c), weight (e/n)
+#> + edges from 3d28e61 (vertex names):
+#>  [1] Explore   ->Reflect    Explore   ->Share      Plan      ->Monitor   
+#>  [4] Plan      ->Discuss    Plan      ->Evaluate   Plan      ->Create    
+#>  [7] Plan      ->Share      Monitor   ->Adapt      Monitor   ->Create    
+#> [10] Adapt     ->Explore    Adapt     ->Discuss    Adapt     ->Synthesize
+#> [13] Reflect   ->Explore    Reflect   ->Monitor    Discuss   ->Explore   
+#> [16] Discuss   ->Reflect    Discuss   ->Create     Synthesize->Plan      
+#> [19] Synthesize->Monitor    Synthesize->Reflect    Evaluate  ->Monitor   
+#> [22] Evaluate  ->Adapt      Evaluate  ->Reflect    Create    ->Explore   
+#> + ... omitted several edges
 ```

@@ -1,7 +1,7 @@
 # Walktrap Community Detection
 
-Detects communities via random walks. Nodes within the same community
-tend to have short random walk distances.
+Detects communities from short random walks. Nodes in the same community
+have short random walk distances.
 
 ## Usage
 
@@ -31,27 +31,29 @@ com_wt(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - steps:
 
-  Number of random walk steps. Default 4.
+  Length of the random walks. Default 4.
 
 - merges:
 
-  Logical; return merge matrix? Default TRUE.
+  Logical. Whether igraph stores the merge matrix. Default `TRUE`.
 
 - modularity:
 
-  Logical; return modularity scores? Default TRUE.
+  Logical. Whether igraph stores the modularity scores. Default `TRUE`.
 
 - membership:
 
-  Logical; return membership vector? Default TRUE.
+  Logical. Whether igraph computes the membership vector. Default
+  `TRUE`.
 
 - ...:
 
@@ -62,10 +64,10 @@ com_wt(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -76,13 +78,20 @@ using random walks. *Journal of Graph Algorithms and Applications*,
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Default 4 steps
-  comm <- community_walktrap(g)
-
-  # More steps for larger communities
-  comm2 <- community_walktrap(g, steps = 8)
-}
+community_walktrap(regulation_net, steps = 4)
+#> Community structure (walktrap)
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
+#>   Sizes: 5, 5 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

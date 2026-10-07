@@ -37,7 +37,7 @@ simmelian_strength(x, top = NULL, directed = NULL, digits = NULL, ...)
 ## Value
 
 A data frame sorted by `triangles` (descending) with columns: `from`,
-`to`, `weight` (if weighted), `triangles`.
+`to`, `weight`, `triangles`.
 
 ## See also
 
@@ -47,14 +47,11 @@ A data frame sorted by `triangles` (descending) with columns: `from`,
 ## Examples
 
 ``` r
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-rownames(k4) <- colnames(k4) <- c("A", "B", "C", "D")
-cograph::simmelian_strength(k4)
-#>   from to weight triangles
-#> 1    A  B      1         2
-#> 2    A  C      1         2
-#> 3    A  D      1         2
-#> 4    B  C      1         2
-#> 5    B  D      1         2
-#> 6    C  D      1         2
+cograph::simmelian_strength(regulation_net, top = 5)
+#>       from      to weight triangles
+#> 1     Plan Monitor   0.13         4
+#> 2     Plan  Create   0.20         4
+#> 3 Evaluate Monitor   0.33         4
+#> 4  Monitor   Adapt   0.16         3
+#> 5  Monitor  Create   0.37         3
 ```

@@ -1,14 +1,12 @@
 # Two-Way Random Walk Betweenness
 
-Curado, Rodriguez, Tortosa and Vicent's (2022) counting measure. For
-every unordered pair \\(i, j)\\ the two-step transfer \\P\_{itj} =
-w\_{it} w\_{tj} / (d_i d_j)\\ (zero when any two of the three coincide)
-is combined into \\T\_{ij}\[t, k\] = P\_{itj} P\_{jki}\\, the diagonal
-is dropped, and the single largest entry credits one count to \\t\\ and
-one to \\k\\. A node's score is its total count over all pairs. Higher =
-more central; nodes never on a winning two-way route score 0, so sparse
-tails are not ranked. Reproduces the paper's toy example exactly,
-including every printed fraction.
+Two-way random walk betweenness (Curado et al. 2022) counts how often a
+node lies on the strongest two-way route between a pair. For every
+unordered pair \\(i, j)\\ the two-step transfer \\P\_{itj} = w\_{it}
+w\_{tj} / (d_i d_j)\\ is combined into \\T\_{ij}\[t, k\] = P\_{itj}
+P\_{jki}\\, the diagonal is dropped, and the largest entry credits one
+count to \\t\\ and one to \\k\\. The score of a node is its total count
+over all pairs.
 
 ## Usage
 
@@ -20,24 +18,26 @@ centrality_two_way_rw(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (use edge weights, default `TRUE`).
 
 ## Value
 
-Named numeric vector of counts, one per node.
+A named numeric vector with one count per node, in input node order.
 
 ## Details
 
-The paper's \\P\_{itj}\\ is not a random-walk probability (its
-denominator is \\d_i d_j\\, not \\d_i d_t\\); it is implemented as
-printed. Ties in the maximum go to the first entry in row-major order.
-Edge weights are used; direction and loops are ignored. Cost is
-\\O(n^4)\\: fine to a few hundred nodes, slow beyond.
+Edge weights are used, and direction and self-loops are ignored. Ties in
+the maximum go to the first entry in row-major order. Nodes that never
+lie on a winning two-way route score 0. The source divides the transfer
+by \\d_i d_j\\, where a random-walk probability would divide by \\d_i
+d_t\\. The formula is implemented as printed.
 
 ## References
 
@@ -47,17 +47,16 @@ betweenness. Applied Mathematics and Computation, 412, 126560.
 
 ## See also
 
-[`centrality_current_flow_betweenness`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md)
-for Newman's random-walk betweenness.
+[`centrality_current_flow_betweenness`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md),
+[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_two_way_rw(adj)
-#> A B C D E F 
-#> 0 0 0 0 0 0 
+centrality_two_way_rw(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>          5          9          8         14          6          5          2 
+#>   Evaluate     Create      Share 
+#>          7          6         10 
 ```

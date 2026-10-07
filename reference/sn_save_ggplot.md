@@ -54,8 +54,7 @@ The output `filename`, invisibly.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- cograph(adj)
-sn_save_ggplot(net, file.path(tempdir(), "network.pdf"))
-#> Saved to: /tmp/Rtmp8VDOyS/network.pdf
+sn_save_ggplot(cograph(regulation_net),
+  filename = file.path(tempdir(), "network.pdf"))
+#> Saved to: /tmp/RtmpUDZxLB/network.pdf
 ```

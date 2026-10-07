@@ -1,9 +1,10 @@
 # Target Layout (focal-node, topological)
 
-Port of qgraph's `flow()` layout. One node of interest (the `target`) is
-placed alone, then every other node is drawn in successive levels
-ordered by unweighted graph distance (BFS hops) from it. This shows how
-the target node connects out into the rest of the network.
+Adapts the `flow()` layout of qgraph. One node of interest (the
+`target`) is placed alone, and every other node is placed in successive
+levels ordered by its unweighted graph distance (number of hops) from
+the target. Edge direction is ignored. The layout shows how the target
+node connects to the rest of the network.
 
 ## Usage
 
@@ -20,7 +21,8 @@ layout_target(network, target = NULL, horizontal = TRUE, equalize = TRUE, ...)
 - target:
 
   Node of interest, given as a label (character) or 1-based index. When
-  `NULL` (default) the highest-degree node is used.
+  `NULL` (default) the node with the most neighbors is used. A label
+  that is not found or an index out of range raises an error.
 
 - horizontal:
 
@@ -42,20 +44,23 @@ Data frame with `x`, `y` coordinates, one row per node.
 
 ## Details
 
-Unlike qgraph's implementation, weights are binarized for layering (only
-connectivity matters) and disconnected nodes are placed in an extra
-trailing level instead of raising an error.
+Weights are binarized for layering, so only connectivity matters. Nodes
+that cannot be reached from the target are placed in one extra level
+after the last. qgraph raises an error for such nodes.
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 0, 1, 0, 0, 1,
-                1, 0, 0, 0, 0, 1, 0, 0), nrow = 4, byrow = TRUE)
-net <- CographNetwork$new(adj)
-layout_target(net, target = 1)
-#>   x         y
-#> 1 0 0.5000000
-#> 2 1 0.3333333
-#> 3 1 0.6666667
-#> 4 2 0.5000000
+layout_target(CographNetwork$new(regulation_net), target = "Plan")
+#>    x         y
+#> 1  2 0.2500000
+#> 2  0 0.5000000
+#> 3  1 0.1428571
+#> 4  2 0.5000000
+#> 5  2 0.7500000
+#> 6  1 0.2857143
+#> 7  1 0.4285714
+#> 8  1 0.5714286
+#> 9  1 0.7142857
+#> 10 1 0.8571429
 ```

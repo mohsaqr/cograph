@@ -1,6 +1,7 @@
 # Add or Change Edge Attributes
 
-Add or Change Edge Attributes
+Evaluates expressions against the edge table and stores the results as
+edge columns.
 
 ## Usage
 
@@ -55,17 +56,36 @@ format when `keep_format = TRUE`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-as.data.frame(mutate_edges(adj, strong = weight > 0.5))
-#>   from to weight strong
-#> 1    A  B    0.5  FALSE
-#> 2    A  C    0.8   TRUE
-#> 3    B  C    0.3  FALSE
-#> 4    B  D    0.6   TRUE
-#> 5    C  D    0.4  FALSE
+as.data.frame(mutate_edges(regulation_net, strong = weight > 0.2))
+#>          from         to weight strong
+#> 1       Adapt    Explore   0.28   TRUE
+#> 2     Reflect    Explore   0.05  FALSE
+#> 3     Discuss    Explore   0.30   TRUE
+#> 4      Create    Explore   0.14  FALSE
+#> 5  Synthesize       Plan   0.11  FALSE
+#> 6       Share       Plan   0.21   TRUE
+#> 7        Plan    Monitor   0.13  FALSE
+#> 8     Reflect    Monitor   0.15  FALSE
+#> 9  Synthesize    Monitor   0.07  FALSE
+#> 10   Evaluate    Monitor   0.33   TRUE
+#> 11     Create    Monitor   0.17  FALSE
+#> 12      Share    Monitor   0.49   TRUE
+#> 13    Monitor      Adapt   0.16  FALSE
+#> 14   Evaluate      Adapt   0.43   TRUE
+#> 15      Share      Adapt   0.39   TRUE
+#> 16    Explore    Reflect   0.35   TRUE
+#> 17    Discuss    Reflect   0.35   TRUE
+#> 18 Synthesize    Reflect   0.42   TRUE
+#> 19   Evaluate    Reflect   0.07  FALSE
+#> 20       Plan    Discuss   0.40   TRUE
+#> 21      Adapt    Discuss   0.34   TRUE
+#> 22      Adapt Synthesize   0.17  FALSE
+#> 23       Plan   Evaluate   0.49   TRUE
+#> 24     Create   Evaluate   0.39   TRUE
+#> 25       Plan     Create   0.20  FALSE
+#> 26    Monitor     Create   0.37   TRUE
+#> 27    Discuss     Create   0.14  FALSE
+#> 28    Explore      Share   0.27   TRUE
+#> 29       Plan      Share   0.36   TRUE
+#> 30     Create      Share   0.23   TRUE
 ```

@@ -1,7 +1,8 @@
 # Reorder the Nodes of a Network
 
-Changes the order the nodes are stored in, which is the order plotting
-functions lay them out in. The network itself is unchanged.
+Changes the order in which the nodes are stored, which is the order in
+which plotting functions place them. The edges and their weights are
+unchanged.
 
 ## Usage
 
@@ -18,16 +19,22 @@ reorder_nodes(x, order, keep_format = FALSE, directed = NULL)
 - order:
 
   Node labels or indices, in the wanted order, or one of `"label"`,
-  `"degree"`, `"strength"` to sort by. Sorting by a measure is
-  descending.
+  `"degree"` or `"strength"`. `"label"` sorts alphabetically, and the
+  two measures sort in decreasing order. A vector that does not name
+  every node exactly once raises a `cograph_bad_selection` error.
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. If NULL (default), auto-detect.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input.
 
 ## Value
 
@@ -42,14 +49,18 @@ indices remapped, or the input format when `keep_format = TRUE`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-get_labels(reorder_nodes(adj, order = "degree"))
-#> [1] "A" "B" "C" "D"
-get_labels(reorder_nodes(adj, order = c("D", "C", "B", "A")))
-#> [1] "D" "C" "B" "A"
+reorder_nodes(regulation_net, order = "degree")
+#> Cograph network: 10 nodes, 30 edges ( directed )
+#> Source: matrix 
+#>   Nodes (10): Monitor, Plan, Create, Explore, Adapt, Reflect, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.265
+#>   Strongest edges:
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
+#> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

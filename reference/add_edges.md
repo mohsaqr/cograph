@@ -1,6 +1,7 @@
 # Add Edges to a Network
 
-Add Edges to a Network
+Appends edges between existing nodes. An endpoint that is not a node of
+the network raises a `cograph_bad_selection` error.
 
 ## Usage
 
@@ -60,18 +61,18 @@ which takes an igraph object. Use `cograph::add_edges()` to be explicit.
 ## Examples
 
 ``` r
-adj <- matrix(0, 3, 3, dimnames = list(LETTERS[1:3], LETTERS[1:3]))
-adj["A", "B"] <- adj["B", "A"] <- 1
-
-add_edges(adj, from = "B", to = "C", weight = 0.5)
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+add_edges(regulation_net, from = "Share", to = "Explore", weight = 0.5)
+#> Cograph network: 10 nodes, 31 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [0.500, 1.000]  |  mean: 0.750
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 31 / 90 (density: 34.4%)
+#>   Weights: [0.050, 0.500]  |  mean: 0.273
 #>   Strongest edges:
-#>     A -- B  1.000
-#>     B -- C  0.500
+#>     Share -> Explore  0.500
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

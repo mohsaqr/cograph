@@ -1,6 +1,7 @@
 # Plot Edge Weight Distribution
 
-Histogram of edge weights in a network.
+Histogram of edge weights in a network. The number of edges and the mean
+and standard deviation of the weights are printed in the top margin.
 
 ## Usage
 
@@ -31,11 +32,14 @@ plot_edge_weights(
 
 - bins:
 
-  Integer or NULL. Number of bins. Default NULL (auto).
+  Integer or NULL. Number of equal-width bins. With the default NULL,
+  integer weights spanning at most 30 units get one bin per integer and
+  other weights use the Freedman-Diaconis rule.
 
 - log:
 
-  Character. Log scaling. Default `""`.
+  Character. `"y"` or `"xy"` log-scales the y-axis. Any other value
+  gives linear axes. Default `""`.
 
 - directed:
 
@@ -64,12 +68,11 @@ plot_edge_weights(
 
 ## Value
 
-Invisibly returns the weight vector.
+Invisibly, a numeric vector of edge weights (all 1 for an unweighted
+network).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 2, 3, 2, 0, 1, 3, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::plot_edge_weights(adj)
+cograph::plot_edge_weights(regulation_net)
 ```

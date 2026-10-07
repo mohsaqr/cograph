@@ -1,7 +1,8 @@
 # Fast Greedy Community Detection
 
-Hierarchical agglomeration using greedy modularity optimization.
-Produces a dendrogram of community merges.
+Hierarchical agglomeration by greedy modularity optimization, which
+produces a dendrogram of community merges. A directed graph is collapsed
+to an undirected graph with summed edge weights.
 
 ## Usage
 
@@ -29,23 +30,25 @@ com_fg(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - merges:
 
-  Logical; return merge matrix? Default TRUE.
+  Logical. Whether igraph stores the merge matrix. Default `TRUE`.
 
 - modularity:
 
-  Logical; return modularity scores? Default TRUE.
+  Logical. Whether igraph stores the modularity scores. Default `TRUE`.
 
 - membership:
 
-  Logical; return membership vector? Default TRUE.
+  Logical. Whether igraph computes the membership vector. Default
+  `TRUE`.
 
 - ...:
 
@@ -56,12 +59,9 @@ com_fg(
 
 ## Value
 
-A `cograph_communities` object. The full igraph `communities` result,
-including the merge dendrogram when `merges = TRUE`, is kept in the
-`"igraph_result"` attribute.
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+The igraph `communities` result, including the merge dendrogram when
+`merges = TRUE`, is kept in the `"igraph_result"` attribute.
 
 ## References
 
@@ -71,11 +71,20 @@ structure in very large networks. *Physical Review E*, 70, 066111.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_fast_greedy(g)
-membership(comm)
-#>  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-#>  1  3  3  3  1  1  1  3  2  3  1  1  3  3  2  2  1  3  2  1  2  3  2  2  2  2 
-#> 27 28 29 30 31 32 33 34 
-#>  2  2  2  2  2  2  2  2 
+community_fast_greedy(regulation_net)
+#> Community structure (fast_greedy)
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
+#>   Sizes: 5, 5 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

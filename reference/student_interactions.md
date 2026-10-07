@@ -41,32 +41,22 @@ A data frame with 389 rows and 2 columns:
 
 ## Details
 
-The dataset includes self-loops (34 rows where `from == to`), which may
-represent self-directed actions. These can be removed with
-`subset(student_interactions, from != to)`.
+The dataset includes self-loops (34 rows where `from == to`). These can
+be removed with `subset(student_interactions, from != to)`.
 
-Because interactions repeat, this edge list naturally represents a
-multigraph when loaded into igraph with
+The 389 rows contain 226 distinct ordered pairs. Because interactions
+repeat, the edge list forms a multigraph when loaded into igraph with
 [`igraph::graph_from_data_frame()`](https://r.igraph.org/reference/graph_from_data_frame.html).
 
 ## Examples
 
 ``` r
-# Load and build network
-data(student_interactions)
-head(student_interactions)
-#>   from to
-#> 1   Ac Ac
-#> 2   Ac Ac
-#> 3   Ac Ac
-#> 4   Ad Ac
-#> 5   Ac Ac
-#> 6   Ad Ac
-
-# Remove self-loops and build a network
-el <- subset(student_interactions, from != to)
-n_edges(as_cograph(el))
-#> [1] 355
-n_nodes(as_cograph(el))
-#> [1] 34
+as_cograph(student_interactions)
+#> Cograph network: 34 nodes, 389 edges ( directed )
+#> Source: edgelist 
+#> Data: data.frame (389 x 2) 
+#>   Nodes (34): Ac, Ad, Fi, Ik, Vx, Rt, ... +28 more
+#> Weights: 1 (all equal)
+#> Layout: none 
+#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

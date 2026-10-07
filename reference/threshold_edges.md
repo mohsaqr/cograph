@@ -1,10 +1,9 @@
 # Threshold Edges by Weight, Count, Proportion or Density
 
-Keeps the edges that satisfy every criterion supplied. This is the
-network equivalent of qgraph's `minimum`/`cut` arguments and of
-[`tna::prune()`](https://sonsoles.me/tna/reference/prune.html), except
-that it returns a network rather than a plot setting, so the thresholded
-network can be analysed, not only drawn.
+Keeps the edges that satisfy every criterion supplied. The operation
+corresponds to qgraph's `minimum` argument and to
+[`tna::prune()`](https://sonsoles.me/tna/reference/prune.html). The
+result is a network that can be analysed and plotted.
 
 ## Usage
 
@@ -50,14 +49,15 @@ threshold_edges(
 
 - top:
 
-  Integer. Keep this many edges, the strongest first.
+  Non-negative integer. Keep this many edges, the strongest first.
+  `top = 0` removes every edge.
 
 - absolute:
 
-  Logical. Compare `abs(weight)` rather than the signed weight. Default
-  TRUE, which is what correlation and partial-correlation networks need.
-  `minimum`/`maximum` and the ranking used by `proportion`, `density`
-  and `top` both follow this flag.
+  Logical. Compare `abs(weight)` instead of the signed weight. Default
+  TRUE, which suits correlation and partial-correlation networks. The
+  `minimum` and `maximum` comparisons and the ranking used by
+  `proportion`, `density` and `top` all follow this flag.
 
 - keep_isolates:
 
@@ -79,20 +79,20 @@ threshold_edges(
 A `cograph_network` with the surviving edges, or the input format when
 `keep_format = TRUE`. Every node is kept unless `keep_isolates = FALSE`;
 nodes the threshold stranded are reported in a
-`cograph_isolates_created` warning. An out-of-range `minimum`,
-`maximum`, `proportion`, `density` or `top` raises a
-`cograph_bad_selection` error.
+`cograph_isolates_created` warning. A non-finite `minimum` or `maximum`,
+a `proportion` or `density` outside (0, 1\], and a negative or
+fractional `top` raise a `cograph_bad_selection` error.
 
 ## Details
 
-When several criteria are given they are combined with AND: for example
+Several criteria are combined with AND. For example,
 `threshold_edges(x, minimum = 0.2, top = 20)` keeps the twenty strongest
-edges among those of weight at least 0.2.
+edges among those of weight at least 0.2. When `proportion`, `density`
+and `top` are combined, the smallest of the implied edge counts is used.
 
 Ties at the cut point are all kept, so `top = 10` can return more than
-ten edges when the tenth and eleventh weights are equal. This is
-deliberate: breaking ties on edge order would make the result depend on
-how the network was built.
+ten edges when the tenth and eleventh weights are equal. The result
+therefore does not depend on the order in which the edges are stored.
 
 ## References
 
@@ -110,45 +110,18 @@ psychometric data. *Journal of Statistical Software*, 48(4), 1–18.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-threshold_edges(adj, minimum = 0.5)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
+threshold_edges(regulation_net, minimum = 0.1)
+#> Cograph network: 10 nodes, 27 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.633
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 27 / 90 (density: 30.0%)
+#>   Weights: [0.110, 0.490]  |  mean: 0.288
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-threshold_edges(adj, top = 2)
-#> Cograph network: 4 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.600, 0.800]  |  mean: 0.700
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-threshold_edges(adj, density = 0.5)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.633
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

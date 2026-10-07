@@ -44,11 +44,16 @@ centralization(
 
 ## Value
 
-A single number: the summed gap between the most central node and every
-other node, divided by the theoretical maximum for the measure, so 0
-marks a perfectly even network and 1 a perfect star. Nodes whose score
-is `NA` or `NaN` are dropped from the sum. Returns 0 when the network
-has two or fewer nodes.
+A single number. It is the summed gap between the most central node and
+every other node, divided by a theoretical maximum. For degree,
+betweenness and closeness the maximum is the value of an unweighted
+star, so unweighted input gives 0 for a perfectly even network and 1 for
+an undirected star. For eigenvector centrality, whose scores are scaled
+to a maximum of 1, the divisor is \\n - 1\\, and a star gives a value
+below 1. Weighted closeness scales with the inverse of the edge weights,
+so its centralization can exceed 1. Nodes whose score is `NA` or `NaN`
+are dropped from the sum. The value is 0 when the network has two or
+fewer nodes.
 
 ## Details
 
@@ -58,8 +63,6 @@ eigenvector centrality; degree centralization ignores them.
 ## Examples
 
 ``` r
-star <- matrix(0, 5, 5)
-star[1, 2:5] <- 1; star[2:5, 1] <- 1
-cograph::centralization(star, "degree")
-#> [1] 1
+cograph::centralization(regulation_net, measure = "degree")
+#> [1] 0.2469136
 ```

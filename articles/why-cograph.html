@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,7 +120,7 @@ like <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">su
 <p>Keep only edges above a threshold:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">strong</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_edges.html">filter_edges</a></span><span class="op">(</span><span class="va">net</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">strong</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_nodes.html">get_edges</a></span><span class="op">(</span><span class="va">strong</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   from to weight</span></span>
 <span><span class="co">#&gt; 1    3  1    0.7</span></span>
 <span><span class="co">#&gt; 2    1  3    0.8</span></span>
@@ -167,7 +167,7 @@ lazily (only what your expression actually references):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Edges involving "Code"</span></span>
 <span><span class="va">code_edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_edges_involving.html">select_edges_involving</a></span><span class="op">(</span><span class="va">net</span>, nodes <span class="op">=</span> <span class="st">"Code"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">code_edges</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_nodes.html">get_edges</a></span><span class="op">(</span><span class="va">code_edges</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   from to weight</span></span>
 <span><span class="co">#&gt; 1    4  2    0.4</span></span>
 <span><span class="co">#&gt; 2    4  3    0.2</span></span>
@@ -179,7 +179,7 @@ lazily (only what your expression actually references):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Top 5 edges by weight</span></span>
 <span><span class="va">top5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_top_edges.html">select_top_edges</a></span><span class="op">(</span><span class="va">net</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">top5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_nodes.html">get_edges</a></span><span class="op">(</span><span class="va">top5</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   from to weight</span></span>
 <span><span class="co">#&gt; 1    3  1    0.7</span></span>
 <span><span class="co">#&gt; 2    1  3    0.8</span></span>
@@ -192,7 +192,7 @@ lazily (only what your expression actually references):</p>
 <span>  set1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Read"</span>, <span class="st">"Write"</span><span class="op">)</span>,</span>
 <span>  set2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Code"</span>, <span class="st">"Test"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/get_edges.html">get_edges</a></span><span class="op">(</span><span class="va">between</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/get_nodes.html">get_edges</a></span><span class="op">(</span><span class="va">between</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   from to weight</span></span>
 <span><span class="co">#&gt; 1    5  1    0.1</span></span>
 <span><span class="co">#&gt; 2    4  2    0.4</span></span>

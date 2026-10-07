@@ -1,8 +1,8 @@
 # Plot Network Robustness
 
-Creates a visualization of network robustness showing the fraction of
-remaining nodes in the largest connected component during sequential
-node/edge removal. Supports comparison of multiple attack strategies.
+Plots the fraction of nodes remaining in the largest connected component
+against the fraction of nodes or edges removed, with one line per attack
+strategy, in base graphics.
 
 ## Usage
 
@@ -28,22 +28,24 @@ plot_robustness(
 - ...:
 
   One or more robustness results from
-  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md),
-  or named arguments to pass networks for on-the-fly computation.
+  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md).
+  When these are supplied, `x` is ignored.
 
 - x:
 
-  Network for computing robustness on-the-fly.
+  Network on which robustness is computed for each of `measures`. Used
+  when `...` is empty.
 
 - measures:
 
-  Character vector of attack strategies to compare. Default
-  c("betweenness", "degree", "random").
+  Character vector of attack strategies to compare when `x` is supplied.
+  Default c("betweenness", "degree", "random").
 
 - colors:
 
-  Named vector of colors. Default: green=Degree, red=Betweenness,
-  blue=Random (matching Nature paper style).
+  Vector of colors named by measure (`"betweenness"`, `"degree"`,
+  `"random"`). Default NULL uses red for betweenness, green for degree
+  and blue for random. Unmatched measures are gray.
 
 - title:
 
@@ -67,7 +69,8 @@ plot_robustness(
 
 - n_iter:
 
-  Number of iterations for random. Default 1000.
+  Number of iterations for random removal when `x` is supplied. Default
+  1000.
 
 - seed:
 
@@ -75,26 +78,17 @@ plot_robustness(
 
 - type:
 
-  Removal type. Default "vertex".
+  Removal type, "vertex" or "edge", when `x` is supplied. Default
+  "vertex". With "edge", `measures` must not include "degree".
 
 ## Value
 
-Invisibly returns combined data frame of all robustness results.
+Invisibly, a `cograph_robustness` data frame that stacks the plotted
+results (columns as in
+[`robustness`](https://sonsoles.me/cograph/reference/robustness.md)).
 
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-
-  # Quick comparison of all strategies
-  plot_robustness(x = g, n_iter = 20)
-
-  # Or compute separately
-  rob1 <- robustness(g, measure = "betweenness")
-  rob2 <- robustness(g, measure = "degree")
-  rob3 <- robustness(g, measure = "random", n_iter = 20)
-  plot_robustness(rob1, rob2, rob3)
-}
-
+plot_robustness(x = regulation_net, n_iter = 20, seed = 1)
 ```

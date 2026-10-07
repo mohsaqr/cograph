@@ -1,11 +1,11 @@
-# LineRank centrality
+# LineRank Centrality
 
-Computes PageRank probabilities on the graph whose vertices represent
-input edges, then aggregates them at the original endpoints. On directed
-inputs, edge e can lead to f when the target of e is the source of f. On
-undirected inputs, distinct edge states are adjacent when they share an
-endpoint, following Kosa et al.'s clarification. This uses one state per
-undirected edge. A pair sharing both endpoints is adjacent once.
+LineRank (Kang et al. 2011) computes PageRank on the line graph, whose
+nodes are the edges of the network, and gives each node the sum of the
+stationary probabilities of its incident edges. In a directed network
+edge \\e\\ leads to edge \\f\\ when the target of \\e\\ is the source of
+\\f\\. In an undirected network two edges are adjacent when they share
+an endpoint (Kosa et al. 2015).
 
 ## Usage
 
@@ -27,58 +27,37 @@ centrality_linerank(
 
 - damping:
 
-  Edge-walk continuation probability in \[0,1), default 0.85.
+  Probability of continuing the walk on the line graph, in \\\[0, 1)\\.
+  Default 0.85.
 
 - linerank_aggregation:
 
-  Either probability (default) or weight.
+  `"probability"` (default) sums the stationary edge probabilities.
+  `"weight"` multiplies them by the edge weights first.
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (use edge weights, default `TRUE`) and
+  `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Line-graph transition weights are products of original edge weights. Row
-normalization cancels the starting edge weight, so products need not be
-formed. Uniform teleportation uses probability 1-damping; a dangling
-edge state also redistributes uniformly. The latter is an explicit
-cograph PageRank convention because the source does not pin dangling
-behavior. Damping accepts \[0,1), default 0.85; zero is a limit
-extension.
-
-Default `linerank_aggregation = "probability"` sums stationary edge
-probabilities, following the definition's prose and the later study. Raw
-scores then sum to two on a graph with edges. `"weight"` additionally
-multiplies each probability by its original edge weight, matching the
-weighted incidence aggregation in Kang et al.'s Algorithm 2. These
-conventions differ for weighted inputs and are not interchangeable. The
-original pseudocode also has inconsistent row/column normalization; this
-implementation follows its random-walk definition, corroborated by the
-later paper, rather than claiming literal pseudocode equivalence.
-
-Retains direction, loops and remaining parallel edges as distinct
-states. A directed loop can transition to itself. Undirected line graphs
-exclude self transitions. Both aggregation choices count endpoint
-incidences, so an original loop contributes twice at its node. These
-loop conventions are explicit extensions. Generic `loops` and `simplify`
-apply first. Finite nonnegative weights are supported; zero-weight edges
-are absent. `weighted = FALSE` uses unit edge weights. Generic mode,
-shortest-path inversion and cutoff do not affect the result. Isolates
-score zero, edgeless inputs return zeros, and empty inputs return no
-scores.
-
-The native dense line-graph solve costs O(m cubed) time and O(m squared)
-memory for m retained edges; this is not the authors' distributed
-large-graph implementation. The measure must be requested explicitly.
-Unresolvable transition ranges, unstable systems and overflowing raw
-weighted aggregation raise errors. Maximum normalization supports raw
-weight overflow by scaling weights first; tiny ratios can underflow.
+The walk on the line graph moves to an adjacent edge with probability
+proportional to that edge's weight and jumps to a uniformly chosen edge
+with probability `1 - damping`. An edge without successors also jumps
+uniformly. With `linerank_aggregation = "probability"` the scores sum to
+two on a network with edges. With `"weight"` each stationary probability
+is multiplied by its edge weight before aggregation, following the
+weighted incidence matrix of Algorithm 2 in Kang et al. (2011). A loop
+contributes twice to its node, and an isolated node scores zero. Edge
+weights must be finite and nonnegative, and `weighted = FALSE` gives
+every edge weight one. A `damping` outside \\\[0, 1)\\ raises an error.
 
 ## References
 
@@ -92,10 +71,18 @@ Kosa, B., Balassi, M., Englert, P., & Kiss, A. (2015). Betweenness
 versus Linerank. Computer Science and Information Systems, 12(1), 33-48.
 [doi:10.2298/CSIS141101092K](https://doi.org/10.2298/CSIS141101092K) .
 
+## See also
+
+[`centrality_pagerank`](https://sonsoles.me/cograph/reference/centrality_pagerank.md),
+[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_linerank(igraph::make_ring(4))
-#>   1   2   3   4 
-#> 0.5 0.5 0.5 0.5 
+centrality_linerank(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.23711430 0.08083638 0.37402059 0.24709747 0.23941541 0.13042197 0.06670327 
+#>   Evaluate     Create      Share 
+#> 0.14344583 0.28715250 0.19379228 
 ```

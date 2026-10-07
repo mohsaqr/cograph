@@ -1,9 +1,9 @@
 # Chord Diagram
 
-Draw a chord diagram where nodes are arcs on the outer ring and edges
-are curved ribbons (chords) connecting them. Arc size is proportional to
-total flow through each node and chord width is proportional to edge
-weight.
+Plots a chord diagram in which nodes are arcs on the outer ring and
+edges are curved ribbons (chords) connecting them. Arc length is
+proportional to the total absolute weight of each node's edges, and
+chord width is proportional to the absolute edge weight.
 
 ## Usage
 
@@ -44,8 +44,8 @@ plot_chord(
 
 - x:
 
-  A weight matrix, `cograph_network`, `CographNetwork`, `tna`, `igraph`,
-  or list-like object with a matrix `weights` component.
+  A weight matrix, `cograph_network`, `tna`, `igraph`, or list with a
+  matrix `weights` component.
 
 - directed:
 
@@ -53,8 +53,9 @@ plot_chord(
 
 - segment_colors:
 
-  Colors for the outer ring segments. `NULL` uses a built-in vibrant
-  palette.
+  Colors for the outer ring segments, recycled to the number of nodes.
+  `NULL` uses a built-in palette of 12 colors, interpolated when there
+  are more nodes.
 
 - segment_border_color:
 
@@ -74,8 +75,10 @@ plot_chord(
 
 - chord_color_by:
 
-  How to color chords: `"source"` (default), `"target"`, or a color
-  vector of length matching the number of non-zero edges.
+  How to color chords. `"target"` uses the target segment color, and any
+  other single string (default `"source"`) uses the source segment
+  color. A vector of colors is recycled to the number of chords, which
+  are ordered by source node and then target node.
 
 - chord_alpha:
 
@@ -87,8 +90,7 @@ plot_chord(
 
 - self_loop:
 
-  Logical. Currently accepted for API compatibility; the current matrix
-  preparation preserves self-loop chords.
+  Logical. Ignored. Self-loop chords are always shown.
 
 - labels:
 
@@ -108,7 +110,8 @@ plot_chord(
 
 - label_threshold:
 
-  Hide labels for nodes whose flow fraction is below this value.
+  Hide labels for nodes whose share of the total flow is below this
+  value.
 
 - threshold:
 
@@ -116,12 +119,13 @@ plot_chord(
 
 - ticks:
 
-  Logical. Draw tick marks along the outer ring to indicate magnitude?
+  Logical. Add tick marks along the outer ring to indicate magnitude?
 
 - tick_interval:
 
-  Spacing between ticks in the same units as the weight matrix. `NULL`
-  (default) auto-selects a nice interval.
+  Spacing between major ticks in the same units as the weight matrix.
+  Minor ticks are placed at half this spacing. `NULL` (default) selects
+  an interval from the scale of the weights.
 
 - tick_labels:
 
@@ -158,43 +162,31 @@ plot_chord(
 
 - ...:
 
-  Additional arguments (currently ignored).
+  Ignored.
 
 ## Value
 
-Invisibly returns a list with components `segments` (data frame of
-segment angles and flows) and `chords` (data frame of chord endpoints
-and weights).
+Invisibly, a list with two data frames. `segments` has one row per node
+with columns `node`, `start`, `end`, `mid` (angles in radians) and
+`flow`. `chords` has one row per chord with columns `from`, `to` (node
+indices), `from_start`, `from_end`, `to_start`, `to_end` (attachment
+angles) and `weight` (absolute edge weight).
 
 ## Details
 
-The diagram is drawn entirely with base R graphics using
-[`polygon()`](https://rdrr.io/r/graphics/polygon.html) for segments and
-chords, and `bezier_points()` for the curved ribbons.
+The diagram is plotted with base R graphics. Segments and chords are
+polygons, and each ribbon follows quadratic Bezier curves through the
+center.
 
 For directed networks, each segment is split into an outgoing half and
-an incoming half so that chords attach to the correct side. For
-undirected networks each edge is drawn once and the full segment arc is
-shared.
+an incoming half, and chords attach to the matching half. For undirected
+networks each edge forms one chord and the full segment arc is shared.
+Nodes without edges receive a small minimum arc so that they remain
+visible.
 
 ## Examples
 
 ``` r
-# Weighted directed matrix
-mat <- matrix(c(
-   0, 25,  5, 15,
-  10,  0, 20,  8,
-   3, 18,  0, 30,
-  20,  5, 10,  0
-), 4, 4, byrow = TRUE,
-dimnames = list(c("A", "B", "C", "D"), c("A", "B", "C", "D")))
-
-plot_chord(mat)
-
-plot_chord(mat, chord_alpha = 0.6, ticks = TRUE)
-
-
-# A transition network
-plot_chord(regulation_net, ticks = TRUE, segment_width = 0.10)
+plot_chord(regulation_net)
 
 ```

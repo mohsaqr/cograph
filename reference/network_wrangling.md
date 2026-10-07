@@ -1,19 +1,19 @@
 # Network Wrangling Verbs
 
-cograph's verbs for reshaping a network. Every verb takes any supported
-input (matrix, edge list, igraph, statnet network, tna model,
-`cograph_network`), takes its options as named arguments, and returns a
-`cograph_network` — or the input format when `keep_format = TRUE`. There
-is no pipeline state to activate and nothing to unpack afterwards: use
-[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) for the
-tidy edge or node table.
+cograph provides verbs for reshaping a network. Each verb accepts any
+supported input (matrix, edge list, igraph, statnet network, tna model,
+`cograph_network`) and takes its options as named arguments. The result
+is a `cograph_network`, or the input format when `keep_format = TRUE`.
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+the edge or node table of a result.
 
 ## Value
 
 Each verb returns a `cograph_network`, except
 [`split_components()`](https://sonsoles.me/cograph/reference/split_components.md),
 which returns a list of them. With `keep_format = TRUE` a matrix,
-igraph, statnet network or tna input comes back in that format.
+igraph, statnet network or tna input comes back in that format. An
+edge-list data frame comes back as a `cograph_network` with a warning.
 
 ## Selecting
 
@@ -89,7 +89,7 @@ igraph, statnet network or tna input comes back in that format.
 
 - [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md):
 
-  Merge duplicate edges and drop loops.
+  Merge duplicate edges and drop loops. It returns the input format.
 
 ## Editing
 
@@ -118,29 +118,29 @@ igraph, statnet network or tna input comes back in that format.
 [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md), and
 [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) on a
 `cograph_network` (see
-[`as.data.frame.cograph_network`](https://sonsoles.me/cograph/reference/as.data.frame.cograph_network.md)).
+[`as.data.frame.cograph_network`](https://sonsoles.me/cograph/reference/as_cograph.md)).
 
-## Semantics worth knowing
+## Semantics
 
-- **Filtering edges does not remove nodes.** This matches
+- Filtering edges does not remove nodes, as in
   [`igraph::delete_edges()`](https://r.igraph.org/reference/delete_edges.html)
   and tidygraph. Nodes left without edges raise a
-  `cograph_isolates_created` warning; call
+  `cograph_isolates_created` warning. They are dropped by
   [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md)
-  to drop them, or pass `keep_isolates = FALSE`.
+  or by `keep_isolates = FALSE` in the verbs that have that argument.
 
-- **Undirected results stay undirected.** The weight matrix of an
-  undirected result is symmetric, so nothing downstream re-detects it as
-  directed.
+- The weight matrix of an undirected result is symmetric, so the result
+  is still detected as undirected downstream.
 
-- **Metadata survives.** Node groups, estimation data, layout
-  coordinates and the original source type are carried through every
-  verb.
+- Node groups, estimation data, layout coordinates and the original
+  source type are carried through the verbs.
 
-- **Malformed selections are errors.** Unknown node names, out-of- range
-  or fractional indices, unknown measure names and a malformed `between`
-  raise a `cograph_bad_selection` error rather than warning and
-  returning something plausible.
+- Unknown node names, out-of-range or fractional indices, unknown
+  measure names and a malformed `between` raise a
+  `cograph_bad_selection` error. The `name` argument of
+  [`select_nodes()`](https://sonsoles.me/cograph/reference/select_nodes.md)
+  is an exception. Unknown names in it are skipped, and a warning is
+  given when no node matches.
 
 ## Related verbs elsewhere
 
@@ -154,29 +154,25 @@ igraph, statnet network or tna input comes back in that format.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# One call, named arguments, a tidy table out
-as.data.frame(threshold_edges(adj, minimum = 0.4))
-#>   from to weight
-#> 1    A  B    0.5
-#> 2    A  C    0.8
-#> 3    B  D    0.6
-#> 4    C  D    0.4
-
-# Verbs compose
-adj |>
-  threshold_edges(minimum = 0.4) |>
-  remove_isolates() |>
-  mutate_nodes(deg = degree) |>
-  as.data.frame(what = "nodes")
-#>   id label name  x  y deg
-#> 1  1     A    A NA NA   2
-#> 2  2     B    B NA NA   2
-#> 3  3     C    C NA NA   2
-#> 4  4     D    D NA NA   2
+as.data.frame(threshold_edges(regulation_net, minimum = 0.2))
+#>          from       to weight
+#> 1       Adapt  Explore   0.28
+#> 2     Discuss  Explore   0.30
+#> 3       Share     Plan   0.21
+#> 4    Evaluate  Monitor   0.33
+#> 5       Share  Monitor   0.49
+#> 6    Evaluate    Adapt   0.43
+#> 7       Share    Adapt   0.39
+#> 8     Explore  Reflect   0.35
+#> 9     Discuss  Reflect   0.35
+#> 10 Synthesize  Reflect   0.42
+#> 11       Plan  Discuss   0.40
+#> 12      Adapt  Discuss   0.34
+#> 13       Plan Evaluate   0.49
+#> 14     Create Evaluate   0.39
+#> 15       Plan   Create   0.20
+#> 16    Monitor   Create   0.37
+#> 17    Explore    Share   0.27
+#> 18       Plan    Share   0.36
+#> 19     Create    Share   0.23
 ```

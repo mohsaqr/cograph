@@ -1,10 +1,8 @@
-# Select Nodes with Lazy Centrality Computation
+# Select Nodes
 
-A more nuanced node selection function that improves upon
-[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
-with lazy centrality computation (only computes measures actually
-referenced), multiple selection modes, and global context variables for
-structural awareness.
+Selects nodes by name, index, rank on a centrality measure,
+neighborhood, connected component, or filter expressions on node
+columns, centrality measures and structural variables.
 
 ## Usage
 
@@ -41,8 +39,8 @@ select_nodes(
 
   Node columns
 
-  :   All columns in the nodes dataframe: `id`, `label`, `name`, `x`,
-      `y`, `inits`, `color`, plus any custom
+  :   All columns of the node table, such as `id`, `label`, `name`, `x`,
+      `y` and any custom columns.
 
   Centrality measures
 
@@ -120,7 +118,7 @@ select_nodes(
 
 - keep_format:
 
-  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  Logical. If TRUE, matrix, igraph, statnet network and tna inputs are
   returned in that format. Default FALSE returns cograph_network.
 
 - directed:
@@ -134,23 +132,20 @@ select_nodes(
 ## Value
 
 A cograph_network object with selected nodes. If `keep_format = TRUE`,
-matrix, igraph, and statnet network inputs are converted back to that
-type.
+matrix, igraph, statnet network and tna inputs are converted back to
+that type.
 
 ## Details
 
-Selection modes are combined with AND logic (like tidygraph/dplyr):
+Selection criteria are combined with AND logic, so a node is selected
+only when it satisfies all of them. The `top` ranking is applied to the
+nodes that pass `name`, `index`, `component` and `neighbors_of`, and the
+filter expressions in `...` are applied afterwards. For example,
+`select_nodes(x, top = 10, component = "largest")` selects the 10
+highest-degree nodes within the largest component.
 
-- `select_nodes(x, top = 10, component = "largest")` selects top 10
-  nodes **within** the largest component
-
-- All criteria must be satisfied for a node to be selected
-
-Centrality measures are computed lazily - only measures actually
-referenced in expressions or the `by` parameter are computed. This makes
-`select_nodes()` faster than
-[`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md)
-for large networks.
+Only the centrality measures referenced in expressions or in `by` are
+computed.
 
 For networks with negative edge weights, `betweenness`, `closeness` and
 `pagerank` are undefined and return `NA`, with a
@@ -166,56 +161,16 @@ For networks with negative edge weights, `betweenness`, `closeness` and
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_nodes(adj, degree >= 3)
-#> Cograph network: 2 nodes, 1 edges ( undirected )
+select_nodes(regulation_net, top = 3, by = "pagerank")
+#> Cograph network: 3 nodes, 3 edges ( directed )
 #> Source: matrix 
-#>   Nodes (2): B, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [0.300, 0.300]  |  mean: 0.300
+#>   Nodes (3): Monitor, Reflect, Create
+#>   Edges: 3 / 6 (density: 50.0%)
+#>   Weights: [0.150, 0.370]  |  mean: 0.230
 #>   Strongest edges:
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_nodes(adj, top = 2, by = "pagerank")
-#> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (2): B, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [0.300, 0.300]  |  mean: 0.300
-#>   Strongest edges:
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_nodes(adj, neighbors_of = "A", order = 2)
-#> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 5 / 6 (density: 83.3%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.520
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#>     C -- D  0.400
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_nodes(adj, component = "largest")
-#> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 5 / 6 (density: 83.3%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.520
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#>     C -- D  0.400
-#>     B -- C  0.300
+#>     Monitor -> Create  0.370
+#>     Create -> Monitor  0.170
+#>     Reflect -> Monitor  0.150
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

@@ -48,25 +48,17 @@ A cograph_network with bridge edges only.
 ## Examples
 
 ``` r
-# Create network with bridge
-adj <- matrix(0, 5, 5)
-adj[1, 2] <- adj[2, 1] <- 1
-adj[2, 3] <- adj[3, 2] <- 1  # Bridge
-adj[3, 4] <- adj[4, 3] <- 1
-adj[4, 5] <- adj[5, 4] <- 1
-adj[3, 5] <- adj[5, 3] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-
-select_bridges(adj)
-#> Warning: 2 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
-#> Cograph network: 5 nodes, 2 edges ( undirected )
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+select_bridges(strong, keep_isolates = FALSE)
+#> Cograph network: 6 nodes, 3 edges ( directed )
 #> Source: matrix 
-#>   Nodes (5): A, B, C, D, E
-#>   Edges: 2 / 10 (density: 20.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (6): Plan, Monitor, Reflect, Discuss, Synthesize, Evaluate
+#>   Edges: 3 / 30 (density: 10.0%)
+#>   Weights: [0.330, 0.420]  |  mean: 0.383
 #>   Strongest edges:
-#>     A -- B  1.000
-#>     B -- C  1.000
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
+#>     Evaluate -> Monitor  0.330
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

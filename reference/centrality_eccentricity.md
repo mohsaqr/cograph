@@ -1,8 +1,8 @@
 # Eccentricity
 
-Maximum shortest path distance from a node to any other node. For
-directed networks, `centrality_ineccentricity` and
-`centrality_outeccentricity` use incoming and outgoing paths.
+The eccentricity of a node (Hage and Harary 1995) is its largest
+shortest-path distance to a node it reaches: \$\$e(v) = \max\_{w:\\ d(v,
+w) \< \infty} d(v, w).\$\$ Lower values mark more central nodes.
 
 ## Usage
 
@@ -18,33 +18,51 @@ centrality_outeccentricity(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `directed` and `normalized`.
 
 ## Value
 
-Named numeric vector of eccentricity values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are read as path lengths. The raw weights are always used,
+so `weighted = FALSE` and `invert_weights` have no effect. On an
+unweighted input the distances are hop counts. `mode = "out"` follows
+paths leaving the node and `mode = "in"` paths arriving at it.
+`centrality_outeccentricity()` and `centrality_ineccentricity()` are
+these two forms. A node that reaches no other node scores 0.
+
+## References
+
+Hage, P., & Harary, F. (1995). Eccentricity and centrality in networks.
+Social Networks, 17(1), 57-63.
+[doi:10.1016/0378-8733(94)00248-9](https://doi.org/10.1016/0378-8733%2894%2900248-9)
+.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality_radiality`](https://sonsoles.me/cograph/reference/centrality_radiality.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_eccentricity(adj)
-#> A B C 
-#> 2 1 2 
+centrality_eccentricity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>       0.33       0.35       0.34       0.39       0.33       0.40       0.38 
+#>   Evaluate     Create      Share 
+#>       0.40       0.33       0.39 
 ```

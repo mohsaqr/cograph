@@ -40,7 +40,8 @@ select_top(
 
 - ...:
 
-  Additional filter expressions to apply.
+  Additional filter expressions, applied after the top `n` nodes are
+  selected.
 
 - keep_edges:
 
@@ -66,33 +67,16 @@ A cograph_network with the top N nodes.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Top 2 by degree
-select_top(adj, n = 2)
-#> Cograph network: 2 nodes, 1 edges ( undirected )
+select_top(regulation_net, n = 3, by = "pagerank")
+#> Cograph network: 3 nodes, 3 edges ( directed )
 #> Source: matrix 
-#>   Nodes (2): B, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [0.300, 0.300]  |  mean: 0.300
+#>   Nodes (3): Monitor, Reflect, Create
+#>   Edges: 3 / 6 (density: 50.0%)
+#>   Weights: [0.150, 0.370]  |  mean: 0.230
 #>   Strongest edges:
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Top 2 by PageRank
-select_top(adj, n = 2, by = "pagerank")
-#> Cograph network: 2 nodes, 1 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (2): B, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [0.300, 0.300]  |  mean: 0.300
-#>   Strongest edges:
-#>     B -- C  0.300
+#>     Monitor -> Create  0.370
+#>     Create -> Monitor  0.170
+#>     Reflect -> Monitor  0.150
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

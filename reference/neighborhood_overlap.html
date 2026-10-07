@@ -9,7 +9,7 @@ the overlap measure sorted by overlap descending."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,7 +85,7 @@ object.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame sorted by <code>overlap</code> (descending) with columns:
-<code>from</code>, <code>to</code>, <code>weight</code> (if weighted), <code>overlap</code>,
+<code>from</code>, <code>to</code>, <code>weight</code>, <code>overlap</code>,
 <code>shared_neighbors</code>.</p>
     </div>
     <div class="section level2">
@@ -95,13 +95,13 @@ object.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">neighborhood_overlap</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   from to weight overlap shared_neighbors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    A  B      1       1                1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    A  C      1       1                1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    B  C      1       1                1</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">neighborhood_overlap</span><span class="op">(</span><span class="va">regulation_net</span>, top <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         from      to weight   overlap shared_neighbors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       Plan  Create   0.20 0.6666667                4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Evaluate Monitor   0.33 0.6666667                4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    Discuss Explore   0.30 0.6000000                3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       Plan Monitor   0.13 0.5714286                4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Synthesize Monitor   0.07 0.5000000                3</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

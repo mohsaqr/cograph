@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@
 
 
 <dt id="arg-a-">A2<a class="anchor" aria-label="anchor" href="#arg-a-"></a></dt>
-<dd><p>Second adjacency matrix</p></dd>
+<dd><p>Second adjacency matrix, with the same dimensions as <code>A1</code></p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -80,30 +80,26 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A single numeric value. All methods except <code>"hamming"</code> return a
-similarity (higher = more alike); <code>"hamming"</code> returns a
-<em>distance</em> - the number of matrix cells whose edge presence differs
-between the two layers - so lower means more alike and the value is not
-bounded by 1. <code>NA</code> is returned when the denominator is undefined
+similarity, where higher values mean more alike layers. <code>"hamming"</code>
+returns a distance, the number of matrix cells whose edge presence
+differs between the two layers. Lower values then mean more alike layers,
+and the value is not bounded by 1. <code>NA</code> is returned when the
+denominator is undefined
 (<code>"jaccard"</code> with no edges in either layer, <code>"overlap"</code> with an
 empty layer, <code>"cosine"</code> with an all-zero layer).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>"jaccard"</code>, <code>"overlap"</code> and <code>"hamming"</code> compare edge
-<em>presence</em> (<code>A &gt; 0</code>) and therefore ignore weights;
-<code>"cosine"</code> and <code>"pearson"</code> are computed on the raw cell values.
-The two matrices must have identical dimensions.</p>
+presence (<code>A &gt; 0</code>) and ignore weights. <code>"cosine"</code> and
+<code>"pearson"</code> are computed on the cell values, diagonal included.
+Matrices of different dimensions raise an error.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">A1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">0</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>, <span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">A2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span>, <span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0</span>, <span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span>, <span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">layer_similarity</span><span class="op">(</span><span class="va">A1</span>, <span class="va">A2</span>, <span class="st">"jaccard"</span><span class="op">)</span>  <span class="co"># Edge overlap</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4</span>
-<span class="r-in"><span><span class="fu">layer_similarity</span><span class="op">(</span><span class="va">A1</span>, <span class="va">A2</span>, <span class="st">"cosine"</span><span class="op">)</span>   <span class="co"># Weight similarity</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5773503</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">layer_similarity</span><span class="op">(</span><span class="va">regulation_net</span>, <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"cosine"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1197053</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

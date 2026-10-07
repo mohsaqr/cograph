@@ -9,7 +9,7 @@ whether the detected community structure is statistically significant."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,12 +94,12 @@ distribution. Default 100.</p></dd>
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Null model type:</p><dl><dt>"configuration"</dt>
-<dd><p>Preserves degree sequence (default). More
-stringent test.</p></dd>
+<dd><p>(default) Undirected configuration model
+that preserves the total degree of each node.</p></dd>
 
 <dt>"gnm"</dt>
-<dd><p>Erdos-Renyi model with same number of edges. Tests against
-random baseline.</p></dd>
+<dd><p>Erdos-Renyi G(n, m) model with the same number of nodes
+and edges and the same directedness.</p></dd>
 
 
 </dl></dd>
@@ -107,16 +107,12 @@ random baseline.</p></dd>
 
 <dt id="arg-null">null<a class="anchor" aria-label="anchor" href="#arg-null"></a></dt>
 <dd><p>Which null question to answer. Default <code>"detect"</code>:</p><dl><dt>"detect"</dt>
-<dd><p>Null is the modularity of the <em>best partition
-found by community detection</em> on each null graph. Answers "is the
-observed partition stronger than what community detection would
-recover on similar random graphs?" — the historical behavior.</p></dd>
+<dd><p>The null value is the modularity of the partition
+found by community detection on each null graph.</p></dd>
 
 <dt>"fixed"</dt>
-<dd><p>Null is the modularity of the supplied
-<code>communities</code> membership <em>evaluated on each null graph</em>.
-Answers "does the supplied partition itself explain more structure
-than it would on similar random graphs?" — the conservative test.</p></dd>
+<dd><p>The null value is the modularity of the supplied
+<code>communities</code> membership evaluated on each null graph.</p></dd>
 
 
 </dl></dd>
@@ -138,11 +134,13 @@ than it would on similar random graphs?" — the conservative test.</p></dd>
 <dd><p>Standard deviation of null modularity</p></dd>
 
 <dt>z_score</dt>
-<dd><p>Standardized score: (observed - null_mean) / null_sd</p></dd>
+<dd><p>Standardized score (observed - null_mean) / null_sd,
+or <code>NA</code> when <code>null_sd</code> is zero</p></dd>
 
 <dt>p_value</dt>
-<dd><p>One-sided p-value (probability of observing equal or
-higher modularity by chance)</p></dd>
+<dd><p>One-sided upper-tail p-value of <code>z_score</code> under
+the standard normal distribution; <code>NA</code> when <code>null_sd</code> is
+zero</p></dd>
 
 <dt>null_values</dt>
 <dd><p>Vector of modularity values from null distribution</p></dd>
@@ -157,21 +155,28 @@ higher modularity by chance)</p></dd>
 <dd><p>Number of random networks generated</p></dd>
 
 
-</dl><p>See <code>cluster_significance</code>.</p>
-    </div>
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Two null models are supported. The default, <code>null = "detect"</code>,
-generates <code>n_random</code> random networks, runs community detection
-(Louvain, with fast-greedy fallback) on each, and records the resulting
-modularity. Low p-value means the observed partition beats what
-detection would return on similar random graphs. <code>null = "fixed"</code>
-instead evaluates the user-supplied membership on each null graph, so
-low p-value means the partition itself is stronger than it would be on
-similar random graphs — a tighter question that isolates the
-partition's quality from any detector's behavior.</p>
-<p>A significant result (low p-value) indicates that the community structure
-is stronger than expected by chance for networks with similar properties.</p>
+    <p>The function generates <code>n_random</code> random networks from the null model.
+With <code>null = "detect"</code>, community detection (Louvain, or fast greedy
+when Louvain fails) is run on each null network and its modularity is
+recorded. A low p-value then indicates that the observed partition is
+stronger than the partitions detection recovers on random networks. With
+<code>null = "fixed"</code>, the supplied membership is evaluated on each null
+network. A low p-value then indicates that the partition explains more
+structure in the observed network than in random networks, independently
+of any detection algorithm.</p>
+<p>The observed modularity is computed with the edge weights of <code>x</code>. The
+null networks are unweighted.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="printing-and-plotting">Printing and plotting<a class="anchor" aria-label="anchor" href="#printing-and-plotting"></a></h2>
+
+
+<p>Printing the result shows the null model, the observed and null modularity,
+the z-score and the p-value. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on the result plots a histogram
+of the null modularity values with the observed value marked.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -186,35 +191,17 @@ Statistical mechanics of community detection.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_graph.html" class="external-link">make_graph</a></span><span class="op">(</span><span class="st">"Zachary"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="community_louvain.html">community_louvain</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sig</span> <span class="op">&lt;-</span> <span class="fu">cluster_significance</span><span class="op">(</span><span class="va">g</span>, <span class="va">comm</span>, n_random <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">123</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sig</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="communities.html">communities</a></span><span class="op">(</span><span class="va">regulation_net</span>, method <span class="op">=</span> <span class="st">"walktrap"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cluster_significance</span><span class="op">(</span><span class="va">regulation_net</span>, <span class="va">comm</span>, n_random <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cluster Significance Test</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> =========================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Null model:           configuration (n = 20 )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Observed modularity:  0.4151 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null mean:            0.3776 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null SD:              0.031 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Z-score:              1.21 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P-value:              0.11286 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Conclusion: No significant community structure (p &gt;= 0.05)</span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/make_graph.html" class="external-link">make_graph</a></span><span class="op">(</span><span class="st">"Zachary"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="community_louvain.html">community_louvain</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">csig</span><span class="op">(</span><span class="va">g</span>, <span class="va">comm</span>, n_random <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cluster Significance Test</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> =========================</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null model:           configuration (n = 20 )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Observed modularity:  0.4156 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null mean:            0.3866 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Null SD:              0.0189 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Z-score:              1.54 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P-value:              0.062349 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Observed modularity:  0.2033 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Null mean:            0.2683 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Null SD:              0.0506 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Z-score:              -1.29 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P-value:              0.90066 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Conclusion: No significant community structure (p &gt;= 0.05)</span>
 </code></pre></div>

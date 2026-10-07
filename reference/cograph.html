@@ -11,7 +11,7 @@ network object."><meta property="og:image" content="https://sonsoles.me/cograph/
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,10 +84,10 @@ network object.</p>
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
 <dd><p>Layout algorithm name such as "circle", "oval", "spring",
-"groups", "grid", "random", "star", "bipartite", "gephi", or "custom";
-a coordinate matrix/data frame; a CographLayout; or an igraph layout
-function/name. Default NULL (no layout computed). Set to a layout to
-compute immediately, or use sn_layout() later.</p></dd>
+"groups", "grid", "random", "star", "bipartite" or "gephi" (see
+<code><a href="layout_registry.html">list_layouts</a></code>); a coordinate matrix or data frame; or an
+igraph layout function, name or two-letter code. Default NULL computes no
+layout. A layout can also be set later with <code><a href="sn_layout.html">sn_layout</a></code>.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -104,9 +104,10 @@ If data frame has a <code>label</code> or <code>labels</code> column, those are 
 
 
 <dt id="arg-simplify">simplify<a class="anchor" aria-label="anchor" href="#arg-simplify"></a></dt>
-<dd><p>Logical or character. If FALSE (default), every transition
-from tna sequence data is a separate edge. If TRUE or a string
-("sum", "mean", "max", "min"), duplicate edges are aggregated.</p></dd>
+<dd><p>Logical or character. Used for tna input only. If FALSE
+(default), every transition from tna sequence data is a separate edge.
+If TRUE or a string ("sum", "mean", "max", "min"), duplicate edges are
+aggregated, and TRUE uses "sum".</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -115,7 +116,9 @@ from tna sequence data is a separate edge. If TRUE or a string
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A cograph_network object that can be further customized and rendered.</p>
+    <p>A <code>cograph_network</code> object. It is a list with the elements
+<code>nodes</code>, <code>edges</code>, <code>directed</code>, <code>weights</code>,
+<code>data</code>, <code>meta</code> and <code>node_groups</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -131,22 +134,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From adjacency matrix (layout computed lazily on first plot)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span>layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="cograph-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># From edge list</span></span></span>
-<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">edges</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span>layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="cograph-2.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Pipe-friendly customization</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="sn_nodes.html">sn_nodes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="sn_edges.html">sn_edges</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"gray50"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span>layout <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="cograph-3.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

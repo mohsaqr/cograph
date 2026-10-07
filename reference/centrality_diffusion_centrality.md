@@ -1,11 +1,10 @@
-# Finite-horizon diffusion centrality
+# Diffusion Centrality
 
-Banerjee et al.'s diffusion centrality is \\DC(A;q,T) =
-\sum\_{t=1}^{T}(qA)^t\mathbf{1}\\. It sums weighted walks starting at
-each node, allowing revisits and returns to the source. Directed edges
-carry information from their source to their target: the result uses row
-sums, regardless of `mode`. Transpose the input adjacency matrix to
-measure incoming walks.
+Diffusion centrality (Banerjee et al. 2013) counts the walks of length 1
+to \\T\\ that start at a node, each discounted by \\q\\ per step:
+\$\$DC(A; q, T) = \sum\_{t=1}^{T} (qA)^t \mathbf{1}.\$\$ Walks may
+revisit nodes and return to the source, so the score counts repeated
+hearings of a message.
 
 ## Usage
 
@@ -22,51 +21,35 @@ centrality_diffusion_centrality(x, diffusion_q = 1, diffusion_steps = 3, ...)
 
 - diffusion_q:
 
-  Finite multiplier between 0 and 1, default 1.
+  Discount \\q\\, between 0 and 1. Default 1.
 
 - diffusion_steps:
 
-  Nonnegative integer horizon, default 3. Must be no larger than
-  `.Machine$integer.max`.
+  Horizon \\T\\, a nonnegative integer. Default 3.
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive scores are divided by their
-  maximum.
+  The measure uses `weighted` (default `TRUE`), `loops` (default `TRUE`)
+  and `normalized` (default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-A is the adjacency matrix with the original edge weights when
-`weighted = TRUE`, or unit edge weights otherwise. Self-loops follow
-`loops`; an undirected self-loop contributes its weight once on the
-diagonal. The `simplify` argument combines parallel edges first; any
-remaining parallel edges contribute additively to A. Weight inversion
-for shortest paths does not affect this measure.
-
-When every entry of qA is between zero and one, scores have the paper's
-interpretation as expected total hearings of information. Larger weights
-are accepted as a mathematical weighted-walk extension of that
-polynomial, without a probability interpretation. Scores count repeated
-hearings, not distinct recipients. They need not be bounded by the
-number of nodes.
-
-Default q = 1 and T = 3 are explicit cograph choices, not estimates of a
-diffusion process or the parameters used by the Zoo. T = 0 returns zero;
-T = 1 gives q times outgoing strength (degree for a binary graph). A
-finite horizon requires no spectral convergence condition. Numerical
-overflow raises an error, including when normalization is requested.
-
-This is distinct from
-[`centrality_diffusion`](https://sonsoles.me/cograph/reference/centrality_diffusion.md):
-its default is diffusion degree, and its TNA variant fixes q = 1 and T =
-n. The existing `lambda` and `diffusion_method` arguments do not affect
-this measure. Computation uses T matrix-vector products.
+\\A\\ holds the edge weights, or ones with `weighted = FALSE`. Directed
+edges carry information from source to target, so the score uses row
+sums and `mode` has no effect. Transposing the input gives incoming
+walks. Self-loops follow `loops`. Negative or non-finite weights raise
+an error. \\T = 0\\ gives 0 and \\T = 1\\ gives \\q\\ times the
+out-strength. When every entry of \\qA\\ lies between 0 and 1 the score
+is the expected number of times the information is heard (Banerjee et
+al. 2013), and it can exceed the number of nodes. The defaults \\q = 1\\
+and \\T = 3\\ are package choices. This measure differs from
+[`centrality_diffusion`](https://sonsoles.me/cograph/reference/centrality_diffusion.md).
 
 ## References
 
@@ -79,11 +62,18 @@ Using Gossips to Spread Information: Theory and Evidence from Two
 Randomized Controlled Trials. Review of Economic Studies, 86, 2453-2490.
 [doi:10.1093/restud/rdz008](https://doi.org/10.1093/restud/rdz008) .
 
+## See also
+
+[`centrality_dynamics_sensitive`](https://sonsoles.me/cograph/reference/centrality_dynamics_sensitive.md),
+[`centrality_diffusion`](https://sonsoles.me/cograph/reference/centrality_diffusion.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-g <- igraph::make_graph(c(1, 2, 2, 3), directed = TRUE)
-centrality_diffusion_centrality(g, diffusion_q = 0.5, diffusion_steps = 2)
-#>    1    2    3 
-#> 0.75 0.50 0.00 
+centrality_diffusion_centrality(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   1.265867   3.898775   1.365553   1.617645   0.399290   1.429347   1.124945 
+#>   Evaluate     Create      Share 
+#>   1.755606   2.225349   2.720083 
 ```

@@ -65,38 +65,18 @@ A cograph_network with nodes in the selected component.
 ## Examples
 
 ``` r
-# Create disconnected network
-adj <- matrix(0, 6, 6)
-adj[1, 2] <- adj[2, 1] <- 1
-adj[1, 3] <- adj[3, 1] <- 1
-adj[4, 5] <- adj[5, 4] <- 1
-adj[5, 6] <- adj[6, 5] <- 1
-adj[4, 6] <- adj[6, 4] <- 1
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-
-# Largest component
-select_component(adj, which = "largest")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+select_component(regulation_net, which = "largest")
+#> Cograph network: 10 nodes, 30 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.265
 #>   Strongest edges:
-#>     A -- B  1.000
-#>     A -- C  1.000
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Component containing node "A"
-select_component(adj, which = "A")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     A -- B  1.000
-#>     A -- C  1.000
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

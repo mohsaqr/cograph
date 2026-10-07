@@ -1,15 +1,14 @@
 # Access and Hide Information
 
-Search-information centralities of Rosvall, Trusina, Minnhagen and
-Sneppen (2005) and Sneppen, Trusina and Rosvall (2005). A walker who
-knows only the shortest paths from \\i\\ to \\j\\ but has no map must be
-told which link to take at each step; the number of bits needed is
-\$\$S(i \to j) = -\log_2 \sum\_{p \in \\p(i, j)\\} \frac{1}{k_i}
-\prod\_{l \in p,\\ l \ne i, j} \frac{1}{k_l - 1},\$\$ summed over all
-shortest paths, with \\k_i\\ the degree of the source and \\k_l - 1\\
-the choices left at each intermediate node (the link the walker arrived
-on is excluded). Then \$\$A_i = \frac{1}{N} \sum_j S(i \to j), \qquad
-H_i = \frac{1}{N} \sum_j S(j \to i),\$\$ with \\S(i \to i) = 0\\.
+Access and hide information (Rosvall et al. 2005; Sneppen, Trusina and
+Rosvall 2005) measure the number of bits a walker needs to follow a
+shortest path without a map. The search information from \\i\\ to \\j\\
+sums over all shortest paths \\p(i, j)\\, with \\k_i\\ the degree of the
+source and \\k_l - 1\\ the choices left at each intermediate node:
+\$\$S(i \to j) = -\log_2 \sum\_{p(i, j)} \frac{1}{k_i} \prod\_{l \in
+p,\\ l \ne i, j} \frac{1}{k_l - 1}.\$\$ Access information \\A_i\\
+averages \\S(i \to j)\\ over targets \\j\\, and hide information \\H_i\\
+averages \\S(j \to i)\\ over sources.
 
 ## Usage
 
@@ -23,39 +22,31 @@ centrality_hide_information(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node, in bits.
+A named numeric vector with one score per node, in input node order, in
+bits.
 
 ## Details
 
-**Access information** \\A_i\\: how many bits it costs, on average, to
-reach the rest of the network from \\i\\. A low value means the node
-reaches others with few decisions. Hubs score *high*: a walker leaving a
-hub has many links to choose from (on a star with five leaves the hub
-scores 1.93 bits, a leaf 1.33). **Hide information** \\H_i\\: how many
-bits it costs the rest of the network to find \\i\\. High values mark
-hidden, peripheral nodes; hubs score low (the star hub scores 0). The
-encyclopedia's prose states the star case the other way round; the
-formulas and the source papers give the values above.
-
-On a directed graph every step uses the out-degree, \\1 / k^{out}\\. On
-a disconnected graph the average runs over the nodes a walker can
-actually reach (or be reached from), so values stay finite; on a
-connected graph this is exactly the paper's \\1 / N\\. Distances are hop
-counts; edge weights are ignored. Cost is \\O(N (N + M))\\ with an \\N
-\times N\\ matrix in memory.
-
-Validated against an independent enumeration of all shortest paths and
-against the worked values in both papers (star and complete bipartite
-graphs).
+Distances are hop counts, so edge weights are ignored. On a directed
+network every step uses the out-degree. The average runs over the nodes
+a walker can reach, or be reached from, so values stay finite on a
+disconnected network and equal the source's \\1/N\\ average on a
+connected one. Hubs score high on access information and low on hide
+information. On a star with five leaves the hub has access information
+1.93 bits and hide information 0, and each leaf has access information
+1.33 bits. The Centrality Zoo states the star case in reverse, and the
+values above follow the formulas and the source papers.
 
 ## References
 
@@ -68,19 +59,20 @@ networks. Europhysics Letters, 69(5), 853-859.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_access_information(star5)
-#>         A         B         C         D         E 
-#> 1.6000000 0.9509775 0.9509775 0.9509775 0.9509775 
-centrality_hide_information(star5)
-#>        A        B        C        D        E 
-#> 0.000000 1.350978 1.350978 1.350978 1.350978 
+centrality_access_information(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   2.305054   2.340010   2.005376   2.253412   2.275489   2.167470   2.374502 
+#>   Evaluate     Create      Share 
+#>   2.275207   2.212248   2.211524 
+centrality_hide_information(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   1.864995   2.779716   1.650978   1.729946   1.655327   2.627164   2.897916 
+#>   Evaluate     Create      Share 
+#>   3.194949   1.890976   2.128327 
 ```

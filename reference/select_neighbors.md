@@ -58,39 +58,18 @@ A cograph_network with nodes in the neighborhood.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Direct neighbors of A
-select_neighbors(adj, of = "A")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
+select_neighbors(regulation_net, of = "Plan")
+#> Cograph network: 7 nodes, 15 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.533
+#>   Nodes (7): Plan, Monitor, Discuss, Synthesize, Evaluate, Create, Share
+#>   Edges: 15 / 42 (density: 35.7%)
+#>   Weights: [0.070, 0.490]  |  mean: 0.273
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     A -- B  0.500
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Neighbors up to 2 hops
-select_neighbors(adj, of = "A", order = 2)
-#> Cograph network: 4 nodes, 5 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 5 / 6 (density: 83.3%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.520
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#>     C -- D  0.400
-#>     B -- C  0.300
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Plan -> Discuss  0.400
+#>     Create -> Evaluate  0.390
+#>     Monitor -> Create  0.370
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

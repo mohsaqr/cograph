@@ -1,11 +1,9 @@
-# Malatya centrality
+# Malatya Centrality
 
-The static Malatya score of a node is the sum of its degree divided by
-each neighbor's degree: \\M(i)=\sum\_{j\in N(i)}d_i/d_j\\. Computes the
-score on the original graph. On nonisolated vertices it is exactly the
-reciprocal of
-[`centrality_bridging_coefficient`](https://sonsoles.me/cograph/reference/centrality_truss.md);
-this relationship follows from their definitions, not rank correlation.
+The Malatya centrality of a node (Karci et al. 2022) is the sum of its
+degree divided by the degree of each neighbor, \\M(i) = \sum\_{j \in
+N(i)} d_i / d_j\\. High scores mark nodes with many neighbors of low
+degree.
 
 ## Usage
 
@@ -22,22 +20,21 @@ centrality_malatya(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive scores are divided by their
-  maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the simple undirected unweighted skeleton: either direction creates
-an edge, parallel edges count once and self-loops are removed. This is
-an explicit projection of other inputs to the source's domain. The empty
-neighbor sum assigns isolates zero. On a regular graph the score equals
-degree. High scores favor nodes with many neighbors of low degree.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Isolated nodes score 0. On a
+regular network the score equals the degree. On every node with at least
+one neighbor it is the reciprocal of
+[`centrality_bridging_coefficient`](https://sonsoles.me/cograph/reference/centrality_truss.md).
 
 ## References
 
@@ -46,10 +43,18 @@ Centrality Value in Solving the Minimum Vertex Cover Problem: Malatya
 Centrality Algorithm. Journal of Computer Science, 7(2), 81-88.
 [doi:10.53070/bbd.1195501](https://doi.org/10.53070/bbd.1195501) .
 
+## See also
+
+[`centrality_bridging_coefficient`](https://sonsoles.me/cograph/reference/centrality_truss.md),
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_malatya(igraph::make_star(5, mode = "undirected"))
-#>     1     2     3     4     5 
-#> 16.00  0.25  0.25  0.25  0.25 
+centrality_malatya(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   4.666667   6.957143   9.450000   7.157143   4.964286   4.500000   2.704762 
+#>   Evaluate     Create      Share 
+#>   4.214286   6.657143   4.214286 
 ```

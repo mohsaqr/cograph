@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@ other measure <code><a href="centrality.html">centrality()</a></code> computes (
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional filter expressions to apply.</p></dd>
+<dd><p>Additional filter expressions, applied after the top <code>n</code> nodes
+are selected.</p></dd>
 
 
 <dt id="arg-keep-edges">keep_edges<a class="anchor" aria-label="anchor" href="#arg-keep-edges"></a></dt>
@@ -112,33 +113,16 @@ other measure <code><a href="centrality.html">centrality()</a></code> computes (
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Top 2 by degree</span></span></span>
-<span class="r-in"><span><span class="fu">select_top</span><span class="op">(</span><span class="va">adj</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 2 nodes, 1 edges ( undirected )</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">select_top</span><span class="op">(</span><span class="va">regulation_net</span>, n <span class="op">=</span> <span class="fl">3</span>, by <span class="op">=</span> <span class="st">"pagerank"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 3 edges ( directed )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (2): B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 1 / 1 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.300]  |  mean: 0.300</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): Monitor, Reflect, Create</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 6 (density: 50.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.150, 0.370]  |  mean: 0.230</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Top 2 by PageRank</span></span></span>
-<span class="r-in"><span><span class="fu">select_top</span><span class="op">(</span><span class="va">adj</span>, n <span class="op">=</span> <span class="fl">2</span>, by <span class="op">=</span> <span class="st">"pagerank"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 2 nodes, 1 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (2): B, C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 1 / 1 (density: 100.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.300]  |  mean: 0.300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  0.300</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Monitor -&gt; Create  0.370</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Create -&gt; Monitor  0.170</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Reflect -&gt; Monitor  0.150</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>

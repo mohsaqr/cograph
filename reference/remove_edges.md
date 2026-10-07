@@ -1,6 +1,7 @@
 # Remove Edges from a Network
 
-Remove Edges from a Network
+Deletes the edges between given pairs of nodes. In an undirected network
+the order of the two endpoints does not matter.
 
 ## Usage
 
@@ -57,18 +58,18 @@ A `cograph_network` without those edges, or the input format when
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-remove_edges(adj, from = "A", to = "B")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+remove_edges(regulation_net, from = "Plan", to = "Monitor")
+#> Cograph network: 10 nodes, 29 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 29 / 90 (density: 32.2%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.270
 #>   Strongest edges:
-#>     A -- C  1.000
-#>     B -- C  1.000
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

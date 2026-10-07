@@ -1,6 +1,7 @@
 # Remove Nodes from a Network
 
-Remove Nodes from a Network
+Deletes nodes and every edge incident to them. A node that is not in the
+network raises a `cograph_bad_selection` error.
 
 ## Usage
 
@@ -40,17 +41,18 @@ touched them, or the input format when `keep_format = TRUE`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-remove_nodes(adj, nodes = "B")
-#> Cograph network: 2 nodes, 1 edges ( undirected )
+remove_nodes(regulation_net, nodes = "Share")
+#> Cograph network: 9 nodes, 24 edges ( directed )
 #> Source: matrix 
-#>   Nodes (2): A, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (9): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +3 more
+#>   Edges: 24 / 72 (density: 33.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.250
 #>   Strongest edges:
-#>     A -- C  1.000
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
+#>     Create -> Evaluate  0.390
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

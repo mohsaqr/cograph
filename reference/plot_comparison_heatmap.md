@@ -1,6 +1,7 @@
 # Plot Comparison Heatmap
 
-Creates a heatmap visualization comparing two networks.
+Plots a heatmap of the difference between two weight matrices, or of
+either matrix alone. Rows are source nodes and columns are target nodes.
 
 ## Usage
 
@@ -28,79 +29,76 @@ plot_comparison_heatmap(
 
 - x:
 
-  First network: matrix, `cograph_network`, `CographNetwork`, `tna`,
-  `igraph`, or list-like object with `$weights`.
+  First network: matrix, `cograph_network`, `tna`, `igraph`, or list
+  with a matrix `weights` component.
 
 - y:
 
-  Second network: same type as x. NULL to plot just x.
+  Second network, of the same type and dimensions as `x`. Required for
+  `type = "difference"` and `type = "y"`; it may be `NULL` for
+  `type = "x"`.
 
 - type:
 
-  What to display: "difference" (x - y), "x", or "y".
+  What to display: `"difference"` (x - y), `"x"`, or `"y"`.
 
 - name_x:
 
-  Label for first network in title. Default "x".
+  Label for the first network in the default title.
 
 - name_y:
 
-  Label for second network in title. Default "y".
+  Label for the second network in the default title.
 
 - low_color:
 
-  Color for low/negative values. Default "blue".
+  Color for low (negative) values.
 
 - mid_color:
 
-  Color for zero/middle values. Default "white".
+  Color for zero.
 
 - high_color:
 
-  Color for high/positive values. Default "red".
+  Color for high (positive) values.
 
 - limits:
 
-  Color scale limits. NULL for auto. Use c(-1, 1) for normalized.
+  Color scale limits. `NULL` uses the data range. Use `c(-1, 1)` for
+  normalized values.
 
 - show_values:
 
-  Logical: display values in cells? Default FALSE.
+  Logical. Display values in cells?
 
 - value_size:
 
-  Text size for cell values. Default 3.
+  Text size for cell values.
 
 - digits:
 
-  Decimal places for cell values. Default 2.
+  Decimal places for cell values.
 
 - title:
 
-  Plot title. NULL for auto-generated.
+  Plot title. `NULL` builds one from `type`, `name_x` and `name_y`.
 
 - xlab:
 
-  X-axis label. Default "Target".
+  X-axis label.
 
 - ylab:
 
-  Y-axis label. Default "Source".
+  Y-axis label.
 
 ## Value
 
-A ggplot2 object.
+A ggplot object. The color scale is a diverging gradient with its
+midpoint at 0.
 
 ## Examples
 
 ``` r
-set.seed(42)
-m1 <- matrix(runif(25), 5, 5)
-m2 <- matrix(runif(25), 5, 5)
-rownames(m1) <- colnames(m1) <- LETTERS[1:5]
-rownames(m2) <- colnames(m2) <- LETTERS[1:5]
-plot_comparison_heatmap(m1, m2)
-
-plot_comparison_heatmap(m1, type = "x")
+plot_comparison_heatmap(regulation_net, t(regulation_net))
 
 ```

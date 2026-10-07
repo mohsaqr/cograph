@@ -1,8 +1,9 @@
 # Plot Centrality Distribution
 
-Histogram or density plot of any centrality measure. Accepts the output
-of [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-directly.
+Histogram or density plot of one centrality measure. The input is either
+the data frame returned by
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) or a
+network, for which the measure is computed first.
 
 ## Usage
 
@@ -32,8 +33,9 @@ plot_centrality_distribution(
 
 - measure:
 
-  Character. Which centrality measure to plot. Default `"degree_all"`.
-  Must match a column name in the centrality output.
+  Character. Column of the centrality output to plot, for example
+  `"degree_all"` (default) or `"strength_in"`. An unknown name is an
+  error that lists the available columns.
 
 - type:
 
@@ -45,29 +47,30 @@ plot_centrality_distribution(
 
 - bins:
 
-  Integer or NULL. Number of bins. Default NULL (auto).
+  Integer or NULL. Number of equal-width histogram bins. The default
+  NULL uses the Freedman-Diaconis rule.
 
 - log:
 
-  Character. Log scaling: `""`, `"y"`, or `"xy"`. Values containing
-  `"x"` are accepted for compatibility but only the y-axis is log-scaled
-  by this plotting implementation. Default `""`.
+  Character. `"y"` or `"xy"` log-scales the y-axis. The x-axis is never
+  log-scaled, and any other value gives linear axes. Default `""`.
 
 - col:
 
-  Fill color. Default `"steelblue"`.
+  Fill color (line color for the density). Default `"steelblue"`.
 
 - border:
 
-  Border color. Default `"white"`.
+  Bar border color for the histogram. Default `"white"`.
 
 - main:
 
-  Plot title. Default auto-generated from measure name.
+  Plot title. The default NULL builds a title such as
+  `"Degree Distribution"` from the measure name.
 
 - xlab:
 
-  X-axis label. Default auto-generated.
+  X-axis label. The default NULL uses the measure name.
 
 - ...:
 
@@ -77,12 +80,10 @@ plot_centrality_distribution(
 
 ## Value
 
-Invisibly returns the centrality values plotted.
+Invisibly, a numeric vector of the finite centrality values plotted.
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0, 1,0,1,1, 1,1,0,1, 0,1,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::plot_centrality_distribution(adj, measure = "degree_all")
+cograph::plot_centrality_distribution(regulation_net, measure = "strength_all")
 ```

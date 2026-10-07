@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,25 +95,17 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create network with bridge</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>  <span class="co"># Bridge</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">select_bridges</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>2 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 5 nodes, 2 edges ( undirected )</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">strong</span> <span class="op">&lt;-</span> <span class="fu"><a href="filter_edges.html">filter_edges</a></span><span class="op">(</span><span class="va">regulation_net</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.3</span>, keep_isolates <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">select_bridges</span><span class="op">(</span><span class="va">strong</span>, keep_isolates <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 6 nodes, 3 edges ( directed )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (5): A, B, C, D, E</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 2 / 10 (density: 20.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [1.000, 1.000]  |  mean: 1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (6): Plan, Monitor, Reflect, Discuss, Synthesize, Evaluate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 30 (density: 10.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.330, 0.420]  |  mean: 0.383</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A -- B  1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B -- C  1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Synthesize -&gt; Reflect  0.420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan -&gt; Discuss  0.400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Monitor  0.330</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>

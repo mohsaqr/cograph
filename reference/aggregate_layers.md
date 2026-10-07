@@ -22,46 +22,49 @@ lagg(
 
 - layers:
 
-  List of adjacency matrices
+  List of adjacency matrices of the same dimensions
 
 - method:
 
-  Aggregation: "sum", "mean", "max", "min", "union", "intersection"
+  Aggregation: "sum" (default), "mean", "max", "min", "union" or
+  "intersection". `"union"` and `"intersection"` return a binary matrix
+  of the cells with a positive weight in any or in every layer.
 
 - weights:
 
-  Optional layer weights (for weighted sum)
+  Optional numeric vector of layer weights, one per layer, used only by
+  `method = "sum"` to compute a weighted sum.
 
 ## Value
 
-Aggregated adjacency matrix
+The aggregated adjacency matrix, with the dimnames of the first layer. A
+list with a single layer is returned unchanged for every `method`.
 
 ## Examples
 
 ``` r
-nodes <- c("A", "B", "C")
-l1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-l2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-layers <- list(L1 = l1, L2 = l2)
-
-aggregate_layers(layers, "sum")           # total edge weight
-#>   A B C
-#> A 0 2 1
-#> B 2 0 1
-#> C 1 1 0
-aggregate_layers(layers, "mean")          # average edge weight
-#>     A   B   C
-#> A 0.0 1.0 0.5
-#> B 1.0 0.0 0.5
-#> C 0.5 0.5 0.0
-aggregate_layers(layers, "union")         # edge present in any layer
-#>   A B C
-#> A 0 1 1
-#> B 1 0 1
-#> C 1 1 0
-aggregate_layers(layers, "intersection")  # edge present in every layer
-#>   A B C
-#> A 0 1 0
-#> B 1 0 0
-#> C 0 0 0
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+aggregate_layers(layers, method = "mean")
+#>            Explore  Plan Monitor Adapt Reflect Discuss Synthesize Evaluate
+#> Explore      0.000 0.000   0.000 0.140   0.200   0.150      0.000    0.000
+#> Plan         0.000 0.000   0.065 0.000   0.000   0.200      0.055    0.245
+#> Monitor      0.000 0.065   0.000 0.080   0.075   0.000      0.035    0.165
+#> Adapt        0.140 0.000   0.080 0.000   0.000   0.170      0.085    0.215
+#> Reflect      0.200 0.000   0.075 0.000   0.000   0.175      0.210    0.035
+#> Discuss      0.150 0.200   0.000 0.170   0.175   0.000      0.000    0.000
+#> Synthesize   0.000 0.055   0.035 0.085   0.210   0.000      0.000    0.000
+#> Evaluate     0.000 0.245   0.165 0.215   0.035   0.000      0.000    0.000
+#> Create       0.070 0.100   0.270 0.000   0.000   0.070      0.000    0.195
+#> Share        0.135 0.285   0.245 0.195   0.000   0.000      0.000    0.000
+#>            Create Share
+#> Explore     0.070 0.135
+#> Plan        0.100 0.285
+#> Monitor     0.270 0.245
+#> Adapt       0.000 0.195
+#> Reflect     0.000 0.000
+#> Discuss     0.070 0.000
+#> Synthesize  0.000 0.000
+#> Evaluate    0.195 0.000
+#> Create      0.000 0.115
+#> Share       0.115 0.000
 ```

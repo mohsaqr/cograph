@@ -1,15 +1,12 @@
 # Community Hub-Bridge Centrality
 
-Ghalmane, El Hassouni and Cherifi's (2019) score for nodes that are both
-hubs inside their community and bridges between communities: \$\$CHB(i)
-= \|C_i\| \\ k^{intra}\_i + NNC_i \\ k^{inter}\_i,\$\$ where \\\|C_i\|\\
-is the number of nodes in \\i\\'s own community, \\k^{intra}\_i\\ and
-\\k^{inter}\_i\\ its numbers of links inside and outside that community,
-and \\NNC_i\\ the number of *other* communities it is linked to (eqs. 2
-to 4 of the paper). Higher values mark nodes whose removal both
-fragments their community and cuts links between communities. A
-normalized variant with the same name exists in later work by the same
-group; this is the original raw form.
+Community hub-bridge centrality (Ghalmane, El Hassouni and Cherifi 2019)
+scores nodes that are hubs inside their community and bridges between
+communities: \$\$CHB(i) = \|C_i\|\\ k^{intra}\_i + NNC_i\\
+k^{inter}\_i,\$\$ where \\\|C_i\|\\ is the size of the community of
+\\i\\, \\k^{intra}\_i\\ and \\k^{inter}\_i\\ its numbers of links inside
+and outside that community, and \\NNC_i\\ the number of other
+communities it links to.
 
 ## Usage
 
@@ -21,36 +18,37 @@ centrality_community_hub_bridge(x, membership = NULL, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Community labels, one per node. Required; without it the function
-  warns and returns `NA`. Obtain one from
+  Community labels, one per node, for example from
   [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"`, or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Under `mode = "out"` or `"in"` only out- or in-links count; the default
-ignores direction. Edge weights are ignored.
-
-## Conditions
-
-Raises an error of class `cograph_bad_membership` when `membership` is
-not one non-missing label per node.
+Edge weights and self-loops are ignored. Under `mode = "out"` or
+`mode = "in"` only out-links or in-links count, and the default ignores
+direction. This is the raw form of the original article. Later work by
+the same group uses a normalized variant with the same name. Without
+`membership` the function raises an unclassed warning and returns `NA`
+for every node. A `membership` that is not one non-missing label per
+node raises an error of class `cograph_bad_membership`.
 
 ## References
 
@@ -60,17 +58,17 @@ Analysis and Mining, 9, 45.
 
 ## See also
 
+[`centrality_community_based`](https://sonsoles.me/cograph/reference/centrality_community_based.md),
 [`centrality_modularity_vitality`](https://sonsoles.me/cograph/reference/centrality_modularity_vitality.md),
-[`centrality_participation`](https://sonsoles.me/cograph/reference/centrality_participation.md).
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_community_hub_bridge(adj, membership = c(1, 1, 1, 2, 2, 2))
-#> A B C D E F 
-#> 6 6 7 7 6 6 
+centrality_community_hub_bridge(regulation_net,
+                                membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         13         10         19         14         13          9          4 
+#>   Evaluate     Create      Share 
+#>          9         18          9 
 ```

@@ -1,8 +1,9 @@
 # Plot Cograph Network
 
-Main plotting function for Cograph networks. Renders the network
-visualization using grid graphics. Accepts all node and edge aesthetic
-parameters.
+Plots a network with grid graphics. Node and edge aesthetics can be
+passed as arguments or set beforehand with
+[`sn_nodes`](https://sonsoles.me/cograph/reference/sn_nodes.md) and
+[`sn_edges`](https://sonsoles.me/cograph/reference/sn_edges.md).
 
 ## Usage
 
@@ -186,8 +187,11 @@ sn_render(
 
 - network:
 
-  A cograph_network object, matrix, data.frame, or igraph object.
-  Matrices and other inputs are auto-converted.
+  A cograph_network object, matrix, data.frame, igraph or tna object.
+  Other inputs are converted with
+  [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md);
+  tna objects are converted with
+  [`from_tna()`](https://sonsoles.me/cograph/reference/from_tna.md).
 
 - title:
 
@@ -220,7 +224,8 @@ sn_render(
   "random", "star", "bipartite". igraph (2-letter): "kk" (Kamada-Kawai),
   "fr" (Fruchterman-Reingold), "drl", "mds", "ni" (nicely), "tr" (tree),
   etc. Can also pass a coordinate matrix or igraph layout function
-  directly.
+  directly. NULL (default) keeps the layout stored in a cograph_network
+  and uses "oval" for inputs without stored coordinates.
 
 - theme:
 
@@ -345,7 +350,8 @@ sn_render(
 - donut_shape:
 
   Base shape for donut: "circle", "square", "hexagon", "triangle",
-  "diamond", "pentagon". Default inherits from node_shape.
+  "diamond", "pentagon". The default "circle" takes the base shape from
+  `node_shape` when that is one of these shapes.
 
 - donut_value_fontface:
 
@@ -387,9 +393,8 @@ sn_render(
 
 - edge_size:
 
-  Base edge size for weight scaling. NULL (default) uses adaptive sizing
-  based on network size: `15 * exp(-n_nodes/90) + 1`. Larger values =
-  thicker edges.
+  Maximum edge width for weight scaling. It replaces the upper bound of
+  `edge_width_range`. NULL (default) uses `edge_width_range` unchanged.
 
 - esize:
 
@@ -408,8 +413,9 @@ sn_render(
 
 - edge_cutoff:
 
-  Two-tier cutoff for edge width scaling. NULL (default) = auto 75th
-  percentile. 0 = disabled. Positive number = manual threshold.
+  Accepted for compatibility with
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md). The grid
+  renderer keeps width scaling continuous and does not use the value.
 
 - cut:
 
@@ -429,7 +435,7 @@ sn_render(
 
 - edge_style:
 
-  Line style: "solid", "dashed", "dotted".
+  Line style: "solid", "dashed", "dotted", "longdash", "twodash".
 
 - curvature:
 
@@ -524,9 +530,9 @@ sn_render(
 
 - curves:
 
-  Curve mode: TRUE (default) = single edges straight, reciprocal edges
-  curve as ellipse (two opposing curves); FALSE = all straight; "force"
-  = all curved.
+  Curve mode. NULL (default) or "mutual" keeps single edges straight and
+  curves reciprocal edges as two opposing arcs; FALSE plots all edges
+  straight; "force" curves all edges. `TRUE` is rejected with an error.
 
 - node_names:
 
@@ -543,95 +549,54 @@ sn_render(
 - scaling:
 
   Scaling mode: "default" for qgraph-matched scaling where node_size=6
-  looks similar to qgraph vsize=6, or "legacy" to preserve pre-v2.0
-  behavior.
+  looks similar to qgraph vsize=6, or "legacy" for the earlier cograph
+  scaling constants.
 
 - weight_digits:
 
-  Number of decimal places to round edge weights to before plotting.
-  Edges that round to zero are automatically removed. Default 2. Set
-  NULL to disable rounding.
+  Number of decimal places to which a matrix input is rounded before
+  conversion, so that entries rounding to zero are not plotted as edges.
+  Other inputs are not rounded. Default 2. Set NULL to disable rounding.
 
 ## Value
 
-The updated `cograph_network` object, invisibly. Called primarily for
-the side effect of drawing.
+The updated `cograph_network` object, invisibly. The function is called
+for the plot it produces.
 
-The updated `cograph_network` object, invisibly. Called primarily for
-the side effect of drawing.
+The updated `cograph_network` object, invisibly. The function is called
+for the plot it produces.
 
 ## Details
 
-### soplot vs splot
+### soplot and splot
 
-`soplot()` uses grid graphics while
+`soplot()` uses grid graphics and
 [`splot()`](https://sonsoles.me/cograph/reference/splot.md) uses base R
-graphics. Both accept the same parameters and produce visually similar
-output. Choose based on:
-
-- **soplot**: Better for integration with ggplot2, combining plots, and
-  publication-quality vector graphics.
-
-- **splot**: Better for large networks (faster rendering), interactive
-  exploration, and traditional R workflows.
+graphics. The two functions share argument names for the common
+aesthetics, and
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) has a larger
+set of arguments.
 
 ### Edge Curve Behavior
 
-Edge curving is controlled by the `curves` and `curvature` parameters:
+With the default `curves`, reciprocal edge pairs (A`->`B and B`->`A)
+curve in opposite directions and single edges remain straight.
+`curves = FALSE` plots all edges as straight lines, and
+`curves = "force"` curves every edge.
 
-- **curves = FALSE**:
+### Weight Scaling Modes
 
-  All edges are straight lines.
-
-- **curves = TRUE**:
-
-  (Default) Reciprocal edge pairs (A`->`B and B`->`A) curve in opposite
-  directions to form a visual ellipse. Single edges remain straight.
-
-- **curves = "force"**:
-
-  All edges curve inward toward the network center.
-
-### Weight Scaling Modes (edge_scale_mode)
-
-Controls how edge weights map to visual widths:
-
-- **linear**:
-
-  Width proportional to weight. Best for similar-magnitude weights.
-
-- **log**:
-
-  Logarithmic scaling. Best for weights spanning orders of magnitude.
-
-- **sqrt**:
-
-  Square root scaling. Moderate compression for skewed data.
-
-- **rank**:
-
-  Rank-based scaling. Equal visual spacing regardless of values.
+`edge_scale_mode` sets how edge weights map to widths. `"linear"` makes
+width proportional to weight, `"log"` compresses weights that span
+orders of magnitude, `"sqrt"` gives moderate compression, and `"rank"`
+spaces widths evenly by weight rank.
 
 ### Donut Visualization
 
-The donut system visualizes proportions (0-1) as filled rings around
-nodes:
-
-- **donut_fill**:
-
-  Proportion filled (0-1). Can be scalar or per-node vector.
-
-- **donut_color**:
-
-  Fill color. Single color, c(fill, bg), or per-node vector.
-
-- **donut_shape**:
-
-  Base shape: "circle", "square", "hexagon", etc.
-
-- **donut_show_value**:
-
-  Show numeric value in center.
+Donuts show proportions (0-1) as filled rings around nodes. `donut_fill`
+sets the filled proportion per node, `donut_color` sets the fill color
+(or fill and background), `donut_shape` sets the base shape and
+`donut_show_value` prints the value in the center.
 
 ## See also
 
@@ -654,19 +619,5 @@ converting external objects
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-# With cograph()
-cograph(adj) |> soplot()
-
-
-# Direct matrix input with all options
-adj |> soplot(
-  layout = "circle",
-  node_fill = "steelblue",
-  node_size = 0.08,
-  edge_width = 2
-)
-
-mat <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-sn_render(mat)
+soplot(regulation_net, layout = "circle")
 ```

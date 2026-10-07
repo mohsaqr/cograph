@@ -1,6 +1,6 @@
 # Label Propagation Community Detection
 
-Fast semi-synchronous label propagation algorithm. Each node adopts the
+Label propagation community detection. Each node repeatedly adopts the
 most frequent label among its neighbors.
 
 ## Usage
@@ -31,23 +31,26 @@ com_lp(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - mode:
 
-  For directed graphs: "out" (default), "in", or "all".
+  Direction of label propagation in directed graphs, one of `"out"`
+  (default), `"in"` or `"all"`.
 
 - initial:
 
-  Initial labels (integer vector or NULL for unique labels).
+  Initial labels, an integer vector, or `NULL` for a unique label per
+  node.
 
 - fixed:
 
-  Logical vector indicating which labels are fixed.
+  Logical vector marking the nodes whose labels are fixed.
 
 - seed:
 
@@ -62,10 +65,10 @@ com_lp(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -76,30 +79,20 @@ algorithm to detect community structures in large-scale networks.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Basic label propagation
-  comm <- community_label_propagation(g)
-
-  # With some nodes fixed to specific communities
-  initial <- rep(NA, igraph::vcount(g))
-  initial[1] <- 1  # Node 1 in community 1
-  initial[34] <- 2 # Node 34 in community 2
-  fixed <- !is.na(initial)
-  initial[is.na(initial)] <- seq_len(sum(is.na(initial)))
-  comm2 <- community_label_propagation(g, initial = initial, fixed = fixed)
-}
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_lp(net)
+community_label_propagation(regulation_net, seed = 1)
 #> Community structure (label_propagation)
-#>   Nodes: 5  | Communities: 1  | Modularity: 0 
-#>   Sizes: 5 
+#>   Nodes: 10  | Communities: 1  | Modularity: 0 
+#>   Sizes: 10 
 #> 
-#>  node community
-#>     1         1
-#>     2         1
-#>     3         1
-#>     4         1
-#>     5         1
+#>        node community
+#>     Explore         1
+#>        Plan         1
+#>     Monitor         1
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         1
+#>      Create         1
+#>       Share         1
 ```

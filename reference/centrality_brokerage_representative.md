@@ -1,8 +1,11 @@
-# Gould-Fernandez Brokerage — Representative Role
+# Representative Brokerage
 
-Representative brokerage (b_IO): count of open directed 2-paths \\A \to
-V \to B\\ where \\A\\ and \\V\\ are in the same group and \\B\\ is in a
-different group. The broker represents their group outward.
+Representative brokerage (Gould and Fernandez 1989) counts the open
+two-paths \\a \to v \to c\\ through node \\v\\ in which \\a\\ and \\v\\
+belong to the same group and \\c\\ to another group. The broker passes
+contact from its own group to the outside. A two-path is open when the
+network has no edge from \\a\\ to \\c\\. This role is \\b\_{IO}\\ in the
+notation of the source.
 
 ## Usage
 
@@ -14,44 +17,51 @@ centrality_brokerage_representative(x, membership = NULL, ...)
 
 - x:
 
-  Directed network input (matrix, igraph, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Integer or character vector of group assignments, length equal to the
-  number of nodes. Required.
+  Group labels, one per node.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named integer vector of representative role counts.
+A named integer vector with one count per node, in input node order.
+`normalized = TRUE` returns a numeric vector.
 
 ## Details
 
-Bit-exact match against `sna::brokerage$raw.nli[, "b_IO"]`.
-Directed-only.
+The measure is defined for directed networks. On an undirected network
+it raises an unclassed warning and returns `NA`, and the same happens
+when `membership` is missing. A `membership` whose length differs from
+the number of nodes raises an unclassed error. Group labels may be
+numbers or strings. Edge weights and self-loops are ignored.
 
 ## References
 
 Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
-formal approach to brokerage in transaction networks. *Sociological
-Methodology*, 19, 89-126.
+formal approach to brokerage in transaction networks. Sociological
+Methodology, 19, 89-126.
 [doi:10.2307/270949](https://doi.org/10.2307/270949) .
 
 ## See also
 
-[`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md).
+[`centrality_brokerage_gatekeeper`](https://sonsoles.me/cograph/reference/centrality_brokerage_gatekeeper.md),
+[`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_brokerage_representative(adj, membership = c(1, 1, 2, 2))
-#> A B C D 
-#> 0 1 0 1 
+centrality_brokerage_representative(regulation_net, membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>          2          0          1          2          0          0          0 
+#>   Evaluate     Create      Share 
+#>          2          1          2 
 ```

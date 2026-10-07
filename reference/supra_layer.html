@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,36 +61,46 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Supra-adjacency matrix</p></dd>
+<dd><p>Supra-adjacency matrix from <code><a href="supra_adjacency.html">supra_adjacency</a></code></p></dd>
 
 
 <dt id="arg-layer">layer<a class="anchor" aria-label="anchor" href="#arg-layer"></a></dt>
-<dd><p>Layer index to extract</p></dd>
+<dd><p>Integer index of the layer to extract</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Intra-layer adjacency matrix</p>
+    <p>The N x N intra-layer adjacency matrix, with the node names as
+dimnames. An index outside <code>1:L</code> raises an error.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">L1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.5</span>,<span class="fl">0</span>,<span class="fl">.4</span>,<span class="fl">.3</span>,<span class="fl">.4</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">L2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.2</span>,<span class="fl">.6</span>,<span class="fl">.2</span>,<span class="fl">0</span>,<span class="fl">.1</span>,<span class="fl">.6</span>,<span class="fl">.1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">L1</span>, L2 <span class="op">=</span> <span class="va">L2</span><span class="op">)</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">supra_layer</span><span class="op">(</span><span class="va">S</span>, <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1   2   3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.0 0.5 0.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.5 0.0 0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.3 0.4 0.0</span>
-<span class="r-in"><span><span class="va">L1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.5</span>,<span class="fl">0</span>,<span class="fl">.4</span>,<span class="fl">.3</span>,<span class="fl">.4</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">L2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.2</span>,<span class="fl">.6</span>,<span class="fl">.2</span>,<span class="fl">0</span>,<span class="fl">.1</span>,<span class="fl">.6</span>,<span class="fl">.1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">L1</span>, L2 <span class="op">=</span> <span class="va">L2</span><span class="op">)</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">extract_layer</span><span class="op">(</span><span class="va">S</span>, <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1   2   3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.0 0.2 0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.2 0.0 0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6 0.1 0.0</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>forward <span class="op">=</span> <span class="va">regulation_net</span>, backward <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">supra</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="va">layers</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">supra_layer</span><span class="op">(</span><span class="va">supra</span>, layer <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Explore Plan Monitor Adapt Reflect Discuss Synthesize Evaluate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore       0.00 0.00    0.00  0.28    0.05    0.30       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan          0.00 0.00    0.00  0.00    0.00    0.00       0.11     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor       0.00 0.13    0.00  0.00    0.15    0.00       0.07     0.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt         0.00 0.00    0.16  0.00    0.00    0.00       0.00     0.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect       0.35 0.00    0.00  0.00    0.00    0.35       0.42     0.07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss       0.00 0.40    0.00  0.34    0.00    0.00       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize    0.00 0.00    0.00  0.17    0.00    0.00       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate      0.00 0.49    0.00  0.00    0.00    0.00       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create        0.00 0.20    0.37  0.00    0.00    0.14       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share         0.27 0.36    0.00  0.00    0.00    0.00       0.00     0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Create Share</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Explore      0.14  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Plan         0.00  0.21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Monitor      0.17  0.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adapt        0.00  0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reflect      0.00  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Discuss      0.00  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Synthesize   0.00  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Evaluate     0.39  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Create       0.00  0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Share        0.23  0.00</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

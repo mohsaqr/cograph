@@ -1,7 +1,9 @@
 # Lin Centrality
 
-Reachable nodes squared divided by sum of distances. Well-defined for
-disconnected graphs.
+Lin centrality divides the squared number of nodes a node reaches by the
+sum of its distances to them: \$\$L(i) = \frac{r_i^2}{\sum\_{j \in R_i}
+d\_{ij}},\$\$ where \\R_i\\ is the set of \\r_i\\ nodes reachable from
+\\i\\. The score is defined on disconnected networks.
 
 ## Usage
 
@@ -13,35 +15,48 @@ centrality_lin(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (default `TRUE`), `invert_weights`
+  (default `NULL`, which inverts for tna input only), `alpha` (inversion
+  exponent, default 1) and `cutoff` (largest distance counted, default
+  -1 for no limit).
 
 ## Value
 
-Named numeric vector of Lin centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are read as distances. `weighted = FALSE` uses hop counts,
+and `invert_weights = TRUE` converts a weight \\w\\ to the distance
+\\1/w^\alpha\\. `mode = "all"` treats edges as undirected, `"out"` uses
+distances from the node and `"in"` distances to it. A node that reaches
+no other node scores 0, and a single-node network gives `NA`. On
+undirected networks the values equal
+[`centiserve::lincent()`](https://rdrr.io/pkg/centiserve/man/lincent.html).
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md)
-for a related measure.
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_lin(adj)
-#>        A        B        C 
-#> 1.333333 2.000000 1.333333 
+centrality_lin(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   41.75258   36.32287   46.28571   30.68182   42.18750   28.02768   39.13043 
+#>   Evaluate     Create      Share 
+#>   32.66129   42.63158   28.52113 
 ```

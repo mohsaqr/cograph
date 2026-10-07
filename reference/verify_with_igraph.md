@@ -1,6 +1,11 @@
 # Verify Against igraph
 
-Confirms numerical match with igraph's contract_vertices + simplify.
+Compares the macro weights of
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) with the result
+of contracting the clusters in igraph
+([`igraph::contract()`](https://r.igraph.org/reference/contract.html)
+followed by
+[`igraph::simplify()`](https://r.igraph.org/reference/simplify.html)).
 
 ## Usage
 
@@ -27,15 +32,17 @@ verify_igraph(x, clusters, method = "sum", type = "raw")
 
 - type:
 
-  Normalization type. Defaults to "raw" for igraph compatibility.
+  Normalization type passed to
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md). Default
+  "raw", the only type whose values igraph reproduces.
 
 ## Value
 
 A list with components `our_result` (cograph's macro weight matrix),
 `igraph_result` (igraph's `contract()` +
 [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md)
-matrix), `matches` (logical: do the off-diagonals agree to within
-1e-10?) and `difference` (the
+matrix, diagonal set to zero), `matches` (logical, whether the
+off-diagonal cells agree to within 1e-10) and `difference` (the
 [`all.equal()`](https://rdrr.io/r/base/all.equal.html) report when they
 do not, otherwise NULL). Returns `NULL` with a message if igraph is not
 installed.
@@ -43,24 +50,21 @@ installed.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  mat <- matrix(runif(100), 10, 10)
-  diag(mat) <- 0
-  rownames(mat) <- colnames(mat) <- LETTERS[1:10]
-  clusters <- c(1,1,1,2,2,2,3,3,3,3)
-  verify_igraph(mat, clusters)
-}
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+verify_with_igraph(regulation_net, clusters = clusters)
 #> $our_result
-#>          1        2        3
-#> 1 3.216644 4.649900 5.903074
-#> 2 4.144425 3.476482 6.006692
-#> 3 6.027886 4.447357 7.180965
+#>      C1   C2   C3
+#> C1 1.05 0.41 0.15
+#> C2 0.54 1.00 2.06
+#> C3 1.11 0.48 1.16
 #> 
 #> $igraph_result
-#>          A        D        G
-#> A 0.000000 4.649900 5.903074
-#> D 4.144425 0.000000 6.006692
-#> G 6.027886 4.447357 0.000000
+#>         Explore Plan Monitor
+#> Explore    0.00 0.41    0.15
+#> Plan       0.54 0.00    2.06
+#> Monitor    1.11 0.48    0.00
 #> 
 #> $matches
 #> [1] TRUE

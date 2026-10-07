@@ -9,7 +9,7 @@ layout coordinates, and aesthetic mappings."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,11 +72,12 @@ layout coordinates, and aesthetic mappings.</p>
 
 
 <dt><code>has_weights</code></dt>
-<dd><p>Whether edges have weights.</p></dd>
+<dd><p><code>TRUE</code> when any edge weight differs from 1.</p></dd>
 
 
 <dt><code>node_labels</code></dt>
-<dd><p>Vector of node labels (priority: labels &gt; label).</p></dd>
+<dd><p>Vector of node labels, taken from the <code>labels</code> column
+of the node table when present and from <code>label</code> otherwise.</p></dd>
 
 
 </dl><p></p></div>
@@ -124,23 +125,29 @@ layout coordinates, and aesthetic mappings.</p>
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>input</code></dt>
-<dd><p>Network input supported by <code>parse_input</code>,
-such as a matrix, edge list, igraph, statnet network, qgraph, or tna object.</p></dd>
+<dd><p>Network input, such as a matrix, edge list, igraph,
+statnet network, qgraph or tna object. <code>NULL</code> creates an empty object.</p></dd>
 
 
 <dt><code>directed</code></dt>
-<dd><p>Logical. Force directed interpretation. NULL for auto-detect.</p></dd>
+<dd><p>Logical. Forces a directed or undirected interpretation.
+<code>NULL</code> detects it from the input.</p></dd>
 
 
 <dt><code>nodes</code></dt>
-<dd><p>Node metadata. Can be NULL or a data frame with node attributes.
-If data frame has a <code>label</code> or <code>labels</code> column, those are used for display.</p></dd>
+<dd><p><code>NULL</code> or a data frame of node attributes. Its rows are
+matched to the node labels by a <code>name</code>, <code>label</code> or <code>id</code> column, tried in
+that order, and the remaining columns are added to the node table. When
+no column matches and the row count equals the number of nodes, the
+columns are added in row order. A <code>labels</code> column supplies the display
+labels returned by <code>$node_labels</code>.</p></dd>
 
 
 <dt><code>simplify</code></dt>
 <dd><p>Logical or character. If FALSE (default), every transition
 from tna sequence data is a separate edge. If TRUE or a string
-("sum", "mean", "max", "min"), duplicate edges are aggregated.</p></dd>
+("sum", "mean", "max", "min"), duplicate transitions are aggregated.
+Other inputs are not affected.</p></dd>
 
 
 </dl><p></p></div>
@@ -152,7 +159,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
 </div><p></p><hr><a id="method-CographNetwork-clone_network"></a><div class="section">
 <h3 id="method-clone-network-">Method <code>clone_network()</code><a class="anchor" aria-label="anchor" href="#method-clone-network-"></a></h3>
-<p>Clone the network with optional modifications.</p><div class="section">
+<p>Create a copy with the same nodes, edges, weights, layout,
+aesthetics, theme, layout information and plot parameters.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">clone_network</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -163,7 +171,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-set_nodes"></a><div class="section">
-<h3 id="method-set-nodes-">Method <code><a href="set_nodes.html">set_nodes()</a></code><a class="anchor" aria-label="anchor" href="#method-set-nodes-"></a></h3>
+<h3 id="method-set-nodes-">Method <code><a href="get_nodes.html">set_nodes()</a></code><a class="anchor" aria-label="anchor" href="#method-set-nodes-"></a></h3>
 <p>Set nodes data frame.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">set_nodes</span><span class="op">(</span><span class="va">nodes</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -183,7 +191,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-set_edges"></a><div class="section">
-<h3 id="method-set-edges-">Method <code><a href="set_edges.html">set_edges()</a></code><a class="anchor" aria-label="anchor" href="#method-set-edges-"></a></h3>
+<h3 id="method-set-edges-">Method <code><a href="get_nodes.html">set_edges()</a></code><a class="anchor" aria-label="anchor" href="#method-set-edges-"></a></h3>
 <p>Set edges data frame.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">set_edges</span><span class="op">(</span><span class="va">edges</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -252,7 +260,9 @@ from tna sequence data is a separate edge. If TRUE or a string
 <div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>coords</code></dt>
-<dd><p>Matrix or data frame with x, y columns, one row per node.</p></dd>
+<dd><p>Matrix or data frame with at least two columns and one row
+per node. The first two columns are renamed <code>x</code> and <code>y</code> and are also
+written to the node table. <code>NULL</code> leaves the layout unchanged.</p></dd>
 
 
 </dl><p></p></div>
@@ -264,7 +274,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
 </div><p></p><hr><a id="method-CographNetwork-set_node_aes"></a><div class="section">
 <h3 id="method-set-node-aes-">Method <code>set_node_aes()</code><a class="anchor" aria-label="anchor" href="#method-set-node-aes-"></a></h3>
-<p>Set node aesthetics.</p><div class="section">
+<p>Set node aesthetics. The list is merged into the current
+node aesthetics.</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">set_node_aes</span><span class="op">(</span><span class="va">aes</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -272,7 +283,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 <div class="section">
 <h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>aes</code></dt>
-<dd><p>List of aesthetic parameters.</p></dd>
+<dd><p>Named list of aesthetic parameters.</p></dd>
 
 
 </dl><p></p></div>
@@ -284,7 +295,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
 </div><p></p><hr><a id="method-CographNetwork-set_edge_aes"></a><div class="section">
 <h3 id="method-set-edge-aes-">Method <code>set_edge_aes()</code><a class="anchor" aria-label="anchor" href="#method-set-edge-aes-"></a></h3>
-<p>Set edge aesthetics.</p><div class="section">
+<p>Set edge aesthetics. The list is merged into the current
+edge aesthetics.</p><div class="section">
 <h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">set_edge_aes</span><span class="op">(</span><span class="va">aes</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -292,7 +304,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 <div class="section">
 <h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>aes</code></dt>
-<dd><p>List of aesthetic parameters.</p></dd>
+<dd><p>Named list of aesthetic parameters.</p></dd>
 
 
 </dl><p></p></div>
@@ -335,7 +347,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-get_edges"></a><div class="section">
-<h3 id="method-get-edges-">Method <code><a href="get_edges.html">get_edges()</a></code><a class="anchor" aria-label="anchor" href="#method-get-edges-"></a></h3>
+<h3 id="method-get-edges-">Method <code><a href="get_nodes.html">get_edges()</a></code><a class="anchor" aria-label="anchor" href="#method-get-edges-"></a></h3>
 <p>Get edges data frame.</p><div class="section">
 <h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">get_edges</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -347,7 +359,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-get_layout"></a><div class="section">
-<h3 id="method-get-layout-">Method <code><a href="get_layout.html">get_layout()</a></code><a class="anchor" aria-label="anchor" href="#method-get-layout-"></a></h3>
+<h3 id="method-get-layout-">Method <code><a href="layout_registry.html">get_layout()</a></code><a class="anchor" aria-label="anchor" href="#method-get-layout-"></a></h3>
 <p>Get layout coordinates.</p><div class="section">
 <h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">get_layout</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -355,7 +367,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
 <div class="section">
 <h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
-<p>Data frame with x, y coordinates.</p>
+<p>A data frame with <code>x</code> and <code>y</code> columns, or <code>NULL</code> when no layout
+is set.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-get_node_aes"></a><div class="section">
@@ -383,7 +396,7 @@ from tna sequence data is a separate edge. If TRUE or a string
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-get_theme"></a><div class="section">
-<h3 id="method-get-theme-">Method <code><a href="get_theme.html">get_theme()</a></code><a class="anchor" aria-label="anchor" href="#method-get-theme-"></a></h3>
+<h3 id="method-get-theme-">Method <code><a href="themes.html">get_theme()</a></code><a class="anchor" aria-label="anchor" href="#method-get-theme-"></a></h3>
 <p>Get theme.</p><div class="section">
 <h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">get_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -391,7 +404,8 @@ from tna sequence data is a separate edge. If TRUE or a string
 
 <div class="section">
 <h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
-<p>CographTheme object.</p>
+<p>The stored theme (a CographTheme object or theme name), or
+<code>NULL</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographNetwork-set_layout_info"></a><div class="section">
@@ -492,17 +506,12 @@ from tna sequence data is a separate edge. If TRUE or a string
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create network from adjacency matrix</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="va">CographNetwork</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Access properties</span></span></span>
-<span class="r-in"><span><span class="va">net</span><span class="op">$</span><span class="va">n_nodes</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-in"><span><span class="va">net</span><span class="op">$</span><span class="va">n_edges</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-in"><span><span class="va">net</span><span class="op">$</span><span class="va">is_directed</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">CographNetwork</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CographNetwork</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 30 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Directed: TRUE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Layout: none </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

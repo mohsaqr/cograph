@@ -1,8 +1,8 @@
 # Calculate Area Under Robustness Curve (AUC)
 
-Computes the area under the robustness curve using trapezoidal
-integration. Higher AUC indicates a more robust network. Maximum AUC is
-1.0.
+Computes the area under the robustness curve (`comp_pct` against
+`removed_pct`) by trapezoidal integration. A higher AUC indicates a more
+robust network. The maximum AUC is 1.
 
 ## Usage
 
@@ -15,24 +15,17 @@ robustness_auc(x)
 - x:
 
   A robustness result from
-  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md).
+  [`robustness`](https://sonsoles.me/cograph/reference/robustness.md),
+  or any data frame with columns `removed_pct` and `comp_pct`. Other
+  input raises an error.
 
 ## Value
 
-Numeric AUC value between 0 and 1.
+A single numeric AUC value between 0 and 1.
 
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(30, m = 2, directed = FALSE)
-
-  rob_btw <- robustness(g, measure = "betweenness")
-  rob_rnd <- robustness(g, measure = "random", n_iter = 20)
-
-  cat("Betweenness attack AUC:", round(robustness_auc(rob_btw), 3), "\n")
-  cat("Random failure AUC:", round(robustness_auc(rob_rnd), 3), "\n")
-}
-#> Betweenness attack AUC: 0.201 
-#> Random failure AUC: 0.419 
+robustness_auc(robustness(regulation_net, measure = "degree"))
+#> [1] 0.43
 ```

@@ -9,7 +9,7 @@ Supports both binary and weighted networks."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,50 +103,27 @@ that is internal to some cluster) and <code>n_clusters</code>.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">cluster_quality</span><span class="op">(</span><span class="va">mat</span>, <span class="va">clusters</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">q</span><span class="op">$</span><span class="va">per_cluster</span>   <span class="co"># Per-cluster metrics</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster cluster_name n_nodes internal_edges cut_edges internal_density</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1            1       3       3.312209  18.45718        0.5520348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2            2       3       3.362291  18.80158        0.5603818</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3            3       4       5.066853  23.66512        0.4222378</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   avg_internal_degree expansion cut_ratio conductance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1            2.208139  6.152393 0.8789133   0.7358853</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2            2.241527  6.267192 0.8953131   0.7365611</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            2.533427  5.916279 0.9860465   0.7001758</span>
-<span class="r-in"><span><span class="va">q</span><span class="op">$</span><span class="va">global</span>        <span class="co"># Modularity, coverage</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $modularity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.06139144</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2782094</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $n_clusters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="fu">cqual</span><span class="op">(</span><span class="va">mat</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>C1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Explore"</span>, <span class="st">"Reflect"</span>, <span class="st">"Discuss"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 C2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plan"</span>, <span class="st">"Create"</span>, <span class="st">"Share"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 C3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Monitor"</span>, <span class="st">"Adapt"</span>, <span class="st">"Synthesize"</span>, <span class="st">"Evaluate"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">cluster_quality</span><span class="op">(</span><span class="va">regulation_net</span>, clusters <span class="op">=</span> <span class="va">clusters</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Cluster Quality Metrics</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> =======================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Global metrics:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Modularity: -0.1103 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Coverage:   0.229 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Modularity: 0.081 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Coverage:   0.4033 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Clusters:   3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Per-cluster metrics:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  cluster cluster_name n_nodes internal_edges cut_edges internal_density</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        1            1       3       3.363784  24.13739        0.5606306</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        2            2       3       2.012768  24.71564        0.3354613</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3            3       4       5.943414  27.37954        0.4952845</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1           C1       3           1.05      2.21       0.17500000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2           C2       3           1.00      3.49       0.16666667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3           C3       4           1.16      3.80       0.09666667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  avg_internal_degree expansion cut_ratio conductance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2.242522  8.045796  1.149399   0.7820322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             1.341845  8.238545  1.176935   0.8599383</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2.971707  6.844886  1.140814   0.6972772</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.7000000 0.7366667 0.1052381   0.5127610</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.6666667 1.1633333 0.1661905   0.6357013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.5800000 0.9500000 0.1583333   0.6209150</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

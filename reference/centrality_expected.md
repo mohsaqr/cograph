@@ -1,6 +1,7 @@
 # Expected Centrality
 
-Sum of neighbor degrees. Simple but effective influence proxy.
+Expected centrality is the sum of the degrees of a node's neighbors:
+\$\$E(v) = \sum\_{u \in N(v)} k_u.\$\$
 
 ## Usage
 
@@ -12,33 +13,43 @@ centrality_expected(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector of expected centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. `mode` sets both the degrees and the neighbor
+set. On a directed network `mode = "all"` uses total degrees and the
+undirected neighbor set. Adding the node's own degree gives the
+`"kandhway_kuri"` form of
+[`centrality_diffusion`](https://sonsoles.me/cograph/reference/centrality_diffusion.md).
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_diffusion`](https://sonsoles.me/cograph/reference/centrality_diffusion.md),
+[`centrality_neighborhood_connectivity`](https://sonsoles.me/cograph/reference/centrality_neighborhood_connectivity.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_expected(adj)
-#> A B C 
-#> 4 4 4 
+centrality_expected(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         30         35         41         34         28         32         27 
+#>   Evaluate     Create      Share 
+#>         34         37         34 
 ```

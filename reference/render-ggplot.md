@@ -1,14 +1,15 @@
 # ggplot2 Conversion
 
-Convert Cograph network to ggplot2 object.
+[`sn_ggplot()`](https://sonsoles.me/cograph/reference/sn_ggplot.md)
+converts a network to a ggplot object.
 
 ## Value
 
-A ggplot2 object representing the network.
+[`sn_ggplot()`](https://sonsoles.me/cograph/reference/sn_ggplot.md)
+returns a ggplot object representing the network.
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-p <- sn_ggplot(adj)
+sn_ggplot(regulation_net)
 ```

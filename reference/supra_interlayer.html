@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,40 +61,73 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Supra-adjacency matrix</p></dd>
+<dd><p>Supra-adjacency matrix from <code><a href="supra_adjacency.html">supra_adjacency</a></code></p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
-<dd><p>Source layer index</p></dd>
+<dd><p>Integer index of the source layer</p></dd>
 
 
 <dt id="arg-to">to<a class="anchor" aria-label="anchor" href="#arg-to"></a></dt>
-<dd><p>Target layer index</p></dd>
+<dd><p>Integer index of the target layer</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Inter-layer adjacency matrix</p>
+    <p>The N x N inter-layer block, with the supra-matrix labels
+(<code>"&lt;layer&gt;_&lt;node&gt;"</code>) as dimnames. An index outside <code>1:L</code>
+raises an error.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">L1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.5</span>,<span class="fl">0</span>,<span class="fl">.4</span>,<span class="fl">.3</span>,<span class="fl">.4</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">L2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.2</span>,<span class="fl">.6</span>,<span class="fl">.2</span>,<span class="fl">0</span>,<span class="fl">.1</span>,<span class="fl">.6</span>,<span class="fl">.1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">L1</span>, L2 <span class="op">=</span> <span class="va">L2</span><span class="op">)</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">supra_interlayer</span><span class="op">(</span><span class="va">S</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      L2_1 L2_2 L2_3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_1  0.5  0.0  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_2  0.0  0.5  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_3  0.0  0.0  0.5</span>
-<span class="r-in"><span><span class="va">L1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.5</span>,<span class="fl">0</span>,<span class="fl">.4</span>,<span class="fl">.3</span>,<span class="fl">.4</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">L2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.2</span>,<span class="fl">.6</span>,<span class="fl">.2</span>,<span class="fl">0</span>,<span class="fl">.1</span>,<span class="fl">.6</span>,<span class="fl">.1</span>,<span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L1 <span class="op">=</span> <span class="va">L1</span>, L2 <span class="op">=</span> <span class="va">L2</span><span class="op">)</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">extract_interlayer</span><span class="op">(</span><span class="va">S</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      L2_1 L2_2 L2_3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_1  0.5  0.0  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_2  0.0  0.5  0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> L1_3  0.0  0.0  0.5</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>forward <span class="op">=</span> <span class="va">regulation_net</span>, backward <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">supra</span> <span class="op">&lt;-</span> <span class="fu"><a href="supra_adjacency.html">supra_adjacency</a></span><span class="op">(</span><span class="va">layers</span>, omega <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">supra_interlayer</span><span class="op">(</span><span class="va">supra</span>, from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    backward_Explore backward_Plan backward_Monitor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Explore                 0.5           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Plan                    0.0           0.5              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Monitor                 0.0           0.0              0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Adapt                   0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Reflect                 0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Discuss                 0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Synthesize              0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Evaluate                0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Create                  0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Share                   0.0           0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    backward_Adapt backward_Reflect backward_Discuss</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Explore               0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Plan                  0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Monitor               0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Adapt                 0.5              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Reflect               0.0              0.5              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Discuss               0.0              0.0              0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Synthesize            0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Evaluate              0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Create                0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Share                 0.0              0.0              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    backward_Synthesize backward_Evaluate backward_Create</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Explore                    0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Plan                       0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Monitor                    0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Adapt                      0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Reflect                    0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Discuss                    0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Synthesize                 0.5               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Evaluate                   0.0               0.5             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Create                     0.0               0.0             0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Share                      0.0               0.0             0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    backward_Share</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Explore               0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Plan                  0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Monitor               0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Adapt                 0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Reflect               0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Discuss               0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Synthesize            0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Evaluate              0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Create                0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> forward_Share                 0.5</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

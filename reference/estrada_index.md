@@ -1,12 +1,14 @@
 # Estrada Index
 
-A graph-level spectral invariant derived from subgraph centrality:
-\$\$EE(G) = \sum\_{i=1}^{n} e^{\lambda_i}\$\$ where \\\lambda_i\\ are
-the eigenvalues of the adjacency matrix. The Estrada index equals the
-total number of closed walks in the graph, weighted by walk length:
-\\EE(G) = \sum_k M_k / k!\\ where \\M_k\\ is the number of closed walks
-of length \\k\\. It is the sum of subgraph centralities across all
-nodes.
+Computes the Estrada index, a graph-level spectral invariant \$\$EE(G) =
+\sum\_{i=1}^{n} e^{\lambda_i}\$\$ where \\\lambda_i\\ are the
+eigenvalues of the binary adjacency matrix. Edge weights are ignored.
+For an undirected network the index equals \\\sum_k M_k / k!\\, where
+\\M_k\\ is the number of closed walks of length \\k\\, and it is the sum
+of the subgraph centralities of all nodes. For a directed network the
+function sums \\e^{Re(\lambda_i)}\\ over the real parts of the
+eigenvalues, which differs from the closed-walk sum when the adjacency
+matrix has complex eigenvalues.
 
 ## Usage
 
@@ -22,12 +24,8 @@ estrada_index(x)
 
 ## Value
 
-A single numeric value — the Estrada index of the graph.
-
-## Details
-
-Matches `networkx.estrada_index` at machine epsilon (max relative
-difference ~5e-15 across random test graphs).
+Numeric scalar: the Estrada index of the graph, or 0 for a graph with no
+nodes.
 
 ## References
 
@@ -37,14 +35,12 @@ Estrada, E. (2000). Characterization of 3D molecular structure.
 ## See also
 
 [`centrality_subgraph`](https://sonsoles.me/cograph/reference/centrality_subgraph.md)
-for the per-node equivalent (sum of `subgraph_centrality(x)` equals
-`estrada_index(x)`).
+for the per-node measure. On an undirected network its values sum to
+`estrada_index(x)`.
 
 ## Examples
 
 ``` r
-# Karate club
-g <- igraph::make_graph("Zachary")
-estrada_index(g)
-#> [1] 1041.247
+estrada_index(regulation_net)
+#> [1] 24.23546
 ```

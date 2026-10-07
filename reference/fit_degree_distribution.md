@@ -1,9 +1,8 @@
 # Fit Statistical Distributions to Degree Sequence
 
 Fits one or more statistical distributions to the degree sequence of a
-network via maximum likelihood estimation and evaluates goodness-of-fit
-using Kolmogorov-Smirnov tests. Returns a comparison table sorted by
-AIC.
+network by maximum likelihood and evaluates goodness of fit with
+Kolmogorov-Smirnov statistics. The comparison table is sorted by AIC.
 
 ## Usage
 
@@ -23,13 +22,13 @@ fit_degree_distribution(
 - x:
 
   Network input: matrix, igraph, network, cograph_network, or tna
-  object.
+  object. Without igraph installed, only a numeric matrix is accepted.
 
 - distributions:
 
   Character vector of distributions to fit. Options: `"power_law"`,
   `"exponential"`, `"poisson"`, `"geometric"`. Default `NULL` fits all
-  four.
+  four. An unknown name raises an error.
 
 - mode:
 
@@ -43,9 +42,10 @@ fit_degree_distribution(
 
 - xmin:
 
-  Minimum degree to include in fitting. For power-law, NULL triggers
-  automatic estimation (Clauset et al. 2009 via igraph). For other
-  distributions, NULL defaults to 1.
+  Minimum degree to include in fitting. For the power law, NULL triggers
+  automatic estimation (Clauset et al. 2009 via igraph). For the other
+  distributions, NULL defaults to 1. Each fit requires at least two
+  degrees at or above `xmin` and raises an error otherwise.
 
 - ...:
 
@@ -53,17 +53,19 @@ fit_degree_distribution(
 
 ## Value
 
-An object of class `"cograph_degree_fit"` containing:
+An object of class `"cograph_degree_fit"`, a list containing:
 
 - fits:
 
-  Named list, one entry per distribution, each with: `distribution`,
-  `parameters` (named list of fitted params), `loglik`, `aic`, `bic`,
-  `ks_stat`, `ks_p`.
+  Named list, one entry per distribution, each with `distribution`,
+  `parameters` (named list of fitted parameters), `loglik`, `aic`,
+  `bic`, `ks_stat` and `ks_p`. The parameters are `alpha` and `xmin` for
+  the power law, `lambda` for the exponential and Poisson fits, and `p`
+  for the geometric fit.
 
 - comparison:
 
-  Data frame sorted by AIC with columns: `distribution`, `aic`, `bic`,
+  Data frame sorted by AIC with columns `distribution`, `aic`, `bic`,
   `ks_stat`, `ks_p`.
 
 - best:
@@ -72,34 +74,50 @@ An object of class `"cograph_degree_fit"` containing:
 
 - degree:
 
-  The degree vector used for fitting.
+  The named degree vector used for fitting.
 
 ## Details
 
-**Power-law** (Pareto Type I): \\P(k) \sim k^{-\alpha}\\. When igraph is
-available, uses
-[`igraph::fit_power_law()`](https://r.igraph.org/reference/fit_power_law.html)
-implementing the Clauset et al. (2009) method. Otherwise, computes the
-simple MLE: \\\alpha = 1 + n / \sum \log(k / k\_{min})\\.
+The power-law model (Pareto type I) is \\P(k) \sim k^{-\alpha}\\. With
+igraph available and `xmin = NULL`, it is fitted with
+[`igraph::fit_power_law()`](https://r.igraph.org/reference/fit_power_law.html),
+which implements the Clauset et al. (2009) method. Otherwise the simple
+MLE \\\alpha = 1 + n / \sum \log(k / k\_{min})\\ is computed, with
+\\k\_{min}\\ equal to the supplied `xmin` or, without igraph, to the
+smallest degree (at least 1).
 
-**Exponential**: \\P(k) \sim e^{-\lambda k}\\. MLE: \\\lambda = 1 /
-\bar{k}\\.
+The exponential model is \\P(k) \sim e^{-\lambda k}\\, with MLE
+\\\lambda = 1 / \bar{k}\\.
 
-**Poisson**: \\P(k) \sim \lambda^k e^{-\lambda} / k!\\. MLE: \\\lambda =
-\bar{k}\\. Note: the KS test uses a continuous approximation for a
-discrete distribution; p-values are approximate.
+The Poisson model is \\P(k) \sim \lambda^k e^{-\lambda} / k!\\, with MLE
+\\\lambda = \bar{k}\\.
 
-**Geometric**: \\P(k) \sim (1-p)^k p\\. MLE: \\p = 1 / (1 + \bar{k})\\.
+The geometric model is \\P(k) \sim (1-p)^k p\\, with MLE \\p = 1 / (1 +
+\bar{k})\\.
 
-`ks_stat` is always reported. `ks_p` comes from
+`ks_p` comes from
 [`stats::ks.test()`](https://rdrr.io/r/stats/ks.test.html) for the
-exponential and Poisson fits and from
-[`igraph::fit_power_law()`](https://r.igraph.org/reference/fit_power_law.html)
-for the automatic power-law fit; it is `NA` for the geometric fit and
-for the manual (non-igraph or explicit `xmin`) power-law fit, whose KS
-statistics are computed directly against the theoretical CDF without a
-reference distribution. AIC and BIC count one free parameter per
-distribution, so the power-law `xmin` is not penalized.
+exponential and Poisson fits and is `NA` for the power-law and geometric
+fits. The p-values are approximate because the test assumes a continuous
+distribution. For the exponential fit
+[`stats::ks.test()`](https://rdrr.io/r/stats/ks.test.html) warns when
+degrees are tied. A power-law fit to degrees that all equal `xmin` is
+degenerate and returns `NA` for `alpha`, the likelihood and every
+statistic.
+
+Each likelihood is computed over the degrees at or above the `xmin` of
+that fit. With `xmin = NULL`, the power-law fit uses the estimated
+`xmin` and the other fits use 1, so their AIC values are computed on
+different subsets of the degrees. AIC and BIC count one free parameter
+per distribution, so the power-law `xmin` is not penalized.
+
+## Printing and plotting
+
+Printing the result shows the best-fitting distribution, the
+`comparison` table and the fitted parameters of each distribution.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on the result
+is documented in
+[`plot-results`](https://sonsoles.me/cograph/reference/plot-results.md).
 
 ## References
 
@@ -114,27 +132,19 @@ distributions in empirical data. *SIAM Review*, 51(4), 661–703.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 0, 0,
-                1, 0, 1, 1, 0,
-                1, 1, 0, 1, 1,
-                0, 1, 1, 0, 1,
-                0, 0, 1, 1, 0), 5, 5, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-fit <- cograph::fit_degree_distribution(adj,
-  distributions = c("exponential", "poisson"))
-#> Warning: ties should not be present for the one-sample Kolmogorov-Smirnov test
-print(fit)
+fit_degree_distribution(regulation_net,
+  distributions = c("poisson", "geometric"))
 #> Degree Distribution Fit
 #> =======================
-#> N degrees: 5 
+#> N degrees: 10 
 #> Best fit:  poisson 
 #> 
 #> Comparison (sorted by AIC):
 #>  distribution     aic     bic ks_stat   ks_p
-#>       poisson 17.4664 17.0758  0.4695 0.2205
-#>   exponential 22.2962 21.9056  0.5105 0.1476
+#>       poisson 40.4388 40.7414  0.3457 0.1831
+#>     geometric 59.4163 59.7189  0.5373     NA
 #> 
 #> Fitted parameters:
-#>   exponential: lambda = 0.3571
-#>   poisson: lambda = 2.8000
+#>   poisson: lambda = 6.0000
+#>   geometric: p = 0.1429
 ```

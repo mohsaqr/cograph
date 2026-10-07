@@ -1,6 +1,7 @@
 # Pairwise Layer Similarities
 
-Computes similarity matrix for all pairs of layers.
+Computes the similarity of every pair of layers with
+[`layer_similarity`](https://sonsoles.me/cograph/reference/layer_similarity.md).
 
 ## Usage
 
@@ -23,30 +24,20 @@ lsim_matrix(layers, method = c("jaccard", "overlap", "cosine", "pearson"))
 - method:
 
   Comparison method: "jaccard" (default), "overlap", "cosine" or
-  "pearson". Note that `"hamming"`, accepted by
-  [`layer_similarity`](https://sonsoles.me/cograph/reference/layer_similarity.md),
-  is *not* available here because it is a distance rather than a
-  similarity.
+  "pearson". The `"hamming"` distance is not accepted.
 
 ## Value
 
-A symmetric L x L matrix of pairwise similarities with the layer names
-as dimnames and 1 on the diagonal.
+A symmetric L x L matrix of pairwise similarities with 1 on the
+diagonal. The dimnames are the layer names, or `"Layer1"`, `"Layer2"`,
+... for an unnamed list.
 
 ## Examples
 
 ``` r
-nodes <- c("A", "B", "C")
-t1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3, dimnames = list(nodes, nodes))
-t2 <- matrix(c(0, 1, 1, 1, 0, 0, 1, 0, 0), 3, 3, dimnames = list(nodes, nodes))
-layers <- list(T1 = t1, T2 = t2)
-
-layer_similarity_matrix(layers, "cosine")
-#>     T1  T2
-#> T1 1.0 0.5
-#> T2 0.5 1.0
-layer_similarity_matrix(layers, "jaccard")
-#>           T1        T2
-#> T1 1.0000000 0.3333333
-#> T2 0.3333333 1.0000000
+layers <- list(forward = regulation_net, backward = t(regulation_net))
+layer_similarity_matrix(layers, method = "cosine")
+#>            forward  backward
+#> forward  1.0000000 0.1197053
+#> backward 0.1197053 1.0000000
 ```

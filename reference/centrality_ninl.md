@@ -1,12 +1,10 @@
-# Node and Neighbor Layer Information centrality
+# Node and Neighbor Layer Information Centrality
 
-Zhu and Wang's NINL initializes each node with the sum of original-graph
-degrees in its closed radius-r neighborhood. The paper sets r to the
-ceiling of the graph's average shortest-path length. Each iteration then
-replaces every node's score by the sum of its neighbors' previous
-scores: NINL-p = A^p NINL-0. The paper uses p = 3; zero iterations
-returns the initial degree volume. Repeated vertices and edges in these
-walks count.
+NINL (Zhu and Wang 2021) starts each node with the sum of the degrees
+\\k_j\\ in its closed neighborhood of radius \\r\\ and then, for \\p\\
+iterations, replaces every score by the sum of the previous scores of
+its neighbors: \$\$NINL^{(p)} = A^p \\ NINL^{(0)}, \qquad NINL^{(0)}\_i
+= \sum\_{j : d(i,j) \le r} k_j.\$\$
 
 ## Usage
 
@@ -23,53 +21,38 @@ centrality_ninl(x, ninl_order = 3, ninl_radius = NULL, ...)
 
 - ninl_order:
 
-  Nonnegative integer iteration count, default 3. At most `2^53 - 1`,
-  the consecutive-integer precision of doubles.
+  Number of iterations \\p\\, a nonnegative integer. Default 3, as in
+  the paper.
 
 - ninl_radius:
 
-  `NULL` for the source-defined automatic radius, or a nonnegative
-  integer hop radius, or `Inf` for all reachable nodes. Radius zero uses
-  the focal node's degree alone.
+  Radius \\r\\. `NULL` (default) uses the automatic radius of the paper,
+  a nonnegative integer fixes the hop radius, and `Inf` includes every
+  reachable node.
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides by the maximum score; all-zero scores
-  remain zero. Normalization is optional and is not part of the raw
-  definition in the original paper.
+  The measure uses `normalized` (divide by the maximum, default
+  `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses simple undirected unweighted topology: either arc creates an edge;
-loops and parallel edges are removed. Weights, mode, inversion and
-cutoff are ignored. This does not claim a directed or weighted NINL
-definition.
-
-The mean path length includes all distinct vertex pairs. For
-disconnected graphs it is infinite, so the automatic radius includes
-every reachable node in each component. This is an explicit cograph
-extension of the paper's connected example; unreachable nodes never
-enter the degree sum. Isolates score zero and empty graphs return no
-scores. A supplied radius is an explicit generalization of the paper's
-automatic-radius rule.
-
-Stepwise propagation evaluates the requested finite iteration count,
-without assuming convergence to eigenvector centrality. Exact repeated
-floating-point states of period one or two allow the remaining
-iterations to be skipped while preserving parity. No tolerance-based
-convergence cutoff is used. Normalized scores can alternate on bipartite
-graphs. Dense distance calculation and propagation take O(n cubed + p n
-squared) time and O(n squared) memory; very large orders can be slow if
-no exact repeated state occurs. Raw overflow raises an error. With
-maximum normalization, global rescaling after every step avoids
-overflow; extremely small relative scores can still underflow in double
-precision.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+The default radius is the ceiling of the average shortest-path length,
+as in the paper. On a disconnected network that average is infinite, so
+the default radius covers the whole component of each node. Isolated
+nodes score zero, and `ninl_order = 0` returns the initial degree sums.
+With `normalized = TRUE` the scores are rescaled at every iteration, and
+on a bipartite network they can alternate between iterations. An invalid
+`ninl_order` or `ninl_radius`, and raw scores that overflow, raise an
+error.
 
 ## References
 
@@ -78,17 +61,18 @@ Networks Based on Node Itself and Neighbor Layer Information. Symmetry,
 13, 1570. [doi:10.3390/sym13091570](https://doi.org/10.3390/sym13091570)
 .
 
+## See also
+
+[`centrality_semilocal`](https://sonsoles.me/cograph/reference/centrality_semilocal.md),
+[`centrality_eigenvector`](https://sonsoles.me/cograph/reference/centrality_eigenvector.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_ninl(igraph::make_graph("Zachary"))
-#>     1     2     3     4     5     6     7     8     9    10    11    12    13 
-#> 88638 61707 71947 46100 17159 18185 18185 35061 45478 19643 17159 10359 17307 
-#>    14    15    16    17    18    19    20    21    22    23    24    25    26 
-#> 44851 18973 18973  7070 18260 18973 28050 18973 18260 18973 31526 15216 15597 
-#>    27    28    29    30    31    32    33    34 
-#> 14987 27380 27503 27768 35531 38367 74226 95680 
-centrality_ninl(igraph::make_star(5, mode = "undirected"), ninl_order = 2)
-#>  1  2  3  4  5 
-#> 32 32 32 32 32 
+centrality_ninl(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>       7992       9828      11124       9504       7884       8046       6804 
+#>   Evaluate     Create      Share 
+#>       8586       9936       8640 
 ```

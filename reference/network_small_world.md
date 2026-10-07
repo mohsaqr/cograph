@@ -1,8 +1,10 @@
 # Small-World Coefficient (Sigma)
 
-Computes the small-world coefficient sigma, defined as: sigma = (C /
-C_rand) / (L / L_rand) where C is clustering coefficient, L is mean path
-length, and \_rand are values from equivalent random graphs.
+Computes the small-world coefficient \$\$\sigma = \frac{C / C\_{rand}}{L
+/ L\_{rand}}\$\$ where \\C\\ is the global clustering coefficient, \\L\\
+is the mean shortest path length, and \\C\_{rand}\\ and \\L\_{rand}\\
+are their means over Erdos-Renyi graphs with the same numbers of nodes
+and edges. A directed network is collapsed to undirected first.
 
 ## Usage
 
@@ -35,24 +37,20 @@ than 4 nodes, no edges, or an undefined/zero mean path length.
 
 ## Details
 
-Values \> 1 indicate small-world properties. Typically small-world
-networks have sigma \>\> 1.
+Values above 1 indicate small-world structure.
 
 ## Reproducibility
 
 The comparison graphs are drawn from the caller's RNG stream; this
 function takes no `seed` argument and does not save or restore
 `.Random.seed`. Call [`set.seed()`](https://rdrr.io/r/base/Random.html)
-beforehand for a reproducible result, and prefer a larger `n_random`
-than the default for anything you report.
+beforehand for a reproducible result. A larger `n_random` gives a more
+stable estimate.
 
 ## Examples
 
 ``` r
-# Watts-Strogatz small-world graph
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_smallworld(1, 20, 3, 0.1)
-  network_small_world(g)  # Should be > 1
-}
-#> [1] 1.264929
+set.seed(1)
+network_small_world(regulation_net, n_random = 5)
+#> [1] 3.339275
 ```

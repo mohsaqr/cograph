@@ -1,12 +1,13 @@
-# Improved global structure model centrality
+# Improved Global Structure Model Centrality
 
-The IGSM definition reproduced in Mukhtar et al. (2023), equation 5, is
-\\IGSM(i)=\exp(k_i/N)\sum\_{j\ne i}k_j/d\_{ij}^{a}\\, with
-\\a=\lceil\log_2(\overline{k})\rceil\\. The original method is
-attributed to Zhu and Wang (2022); the exact equation used here was
-checked in the later primary experimental paper, not its original full
-text. IGSM uses simple degrees rather than GSM's core numbers, and its
-distance exponent depends on global mean degree, including isolates.
+The improved global structure model (IGSM; Zhu and Wang 2022) replaces
+the core numbers of
+[`centrality_global_structure`](https://sonsoles.me/cograph/reference/centrality_global_structure.md)
+with degrees and raises each distance to an exponent set by the mean
+degree \\\bar{k}\\: \$\$IGSM(i) = \exp\left(\frac{k_i}{N}\right)
+\sum\_{j \ne i} \frac{k_j}{d\_{ij}^{a}}, \qquad a = \lceil \log_2
+\bar{k} \rceil.\$\$ The formula follows equation 5 of Mukhtar et al.
+(2023).
 
 ## Usage
 
@@ -23,26 +24,23 @@ centrality_improved_global_structure(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Topology, normalization and disconnected-graph conventions follow
-[`centrality_global_structure`](https://sonsoles.me/cograph/reference/centrality_global_structure.md).
-For a positive mean degree below one, the exponent may be zero or
-negative; it is not clamped. With a negative exponent, more distant
-reachable partners contribute more, an explicit consequence of extending
-the equation to sparse disconnected inputs. Unreachable partners still
-contribute zero. Edgeless graphs score zero by an explicit extension
-because the logarithm of zero in the exponent is otherwise undefined.
-
-This implements IGSM itself, without an additional nearest-neighbor
-aggregation for the extended IGSM variant.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and `mode` has no effect. Only
+reachable nodes contribute to the sum, and \\N\\ and the mean degree
+include every node of the network. When the mean degree is at most 1 the
+exponent is zero or negative, and with a negative exponent distant nodes
+contribute more than near ones. An isolated node scores 0, and so does
+every node of a network without edges.
 
 ## References
 
@@ -52,10 +50,24 @@ Physics B, 31, 068904.
 [doi:10.1088/1674-1056/ac380d](https://doi.org/10.1088/1674-1056/ac380d)
 .
 
+Mukhtar, M. F., et al. (2023). Integrating local and global information
+to identify influential nodes in complex networks. Scientific Reports,
+13, 11411.
+[doi:10.1038/s41598-023-37570-7](https://doi.org/10.1038/s41598-023-37570-7)
+.
+
+## See also
+
+[`centrality_global_structure`](https://sonsoles.me/cograph/reference/centrality_global_structure.md),
+[`centrality_hybrid_global_structure`](https://sonsoles.me/cograph/reference/centrality_hybrid_global_structure.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_improved_global_structure(igraph::make_ring(4))
-#>        1        2        3        4 
-#> 8.243606 8.243606 8.243606 8.243606 
+centrality_improved_global_structure(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   49.04946   61.95204   77.02604   60.35769   47.60683   50.49209   40.65222 
+#>   Evaluate     Create      Share 
+#>   53.37735   63.54639   53.37735 
 ```

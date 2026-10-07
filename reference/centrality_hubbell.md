@@ -1,9 +1,9 @@
 # Hubbell Centrality
 
-Hubbell (1965) input-output centrality: \\C = (I - w W)^{-1}
-\mathbf{1}\\, where \\W\\ is the (weighted) adjacency matrix and \\w\\
-is a weight factor that must satisfy \\w \cdot \rho(W) \< 1\\ for the
-system to be solvable.
+Hubbell (1965) centrality solves an input-output system in which the
+score of a node is one plus the attenuated scores of the nodes it sends
+ties to: \$\$c = (I - wW)^{-1}\mathbf{1},\$\$ where \\W\\ is the
+weighted adjacency matrix and \\w\\ is `hubbell_weight`.
 
 ## Usage
 
@@ -15,36 +15,33 @@ centrality_hubbell(x, hubbell_weight = 0.5, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - hubbell_weight:
 
-  Attenuation factor \\w\\. Default 0.5. If \\w \cdot \rho(W) \ge 1\\,
-  the function returns `NA` with a warning.
+  Attenuation factor \\w\\, a positive number (default 0.5).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of Hubbell centrality values (or `NA` if the system
-is not solvable).
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Bit-exact match against
-[`centiserve::hubbell`](https://rdrr.io/pkg/centiserve/man/hubbell.html)
-when edge weights are passed explicitly (cograph mirrors centiserve's
-full-inverse LAPACK call path).
-
-## Note on centiserve equivalence
-
-`centiserve::hubbell(g, weights = NULL)` silently resets all edge
-weights to 1, ignoring the graph's weight attribute. To reproduce
-cograph's values with centiserve on a weighted graph, pass
-`weights = igraph::E(g)$weight` explicitly.
+The system is solvable when the spectral radius of \\wW\\ is below one.
+Otherwise every score is `NA` with a warning that carries no condition
+class. A `hubbell_weight` of zero or below raises an error. Edge weights
+are always used, and `weighted = FALSE` has no effect. The rows of \\W\\
+are outgoing ties, so on a directed network the score sums attenuated
+walks that leave the node.
+[`centiserve::hubbell()`](https://rdrr.io/pkg/centiserve/man/hubbell.html)
+with `weights = NULL` sets every weight to 1, so it reproduces these
+values only when the weights are passed explicitly.
 
 ## References
 
@@ -53,17 +50,16 @@ identification. *Sociometry*, 28(4), 377-399.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
-[`centrality_katz`](https://sonsoles.me/cograph/reference/centrality_katz.md).
+[`centrality_katz`](https://sonsoles.me/cograph/reference/centrality_katz.md),
+[`centrality_power`](https://sonsoles.me/cograph/reference/centrality_power.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Small weighted path graph; spectral radius permits weightfactor = 0.5
-adj <- matrix(0, 4, 4)
-adj[1,2] <- adj[2,1] <- adj[2,3] <- adj[3,2] <- adj[3,4] <- adj[4,3] <- 0.3
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-centrality_hubbell(adj, hubbell_weight = 0.5)
-#>        A        B        C        D 
-#> 1.208459 1.389728 1.389728 1.208459 
+centrality_hubbell(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   1.458158   2.319798   1.452777   1.586972   1.145412   1.542454   1.418973 
+#>   Evaluate     Create      Share 
+#>   1.620997   1.761183   1.908969 
 ```

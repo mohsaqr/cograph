@@ -1,8 +1,7 @@
 # Compare Network Robustness (ggplot2)
 
-Creates a ggplot2 faceted visualization comparing robustness across
-multiple networks. Produces publication-quality figures similar to those
-in Nature Scientific Reports.
+Plots robustness curves for one or more networks with ggplot2, with one
+facet per network and one line per attack strategy.
 
 ## Usage
 
@@ -26,11 +25,12 @@ ggplot_robustness(
 
 - ...:
 
-  Named arguments: network names as names, network objects as values.
+  Networks, with network names as argument names. Unnamed networks are
+  labelled "Network 1", "Network 2", and so on.
 
 - networks:
 
-  Named list of networks (alternative to ...).
+  Named list of networks, used when `...` is empty.
 
 - measures:
 
@@ -44,11 +44,13 @@ ggplot_robustness(
 
 - colors:
 
-  Named vector of colors for measures.
+  Vector of colors named "Betweenness", "Degree" and "Random". Default
+  NULL uses red, green and blue.
 
 - title:
 
-  Overall title. Default NULL.
+  Overall title. Default NULL. With a single network the title is
+  replaced by ": sequential removal of nodes".
 
 - n_iter:
 
@@ -72,21 +74,10 @@ ggplot_robustness(
 
 ## Value
 
-A ggplot2 object.
+A ggplot object.
 
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE) &&
-    requireNamespace("ggplot2", quietly = TRUE)) {
-
-  g1 <- igraph::sample_pa(40, m = 2, directed = FALSE)
-  g2 <- igraph::sample_gnp(40, 0.15)
-
-  ggplot_robustness(
-    "Teaching network" = g1,
-    "Collaborative network" = g2,
-    n_iter = 20
-  )
-}
+ggplot_robustness(regulation = regulation_net, n_iter = 20, seed = 1)
 ```

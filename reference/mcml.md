@@ -1,9 +1,9 @@
-# mcml - Deprecated alias for csum
+# Deprecated Alias for csum
 
-**\[Deprecated\]**
-
-Use [`csum`](https://sonsoles.me/cograph/reference/csum.md) instead.
-This function is provided for backward compatibility only.
+`mcml()` is deprecated and kept for backward compatibility. It calls
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) with
+`type = "tna"`, and new code uses
+[`csum()`](https://sonsoles.me/cograph/reference/csum.md) directly.
 
 ## Usage
 
@@ -22,40 +22,39 @@ mcml(
 
 - x:
 
-  Weight matrix, tna object, cograph_network, or cluster_summary object
+  Weight matrix, tna object, cograph_network, or cluster_summary object.
 
 - cluster_list:
 
-  Named list of node vectors per cluster
+  Named list of node vectors per cluster.
 
 - aggregation:
 
-  How to aggregate edge weights: "sum", "mean", "max"
+  How edge weights are aggregated, one of `"sum"`, `"mean"`, `"max"`.
 
 - as_tna:
 
-  Logical. If TRUE, return a tna-compatible object
+  Logical. If `TRUE`, a tna-compatible object is returned.
 
 - nodes:
 
-  Node metadata
+  Node metadata data frame, stored with the result for display labels.
 
 - within:
 
-  Logical. Compute within-cluster matrices
+  Logical. Whether within-cluster matrices are computed.
 
 ## Value
 
-A cluster_summary object (or tna if as_tna = TRUE)
+A `cluster_summary` object, or a tna object if `as_tna = TRUE`.
 
 ## Examples
 
 ``` r
-set.seed(1)
-mat <- matrix(runif(100, 0, 0.3), 10, 10); diag(mat) <- 0
-colnames(mat) <- rownames(mat) <- paste0("N", 1:10)
-clusters <- list(C1 = paste0("N", 1:5), C2 = paste0("N", 6:10))
-mcml(mat, clusters)
+mcml(regulation_net, cluster_list = list(
+  Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+  Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share")
+))
 #> Cluster Summary
 #> ---------------
 #> Type: tna 
@@ -65,12 +64,12 @@ mcml(mat, clusters)
 #> Cluster sizes: 5, 5 
 #> 
 #> Macro (cluster-level) weights (2x2):
-#>   Inits: 0.515, 0.485 
-#>       C1    C2
-#> C1 0.469 0.531
-#> C2 0.559 0.441
+#>   Inits: 0.578, 0.422 
+#>       Plan   Act
+#> Plan 0.301 0.699
+#> Act  0.821 0.179
 #> 
 #> Per-cluster weights:
-#>   C1 (5 nodes)
-#>   C2 (5 nodes)
+#>   Plan (5 nodes)
+#>   Act (5 nodes)
 ```

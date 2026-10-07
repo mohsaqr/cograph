@@ -1,8 +1,8 @@
-# Maximal clique centrality
+# Maximal Clique Centrality
 
-For every maximal clique C containing a vertex, add \\(\|C\|-1)!\\. Only
-maximal cliques count: a clique contained in a larger clique is
-excluded. This is Chin et al.'s MCC, not a count of all cliques.
+Maximal clique centrality (MCC; Chin et al. 2014) sums \\(\|C\|-1)!\\
+over the maximal cliques \\C\\ that contain the node. A clique contained
+in a larger clique does not count.
 
 ## Usage
 
@@ -19,30 +19,22 @@ centrality_mcc(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive scores are divided by their
-  maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the simple undirected, unweighted skeleton: either direction
-creates an edge, parallel edges count once, and self-loops are removed.
-Singleton cliques are excluded, so isolates score zero. This is an
-explicit cograph convention consistent with the paper's degree reduction
-when neighbors have no edges between them. Reading the printed sum
-literally with singleton cliques would instead assign isolates \\0! =
-1\\.
-
-Maximal clique enumeration has exponential worst-case cost. MCC is held
-back from `centrality(type = "all")`; select it explicitly or use
-`include = "mcc"`. Scores use double precision; overflow raises an
-error, including any clique with more than 171 vertices. Normalization
-happens after raw calculation and does not bypass this limit.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Single-node cliques are excluded,
+so an isolated node scores 0. A node whose neighbors share no edge
+scores its degree. Maximal clique enumeration has exponential worst-case
+cost. A score beyond double precision, which includes any clique with
+more than 171 nodes, raises an error.
 
 ## References
 
@@ -55,12 +47,15 @@ S11.
 ## See also
 
 [`centrality_cross_clique`](https://sonsoles.me/cograph/reference/centrality_cross_clique.md),
-[`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md).
+[`centrality_epc`](https://sonsoles.me/cograph/reference/centrality_local_efficiency.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-centrality_mcc(igraph::make_full_graph(5))
-#>  1  2  3  4  5 
-#> 24 24 24 24 24 
+centrality_mcc(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         10         16         24         10          6          8          6 
+#>   Evaluate     Create      Share 
+#>         10         18         12 
 ```

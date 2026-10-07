@@ -53,38 +53,18 @@ A cograph_network with edges involving the specified nodes.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Edges involving A
-select_edges_involving(adj, nodes = "A")
-#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
-#> Cograph network: 4 nodes, 2 edges ( undirected )
+select_edges_involving(regulation_net, nodes = "Plan", keep_isolates = FALSE)
+#> Cograph network: 7 nodes, 7 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.650
+#>   Nodes (7): Plan, Monitor, Discuss, Synthesize, Evaluate, Create, Share
+#>   Edges: 7 / 42 (density: 16.7%)
+#>   Weights: [0.110, 0.490]  |  mean: 0.271
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Edges involving A or B
-select_edges_involving(adj, nodes = c("A", "B"))
-#> Cograph network: 4 nodes, 4 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 4 / 6 (density: 66.7%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.550
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#>     B -- C  0.300
+#>     Plan -> Evaluate  0.490
+#>     Plan -> Discuss  0.400
+#>     Plan -> Share  0.360
+#>     Share -> Plan  0.210
+#>     Plan -> Create  0.200
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

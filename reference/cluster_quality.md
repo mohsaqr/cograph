@@ -53,48 +53,25 @@ See `cluster_quality`.
 ## Examples
 
 ``` r
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-clusters <- c(1,1,1,2,2,2,3,3,3,3)
-
-q <- cluster_quality(mat, clusters)
-q$per_cluster   # Per-cluster metrics
-#>   cluster cluster_name n_nodes internal_edges cut_edges internal_density
-#> 1       1            1       3       3.312209  18.45718        0.5520348
-#> 2       2            2       3       3.362291  18.80158        0.5603818
-#> 3       3            3       4       5.066853  23.66512        0.4222378
-#>   avg_internal_degree expansion cut_ratio conductance
-#> 1            2.208139  6.152393 0.8789133   0.7358853
-#> 2            2.241527  6.267192 0.8953131   0.7365611
-#> 3            2.533427  5.916279 0.9860465   0.7001758
-q$global        # Modularity, coverage
-#> $modularity
-#> [1] -0.06139144
-#> 
-#> $coverage
-#> [1] 0.2782094
-#> 
-#> $n_clusters
-#> [1] 3
-#> 
-mat <- matrix(runif(100), 10, 10)
-diag(mat) <- 0
-cqual(mat, c(1,1,1,2,2,2,3,3,3,3))
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+cluster_quality(regulation_net, clusters = clusters)
 #> Cluster Quality Metrics
 #> =======================
 #> 
 #> Global metrics:
-#>   Modularity: -0.1103 
-#>   Coverage:   0.229 
+#>   Modularity: 0.081 
+#>   Coverage:   0.4033 
 #>   Clusters:   3 
 #> 
 #> Per-cluster metrics:
 #>  cluster cluster_name n_nodes internal_edges cut_edges internal_density
-#>        1            1       3       3.363784  24.13739        0.5606306
-#>        2            2       3       2.012768  24.71564        0.3354613
-#>        3            3       4       5.943414  27.37954        0.4952845
+#>        1           C1       3           1.05      2.21       0.17500000
+#>        2           C2       3           1.00      3.49       0.16666667
+#>        3           C3       4           1.16      3.80       0.09666667
 #>  avg_internal_degree expansion cut_ratio conductance
-#>             2.242522  8.045796  1.149399   0.7820322
-#>             1.341845  8.238545  1.176935   0.8599383
-#>             2.971707  6.844886  1.140814   0.6972772
+#>            0.7000000 0.7366667 0.1052381   0.5127610
+#>            0.6666667 1.1633333 0.1661905   0.6357013
+#>            0.5800000 0.9500000 0.1583333   0.6209150
 ```

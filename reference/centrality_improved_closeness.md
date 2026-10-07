@@ -1,12 +1,11 @@
-# Improved closeness centrality
+# Improved Closeness Centrality
 
-Luan et al.'s improved closeness is \\ICC(i)=(n-1)/\sum\_{j\ne
-i}d\_{ij}/\sigma\_{ij}^{\alpha}\\, where d is the hop distance and sigma
-counts shortest paths. Multiple shortest paths reduce the effective
-distance to a partner. At alpha zero this is ordinary normalized
-closeness on a connected graph; on a tree it is independent of alpha
-because each pair has one shortest path. Scores need not be bounded by
-one.
+Improved closeness (Luan et al. 2021) divides each hop distance by a
+power of the number of shortest paths, so that a partner reached along
+many shortest paths counts as closer: \$\$ICC(i) = \frac{n-1}{\sum\_{j
+\ne i} d\_{ij} / \sigma\_{ij}^{\alpha}}.\$\$ Here \\d\_{ij}\\ is the hop
+distance and \\\sigma\_{ij}\\ the number of shortest paths between \\i\\
+and \\j\\.
 
 ## Usage
 
@@ -23,40 +22,28 @@ centrality_improved_closeness(x, icc_alpha = 0.2, ...)
 
 - icc_alpha:
 
-  Multiplicity exponent between zero and one, default 0.2.
+  Exponent \\\alpha\\ of the number of shortest paths, between 0 and 1.
+  Default 0.2, one of the values studied by Luan et al. (2021).
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive final scores are divided by their
-  maximum. The published n-1 factor is present in raw scores already.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the simple undirected unweighted skeleton: either direction creates
-an edge, parallel edges count once and self-loops are removed. Weights,
-`mode` and path-weight inversion do not affect the result. These are
-explicit cograph projections to the published domain.
-
-In a disconnected graph, every node has an unreachable partner and
-therefore scores zero under the global infinite-distance convention.
-Singletons score zero by an explicit cograph convention for the
-otherwise undefined zero-over-zero expression. For within-component
-scores, supply each component separately. Empty input returns an empty
-vector.
-
-Breadth-first traversal counts shortest paths in logarithmic form,
-avoiding overflow when the number of paths exceeds double precision.
-Extremely small effective-distance terms can underflow to zero, but
-direct-neighbor terms remain one and keep the denominator positive.
-Computation costs O(n times (n+m)) with an additional dense adjacency
-representation. Default alpha 0.2 is a setting studied in the source,
-not an estimate or a guarantee of optimal spreading predictions.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and `mode` has no effect. With
+\\\alpha = 0\\ the score on a connected network is the normalized
+closeness, and on a tree it does not depend on \\\alpha\\. Scores can
+exceed 1. On a disconnected network every node scores 0, because each
+node has an unreachable partner at infinite distance. An isolated node
+also scores 0. A value of `icc_alpha` outside 0 to 1 raises an error.
 
 ## References
 
@@ -66,10 +53,18 @@ Paths. Journal of Systems Science and Complexity, 34, 2168-2181.
 [doi:10.1007/s11424-021-0111-7](https://doi.org/10.1007/s11424-021-0111-7)
 .
 
+## See also
+
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_improved_closeness(igraph::make_ring(4), icc_alpha = 0.2)
-#>         1         2         3         4 
-#> 0.8019029 0.8019029 0.8019029 0.8019029 
+centrality_improved_closeness(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.7848073  0.8514053  0.8971799  0.8696763  0.8019894  0.8069843  0.7371681 
+#>   Evaluate     Create      Share 
+#>  0.8069843  0.8406205  0.7909990 
 ```

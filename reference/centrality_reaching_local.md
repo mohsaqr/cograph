@@ -1,7 +1,10 @@
-# Local Reaching Centrality (Mones, Vicsek & Vicsek 2012)
+# Local Reaching Centrality
 
-Local reaching centrality measures how much of the network is reachable
-from a node.
+Local reaching centrality (Mones et al. 2012) measures how much of the
+network a node reaches. On an unweighted directed network it is the
+share of the other nodes reachable from the node. On an unweighted
+undirected network it is the mean inverse distance to the other nodes,
+harmonic centrality divided by \\n - 1\\.
 
 ## Usage
 
@@ -13,41 +16,34 @@ centrality_reaching_local(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of local reaching centrality values.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-- Directed unweighted: \\LRC(v) = \|\\u : u \ne v, v \to u\\\| / (N -
-  1)\\.
-
-- Undirected unweighted: average of \\1/d(v, u)\\ over all \\u \ne v\\,
-  divided by \\N - 1\\. Numerically equal to
-  `igraph::harmonic_centrality(normalized = TRUE)`.
-
-- Weighted: NetworkX convention, where edge weights are interpreted as
-  strengths and path length is \\\sum_e (\mathrm{total\\weight} /
-  w_e)\\. Per-path score is the mean of original edge weights along the
-  shortest path.
-
-Bit-exact match against `networkx.local_reaching_centrality` across all
-three branches. Bit-exact match against
-`igraph::harmonic_centrality(normalized = TRUE)` for the undirected
-unweighted branch. See
+A network counts as weighted unless every weight is 1, and
+`weighted = FALSE` has no effect. In the weighted form a shortest path
+uses the edge lengths \\W/w_e\\, with \\W\\ the total edge weight, and
+each reached node contributes the mean edge weight along its path; the
+sum is divided by \\n - 1\\. With `mode = "out"` the weighted values
+equal `networkx.local_reaching_centrality()` with `normalized = False`.
+`mode = "all"` treats edges as undirected, and `"in"` counts the nodes
+that reach the node. A negative weight raises an error.
 [`reaching_global`](https://sonsoles.me/cograph/reference/reaching_global.md)
-for the graph-level hierarchy measure derived from per-node LRC.
+is the network-level hierarchy measure built from these scores.
 
 ## References
 
@@ -56,17 +52,16 @@ complex networks. *PLoS ONE*, 7(3), e33799.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+[`reaching_global`](https://sonsoles.me/cograph/reference/reaching_global.md),
 [`centrality_harmonic`](https://sonsoles.me/cograph/reference/centrality_harmonic.md),
-[`reaching_global`](https://sonsoles.me/cograph/reference/reaching_global.md).
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Directed path A -> B -> C
-adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_reaching_local(adj, mode = "out")
-#>   A   B   C 
-#> 1.0 0.5 0.0 
+centrality_reaching_local(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.13055556 0.37277778 0.09703704 0.15333333 0.08703704 0.18851852 0.14333333 
+#>   Evaluate     Create      Share 
+#> 0.22722222 0.24592593 0.24444444 
 ```

@@ -33,47 +33,46 @@ sn_layout(network, layout, seed = 42, ...)
 
 ## Value
 
-Modified cograph_network object.
+The `cograph_network` with node coordinates in the `x` and `y` columns
+of its node table.
 
 ## Details
 
 ### Built-in Layouts
 
-- **spring**:
+- `"spring"`:
 
-  Force-directed layout (Fruchterman-Reingold style). Good
-  general-purpose layout. Default.
+  Force-directed layout (Fruchterman-Reingold).
 
-- **oval**/**ellipse**:
+- `"oval"`/`"ellipse"`:
 
   Nodes arranged around an ellipse.
 
-- **circle**:
+- `"circle"`:
 
-  Nodes arranged in a circle. Good for small networks or when structure
-  is less important.
+  Nodes arranged in a circle.
 
-- **groups**:
+- `"groups"`:
 
   Circular layout with grouped nodes clustered together.
 
-- **grid**:
+- `"grid"`:
 
   Nodes in a regular grid.
 
-- **random**:
+- `"random"`:
 
-  Random positions. Useful as starting point.
+  Random positions.
 
-- **star**:
+- `"star"`:
 
   Central node with others arranged around it.
 
-- **bipartite**:
+- `"bipartite"`:
 
   Two-column layout for bipartite networks.
 
-- **gephi**/**gephi_fr**:
+- `"gephi"`/`"gephi_fr"`:
 
   Gephi-style force-directed layout.
 
@@ -83,8 +82,8 @@ Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr"
 (Fruchterman-Reingold), "drl", "mds", "ni" (nicely), "tr" (tree), "ci"
 (circle), etc.
 
-You can also pass igraph layout functions directly or use full names
-like "layout_with_kk".
+igraph layout functions and full igraph layout names such as
+`"layout_with_kk"` are also accepted.
 
 ## See also
 
@@ -102,11 +101,5 @@ plotting
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> sn_layout("circle") |> splot()
-
-
-# Custom coordinates
-coords <- matrix(c(0, 0, 1, 0, 0.5, 1), ncol = 2, byrow = TRUE)
-cograph(adj) |> sn_layout(coords) |> splot()
+cograph(regulation_net) |> sn_layout("circle") |> splot()
 ```

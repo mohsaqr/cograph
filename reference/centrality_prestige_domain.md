@@ -1,8 +1,8 @@
 # Domain Prestige
 
-Directed-graph prestige measure: for each node \\v\\, the number of
-other nodes that can reach \\v\\ via a directed path.
-\$\$\mathrm{domain}(v) = \|\\u \ne v : u \to^\* v\\\|\$\$
+Domain prestige (Wasserman and Faust 1994) counts the other nodes that
+reach a node through a directed path: \$\$D(v) = \|\\u \ne v : u
+\to^{\*} v\\\|.\$\$
 
 ## Usage
 
@@ -14,22 +14,24 @@ centrality_prestige_domain(x, ...)
 
 - x:
 
-  Directed network input (matrix, igraph, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of domain prestige values in \\\\0, 1, \ldots, N -
-1\\\\.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Bit-exact match against `sna::prestige(cmode = "domain")`.
-Directed-only; returns `NA` with a warning on undirected input.
+The measure needs a directed network. On undirected input every score is
+`NA` with a warning that carries no condition class. Edge weights are
+ignored. The score is a whole number between 0 and \\n - 1\\. The values
+equal `sna::prestige(cmode = "domain")`.
 
 ## References
 
@@ -38,19 +40,16 @@ Applications*. Cambridge University Press.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
-[`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md)
-for the dual "out-reachability" measure,
-[`centrality_pairwisedis`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md)
-for a related reachability-based directed measure.
+[`centrality_prestige_domain_proximity`](https://sonsoles.me/cograph/reference/centrality_prestige_domain_proximity.md),
+[`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Directed 3-cycle: every node reaches every other node
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_prestige_domain(adj)
-#> A B C 
-#> 2 2 2 
+centrality_prestige_domain(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>          9          9          9          9          9          9          9 
+#>   Evaluate     Create      Share 
+#>          9          9          9 
 ```

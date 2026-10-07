@@ -1,8 +1,9 @@
 # Binarize Edge Weights
 
-Replaces every surviving weight with 1, dropping edges at or below the
-threshold. The network equivalent of
-[`sna::event2dichot()`](https://rdrr.io/pkg/sna/man/event2dichot.html).
+Replaces every surviving weight with 1 and drops edges whose weight is
+at or below the threshold. The operation corresponds to
+[`sna::event2dichot()`](https://rdrr.io/pkg/sna/man/event2dichot.html)
+with an absolute threshold.
 
 ## Usage
 
@@ -36,8 +37,8 @@ binarize(
 
 - signed:
 
-  Logical. If TRUE, negative edges become `-1` rather than `1`,
-  preserving the sign of the association. Default FALSE.
+  Logical. If TRUE, negative edges become `-1`, which preserves the sign
+  of the association. Default FALSE.
 
 - keep_isolates:
 
@@ -72,22 +73,18 @@ Statistical Software*, 24(6), 1–51.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-binarize(adj, threshold = 0.45)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
+binarize(regulation_net, threshold = 0.1)
+#> Cograph network: 10 nodes, 27 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 27 / 90 (density: 30.0%)
 #>   Weights: [1.000, 1.000]  |  mean: 1.000
 #>   Strongest edges:
-#>     A -- B  1.000
-#>     A -- C  1.000
-#>     B -- D  1.000
+#>     Adapt -> Explore  1.000
+#>     Discuss -> Explore  1.000
+#>     Create -> Explore  1.000
+#>     Synthesize -> Plan  1.000
+#>     Share -> Plan  1.000
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

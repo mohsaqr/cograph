@@ -1,8 +1,8 @@
 # Plot Network as Heatmap
 
-Visualizes a network adjacency/weight matrix as a heatmap. Supports
-single networks, multi-cluster networks (block diagonal), and
-multi-layer networks (group_tna).
+Visualizes a network weight matrix as a heatmap. Single networks,
+clustered networks (blocks along the diagonal), and multi-group networks
+(`group_tna`, as a supra-adjacency matrix) are supported.
 
 ## Usage
 
@@ -55,8 +55,10 @@ plot_heatmap(
 
 - cluster_list:
 
-  Optional list of character vectors defining node clusters. Creates a
-  block-structured heatmap with clusters along diagonal.
+  Optional list of character vectors of node names defining node
+  clusters. The matrix is reordered so that clusters form blocks along
+  the diagonal. Nodes not listed are dropped, and a listed name that is
+  not in the matrix is an error.
 
 - cluster_spacing:
 
@@ -76,9 +78,11 @@ plot_heatmap(
 
 - colors:
 
-  Color palette: vector of colors for gradient, or a palette name
-  ("viridis", "heat", "blues", "reds", "greens", "diverging"). Default
-  "viridis".
+  Color palette: a vector of colors for the gradient, a palette name
+  ("viridis", "heat", "blues", "reds", "greens", "diverging"), or a
+  single color name, which gives a gradient from white to that color.
+  With a diverging scale the first three colors are used as low, mid and
+  high. Default "viridis".
 
 - limits:
 
@@ -86,8 +90,9 @@ plot_heatmap(
 
 - midpoint:
 
-  Midpoint for diverging scales. NULL for auto (0 if data spans
-  neg/pos).
+  Midpoint of a diverging scale. Supplying it makes the scale diverging.
+  With the default NULL, the scale is diverging around 0 when the values
+  span negative and positive numbers.
 
 - na_color:
 
@@ -129,16 +134,18 @@ plot_heatmap(
 
 - diagonal_color:
 
-  Accepted for API compatibility; diagonal cells currently use the
-  active fill scale unless hidden with `show_diagonal = FALSE`.
+  Currently unused. Diagonal cells use the fill scale unless they are
+  hidden with `show_diagonal = FALSE`.
 
 - cluster_labels:
 
-  Logical: show cluster/layer labels? Default TRUE.
+  Logical: show cluster or group labels? With a `cluster_list`, labels
+  are shown only when the list is named. For `group_tna` input the group
+  names are shown. Default TRUE.
 
 - cluster_borders:
 
-  Logical: draw borders around clusters? Default TRUE.
+  Logical: plot borders around clusters? Default TRUE.
 
 - border_color:
 
@@ -150,15 +157,18 @@ plot_heatmap(
 
 - row_labels:
 
-  Row labels. NULL for auto (rownames or indices).
+  Row labels for a single-network heatmap. NULL uses the row names or
+  indices.
 
 - col_labels:
 
-  Column labels. NULL for auto (colnames or indices).
+  Column labels for a single-network heatmap. NULL uses the column names
+  or indices.
 
 - show_axis_labels:
 
-  Logical: show axis tick labels? Default TRUE.
+  Logical: show axis tick labels? Default TRUE. A clustered heatmap
+  never shows axis tick labels.
 
 - axis_text_size:
 
@@ -170,7 +180,8 @@ plot_heatmap(
 
 - title:
 
-  Plot title. Default NULL.
+  Plot title. Default NULL, which gives no title, or "Supra-Adjacency
+  Heatmap" for `group_tna` input.
 
 - subtitle:
 
@@ -187,7 +198,8 @@ plot_heatmap(
 - threshold:
 
   Minimum absolute value to display. Values with
-  `abs(value) < threshold` are set to zero. Default 0.
+  `abs(value) < threshold` are set to zero. It is not applied to
+  `group_tna` input. Default 0.
 
 - aspect_ratio:
 
@@ -199,28 +211,18 @@ plot_heatmap(
 
 ## Value
 
-A ggplot2 object.
+A `ggplot` object.
 
 ## Details
 
-For multi-cluster networks, provide `cluster_list` as a named list where
-each element is a vector of node names belonging to that cluster. The
-heatmap will be reordered to show clusters as blocks along the diagonal.
-
-For group_tna objects (multiple separate networks), each network becomes
-a diagonal block. Off-diagonal blocks are empty (no inter-layer edges).
+For `group_tna` objects, each group network becomes a diagonal block of
+a supra-adjacency matrix, with cells labelled `group:node`. The
+off-diagonal blocks are `NA` and take `na_color`. The node labels are
+taken from the first group.
 
 ## Examples
 
 ``` r
-set.seed(1)
-m <- matrix(runif(25), 5, 5)
-rownames(m) <- colnames(m) <- LETTERS[1:5]
-plot_heatmap(m)
-
-
-# With clusters, values, and a different color scale
-clusters <- list(G1 = c("A","B"), G2 = c("C","D","E"))
-plot_heatmap(m, cluster_list = clusters, colors = "heat", show_values = TRUE)
+plot_heatmap(regulation_net)
 
 ```

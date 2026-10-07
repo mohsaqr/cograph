@@ -1,11 +1,10 @@
-# ControlRank centrality
+# ControlRank Centrality
 
-Zhou, Yu and Lu's ControlRank is the smallest eigenvalue after deleting
-a node's row and column from the symmetric part of the graph Laplacian.
-With \\L = D-A\\, this is \\CR_i =
-\lambda\_{\min}(((L+L^T)/2)\_{-i,-i})\\. D retains the original graph's
-degrees: the Laplacian is not recomputed on the vertex-deleted graph.
-Larger values receive higher rank.
+ControlRank (Zhou, Yu and Lu 2019) is the smallest eigenvalue of the
+symmetric part of the graph Laplacian \\L = D - A\\ after the row and
+column of the node are deleted: \$\$CR_i =
+\lambda\_{\min}\left(\left(\frac{L + L^T}{2}\right)\_{-i,-i}
+\right).\$\$ Larger values rank higher.
 
 ## Usage
 
@@ -22,55 +21,28 @@ centrality_controlrank(x, ...)
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides by the maximum if it is positive;
-  otherwise raw scores are retained. This package normalization is
-  optional and is not part of the published definition.
+  The measure uses `weighted` (use edge weights, default `TRUE`) and
+  `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses finite nonnegative interaction weights. For directed input,
-\\A\_{ij}\\ denotes an arc from i to j and D contains outgoing
-strengths. This fixes the row-Laplacian orientation explicitly;
-transpose the input to use incoming strengths. Symmetrizing L preserves
-its diagonal, so this is different from constructing a Laplacian of the
-undirected projection. Directed scores can be negative and are not
-clipped. For matrix inputs with very small weights, supply
-`directed = TRUE` explicitly (or use a directed igraph object): the
-shared input parser's approximate symmetry detection can otherwise infer
-an undirected graph.
-
-Loops are removed and zero weights are absent connections. Parallel
-weights follow the generic simplify rule; remaining parallel edges sum.
-With `weighted = FALSE`, each remaining edge contributes one. Mode,
-weight inversion for shortest paths and cutoff are ignored.
-
-Connected undirected graphs with at least two nodes have positive
-scores. Disconnected undirected graphs score zero for every node because
-at least one component remains ungrounded. Empty graphs return no
-scores; singletons return zero as an explicit extension of the undefined
-empty minor. The source excludes isolates; the matrix formula here also
-applies to disconnected directed graphs, whose scores may remain
-negative.
-
-This implements the spectral index, not a controller simulation, a
-finite-feedback convergence rate, or an optimization over controller
-sets. In particular, no general directed stability guarantee is inferred
-from these scores. The paper's multi-node selection problem is separate.
-
-Dense eigensolves take O(n to the fourth) time and O(n squared) memory;
-this measure is marked costly and excluded from the default all tier.
-Disconnected blocks are solved separately, preserving isolated zeros
-before normalization. Global scaling avoids intermediate overflow.
-Unrepresentable weight ranges and unresolved positive spectra raise
-errors. Signed directed scores near zero can retain floating-point
-roundoff; very small raw scores can underflow. Uniform weight scaling
-multiplies raw scores by the same factor.
+Edge weights must be finite and nonnegative, `weighted = FALSE` gives
+every edge weight one, and loops are removed. In a directed network
+\\A\_{ij}\\ is the arc from \\i\\ to \\j\\, \\D\\ holds the
+out-strengths and scores can be negative. On a connected undirected
+network with at least two nodes all scores are positive, and on a
+disconnected undirected network every score is zero. A single node
+scores zero. With `normalized = TRUE` the scores are divided by their
+maximum when it is positive, so negative directed scores stay negative.
+For matrix input with very small weights, set `directed = TRUE`
+explicitly, because symmetry detection is approximate. A weight range
+beyond double precision or an unresolved spectrum raises an error.
 
 ## References
 
@@ -80,13 +52,18 @@ Briefs, 66(3), 437-441.
 [doi:10.1109/TCSII.2018.2845940](https://doi.org/10.1109/TCSII.2018.2845940)
 .
 
+## See also
+
+[`centrality_laplacian`](https://sonsoles.me/cograph/reference/centrality_laplacian.md),
+[`centrality_spectralrank`](https://sonsoles.me/cograph/reference/centrality_spectralrank.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_controlrank(igraph::make_ring(5))
-#>        1        2        3        4        5 
-#> 0.381966 0.381966 0.381966 0.381966 0.381966 
-centrality_controlrank(igraph::make_star(6, mode = "undirected"))
-#>         1         2         3         4         5         6 
-#> 1.0000000 0.1715729 0.1715729 0.1715729 0.1715729 0.1715729 
+centrality_controlrank(regulation_net)
+#>     Explore        Plan     Monitor       Adapt     Reflect     Discuss 
+#> -0.02646079 -0.08739707 -0.04912661 -0.06026944  0.03788145 -0.04541166 
+#>  Synthesize    Evaluate      Create       Share 
+#> -0.07026868 -0.07521652 -0.07620639 -0.07268062 
 ```

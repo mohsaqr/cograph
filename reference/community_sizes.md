@@ -12,17 +12,17 @@ community_sizes(x)
 
 - x:
 
-  A cograph_communities object
+  A `cograph_communities` object.
 
 ## Value
 
-Integer vector of community sizes
+An unnamed integer vector of community sizes, ordered by community
+number.
 
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_louvain(g)
+comm <- community_walktrap(regulation_net)
 community_sizes(comm)
-#> [1] 12  5 13  4
+#> [1] 5 5
 ```

@@ -1,7 +1,9 @@
 # Louvain Community Detection
 
-Multi-level modularity optimization using the Louvain algorithm. Fast
-and widely used for large networks.
+Multi-level modularity optimization with the Louvain algorithm. The
+graph must be undirected; a directed graph raises an igraph error, so a
+directed network is converted first, for example with
+[`to_undirected()`](https://sonsoles.me/cograph/reference/to_undirected.md).
 
 ## Usage
 
@@ -15,15 +17,16 @@ com_lv(x, weights = NULL, resolution = 1, seed = NULL, ...)
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - resolution:
 
-  Resolution parameter. Higher values = more communities. Default 1
+  Resolution parameter. Higher values yield more communities. Default 1
   (standard modularity).
 
 - seed:
@@ -39,10 +42,10 @@ com_lv(x, weights = NULL, resolution = 1, seed = NULL, ...)
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -53,15 +56,20 @@ Mechanics*, P10008.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_louvain(g)
-  membership(comm)
-
-  # Reproducible result with seed
-  comm1 <- community_louvain(g, seed = 42)
-  comm2 <- community_louvain(g, seed = 42)
-  identical(membership(comm1), membership(comm2))
-}
-#> [1] TRUE
+community_louvain(to_undirected(regulation_net), seed = 1)
+#> Community structure (louvain)
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1852 
+#>   Sizes: 5, 5 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

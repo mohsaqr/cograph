@@ -28,20 +28,17 @@ network_bridges(x, count_only = FALSE, ...)
 
 ## Value
 
-If count_only = FALSE, data frame with from/to columns. If count_only =
-TRUE, integer count.
+If `count_only = FALSE`, a data frame with one row per bridge and
+columns `from` and `to` (node names, or integer indices when the graph
+has no names). If `count_only = TRUE`, an integer count.
 
 ## Examples
 
 ``` r
-# Two triangles connected by single edge
-adj <- matrix(0, 6, 6)
-adj[1,2] <- adj[2,1] <- adj[1,3] <- adj[3,1] <- adj[2,3] <- adj[3,2] <- 1
-adj[4,5] <- adj[5,4] <- adj[4,6] <- adj[6,4] <- adj[5,6] <- adj[6,5] <- 1
-adj[3,4] <- adj[4,3] <- 1  # Bridge
-network_bridges(adj)  # Edge 3-4
-#>   from to
-#> 1    3  4
-network_bridges(adj, count_only = TRUE)  # 1
-#> [1] 1
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+network_bridges(strong)
+#>         from      to
+#> 1    Discuss Reflect
+#> 2 Synthesize Reflect
+#> 3    Explore Reflect
 ```

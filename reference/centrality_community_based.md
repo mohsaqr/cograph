@@ -1,6 +1,17 @@
-# Community-Based Centrality, Comm Centrality and Community-Based Mediator
+# Community-Based Centralities
 
-Three community-aware measures that need a partition (`membership`).
+Three measures that score a node from a partition `membership`.
+Community-based centrality (Zhao et al. 2015) is \\CbC(i) = \sum_w
+d\_{iw} S_w / N\\, where \\d\_{iw}\\ counts the links of \\i\\ into
+community \\w\\ of size \\S_w\\. Comm centrality (Gupta, Singh and
+Cherifi 2016) combines intra-community degree \\k^{in}\\ and
+inter-community degree \\k^{out}\\: \$\$CC(i) = (1 + \mu_C)
+\frac{k^{in}\_i}{\max\_{j \in C} k^{in}\_j} R + (1 - \mu_C)
+\left(\frac{k^{out}\_i}{\max\_{j \in C} k^{out}\_j} R\right)^2,\$\$ with
+\\\mu_C\\ the mean inter-link fraction in the community of \\i\\.
+Community-based mediator centrality (Tulu, Hou and Younas 2018) is
+\\CbM(i) = H_i\\ d_i / \sum_j d_j\\, with \\H_i\\ the base-2 entropy of
+the links of \\i\\ over the communities.
 
 ## Usage
 
@@ -22,66 +33,47 @@ centrality_community_mediator(x, membership = NULL, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Community labels, one per node. Required; without it the function
-  warns and returns `NA`.
+  Community labels, one per node, for example from
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"`, or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 - comm_r:
 
   Scale \\R\\ of Comm centrality: `"max_intra"` (default) or a single
-  positive number. Anything else raises a `cograph_bad_parameter` error.
+  positive number applied to every community.
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-- `community_based` (Zhao, Wang, Zhang & Zhu 2015):
-
-  \\CbC(i) = \sum_w d\_{iw} S_w / N\\: every link of \\i\\ counts the
-  size \\S_w\\ of the community it lands in. No parameters. Reproduces
-  Table 1 of the paper and Table 1 of Tulu et al. (2018).
-
-- `comm_centrality` (Gupta, Singh & Cherifi 2016):
-
-  \$\$CC(i) = (1 + \mu_C)\\ \frac{k^{in}\_i}{\max\_{j \in C} k^{in}\_j}
-  R + (1 - \mu_C) \left(\frac{k^{out}\_i}{\max\_{j \in C} k^{out}\_j}
-  R\right)^2,\$\$ where \\k^{in}, k^{out}\\ are the intra- and
-  inter-community degrees, \\\mu_C\\ the mean inter-link fraction in
-  \\i\\'s community, and \\R\\ a scale. The default
-  `comm_r = "max_intra"` is the paper's recommended \\R = \max\_{j \in
-  C} k^{in}\_j\\ per community; a number applies one global \\R\\. The
-  equation uses \\1 + \mu_C\\ although the paper's prose says \\\mu_C\\;
-  the equation is implemented. A community without intra (inter) links
-  contributes 0 through that term.
-
-- `community_mediator` (Tulu, Hou & Younas 2018):
-
-  \\CbM(i) = H_i \\ d_i / \sum_j d_j\\, with \\H_i\\ the base-2 Shannon
-  entropy of \\i\\'s link distribution over the communities. Nodes
-  linked to one community only score 0. Base 2 is what reproduces the
-  paper's Table 1.
-
-Higher = more central in all three. Under `mode = "out"` or `"in"` only
-out- or in-links count; edge weights are ignored.
-
-## Conditions
-
-Raises an error of class `cograph_bad_membership` when `membership` is
-not one non-missing label per node.
+Edge weights and self-loops are ignored. Under `mode = "out"` or
+`mode = "in"` only out-links or in-links count, and the default ignores
+direction. Higher values mark more central nodes in all three. The
+default `comm_r = "max_intra"` sets \\R\\ to the largest intra-community
+degree of each community, the choice the source recommends. The prose of
+Gupta et al. writes \\\mu_C\\ where their equation has \\1 + \mu_C\\,
+and the equation is implemented. Nodes linked to one community only
+score 0 on the mediator measure. Without `membership` each function
+raises an unclassed warning and returns `NA`. A `membership` that is not
+one non-missing label per node raises an error of class
+`cograph_bad_membership`, and an invalid `comm_r` raises
+`cograph_bad_parameter`.
 
 ## References
 
@@ -99,22 +91,26 @@ information in complex network. IEEE Access, 6, 7390-7401.
 ## See also
 
 [`centrality_community_hub_bridge`](https://sonsoles.me/cograph/reference/centrality_community_hub_bridge.md),
-[`centrality_participation`](https://sonsoles.me/cograph/reference/centrality_participation.md).
+[`centrality_participation`](https://sonsoles.me/cograph/reference/centrality_participation.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(0, 6, 6)
-adj[cbind(c(1, 1, 2, 4, 4, 5, 3), c(2, 3, 3, 5, 6, 6, 4))] <- 1
-adj <- adj + t(adj)
-rownames(adj) <- colnames(adj) <- LETTERS[1:6]
-centrality_community_based(adj, membership = c(1, 1, 1, 2, 2, 2))
-#>   A   B   C   D   E   F 
-#> 1.0 1.0 1.5 1.5 1.0 1.0 
-centrality_comm_centrality(adj, membership = c(1, 1, 1, 2, 2, 2))
-#>        A        B        C        D        E        F 
-#> 2.222222 2.222222 5.777778 5.777778 2.222222 2.222222 
-centrality_community_mediator(adj, membership = c(1, 1, 1, 2, 2, 2))
-#>         A         B         C         D         E         F 
-#> 0.0000000 0.0000000 0.1967777 0.1967777 0.0000000 0.0000000 
+centrality_community_based(regulation_net, membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        2.5        3.0        3.5        3.0        2.5        2.5        2.0 
+#>   Evaluate     Create      Share 
+#>        2.5        3.0        2.5 
+centrality_comm_centrality(regulation_net, membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   4.428686   4.765714   6.954171   5.299886   4.428686   3.760000   1.980000 
+#>   Evaluate     Create      Share 
+#>   3.760000   6.453750   3.760000 
+centrality_community_mediator(regulation_net,
+                              membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.08990283 0.07222471 0.12771476 0.10203287 0.08990283 0.06684519 0.00000000 
+#>   Evaluate     Create      Share 
+#> 0.06684519 0.11111111 0.06684519 
 ```

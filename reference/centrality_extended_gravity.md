@@ -1,12 +1,10 @@
-# Extended gravity centrality
+# Extended Gravity Centrality
 
-Ma et al.'s extended gravity score is the sum of the immediate
-neighbors' raw gravity scores: \\G^+(i)=\sum\_{j\in N(i)}G(j)\\, where
-\\G(j)=\sum\_{l:0\<d(j,l)\le r}k_s(j)k_s(l)/d(j,l)^2\\. Core numbers and
-hop distances are calculated on the original simple undirected graph.
-The radius applies around each neighbor j; it is not a radius around the
-focal node i. A contribution can therefore reach r+1 hops from i, and
-paths from a neighbor back to i also contribute.
+Extended gravity centrality (Ma et al. 2016) is the sum of the gravity
+scores of a node's neighbors, \$\$G^+(i) = \sum\_{j \in N(i)} G(j),
+\qquad G(j) = \sum\_{l:\\ 0 \< d\_{jl} \le r} \frac{k_s(j)\\
+k_s(l)}{d\_{jl}^2},\$\$ where \\k_s\\ is the k-shell index and \\d\\ the
+hop distance.
 
 ## Usage
 
@@ -23,37 +21,29 @@ centrality_extended_gravity(x, gravity_radius = 3, ...)
 
 - gravity_radius:
 
-  Nonnegative hop-distance cutoff, default 3. NULL or infinity includes
-  the entire reachable component. The optional `"auto"` setting is a
-  cograph extension: round half the mean finite positive hop distance to
-  the nearest integer (ties to even), with minimum one. It is not a
-  parameter rule from Ma et al.
+  Hop radius \\r\\: a nonnegative number (default 3, the value of Ma et
+  al. 2016), `"auto"`, or `NULL` or `Inf` for the whole component.
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive final scores are divided by their
-  maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Default radius three is the setting used in the original paper. NULL or
-infinity includes every reachable partner, excluding the gravity source
-itself. Radius zero and isolates score zero. The outer neighbor sum has
-no distance penalty. All inner scores remain raw until the final
-optional max normalization.
-
-Uses the simple undirected unweighted skeleton, with either direction
-creating an edge, parallel edges counted once and loops removed. This
-projection is a cograph convention for other inputs. Edge weights,
-`mode`, `gravity_mass` and path-weight inversion do not affect this
-measure: its masses are always k-shell indices. Computation includes
-all-pairs hop distances, so it can be expensive for large graphs.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored, and the masses are always k-shell
+indices. The radius applies around each neighbor \\j\\, so a
+contribution can come from \\r+1\\ hops away from \\i\\, including paths
+back to \\i\\. Radius 0 and isolated nodes give 0. The `"auto"` radius
+is half the mean finite positive hop distance, rounded to the nearest
+integer with a minimum of 1. This rule is a package choice. A negative
+radius raises an error.
 
 ## References
 
@@ -65,12 +55,16 @@ Physica A, 451, 205-212.
 
 ## See also
 
-[`centrality_gravity`](https://sonsoles.me/cograph/reference/centrality_gravity.md).
+[`centrality_gravity`](https://sonsoles.me/cograph/reference/centrality_gravity.md),
+[`centrality_extended_coreness`](https://sonsoles.me/cograph/reference/centrality_extended_coreness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-centrality_extended_gravity(igraph::make_ring(6), gravity_radius = 3)
-#>        1        2        3        4        5        6 
-#> 20.88889 20.88889 20.88889 20.88889 20.88889 20.88889 
+centrality_extended_gravity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        504        600        696        588        492        516        432 
+#>   Evaluate     Create      Share 
+#>        540        612        540 
 ```

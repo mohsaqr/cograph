@@ -1,7 +1,7 @@
 # Complement of a Network
 
 Every pair of distinct nodes that is not joined in `x` is joined in the
-complement, and vice versa.
+complement, and every joined pair is absent from it.
 
 ## Usage
 
@@ -23,9 +23,9 @@ complement_network(
 
 - weight:
 
-  Numeric. Weight to give the new edges. Default 1. Zero is how this
-  representation stores "no edge", so `weight = 0` raises a
-  `cograph_bad_selection` error rather than returning an empty network.
+  Numeric. Weight of every edge in the complement. Default 1. A weight
+  of zero means no edge, so `weight = 0` raises a
+  `cograph_bad_selection` error.
 
 - loops:
 
@@ -33,11 +33,16 @@ complement_network(
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. If NULL (default), auto-detect.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input.
 
 ## Value
 
@@ -52,20 +57,18 @@ A `cograph_network` holding the complement, or the input format when
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0,
-                1, 0, 0,
-                0, 0, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-
-complement_network(adj)
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+complement_network(threshold_edges(regulation_net, minimum = 0.2))
+#> Cograph network: 10 nodes, 71 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 2 / 3 (density: 66.7%)
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 71 / 90 (density: 78.9%)
 #>   Weights: [1.000, 1.000]  |  mean: 1.000
 #>   Strongest edges:
-#>     A -- C  1.000
-#>     B -- C  1.000
+#>     Plan -> Explore  1.000
+#>     Monitor -> Explore  1.000
+#>     Reflect -> Explore  1.000
+#>     Synthesize -> Explore  1.000
+#>     Evaluate -> Explore  1.000
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

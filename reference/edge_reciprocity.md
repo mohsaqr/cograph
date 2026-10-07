@@ -38,7 +38,7 @@ edge_reciprocity(x, top = NULL, directed = NULL, digits = NULL, ...)
 
 A data frame with one row per directed edge and columns `from`, `to`,
 `weight`, `reciprocated` (logical), `reverse_weight` (NA when not
-reciprocated) and `weight_ratio` (`weight / reverse_weight`; NA when not
+reciprocated) and `weight_ratio` (`reverse_weight / weight`; NA when not
 reciprocated). Rows are ordered with reciprocated edges first, then by
 `|weight_ratio|` descending.
 
@@ -54,12 +54,11 @@ only defined for directed edges.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 0.8, 0, 0.3, 0, 0.5, 0.7, 0, 0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-cograph::edge_reciprocity(adj, directed = TRUE)
-#>   from to weight reciprocated reverse_weight weight_ratio
-#> 1    B  A    0.3         TRUE            0.8     2.666667
-#> 2    A  B    0.8         TRUE            0.3     0.375000
-#> 3    B  C    0.5        FALSE             NA           NA
-#> 4    C  A    0.7        FALSE             NA           NA
+cograph::edge_reciprocity(regulation_net, top = 5)
+#>      from      to weight reciprocated reverse_weight weight_ratio
+#> 1 Reflect Explore   0.05         TRUE           0.35    7.0000000
+#> 2  Create Monitor   0.17         TRUE           0.37    2.1764706
+#> 3   Share    Plan   0.21         TRUE           0.36    1.7142857
+#> 4    Plan   Share   0.36         TRUE           0.21    0.5833333
+#> 5 Monitor  Create   0.37         TRUE           0.17    0.4594595
 ```

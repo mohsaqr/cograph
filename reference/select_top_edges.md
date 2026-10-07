@@ -35,7 +35,8 @@ select_top_edges(
 
 - ...:
 
-  Additional filter expressions.
+  Additional filter expressions, applied after the top `n` edges are
+  selected.
 
 - keep_isolates:
 
@@ -61,37 +62,18 @@ A cograph_network with the top N edges.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Top 3 edges by weight
-select_top_edges(adj, n = 3)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
+select_top_edges(regulation_net, n = 5, keep_isolates = FALSE)
+#> Cograph network: 8 nodes, 5 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.633
+#>   Nodes (8): Plan, Monitor, Adapt, Reflect, Discuss, Synthesize, Evaluate, Share
+#>   Edges: 5 / 56 (density: 8.9%)
+#>   Weights: [0.400, 0.490]  |  mean: 0.446
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Top 2 by edge betweenness
-select_top_edges(adj, n = 2, by = "edge_betweenness")
-#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
-#> Cograph network: 4 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.500, 0.600]  |  mean: 0.550
-#>   Strongest edges:
-#>     B -- D  0.600
-#>     A -- B  0.500
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

@@ -32,9 +32,21 @@ A network object from the network package.
 ## Examples
 
 ``` r
-if (requireNamespace("network", quietly = TRUE)) {
-  adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-  rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-  net <- to_network(adj)
-}
+to_network(regulation_net)
+#>  Network attributes:
+#>   vertices = 10 
+#>   directed = TRUE 
+#>   hyper = FALSE 
+#>   loops = FALSE 
+#>   multiple = FALSE 
+#>   bipartite = FALSE 
+#>   total edges= 30 
+#>     missing edges= 0 
+#>     non-missing edges= 30 
+#> 
+#>  Vertex attribute names: 
+#>     vertex.names 
+#> 
+#>  Edge attribute names: 
+#>     weight 
 ```

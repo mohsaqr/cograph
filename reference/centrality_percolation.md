@@ -1,8 +1,12 @@
 # Percolation Centrality
 
-Importance for spreading processes using node states. Each node has a
-state (0-1) representing how activated it is. When all states are equal,
-equivalent to betweenness.
+Percolation centrality (Piraveenan et al. 2013) weights each shortest
+path through a node by the percolation state \\x_s\\ of its source:
+\$\$PC(v) = \frac{1}{n-2} \sum\_{s \ne v \ne t}
+\frac{\sigma\_{st}(v)}{\sigma\_{st}} \frac{x_s}{\sum_i x_i - x_v},\$\$
+where \\\sigma\_{st}\\ is the number of shortest paths from \\s\\ to
+\\t\\ and \\\sigma\_{st}(v)\\ the number through \\v\\. With equal
+states the score is the normalized betweenness.
 
 ## Usage
 
@@ -14,39 +18,53 @@ centrality_percolation(x, states = NULL, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - states:
 
-  Named numeric vector of node states (0-1). Default `NULL` (all nodes
-  get state 1).
+  Percolation state of each node, between 0 and 1. The default `NULL`
+  gives every node state 1.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (default `TRUE`).
 
 ## Value
 
-Named numeric vector of percolation centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are read as distances, `weighted = FALSE` uses hop counts,
+and `invert_weights` has no effect on this measure. Paths follow edge
+direction on a directed network. `states` is matched to nodes by name
+when it has names and by position otherwise. Its values are clipped to
+\\\[0, 1\]\\ and missing values are set to 1, and a vector of the wrong
+length raises an error. A network with fewer than three nodes scores 0.
+
+## References
+
+Piraveenan, M., Prokopenko, M., & Hossain, L. (2013). Percolation
+centrality: Quantifying graph-theoretic impact of nodes during
+percolation in networks. PLoS ONE, 8(1), e53095.
+[doi:10.1371/journal.pone.0053095](https://doi.org/10.1371/journal.pone.0053095)
+.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md)
-which this generalizes.
+[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md),
+[`centrality_load`](https://sonsoles.me/cograph/reference/centrality_load.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_percolation(adj)
-#> A B C 
-#> 0 0 0 
-centrality_percolation(adj, states = c(A = 0.8, B = 0.2, C = 0.5))
-#> A B C 
-#> 0 0 0 
+centrality_percolation(regulation_net)
+#>     Explore        Plan     Monitor       Adapt     Reflect     Discuss 
+#> 0.069444444 0.215277778 0.250000000 0.208333333 0.138888889 0.006944444 
+#>  Synthesize    Evaluate      Create       Share 
+#> 0.090277778 0.041666667 0.180555556 0.125000000 
 ```

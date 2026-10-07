@@ -1,7 +1,10 @@
-# Effective Size (Burt's)
+# Effective Size
 
-Network effective size: degree minus redundancy. Measures non-redundant
-contacts in ego network.
+Burt's effective size is the number of a node's contacts minus their
+redundancy, the average number of ties each contact has to the other
+contacts: \$\$ES(v) = k_v - \frac{1}{k_v} \sum\_{j \in N(v)} \|N(v) \cap
+N(j)\|.\$\$ On an undirected network this is \\k_v - 2 t_v / k_v\\, with
+\\t_v\\ the number of ties among the contacts.
 
 ## Usage
 
@@ -13,30 +16,38 @@ centrality_effective_size(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `directed` and `normalized`.
 
 ## Value
 
-Named numeric vector of effective size values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. On a directed network each reciprocated
+neighbor enters the neighbor list twice, so \\k_v\\ counts it twice and
+the result differs from that of the undirected skeleton. An isolated
+node scores 0.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_constraint`](https://sonsoles.me/cograph/reference/centrality_constraint.md)
-for a related structural holes measure.
+[`centrality_constraint`](https://sonsoles.me/cograph/reference/centrality_constraint.md),
+[`centrality_redundancy`](https://sonsoles.me/cograph/reference/centrality_heatmap.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_effective_size(adj)
-#> A B C 
-#> 1 1 1 
+centrality_effective_size(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   4.166667   4.714286   4.875000   4.333333   4.833333   3.400000   2.500000 
+#>   Evaluate     Create      Share 
+#>   3.000000   4.285714   3.666667 
 ```

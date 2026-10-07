@@ -1,12 +1,14 @@
 # Saqr Layout (Start/End transition flow)
 
-Port of the Dynalytics Desktop "saqr" layout (Saqr et al., LAK25).
-Designed for directed transition networks: the Start node sits alone on
-the top row, the End node (if present) alone on the bottom row, and
-every other node is ranked by its outgoing weight from Start (strongest
-connections nearest Start) and split into 2 middle rows (\<= 10 middle
-nodes) or 3 (\> 10). A sine envelope narrows the rows near Start/End for
-a lens-shaped silhouette, and the first middle row is zig-zag jittered.
+Places the nodes of a directed transition network in rows between a
+Start and an End node (Saqr et al., LAK25). The Start node is alone on
+the top row and the End node, when present, is alone on the bottom row.
+The other nodes are ranked by the weight of the edge they receive from
+Start, with the strongest nearest Start. They are split into two middle
+rows when there are at most 10 of them and into three rows otherwise. A
+sine envelope narrows the rows near Start and End, which gives the
+layout a lens shape. The first middle row is offset in a zig-zag
+pattern.
 
 ## Usage
 
@@ -22,8 +24,8 @@ layout_saqr(network, start = "Start", end = "End", jitter = 0.32, ...)
 
 - start:
 
-  Label of the Start node (default `"Start"`). Falls back to the highest
-  out-degree node when the label is not found.
+  Label of the Start node (default `"Start"`). When the label is not
+  found, the node with the largest sum of outgoing weights is used.
 
 - end:
 
@@ -43,25 +45,20 @@ layout_saqr(network, start = "Start", end = "End", jitter = 0.32, ...)
 
 Data frame with `x`, `y` coordinates, one row per node.
 
-## Details
-
-If the `start` label is absent the highest out-degree node is used. The
-End row is only drawn when the `end` label is present.
-
 ## Examples
 
 ``` r
-adj <- matrix(0, 5, 5,
-  dimnames = list(c("Start", "A", "B", "C", "End"),
-                  c("Start", "A", "B", "C", "End")))
-adj["Start", "A"] <- 5; adj["Start", "B"] <- 3; adj["Start", "C"] <- 1
-adj["A", "End"] <- 2; adj["B", "End"] <- 4; adj["C", "End"] <- 1
-net <- CographNetwork$new(adj, directed = TRUE)
-layout_saqr(net)
-#>           x         y
-#> 1 0.5000000 1.0000000
-#> 2 0.0669873 0.7733333
-#> 3 0.9330127 0.5600000
-#> 4 0.5000000 0.3333333
-#> 5 0.5000000 0.0000000
+layout_saqr(CographNetwork$new(regulation_net), start = "Explore",
+  end = "Share")
+#>            x         y
+#> 1  0.5000000 1.0000000
+#> 2  0.3556624 0.5600000
+#> 3  0.6443376 0.7733333
+#> 4  0.9330127 0.5600000
+#> 5  0.0669873 0.7733333
+#> 6  0.0669873 0.3333333
+#> 7  0.3556624 0.3333333
+#> 8  0.6443376 0.3333333
+#> 9  0.9330127 0.3333333
+#> 10 0.5000000 0.0000000
 ```

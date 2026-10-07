@@ -105,12 +105,12 @@ robustness curves.
 | [`plot_mlna()`](https://sonsoles.me/cograph/reference/plot_mlna.md) | Stacked multilayer 3D perspective |
 | [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.md) | Multi-group heterogeneous TNA layout |
 | [`plot_robustness()`](https://sonsoles.me/cograph/reference/plot_robustness.md) | Robustness degradation curves |
-| [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot_permutation.md) / [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot_group_permutation.md) | Permutation test results |
+| [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md) / [`plot_group_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md) | Permutation test results |
 | [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md) / [`plot_centrality_distribution()`](https://sonsoles.me/cograph/reference/plot_centrality_distribution.md) | Centrality profiles and their distributions |
 | [`plot_centrality_heatmap()`](https://sonsoles.me/cograph/reference/plot_centrality_heatmap.md) / [`plot_centrality_compare()`](https://sonsoles.me/cograph/reference/plot_centrality_compare.md) | Centrality across nodes and groups |
-| [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot_net_stability.md) | Centrality stability results |
+| [`plot_net_stability()`](https://sonsoles.me/cograph/reference/plot-results.md) | Centrality stability results |
 | [`plot_edge_weights()`](https://sonsoles.me/cograph/reference/plot_edge_weights.md) / [`plot_degree_correlation()`](https://sonsoles.me/cograph/reference/plot_degree_correlation.md) | Edge-weight distribution and degree-degree correlation |
-| [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot_motifs.md) | Motif and subgraph results |
+| [`plot_motifs()`](https://sonsoles.me/cograph/reference/plot-results.md) | Motif and subgraph results |
 | [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md) | Network evolution in small multiples |
 | [`plot_temporal()`](https://sonsoles.me/cograph/reference/plot_temporal.md) | Temporal network as a three-dimensional prism |
 

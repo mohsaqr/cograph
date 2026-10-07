@@ -41,9 +41,8 @@ k_shortest_paths(x, from, to, k = 3, weights = NULL, directed = NULL, ...)
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Not used. Any argument supplied here raises an `"unused argument"`
+  error.
 
 ## Value
 
@@ -97,25 +96,15 @@ Yen, J.Y. (1971). Finding the K shortest loopless paths in a network.
 ## Examples
 
 ``` r
-# Find 3 shortest paths in a small network
-adj <- matrix(c(
-  0, 1, 1, 0, 0,
-  0, 0, 1, 1, 0,
-  0, 0, 0, 1, 1,
-  0, 0, 0, 0, 1,
-  0, 0, 0, 0, 0
-), 5, 5, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-kp <- cograph::k_shortest_paths(adj, from = "A", to = "E", k = 3)
-kp
+cograph::k_shortest_paths(regulation_net, from = "Plan", to = "Share", k = 3)
 #> K Shortest Paths
 #> ================
-#>   From: A 
-#>   To: E 
+#>   From: Plan 
+#>   To: Share 
 #>   Requested: 3 paths
 #>   Found: 3 paths
 #> 
-#>   Path 1 (distance = 2): A -> C -> E
-#>   Path 2 (distance = 3): A -> B -> D -> E
-#>   Path 3 (distance = 3): A -> C -> D -> E
+#>   Path 1 (distance = 0.36): Plan -> Share
+#>   Path 2 (distance = 0.43): Plan -> Create -> Share
+#>   Path 3 (distance = 0.61): Plan -> Create -> Explore -> Share
 ```

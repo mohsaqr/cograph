@@ -1,18 +1,13 @@
-# Node Contraction Centrality (IMC and IIMC)
+# Node Contraction Centrality
 
-Tan, Wu and Deng's (2006) node-contraction importance, as restated by
-Wang et al. (2011). The agglomeration (cohesion) of a graph is
-\\\partial(G) = 1 / (N \bar{L})\\, with \\\bar{L}\\ the mean
-shortest-path length over ordered pairs; contracting a node merges it
-with all its neighbors into one node, and \$\$IMC(v) = 1 - \partial(G) /
-\partial(G_v).\$\$ The improved form (`node_contraction_improved`) adds
-the same score of the node's edges computed on the line graph: \\IIMC(v)
-= \alpha\\ IMC(v) + \beta \sum\_{e \ni v} IMC\_{L(G)}(e)\\, with
-\\\alpha / \beta = 5\\ (`contraction_rho`) and \\\alpha + \beta = 1\\,
-the normalization that reproduces the paper's Table 1. Higher = more
-important. Both reproduce Table 1 of Wang et al. (2011). The Zoo entry
-describes the contracted graph as the graph with the node removed; the
-sources define it by contraction, which is what is implemented.
+Node contraction importance (Tan, Wu and Deng 2006, as restated by Wang
+et al. 2011) compares the agglomeration \\\partial(G) = 1 / (N
+\bar{L})\\ of a network, with \\\bar{L}\\ the mean shortest-path length,
+before and after the node is merged with all its neighbors into one
+node: \$\$IMC(v) = 1 - \frac{\partial(G)}{\partial(G_v)}.\$\$ The
+improved form adds the same score of the edges of the node computed on
+the line graph, \\IIMC(v) = \alpha\\ IMC(v) + \beta \sum\_{e \ni v}
+IMC\_{L(G)}(e)\\, with \\\alpha + \beta = 1\\.
 
 ## Usage
 
@@ -26,28 +21,34 @@ centrality_node_contraction_improved(x, contraction_rho = 5, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 - contraction_rho:
 
-  Ratio \\\alpha / \beta\\ for the improved form. Default 5.
+  Ratio \\\alpha / \beta\\ for the improved form (default 5).
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-On a disconnected graph the mean path length is taken over the mutually
-reachable ordered pairs (a cograph choice; the sources assume connected
-graphs). Direction, weights and loops are ignored. Cost is one all-pairs
-computation per node, so \\O(n^2 (n + m))\\; the improved form does the
-same on the line graph, \\O(m^2 (m + m'))\\.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights and loops are ignored. Higher values mark
+more important nodes. The sources assume a connected network. On a
+disconnected network the mean path length is taken over the mutually
+reachable ordered pairs. An isolated node scores 0, and a node whose
+contraction leaves no pair of mutually reachable nodes returns `NaN`.
+The Centrality Zoo describes the contracted graph as the graph with the
+node removed. The sources define it by contraction, which is implemented
+here.
 
 ## References
 
@@ -57,18 +58,20 @@ Engineering: Theory & Practice, 26(11), 79-83.
 
 ## See also
 
-[`centrality_closeness_vitality`](https://sonsoles.me/cograph/reference/centrality_closeness_vitality.md).
+[`centrality_closeness_vitality`](https://sonsoles.me/cograph/reference/centrality_closeness_vitality.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-centrality_node_contraction(path5)
-#>         A         B         C         D         E 
-#> 0.3333333 0.6000000 0.6000000 0.6000000 0.3333333 
-centrality_node_contraction_improved(path5)
-#>         A         B         C         D         E 
-#> 0.3444444 0.6833333 0.7333333 0.6833333 0.3444444 
+centrality_node_contraction(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.6071429  0.6666667  0.7857143  0.6190476  0.5714286  0.5357143  0.4571429 
+#>   Evaluate     Create      Share 
+#>  0.5000000  0.6666667  0.5357143 
+centrality_node_contraction_improved(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.8198386  0.9608238  1.1638901  0.9170453  0.7829129  0.7645413  0.6183757 
+#>   Evaluate     Create      Share 
+#>  0.7421423  0.9657596  0.7723415 
 ```

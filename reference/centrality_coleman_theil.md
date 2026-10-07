@@ -1,13 +1,12 @@
-# Coleman-Theil hierarchy index
+# Coleman-Theil Hierarchy Index
 
-Measures concentration of Burt's dyadic constraints over a node's
-contacts. Let mutual tie strength be z_ij+z_ji, and p_ij its proportion
-of all mutual strength incident to i. With organizational weights fixed
-at one, define \$\$c\_{ij}=(p\_{ij}+\sum_q p\_{iq}p\_{qj})^2,\quad
-r\_{ij}=c\_{ij}/\operatorname{mean}\_{k\in N(i)}c\_{ik}.\$\$ The index
-is \\\sum\_{j\in N(i)}r\_{ij}\log(r\_{ij})/(d_i\log(d_i))\\. Contacts
-are distinct nodes with positive mutual strength. Investment proportions
-use the full supplied graph, including alters' outside ties.
+The Coleman-Theil index (Burt 1992) measures how concentrated Burt's
+dyadic constraint is across the \\d_i\\ contacts of node \\i\\. Let
+\\p\_{ij}\\ be the share of the mutual tie strength of \\i\\ invested in
+\\j\\, \\c\_{ij} = (p\_{ij} + \sum_q p\_{iq} p\_{qj})^2\\ the
+constraint, and \\r\_{ij}\\ the constraint divided by its mean over the
+contacts. Then \$\$H_i = \frac{\sum\_{j \in N(i)} r\_{ij} \log
+r\_{ij}}{d_i \log d_i}.\$\$
 
 ## Usage
 
@@ -24,41 +23,25 @@ centrality_coleman_theil(x, ...)
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (use edge weights, default `TRUE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Follows Burt's STRUCTURE 4.2 manual (pages 181-183): isolates score zero
-and nodes with one contact score one. The general formula is undefined
-in these two cases; these are the author's explicit conventions. JUNG's
-documented implementation instead returns NaN for isolates. Values range
-from zero for equal constraints to one for complete concentration. Input
-organizational/oligopoly multipliers from STRUCTURE are not implemented;
-they are fixed at one, as in the Zoo's formula.
-
-Finite nonnegative weights are supported. Zero-weight ties are absent,
-loops are removed, and remaining parallel edges sum after generic
-simplification. Directed ties are combined by summing both directions;
-`weighted=FALSE` assigns unit weight to each retained edge before
-combining them, so reciprocity can affect mutual investment. Generic
-mode, shortest-path inversion and cutoff do not affect the result. Empty
-input returns no scores. Components are independent before global
-normalization.
-
-The default output is already the unit-interval hierarchy index.
-`normalized=TRUE` additionally divides by the largest node score; an
-all-zero vector remains zero. Dense native arithmetic costs O(n cubed)
-time and O(n squared) memory. Global weight scaling precedes mutual
-sums. Unrepresentable positive weight or investment ranges raise an
-error; tiny squared constraints may underflow and use the zero-log-zero
-limit. Relative deviations of local constraints within 16 machine
-epsilons are treated as uniform; a series stabilizes the entropy near
-uniformity.
+The mutual tie strength of a pair is the sum of the weights in both
+directions, so direction is combined and loops are removed. Edge weights
+must be finite and nonnegative, and `weighted = FALSE` gives every edge
+weight one before the directions are combined. The index lies between
+zero, for equal constraints, and one, for constraint concentrated on one
+contact. Following Burt's STRUCTURE 4.2 manual (pages 181-183), an
+isolated node scores zero and a node with one contact scores one. The
+organizational and oligopoly multipliers of STRUCTURE are fixed at one.
+A weight range beyond double precision raises an error.
 
 ## References
 
@@ -66,10 +49,18 @@ Burt, R. S. (1992). Structural Holes: The Social Structure of
 Competition. Harvard University Press.
 [doi:10.4159/9780674029095](https://doi.org/10.4159/9780674029095) .
 
+## See also
+
+[`centrality_constraint`](https://sonsoles.me/cograph/reference/centrality_constraint.md),
+[`centrality_effective_size`](https://sonsoles.me/cograph/reference/centrality_effective_size.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_coleman_theil(igraph::make_star(5, mode = "undirected"))
-#> 1 2 3 4 5 
-#> 0 1 1 1 1 
+centrality_coleman_theil(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.07165311 0.10844104 0.15612256 0.06285124 0.17918268 0.05549900 0.39363179 
+#>   Evaluate     Create      Share 
+#> 0.12236245 0.14733940 0.05273089 
 ```

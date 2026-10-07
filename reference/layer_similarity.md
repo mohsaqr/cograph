@@ -22,7 +22,7 @@ lsim(A1, A2, method = c("jaccard", "overlap", "hamming", "cosine", "pearson"))
 
 - A2:
 
-  Second adjacency matrix
+  Second adjacency matrix, with the same dimensions as `A1`
 
 - method:
 
@@ -32,28 +32,23 @@ lsim(A1, A2, method = c("jaccard", "overlap", "hamming", "cosine", "pearson"))
 ## Value
 
 A single numeric value. All methods except `"hamming"` return a
-similarity (higher = more alike); `"hamming"` returns a *distance* - the
-number of matrix cells whose edge presence differs between the two
-layers - so lower means more alike and the value is not bounded by 1.
-`NA` is returned when the denominator is undefined (`"jaccard"` with no
-edges in either layer, `"overlap"` with an empty layer, `"cosine"` with
-an all-zero layer).
+similarity, where higher values mean more alike layers. `"hamming"`
+returns a distance, the number of matrix cells whose edge presence
+differs between the two layers. Lower values then mean more alike
+layers, and the value is not bounded by 1. `NA` is returned when the
+denominator is undefined (`"jaccard"` with no edges in either layer,
+`"overlap"` with an empty layer, `"cosine"` with an all-zero layer).
 
 ## Details
 
-`"jaccard"`, `"overlap"` and `"hamming"` compare edge *presence*
-(`A > 0`) and therefore ignore weights; `"cosine"` and `"pearson"` are
-computed on the raw cell values. The two matrices must have identical
-dimensions.
+`"jaccard"`, `"overlap"` and `"hamming"` compare edge presence (`A > 0`)
+and ignore weights. `"cosine"` and `"pearson"` are computed on the cell
+values, diagonal included. Matrices of different dimensions raise an
+error.
 
 ## Examples
 
 ``` r
-A1 <- matrix(c(0,1,1,0, 1,0,0,1, 1,0,0,1, 0,1,1,0), 4, 4)
-A2 <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-
-layer_similarity(A1, A2, "jaccard")  # Edge overlap
-#> [1] 0.4
-layer_similarity(A1, A2, "cosine")   # Weight similarity
-#> [1] 0.5773503
+layer_similarity(regulation_net, t(regulation_net), method = "cosine")
+#> [1] 0.1197053
 ```

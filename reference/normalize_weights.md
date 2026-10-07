@@ -1,7 +1,7 @@
 # Normalize Edge Weights
 
-Rescales the weight matrix. Row normalization is what turns a transition
-count matrix into the transition probabilities that TNA models use.
+Rescales the edge weights. Row normalization turns a transition count
+matrix into the transition probabilities used by TNA models.
 
 ## Usage
 
@@ -38,7 +38,8 @@ normalize_weights(
 
   `"sum"`
 
-  :   divide by the total of all weights
+  :   divide by the sum of the weight matrix, in which each undirected
+      edge appears twice
 
   `"minmax"`
 
@@ -59,23 +60,18 @@ A `cograph_network` with rescaled weights, or the input format when
 
 ## Details
 
-A row (or column, or the whole matrix) whose total is zero is left at
-zero rather than producing `NaN`: there is nothing to distribute. Rows
-with a zero total are reported in a `cograph_zero_norm` warning so that
-the zeros are a stated result rather than a silent one.
+A row or column whose total is zero is left at zero. Zero totals, and a
+zero denominator for `"max"` or `"sum"`, raise a `cograph_zero_norm`
+warning.
 
-`"minmax"` maps the weakest edge to `.Machine$double.eps` rather than to
-exactly 0, because 0 is how this representation stores "no edge":
-mapping to it would delete the weakest edge instead of rescaling it.
+`"minmax"` maps the weakest edge to `.Machine$double.eps`. A weight of
+exactly 0 would remove the edge, because 0 stores "no edge". When all
+weights are equal they all become 1.
 
-`"max"`, `"sum"` and `"minmax"` rescale each edge independently and
-therefore keep any extra edge columns. `"row"` and `"column"` scale an
-edge by a total that differs at its two endpoints, so they break
-symmetry and return a directed network.
-
-Row and column normalization are meaningful on directed networks. On an
-undirected network they still work but break symmetry, so the result is
-returned as directed.
+`"max"`, `"sum"` and `"minmax"` rescale each edge independently and keep
+any extra edge columns. `"row"` and `"column"` scale an edge by a total
+that differs at its two endpoints. They break symmetry, so an undirected
+input is returned as a directed network.
 
 ## See also
 
@@ -86,37 +82,18 @@ returned as directed.
 ## Examples
 
 ``` r
-counts <- matrix(c(0, 3, 1,
-                   2, 0, 4,
-                   5, 1, 0), 3, 3, byrow = TRUE)
-rownames(counts) <- colnames(counts) <- c("A", "B", "C")
-
-normalize_weights(counts, method = "row")
-#> Cograph network: 3 nodes, 6 edges ( directed )
+normalize_weights(regulation_net, method = "row")
+#> Cograph network: 10 nodes, 30 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 6 / 6 (density: 100.0%)
-#>   Weights: [0.167, 0.833]  |  mean: 0.500
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [0.082, 0.750]  |  mean: 0.333
 #>   Strongest edges:
-#>     C -> A  0.833
-#>     A -> B  0.750
-#>     B -> C  0.667
-#>     B -> A  0.333
-#>     A -> C  0.250
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-normalize_weights(counts, method = "max")
-#> Cograph network: 3 nodes, 6 edges ( directed )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 6 / 6 (density: 100.0%)
-#>   Weights: [0.200, 1.000]  |  mean: 0.533
-#>   Strongest edges:
-#>     C -> A  1.000
-#>     B -> C  0.800
-#>     A -> B  0.600
-#>     B -> A  0.400
-#>     C -> B  0.200
+#>     Reflect -> Monitor  0.750
+#>     Synthesize -> Reflect  0.700
+#>     Monitor -> Create  0.698
+#>     Explore -> Reflect  0.565
+#>     Evaluate -> Adapt  0.518
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

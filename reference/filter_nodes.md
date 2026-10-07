@@ -2,8 +2,8 @@
 
 Filter nodes using dplyr-style expressions on any node column or
 centrality measure. Returns a cograph_network object by default
-(universal format), or optionally a matrix, igraph, or statnet network
-object when `keep_format = TRUE` and the input used one of those
+(universal format), or optionally a matrix, igraph, statnet network or
+tna object when `keep_format = TRUE` and the input used one of those
 formats.
 
 ## Usage
@@ -42,8 +42,8 @@ subset_nodes(
 
   Node columns
 
-  :   All columns in the nodes dataframe: `id`, `label`, `name`, `x`,
-      `y`, `inits`, `color`, plus any custom
+  :   All columns of the node table, such as `id`, `label`, `name`, `x`,
+      `y` and any custom columns.
 
   Centrality measures
 
@@ -82,7 +82,7 @@ subset_nodes(
 
 - keep_format:
 
-  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  Logical. If TRUE, matrix, igraph, statnet network and tna inputs are
   returned in that format. Default FALSE returns cograph_network
   (universal format).
 
@@ -99,8 +99,8 @@ subset_nodes(
 ## Value
 
 A cograph_network object with filtered nodes. If `keep_format = TRUE`,
-matrix, igraph, and statnet network inputs are converted back to that
-type.
+matrix, igraph, statnet network and tna inputs are converted back to
+that type.
 
 ## See also
 
@@ -111,33 +111,17 @@ type.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Keep only high-degree nodes
-filter_nodes(adj, degree >= 3)
-#> Cograph network: 2 nodes, 1 edges ( undirected )
+filter_nodes(regulation_net, degree >= 7)
+#> Cograph network: 3 nodes, 4 edges ( directed )
 #> Source: matrix 
-#>   Nodes (2): B, C
-#>   Edges: 1 / 1 (density: 100.0%)
-#>   Weights: [0.300, 0.300]  |  mean: 0.300
+#>   Nodes (3): Plan, Monitor, Create
+#>   Edges: 4 / 6 (density: 66.7%)
+#>   Weights: [0.130, 0.370]  |  mean: 0.217
 #>   Strongest edges:
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Filter by label, combined with degree
-filter_nodes(adj, degree >= 2 & label != "D")
-#> Cograph network: 3 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.533
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     A -- B  0.500
-#>     B -- C  0.300
+#>     Monitor -> Create  0.370
+#>     Plan -> Create  0.200
+#>     Create -> Monitor  0.170
+#>     Plan -> Monitor  0.130
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

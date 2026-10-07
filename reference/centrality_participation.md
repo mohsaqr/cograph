@@ -1,7 +1,10 @@
 # Participation Coefficient
 
-Measures diversity of inter-community connections. Nodes connecting to
-many communities have high participation. Requires community membership.
+The participation coefficient (Guimera and Nunes Amaral 2005) measures
+how evenly the ties of a node spread over communities: \$\$P_i = 1 -
+\sum\_{s} \left(\frac{k\_{is}}{k_i}\right)^2,\$\$ where \\k\_{is}\\
+counts the ties of node \\i\\ to community \\s\\ and \\k_i\\ is its
+degree.
 
 ## Usage
 
@@ -13,38 +16,56 @@ centrality_participation(x, membership = NULL, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Integer vector of community assignments (one per node).
+  Community of each node, a vector with one entry per node in input node
+  order (default `NULL`).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of participation coefficient values (0-1).
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. `mode` selects the ties counted, and with
+`mode = "all"` on a directed network a reciprocated tie counts twice. A
+node whose ties all stay in one community scores 0, as does an isolated
+node, and the score is below 1. Without `membership` every score is `NA`
+with a warning that carries no condition class, and a `membership` of
+the wrong length raises an error. On undirected networks the values
+equal
+[`brainGraph::part_coeff()`](https://rdrr.io/pkg/brainGraph/man/vertex_roles.html).
+
+## References
+
+Guimera, R., & Nunes Amaral, L. A. (2005). Functional cartography of
+complex metabolic networks. Nature, 433(7028), 895-900.
+[doi:10.1038/nature03288](https://doi.org/10.1038/nature03288) .
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_within_module_z`](https://sonsoles.me/cograph/reference/centrality_within_module_z.md)
-for within-community connectivity.
+[`centrality_within_module_z`](https://sonsoles.me/cograph/reference/centrality_within_module_z.md),
+[`centrality_gateway`](https://sonsoles.me/cograph/reference/centrality_gateway.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-centrality_participation(adj, membership = c(1, 1, 1, 2, 2))
-#>         A         B         C         D         E 
-#> 0.0000000 0.0000000 0.4444444 0.5000000 0.0000000 
+centrality_participation(regulation_net, membership = rep(1:2, each = 5))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.5000000  0.2448980  0.4687500  0.4444444  0.5000000  0.3200000  0.0000000 
+#>   Evaluate     Create      Share 
+#>  0.3200000  0.4897959  0.2777778 
 ```

@@ -1,6 +1,7 @@
 # Degree Correlation Between Layers
 
-Measures hub consistency across layers via degree correlation.
+Measures the consistency of hubs across layers as the Pearson
+correlation of node degrees between layers.
 
 ## Usage
 
@@ -14,25 +15,25 @@ ldegcor(layers, mode = c("total", "in", "out"))
 
 - layers:
 
-  List of adjacency matrices
+  List of adjacency matrices of the same dimensions
 
 - mode:
 
-  Degree type: "total", "in", "out"
+  Degree type: "total" (default, row plus column sums), "in" (column
+  sums) or "out" (row sums). The sums use the edge weights, so on a
+  weighted layer the degree is the node strength.
 
 ## Value
 
-Correlation matrix between layer degree sequences
+An L x L Pearson correlation matrix of the layer degree sequences, with
+the layer names (or `"Layer1"`, `"Layer2"`, ...) as dimnames.
 
 ## Examples
 
 ``` r
-mat1 <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-mat2 <- matrix(c(0, 0, 1, 1, 0, 0, 0, 1, 0), 3, 3)
-layers <- list(L1 = mat1, L2 = mat2)
+layers <- list(forward = regulation_net, backward = t(regulation_net))
 layer_degree_correlation(layers, mode = "total")
-#> Warning: the standard deviation is zero
-#>    L1 L2
-#> L1  1 NA
-#> L2 NA  1
+#>          forward backward
+#> forward        1        1
+#> backward       1        1
 ```

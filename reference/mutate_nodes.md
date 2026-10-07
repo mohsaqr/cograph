@@ -48,17 +48,16 @@ format when `keep_format = TRUE`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-as.data.frame(mutate_nodes(adj, deg = degree, hub = degree >= 3),
-              what = "nodes")
-#>   id label name  x  y deg   hub
-#> 1  1     A    A NA NA   3  TRUE
-#> 2  2     B    B NA NA   2 FALSE
-#> 3  3     C    C NA NA   2 FALSE
-#> 4  4     D    D NA NA   1 FALSE
+as.data.frame(mutate_nodes(regulation_net, deg = degree), what = "nodes")
+#>    id      label       name  x  y deg
+#> 1   1    Explore    Explore NA NA   6
+#> 2   2       Plan       Plan NA NA   7
+#> 3   3    Monitor    Monitor NA NA   8
+#> 4   4      Adapt      Adapt NA NA   6
+#> 5   5    Reflect    Reflect NA NA   6
+#> 6   6    Discuss    Discuss NA NA   5
+#> 7   7 Synthesize Synthesize NA NA   4
+#> 8   8   Evaluate   Evaluate NA NA   5
+#> 9   9     Create     Create NA NA   7
+#> 10 10      Share      Share NA NA   6
 ```

@@ -1,8 +1,11 @@
 # Plot Transitions Between States
 
-Creates an elegant alluvial/Sankey diagram showing how items flow from
-one set of categories to another. Useful for visualizing cluster
-transitions, state changes, or any categorical mapping.
+Creates an alluvial (Sankey) diagram of how items flow from one set of
+categories to another, for example cluster membership changes or state
+changes between time points. Aggregated flows are plotted as ribbons
+whose width is proportional to the transition count. With
+`track_individuals = TRUE`, each row of a data frame is plotted as a
+separate line.
 
 ## Usage
 
@@ -70,46 +73,61 @@ plot_transitions(
 
 - x:
 
-  Input data in one of several formats:
+  Input data in one of these formats:
 
-  - A transition matrix (rows = from, cols = to, values = counts)
+  - A transition matrix (rows = from, columns = to, values = counts).
 
-  - Two vectors: pass `before` as x and `after` as second argument
-    (contingency table computed automatically, like chi-square)
+  - A vector of "before" states, with the vector of "after" states
+    passed as the second argument (`from_title`). Both vectors must have
+    the same length, greater than 2, and their contingency table is
+    computed.
 
-  - A 2-column data frame (raw observations; table computed
-    automatically)
+  - A data frame with two columns of raw observations, whose contingency
+    table is computed.
 
-  - A data frame with columns: from, to, count
+  - A data frame with three or more columns of raw observations, one
+    column per time point, plotted as a multi-step diagram.
 
-  - A list of matrices for multi-step transitions
+  - A data frame with columns `from`, `to` and `count`.
+
+  - A list of matrices for multi-step transitions.
+
+  - A `tna` object. Its sequence data are used as a data frame of time
+    points (rows with missing values are dropped), or its weight matrix
+    when no sequence data are stored.
 
 - from_title:
 
-  Title for the left column. Default "From". For multi-step, use a
-  vector of titles (e.g., c("T1", "T2", "T3", "T4")).
+  Title for the left column. Default "From". For multi-step and
+  individual-tracking plots, a vector with one title per column. Data
+  frame input then uses the column names by default, and a vector
+  shorter than the number of columns is replaced by "T1", "T2", ...
 
 - to_title:
 
-  Title for the right column. Default "To". Ignored for multi-step.
+  Title for the right column. Default "To". Ignored for multi-step
+  plots.
 
 - title:
 
-  Optional plot title. Applied via ggplot2::labs(title = title).
+  Optional plot title.
 
 - from_colors:
 
-  Colors for left-side nodes. Default uses palette.
+  Colors for the left-side nodes. In multi-step and individual-tracking
+  plots, the colors of all states. Default NULL uses the built-in
+  palette.
 
 - to_colors:
 
-  Colors for right-side nodes. Default uses palette.
+  Colors for the right-side nodes in two-column plots. Default NULL uses
+  the built-in palette.
 
 - flow_fill:
 
-  Fill color for flows. Default "#888888" (grey). In multi-step and
-  individual-tracking plots, ignored when `flow_color_by` is set; simple
-  two-column aggregate plots use `flow_fill`.
+  Fill color for flows. Default "#888888" (grey). In multi-step plots it
+  is replaced by the state colors when `flow_color_by` is set.
+  Individual-tracking lines do not use it.
 
 - flow_alpha:
 
@@ -117,10 +135,10 @@ plot_transitions(
 
 - flow_color_by:
 
-  Color flows by state. For multi-step aggregate flows, use `"source"`
-  or `"destination"`; for individual trajectories, `"first"` and
-  `"last"` are also supported. Default NULL uses `flow_fill`; simple
-  two-column aggregate plots ignore this argument.
+  Color flows by state. Multi-step aggregate plots accept `"source"` or
+  `"destination"`. Individual-tracking plots also accept `"first"` and
+  `"last"`. Default NULL uses `flow_fill`. Two-column aggregate plots
+  ignore this argument.
 
 - flow_border:
 
@@ -149,31 +167,32 @@ plot_transitions(
 - label_position:
 
   Position of node labels: "beside" (default), "inside", "above",
-  "below", "outside". Applied to first and last columns. See
+  "below", "outside". In multi-step and individual-tracking plots,
+  "beside" and "outside" label the first and last columns only. See
   `mid_label_position` for middle columns.
 
 - mid_label_position:
 
   Position of labels for intermediate (middle) columns in
   individual-tracking plots. Same options as `label_position`. Default
-  NULL uses `label_position` value.
+  NULL uses `label_position`.
 
 - label_halo:
 
-  Logical: add white halo around labels for readability? Default TRUE.
+  Logical: add a white halo around labels and column titles? Default
+  TRUE.
 
 - label_color:
 
   Color of state name labels. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
+  individual-tracking plots. Two-column aggregate plots use black
   external labels and white inside labels.
 
 - label_fontface:
 
   Font face of state name labels ("plain", "bold", "italic",
   "bold.italic"). Default "plain". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use fixed
-  label font faces.
+  individual-tracking plots.
 
 - label_nudge:
 
@@ -187,8 +206,7 @@ plot_transitions(
 - title_color:
 
   Color of column title text. Default "black". Applied to multi-step and
-  individual-tracking plots; simple two-column aggregate plots use black
-  titles.
+  individual-tracking plots.
 
 - title_fontface:
 
@@ -207,6 +225,7 @@ plot_transitions(
 
   Position of flow values: "center", "origin", "destination",
   "outside_origin", "outside_destination". Default "center".
+  Individual-tracking plots use "center", "origin" and "destination".
 
 - value_size:
 
@@ -218,9 +237,8 @@ plot_transitions(
 
 - value_halo:
 
-  Logical: add halo around flow value labels? Default NULL (inherits
-  from `label_halo`). Applied to multi-step and individual-tracking
-  plots.
+  Logical: add halo around flow value labels? Default NULL uses
+  `label_halo`. Applied to multi-step and individual-tracking plots.
 
 - value_fontface:
 
@@ -235,9 +253,8 @@ plot_transitions(
 - value_min:
 
   Minimum count to show a flow value label in multi-step and
-  individual-tracking plots. Default 0 (show all). Simple two-column
-  aggregate plots show all nonzero value labels when
-  `show_values = TRUE`.
+  individual-tracking plots. Default 0 (show all). Two-column aggregate
+  plots show every nonzero value label when `show_values = TRUE`.
 
 - show_totals:
 
@@ -253,22 +270,25 @@ plot_transitions(
 
 - total_fontface:
 
-  Font face of total labels. Default "bold".
+  Font face of total labels. Default "bold". Applied to multi-step and
+  individual-tracking plots.
 
 - conserve_flow:
 
-  Logical: should left and right totals match? Default TRUE. When FALSE,
-  each side scales independently (allows for "lost" or "gained" items).
+  Logical. When TRUE (default), node heights on both sides of a
+  two-column plot are proportions of the same total flow. When FALSE,
+  each side is scaled to its own total. Ignored for multi-step and
+  individual-tracking plots.
 
 - min_flow:
 
-  Minimum flow value to display. Default 0 (show all).
+  Minimum flow value to display in aggregate plots. Default 0 (show
+  all).
 
 - threshold:
 
-  Minimum edge weight to display. Flows below this value are removed.
-  Combined with `min_flow`: effective minimum is
-  `max(threshold, min_flow)`. Default 0.
+  Minimum flow value to display in aggregate plots. Flows below
+  `max(threshold, min_flow)` are removed. Default 0.
 
 - value_digits:
 
@@ -278,49 +298,58 @@ plot_transitions(
 - column_gap:
 
   Horizontal spread of columns (0-1) for multi-step and
-  individual-tracking plots. Default 1 uses full width. Use smaller
-  values (e.g., 0.6) to bring columns closer together.
+  individual-tracking plots. Default 1 uses the full width. Smaller
+  values (e.g., 0.6) bring the columns closer together.
 
 - track_individuals:
 
-  Logical: draw individual lines instead of aggregated flows? Default
-  FALSE. When TRUE, each row in the data frame becomes a separate line.
+  Logical: plot individual lines instead of aggregated flows? Default
+  FALSE. When TRUE and `x` is a data frame of raw observations, each row
+  becomes a separate line.
 
 - line_alpha:
 
-  Alpha for individual tracking lines. Default 0.3.
+  Alpha for individual tracking lines. Default 0.3. When bundling is
+  active, values up to 0.3 are raised to 0.9 and larger values are
+  increased by 0.3, capped at 1.
 
 - line_width:
 
-  Width of individual tracking lines. Default 0.5.
+  Width of individual tracking lines. Default 0.5. When bundling is
+  active, widths range from `line_width` to twice that value according
+  to the number of cases per line.
 
 - jitter_amount:
 
-  Vertical jitter for individual lines (0-1). Default 0.8.
+  Currently unused. Lines are spaced evenly within each node. Default
+  0.8.
 
 - proportional_nodes:
 
   Logical: size nodes proportionally to counts in individual-tracking
-  plots? Default TRUE.
+  plots? When FALSE, all states in a column have equal height. Default
+  TRUE.
 
 - node_label_format:
 
   Format string for node labels with `{state}` and `{count}`
-  placeholders in individual-tracking plots. Default NULL (plain state
-  name). Example: `"{state} (n={count})"`.
+  placeholders in individual-tracking plots, for example
+  `"{state} (n={count})"`. Default NULL (plain state name).
 
 - bundle_size:
 
-  Controls line bundling for large datasets. Default NULL (no bundling).
-  Integer \>= 2: each drawn line represents that many cases. Numeric in
-  (0,1): reduce to this fraction of original lines (e.g., 0.15 keeps
-  about 15 percent of lines).
+  Controls line bundling for large datasets in individual-tracking
+  plots. Default NULL (no bundling). A value of 1 or more sets the
+  number of cases each line represents. A value in (0, 1) sets the
+  fraction of the original number of lines to keep (e.g., 0.15 keeps
+  about 15 percent). Paths with fewer than half the cases of one line
+  are dropped.
 
 - bundle_legend:
 
-  Logical or character: show annotation when bundling is active? Default
-  TRUE shows "Each line ~ N cases" below the plot. Pass a string to use
-  custom text (with `{n}` placeholder for count).
+  Logical or character: show an annotation when bundling is active?
+  Default TRUE shows "Each line ~ N cases". A string is used as custom
+  text, with `{n}` as the placeholder for the number of cases.
 
 - bundle_legend_size:
 
@@ -340,27 +369,11 @@ plot_transitions(
 
 ## Value
 
-A ggplot2 object.
-
-## Details
-
-The function creates smooth bezier curves connecting nodes from the left
-column to the right column. Flow width is proportional to the transition
-count. Nodes are sized proportionally to their total flow.
+A `ggplot` object.
 
 ## Examples
 
 ``` r
-# From a transition matrix
-mat <- matrix(c(50, 10, 5, 15, 40, 10, 5, 20, 30), 3, 3, byrow = TRUE,
-              dimnames = list(c("Light","Resource","Intense"),
-                              c("Light","PBL","Resource")))
-plot_transitions(mat, from_title = "Time 1", to_title = "Time 2")
-
-
-# From a 2-column data frame (auto-contingency)
-df <- data.frame(time1 = c("A","A","B","B","C"),
-                 time2 = c("X","Y","X","Z","Y"))
-plot_transitions(df)
+plot_transitions(regulation_net)
 
 ```

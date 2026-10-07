@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,18 +111,19 @@
 
 
 <dt id="arg-remove-loops">remove_loops<a class="anchor" aria-label="anchor" href="#arg-remove-loops"></a></dt>
-<dd><p>Logical. Remove self-loops (diagonal entries)?</p></dd>
+<dd><p>Logical. Remove self-loops (diagonal entries)?
+Default <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-remove-multiple">remove_multiple<a class="anchor" aria-label="anchor" href="#arg-remove-multiple"></a></dt>
-<dd><p>Logical. Merge duplicate edges?
-No-op for matrix/tna inputs (see Details).</p></dd>
+<dd><p>Logical. Merge duplicate edges? Default
+<code>TRUE</code>. Ignored for matrix and tna inputs (see Details).</p></dd>
 
 
 <dt id="arg-edge-attr-comb">edge_attr_comb<a class="anchor" aria-label="anchor" href="#arg-edge-attr-comb"></a></dt>
 <dd><p>How to combine weights of duplicate edges:
-<code>"sum"</code>, <code>"mean"</code>, <code>"max"</code>, <code>"min"</code>,
-<code>"first"</code>, or a custom function. Ignored for matrix/tna inputs.</p></dd>
+<code>"sum"</code>, <code>"mean"</code> (default), <code>"max"</code>, <code>"min"</code>,
+<code>"first"</code>, or a custom function. Ignored for matrix and tna inputs.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -139,14 +140,15 @@ out, and so on). The default method raises an error for any other class.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The extent of simplification depends on the input representation:</p><ul><li><p><code>matrix</code> and <code>tna</code>: edges are stored as an n x n weight
 matrix. Each cell (i, j) is unique by construction, so duplicate-edge
-merging is a no-op regardless of <code>remove_multiple</code> /
-<code>edge_attr_comb</code>; only self-loops (the diagonal) can be removed.
-Convert to <code>cograph_network</code> or <code>igraph</code> first if you need
-true duplicate aggregation.</p></li>
-<li><p><code>cograph_network</code>: duplicate edges in the edge-list are
-merged via <code>aggregate_duplicate_edges()</code> using
-<code>edge_attr_comb</code>.</p></li>
-<li><p><code>igraph</code>: delegates to <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code>.</p></li>
+merging has no effect and <code>remove_multiple</code> and
+<code>edge_attr_comb</code> are ignored. Only self-loops (the diagonal) are
+removed. Duplicate aggregation requires a <code>cograph_network</code> or
+<code>igraph</code> input.</p></li>
+<li><p><code>cograph_network</code>: duplicate edges in the edge list are
+merged, and their weights are combined with <code>edge_attr_comb</code>.</p></li>
+<li><p><code>igraph</code>: delegates to <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code>. The
+<code>weight</code> attribute is combined with <code>edge_attr_comb</code> and
+other edge attributes are dropped.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -157,32 +159,12 @@ merged via <code>aggregate_duplicate_edges()</code> using
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># igraph also exports simplify(); qualify the call when both are loaded.</span></span></span>
-<span class="r-in"><span><span class="co"># Matrix with self-loops</span></span></span>
-<span class="r-in"><span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.3 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0.3 0.0 0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.0 0.4 0.0</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Edge list with duplicates</span></span></span>
-<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.7</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">edges</span>, layout <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
+<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span>, edge_attr_comb <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 34 nodes, 220 edges ( directed )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: edgelist </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (3 x 3) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Weights: 0.5 (all equal)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">simplify</span><span class="op">(</span><span class="va">net</span>, edge_attr_comb <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 3 nodes, 2 edges ( undirected )</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Source: edgelist </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (3 x 3) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (3): 1, 2, 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Weights: 0.5 to 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data: data.frame (389 x 2) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (34): Ac, Ad, Fi, Ik, Vx, Rt, ... +28 more</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Weights: 1 to 14 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>

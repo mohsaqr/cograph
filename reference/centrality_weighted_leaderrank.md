@@ -1,10 +1,12 @@
-# Weighted LeaderRank centrality
+# Weighted LeaderRank
 
-Li et al.'s weighted LeaderRank adds a ground node g. Each original
-directed edge and each edge from an original node to g has weight one.
-The edge from g to node i has weight \\(k_i^{in})^{\alpha}\\, using
-original in-degree before ground edges are added. Scores follow the
-stationary distribution of the row-normalized augmented matrix.
+Weighted LeaderRank (Li et al. 2014) adds a ground node \\g\\ that is
+linked in both directions to every node. Each original arc and each arc
+into the ground has weight 1, and the arc from the ground to node \\i\\
+has weight \\(k_i^{in})^{\alpha}\\, where \\k_i^{in}\\ is the in-degree
+before the ground is added. The score is the stationary resource of the
+random walk on the row-normalized weights, started with one unit on
+every node and the ground included.
 
 ## Usage
 
@@ -21,50 +23,29 @@ centrality_weighted_leaderrank(x, wlr_alpha = 1, ...)
 
 - wlr_alpha:
 
-  Finite in-degree exponent, default one, a setting studied in the
-  source rather than a universal optimum.
+  Exponent \\\alpha\\ of the in-degree, a finite number. Default 1, one
+  of the values studied by Li et al. (2014).
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides final scores by their maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Raw scores retain total mass N+1 across the augmented graph, following
-the all-nodes-one initialization in the original paper, section 2. The
-ground score is omitted from the returned vector without redistribution.
-The Zoo instead initializes the ground at zero, yielding raw scores
-smaller by N/(N+1); final max-normalized scores agree. The existing
-[`centrality_leaderrank`](https://sonsoles.me/cograph/reference/centrality_leaderrank.md)
-uses a different redistribution/scale convention, so raw equality at
-alpha zero is not asserted.
-
-Directed arcs are retained; an undirected edge is treated as two
-opposite arcs, an explicit extension. Input weights are ignored:
-weighted refers to the algorithm's ground-edge weights. Loops are
-removed and parallel arcs count once. Mode, path inversion and cutoff do
-not change the result.
-
-Alpha can be any finite number. Negative values require strictly
-positive original in-degree at every node. At alpha zero all ground-edge
-weights are one, including for zero-in-degree nodes. With positive
-alpha, these nodes receive no ground resource and have zero stationary
-score; if every in-degree is zero the ground row is undefined and all
-scores are NaN. Empty input returns an empty vector. These boundary
-conventions are explicit; no pseudocount is added to the published
-in-degree weights.
-
-A native linear solve eliminates the ground variable and obtains the
-unique stationary distribution even when ordinary iteration is periodic.
-This uses O(N^3) time and O(N^2) memory. Ground transition probabilities
-are calculated with shifted logarithms, avoiding overflow for large
-exponents; extremely small probabilities may underflow to zero.
+Arcs keep their direction, and an undirected edge counts as two opposite
+arcs. Edge weights, loops and parallel arcs are ignored, and `mode` has
+no effect. The returned scores omit the ground, so they sum to less than
+\\N+1\\. With \\\alpha = 0\\ every ground arc has weight 1. With a
+positive \\\alpha\\ a node with in-degree 0 scores 0, and when every
+in-degree is 0 all scores are `NaN` without a warning. A negative
+\\\alpha\\ requires a positive in-degree at every node and raises an
+error otherwise.
 
 ## References
 
@@ -73,10 +54,18 @@ spreaders by weighted LeaderRank. Physica A, 404, 47-55.
 [doi:10.1016/j.physa.2014.02.041](https://doi.org/10.1016/j.physa.2014.02.041)
 .
 
+## See also
+
+[`centrality_leaderrank`](https://sonsoles.me/cograph/reference/centrality_leaderrank.md),
+[`centrality_adaptive_leaderrank`](https://sonsoles.me/cograph/reference/centrality_adaptive_leaderrank.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_weighted_leaderrank(igraph::make_ring(4, directed = TRUE))
-#>         1         2         3         4 
-#> 0.8333333 0.8333333 0.8333333 0.8333333 
+centrality_weighted_leaderrank(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  1.2645536  0.4800665  1.5318985  1.0899050  1.0633537  0.5116224  0.3520438 
+#>   Evaluate     Create      Share 
+#>  0.4305966  0.9572521  0.9316820 
 ```

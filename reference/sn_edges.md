@@ -1,6 +1,9 @@
 # Set Edge Aesthetics
 
-Customize the visual appearance of edges in a network plot.
+Stores edge aesthetics in a network object for plotting with
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md).
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) does not read
+these settings and takes its edge arguments directly.
 
 ## Usage
 
@@ -79,7 +82,7 @@ sn_edges(
 - edge_size:
 
   Maximum edge size for renderer weight scaling. NULL (default) uses the
-  renderer's edge-width range. Larger values = thicker edges overall.
+  renderer's edge-width range. Larger values give thicker edges overall.
 
 - esize:
 
@@ -99,9 +102,9 @@ sn_edges(
 - edge_cutoff:
 
   Optional cutoff for edge emphasis. NULL (default) or 0 disables cutoff
-  handling. Positive values are passed to renderers; in
-  [`splot()`](https://sonsoles.me/cograph/reference/splot.md), edges
-  below the cutoff are faded while width scaling remains continuous.
+  handling. The value is stored in the network; the
+  [`soplot()`](https://sonsoles.me/cograph/reference/soplot.md) renderer
+  keeps width scaling continuous and does not change the plot for it.
 
 - cut:
 
@@ -243,7 +246,7 @@ sn_edges(
 
 - ci:
 
-  Numeric vector of CI widths (0-1 scale). Larger values = more
+  Numeric vector of CI widths (0-1 scale). Larger values indicate more
   uncertainty.
 
 - ci_scale:
@@ -309,8 +312,9 @@ sn_edges(
 
 ## Value
 
-Modified cograph_network object that can be piped to further
-customization functions or plotting functions.
+The input as a `cograph_network` object with the edge aesthetics merged
+into its stored settings, ready to pipe into further `sn_*` functions or
+[`soplot()`](https://sonsoles.me/cograph/reference/soplot.md).
 
 ## Details
 
@@ -318,12 +322,13 @@ customization functions or plotting functions.
 
 Most aesthetic parameters can be specified as:
 
-- **Single value**: Applied to all edges
+- A single value is applied to all edges.
 
-- **Vector**: Per-edge values (must match edge count)
+- A vector gives per-edge values and is recycled to the edge count.
 
-- **"weight"**: Special value for `width` and `color` that auto-maps
-  from edge weights
+- `"weight"` maps `width` and `color` from the edge weights.
+
+- A single string naming an edge column takes the values of that column.
 
 ### Weight-Based Styling
 
@@ -333,8 +338,10 @@ When `color = "weight"`, edges are colored by sign:
 
 - Negative weights use `edge_negative_color` (default: red)
 
-When `width = "weight"`, edge widths scale with absolute weight values,
-respecting the `maximum` parameter if set.
+When `width = "weight"`, edge widths scale linearly with absolute weight
+values to the range 0.5 to 3, capped at `maximum` if set. Explicit
+widths take precedence over `edge_size`, `edge_width_range` and
+`edge_scale_mode`.
 
 ### Edge Label Templates
 
@@ -359,7 +366,8 @@ Preset styles via `label_style`:
 
 ### CI Underlays
 
-Visualize uncertainty by drawing a wider, semi-transparent edge behind:
+Uncertainty is visualized as a wider, semi-transparent edge plotted
+behind the main edge.
 
 - `ci`: Vector of CI widths (0-1 scale)
 
@@ -373,7 +381,6 @@ Visualize uncertainty by drawing a wider, semi-transparent edge behind:
 customization,
 [`cograph`](https://sonsoles.me/cograph/reference/cograph.md) for
 network creation,
-[`splot`](https://sonsoles.me/cograph/reference/splot.md) and
 [`soplot`](https://sonsoles.me/cograph/reference/soplot.md) for
 plotting,
 [`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md) for
@@ -384,17 +391,7 @@ visual themes
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, -0.5, 1, 0, 1, -0.5, 1, 0), nrow = 3)
-cograph(adj) |>
+cograph(regulation_net) |>
   sn_edges(width = "weight", color = "weight") |>
-  splot()
-
-
-# Custom positive/negative colors with labels
-cograph(adj) |>
-  sn_edges(color = "weight",
-           edge_positive_color = "darkblue",
-           edge_negative_color = "darkred",
-           labels = TRUE) |>
-  splot()
+  soplot()
 ```

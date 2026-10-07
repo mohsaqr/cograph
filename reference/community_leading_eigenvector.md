@@ -1,7 +1,8 @@
 # Leading Eigenvector Community Detection
 
-Detects communities using the leading eigenvector of the modularity
-matrix. Hierarchical divisive algorithm.
+Detects communities with the leading eigenvector of the modularity
+matrix, splitting the network divisively. A directed graph is collapsed
+to an undirected graph with summed edge weights.
 
 ## Usage
 
@@ -35,15 +36,16 @@ com_le(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - steps:
 
-  Maximum number of splits. Default -1 (until modularity decreases).
+  Maximum number of split attempts. Default -1 (no limit).
 
 - start:
 
@@ -51,19 +53,20 @@ com_le(
 
 - options:
 
-  ARPACK options list. Default uses igraph::arpack_defaults().
+  ARPACK options list. Default
+  [`igraph::arpack_defaults()`](https://r.igraph.org/reference/arpack.html).
 
 - callback:
 
-  Optional callback function called after each split.
+  Optional function called after each split.
 
 - extra:
 
-  Extra argument passed to callback.
+  Extra argument passed to `callback`.
 
 - env:
 
-  Environment for callback evaluation.
+  Environment in which `callback` is evaluated.
 
 - ...:
 
@@ -74,10 +77,10 @@ com_le(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -87,23 +90,20 @@ eigenvectors of matrices. *Physical Review E*, 74, 036104.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_leading_eigenvector(g)
-membership(comm)
-#>  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-#>  1  3  3  3  1  1  1  3  2  2  1  1  3  3  2  2  1  3  2  3  2  3  2  4  4  4 
-#> 27 28 29 30 31 32 33 34 
-#>  2  4  4  2  2  4  2  2 
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_le(net)
+community_leading_eigenvector(regulation_net)
 #> Community structure (leading_eigenvector)
-#>   Nodes: 5  | Communities: 2  | Modularity: 0.0402 
-#>   Sizes: 2, 3 
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     1         1
-#>     2         2
-#>     3         2
-#>     4         1
-#>     5         2
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

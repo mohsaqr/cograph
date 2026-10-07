@@ -1,15 +1,11 @@
-# Bridging capital from lost information walks
+# Bridging Capital
 
-Implements Jackson's section 3.3 definition:
-\$\$Brid_i=\sum_j\sum\_{s,t}v\_{st}\sum\_{h=1}^T
-\[P^h-(P-P\_{ij}E\_{ij})^h\]\_{st}.\$\$ P contains per-contact
-transmission probabilities between zero and one. Rows need not sum to
-one: this is broadcast information flow, not a Markov chain.
-`bridging_steps` is the finite horizon T, default two, with zero giving
-an empty sum. Input edge weights supply P; unweighted edges use
-probability one. Finite nonnegative pair values v_st default to one,
-including diagonal entries. Named value matrices are reordered by
-labels.
+Bridging capital (Jackson 2020, section 3.3) credits node \\i\\ with the
+expected number of walks of length at most \\T\\ that are lost when one
+entry \\P\_{ij}\\ of the transmission matrix is deleted, summed over
+\\j\\ and weighted by source-destination values \\v\_{st}\\: \$\$Brid_i
+= \sum_j \sum\_{s,t} v\_{st} \sum\_{h=1}^{T} \left\[P^h - (P - P\_{ij}
+E\_{ij})^h\right\]\_{st}.\$\$
 
 ## Usage
 
@@ -26,50 +22,35 @@ centrality_bridging_capital(x, bridging_steps = 2, bridging_values = NULL, ...)
 
 - bridging_steps:
 
-  Nonnegative integer horizon, default two.
+  Horizon \\T\\, a nonnegative integer. Default 2.
 
 - bridging_values:
 
-  Optional nonnegative n by n source-destination information-value
-  matrix; NULL uses ones. Both dimensions may be named.
+  Nonnegative n by n matrix of source-destination values \\v\\. `NULL`
+  (default) sets every value to one. Row and column names, when present,
+  are matched to the node names.
 
 - ...:
 
-  Additional arguments to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (use edge weights, default `TRUE`) and
+  `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-The source explicitly deletes one matrix entry P_ij and credits its
-criticality to i. On undirected input, opposite entries are therefore
-tested separately; deleting one leaves the reverse entry present. This
-is not simultaneous deletion of an undirected edge or of a whole node.
-Walks can repeat nodes and edges. A walk using the selected entry
-several times contributes once to that entry's deletion loss, not once
-per use.
-
-Direction and loops are retained, as allowed by the source's formal
-definitions. Generic loops/simplify apply first. Remaining parallel
-weights sum into one matrix entry and must still be at most one; removal
-deletes that aggregate entry. Zero weights are absent. Mode, inversion
-and shortest-path cutoff do not affect results. Isolates score zero,
-empty inputs return no scores, and all-zero values or zero horizon give
-zeros. No renormalization follows entry removal.
-
-The native implementation tracks walks that have and have not used the
-selected entry, avoiding cancellation in matrix-power subtraction. Dense
-cost is O(m T n cubed) time and O(n squared) memory, where m is the
-number of positive directed matrix entries. Request this costly measure
-explicitly. Nonrepresentable intermediate walk masses raise errors, even
-if a final rescaled result might exist. Raw valued-score overflow may be
-avoided by `normalized=TRUE`, which scales values first then divides
-final node scores by their maximum. This implements expected walk counts
-EInf, not the source's alternative probability-of-ever-hearing measure
-PInf.
+Edge weights are the transmission probabilities in \\P\\ and must lie
+between zero and one, and an unweighted edge has probability one. A
+weight above one raises an error. Direction and loops are kept, and the
+two entries of an undirected edge are deleted separately. Walks may
+repeat nodes and edges, and a walk that uses the deleted entry several
+times is counted once. Isolated nodes score zero, and
+`bridging_steps = 0` gives zero scores. The function computes the
+expected walk count EInf of the source paper.
 
 ## References
 
@@ -78,10 +59,18 @@ network measures. Social Choice and Welfare, 54, 311-336.
 [doi:10.1007/s00355-019-01189-3](https://doi.org/10.1007/s00355-019-01189-3)
 .
 
+## See also
+
+[`centrality_bridging`](https://sonsoles.me/cograph/reference/centrality_bridging.md),
+[`centrality_diffusion_centrality`](https://sonsoles.me/cograph/reference/centrality_diffusion_centrality.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_bridging_capital(igraph::make_ring(4), bridging_steps = 2)
-#>  1  2  3  4 
-#> 10 10 10 10 
+centrality_bridging_capital(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>     1.4617     3.4556     1.7107     2.1084     0.5485     1.7608     0.9969 
+#>   Evaluate     Create      Share 
+#>     2.0890     2.3416     2.9270 
 ```

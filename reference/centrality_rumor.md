@@ -1,14 +1,12 @@
 # Rumor Centrality
 
-Shah and Zaman's (2010, 2011) maximum-likelihood score for the source of
-a rumor that has spread under the susceptible-infected model to every
-node. On a tree, \$\$R(v) = \frac{N!}{\prod\_{u} T^v_u},\$\$ where
-\\T^v_u\\ is the number of nodes in the subtree rooted at \\u\\ when the
-tree is rooted at \\v\\: the number of spreading orders that could have
-started at \\v\\. On a general graph the paper evaluates \\R\\ on the
-breadth-first tree rooted at each node (its eq. 24). Higher values mark
-nodes that are more plausible origins, which in practice are nodes near
-the center of the network.
+Rumor centrality (Shah and Zaman 2010, 2011) is the maximum-likelihood
+score for the source of a rumor that has spread to every node under the
+susceptible-infected model. On a tree rooted at \\v\\ it counts the
+spreading orders that start at \\v\\, \$\$R(v) = \frac{N!}{\prod_u
+T^v_u},\$\$ where \\T^v_u\\ is the size of the subtree rooted at \\u\\.
+On a general graph \\R\\ is evaluated on the breadth-first tree rooted
+at each node.
 
 ## Usage
 
@@ -20,30 +18,29 @@ centrality_rumor(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, \\\log R\\ per node.
+A named numeric vector with one score per node, in input node order,
+holding \\\log R\\.
 
 ## Details
 
-The value is returned as \\\log R(v)\\ (natural log) because \\N!\\
-overflows beyond 170 nodes; rankings and differences are unchanged.
-\\N\\ is the size of the node's component, so a disconnected graph is
-scored component by component and an isolate scores 0. The breadth-first
-tree attaches each node to the earliest discovered node of the previous
-layer, scanning neighbors in label order; the paper does not fix a tie
-rule, and this one reproduces its Figure 3. Direction and edge weights
-are ignored.
-
-Validated on trees against a brute-force count of spreading orders and
-against the worked examples in the paper.
+The value is returned as \\\log R(v)\\ with the natural logarithm,
+because \\N!\\ overflows beyond 170 nodes. \\N\\ is the size of the
+component of the node, so a disconnected network is scored component by
+component and an isolated node scores 0. The breadth-first tree attaches
+each node to the earliest discovered node of the previous layer,
+scanning neighbors in node order. Direction, edge weights and self-loops
+are ignored. Higher values mark more plausible origins.
 
 ## References
 
@@ -55,16 +52,15 @@ IEEE Transactions on Information Theory, 57(8), 5163-5181.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-path5 <- matrix(0, 5, 5)
-path5[cbind(1:4, 2:5)] <- 1; path5 <- path5 + t(path5)
-rownames(path5) <- colnames(path5) <- LETTERS[1:5]
-exp(centrality_rumor(path5))   # spreading orders from each node
-#> A B C D E 
-#> 1 4 6 4 1 
+centrality_rumor(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   10.72239   11.01007   11.41553   11.01007   10.72239   10.72239   10.49924 
+#>   Evaluate     Create      Share 
+#>   10.72239   11.01007   10.60460 
 ```

@@ -1,11 +1,10 @@
-# Localized bridging centrality from ego betweenness
+# Localized Bridging Centrality
 
-Nanda and Kotz's localized bridging centrality is the product of a
-node's unnormalized betweenness in its induced one-hop ego network and
-its bridging coefficient. The coefficient is reciprocal focal degree
-divided by the sum of reciprocal neighbor degrees, all measured in the
-original graph. It is not computed from degrees truncated to the ego
-network.
+Localized bridging centrality (Nanda and Kotz 2012) is the product of a
+node's betweenness \\B^{ego}\_i\\ in its one-hop ego network and its
+bridging coefficient, the reciprocal of its degree divided by the sum of
+the reciprocal degrees of its neighbors: \$\$LBC_i = B^{ego}\_i \\
+\frac{1/d_i}{\sum\_{j \in N(i)} 1/d_j}.\$\$
 
 ## Usage
 
@@ -22,32 +21,22 @@ centrality_localized_bridging(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  `normalized = TRUE` divides final scores by their maximum; all-zero
-  scores remain zero. Ego betweenness is never scaled by ego size.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Each unordered pair of other ego-network vertices contributes the
-fraction of its shortest paths that pass through the focal vertex.
-Endpoints are excluded. Uses a simple unweighted undirected skeleton:
-either arc direction creates an edge, loops are removed and parallel
-edges count once. Weights, mode, inversion and cutoff are ignored. This
-projection is an explicit cograph convention, not a directed or weighted
-generalization of LBC.
-
-Isolates and leaves score zero; the isolate value extends the undefined
-bridging coefficient by zero. Complete graphs score zero. Disconnected
-components are evaluated independently before optional maximum scaling.
-Empty graphs return no scores. The one-hop calculation uses the
-Everett-Borgatti common-neighbor shortcut in each ego network, with
-worst-case O(n to the fourth power) time and O(n squared) memory for
-dense matrix multiplication across all nodes.
+The measure is computed on the simple undirected skeleton of the
+network, so direction, weights, loops and parallel edges are ignored.
+Degrees are taken from the whole network. Ego betweenness counts
+unordered pairs of the other ego-network nodes, excludes endpoints and
+is not normalized. Isolated nodes, leaves and every node of a complete
+graph score zero.
 
 ## References
 
@@ -58,24 +47,17 @@ Handbook of Optimization in Complex Networks, pp. 197-224.
 
 ## See also
 
-[`centrality_extended_local_bridging`](https://sonsoles.me/cograph/reference/centrality_extended_local_bridging.md)
-for two-hop ego networks.
-[`centrality_local_bridging`](https://sonsoles.me/cograph/reference/centrality_local_bridging.md)
-retains the distinct legacy score, inverse degree times bridging
-coefficient.
+[`centrality_extended_local_bridging`](https://sonsoles.me/cograph/reference/centrality_extended_local_bridging.md),
+[`centrality_local_bridging`](https://sonsoles.me/cograph/reference/centrality_local_bridging.md),
+[`centrality_ego_betweenness`](https://sonsoles.me/cograph/reference/centrality_length_scaled_betweenness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-centrality_localized_bridging(igraph::make_graph("Zachary"))
-#>         1         2         3         4         5         6         7         8 
-#> 1.0638369 0.7407407 1.4256278 0.3064699 0.2580645 0.4363636 0.4363636 0.0000000 
-#>         9        10        11        12        13        14        15        16 
-#> 1.2620415 3.1481481 0.2580645 0.0000000 0.0000000 1.6028810 0.0000000 0.0000000 
-#>        17        18        19        20        21        22        23        24 
-#> 0.0000000 0.0000000 0.0000000 2.8681898 0.0000000 0.0000000 0.0000000 1.0251256 
-#>        25        26        27        28        29        30        31        32 
-#> 0.8888889 0.9523810 0.0000000 1.8059490 2.0481928 0.2968568 1.6546503 1.5910478 
-#>        33        34 
-#> 0.6822368 0.9894594 
+centrality_localized_bridging(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.5714286  0.6228611  0.4320988  1.0479042  1.3093525  0.8888889  0.5545775 
+#>   Evaluate     Create      Share 
+#>  0.5932203  0.5257511  0.3954802 
 ```

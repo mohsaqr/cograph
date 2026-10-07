@@ -21,7 +21,7 @@ detect_communities(x, method = "louvain", directed = NULL, weights = TRUE)
 
   Community detection algorithm to use. One of:
 
-  - `"louvain"`: Louvain method (default, fast and accurate)
+  - `"louvain"`: Louvain modularity optimization (default)
 
   - `"walktrap"`: Walktrap algorithm based on random walks
 
@@ -31,7 +31,18 @@ detect_communities(x, method = "louvain", directed = NULL, weights = TRUE)
 
   - `"infomap"`: Infomap algorithm based on information flow
 
-  - `"leiden"`: Leiden algorithm (improved Louvain)
+  - `"leiden"`: Leiden algorithm, run with the defaults of
+    [`igraph::cluster_leiden()`](https://r.igraph.org/reference/cluster_leiden.html).
+    Its default constant Potts model objective can place every node in
+    its own community.
+
+  `"louvain"`, `"leiden"` and `"fast_greedy"` require an undirected
+  graph. A directed network is collapsed to an undirected one for these
+  methods, with the weights of reciprocal edges averaged, and a message
+  is issued for `"louvain"` and `"leiden"`. The `"louvain"`, `"leiden"`,
+  `"label_prop"` and `"infomap"` methods use random numbers, so
+  [`set.seed()`](https://rdrr.io/r/base/Random.html) makes their result
+  reproducible.
 
 - directed:
 
@@ -49,7 +60,7 @@ one row per node with columns:
 
 - `node`: Node labels/names
 
-- `community`: Integer community membership
+- `community`: Numeric community membership
 
 The algorithm name, the igraph community object, the modularity and the
 input network are carried as attributes for the `print`, `plot` and
@@ -58,32 +69,20 @@ input network are carried as attributes for the `print`, `plot` and
 ## Examples
 
 ``` r
-# Basic usage
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-detect_communities(adj)
-#> Community structure (louvain)
-#>   Nodes: 4  | Communities: 2  | Modularity: 0.0355 
-#>   Sizes: 2, 2 
-#> 
-#>  node community
-#>     A         1
-#>     B         2
-#>     C         1
-#>     D         2
-
-# Different algorithm
-detect_communities(adj, method = "walktrap")
+detect_communities(regulation_net, method = "walktrap")
 #> Community structure (walktrap)
-#>   Nodes: 4  | Communities: 2  | Modularity: 0.0355 
-#>   Sizes: 2, 2 
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     A         2
-#>     B         1
-#>     C         2
-#>     D         1
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

@@ -1,7 +1,9 @@
 # Leiden Community Detection
 
-Leiden algorithm - an improved version of Louvain that guarantees
-well-connected communities. Supports CPM and modularity objectives.
+The Leiden algorithm, a refinement of the Louvain algorithm that
+guarantees well-connected communities. It optimizes the Constant Potts
+Model (CPM) or modularity. The graph must be undirected; a directed
+graph raises an igraph error.
 
 ## Usage
 
@@ -37,24 +39,26 @@ com_ld(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - resolution:
 
-  Resolution parameter. Default 1.
+  Resolution parameter. Default 1. With the default CPM objective and
+  resolution 1, a network with weights below 1 is typically split into
+  single-node communities.
 
 - objective_function:
 
-  Optimization objective: "CPM" (Constant Potts Model) or "modularity".
-  Default "CPM".
+  Optimization objective, `"CPM"` (default) or `"modularity"`.
 
 - beta:
 
-  Parameter for randomness in refinement step. Default 0.01.
+  Randomness parameter of the refinement step. Default 0.01.
 
 - initial_membership:
 
@@ -62,11 +66,12 @@ com_ld(
 
 - n_iterations:
 
-  Number of iterations. Default 2. Use -1 for convergence.
+  Number of iterations. Default 2. A negative value iterates until the
+  partition no longer changes.
 
 - vertex_weights:
 
-  Vertex weights for CPM objective.
+  Vertex weights for the CPM objective.
 
 - seed:
 
@@ -81,10 +86,10 @@ com_ld(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -95,16 +100,21 @@ Leiden: guaranteeing well-connected communities. *Scientific Reports*,
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Standard Leiden
-  comm <- community_leiden(g)
-
-  # Higher resolution for more communities
-  comm2 <- community_leiden(g, resolution = 1.5)
-
-  # Modularity objective
-  comm3 <- community_leiden(g, objective_function = "modularity")
-}
+community_leiden(to_undirected(regulation_net), objective_function = "modularity",
+                 seed = 1)
+#> Community structure (leiden)
+#>   Nodes: 10  | Communities: 2  | Modularity: NA 
+#>   Sizes: 5, 5 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

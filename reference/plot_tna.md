@@ -1,8 +1,9 @@
 # TNA-Style Network Plot (qgraph Compatible)
 
-A drop-in replacement for qgraph::qgraph() that uses cograph's splot
-engine. Accepts qgraph parameter names for seamless migration from
-qgraph to cograph.
+Plots a network with
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md) and TNA
+styling, using qgraph argument names such as `vsize`, `edge.color` and
+`pie`. `tplot()` is an alias.
 
 ## Usage
 
@@ -72,11 +73,11 @@ tplot(
 
 - layout:
 
-  Layout: "circle", "spring", "oval", or a coordinate matrix
+  Layout: "oval" (default), "circle", "spring", or a coordinate matrix.
 
 - theme:
 
-  Plot theme ("colorblind", "gray", etc.)
+  Plot theme. Default "colorblind".
 
 - mar:
 
@@ -84,7 +85,8 @@ tplot(
 
 - cut:
 
-  Edge emphasis threshold
+  Edge emphasis threshold, passed to `edge_cutoff` of
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md).
 
 - edge.label.position:
 
@@ -104,23 +106,26 @@ tplot(
 
 - pie:
 
-  Pie/donut fill values (e.g., initial probabilities)
+  Donut fill values in 0-1 (for example, initial probabilities).
 
 - pieColor:
 
-  Pie/donut segment colors
+  Donut fill colors.
 
 - lty:
 
-  Line type for edges (1=solid, 2=dashed, 3=dotted)
+  Line type for edges: 1 solid, 2 dashed, 3 dotted, 4 dotdash, 5
+  longdash, 6 twodash, or a line-type name.
 
 - directed:
 
-  Logical, is the graph directed?
+  Logical, is the graph directed? NULL (default) treats a symmetric
+  weight matrix as undirected and any other input as directed.
 
 - minimum:
 
-  Minimum edge weight to display
+  Minimum absolute edge weight to display, passed to `threshold` of
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md).
 
 - posCol:
 
@@ -142,28 +147,18 @@ tplot(
 
 - ...:
 
-  Additional arguments passed to splot()
+  Additional arguments passed to
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md). They take
+  precedence over the translated qgraph arguments.
 
 ## Value
 
-Invisibly returns the cograph_network object from splot().
+The `cograph_network` object returned by
+[`splot()`](https://sonsoles.me/cograph/reference/splot.md), invisibly.
 
 ## Examples
 
 ``` r
-# Simple usage
-m <- matrix(runif(25), 5, 5)
-plot_tna(m)
+plot_tna(regulation_net)
 
-
-# With qgraph-style parameters
-plot_tna(m, vsize = 15, edge.label.cex = 2, layout = "circle")
-
-
-# With custom colors
-plot_tna(m, color = palette_colorblind(5), vsize = 10)
-
-
-m <- matrix(runif(25), 5, 5)
-tplot(m)
 ```

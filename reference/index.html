@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
           <code><a href="splot.html">splot.net_bootstrap()</a></code> <code><a href="splot.html">splot.tna_communities()</a></code> <code><a href="splot.html">splot.cograph_communities()</a></code> <code><a href="splot.html">splot.net_mlvar()</a></code> <code><a href="splot.html">splot.netobject()</a></code> <code><a href="splot.html">splot.boot_glasso()</a></code> <code><a href="splot.html">splot.wtna_mixed()</a></code> <code><a href="splot.html">splot.net_permutation()</a></code> <code><a href="splot.html">splot()</a></code>
 
         </dt>
-        <dd>Plot Nestimate Bootstrap Results</dd>
+        <dd>Base R Graphics Network Plotting</dd>
 
         <dt>
 
@@ -177,10 +177,10 @@
 
         <dt>
 
-          <code><a href="as.data.frame.cograph_network.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
+          <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code> <code><a href="as_cograph.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
 
         </dt>
-        <dd>Cograph Network as a Data Frame</dd>
+        <dd>Convert to Cograph Network</dd>
 
         <dt>
 
@@ -201,14 +201,14 @@
           <code><a href="select_nodes.html">select_nodes()</a></code>
 
         </dt>
-        <dd>Select Nodes with Lazy Centrality Computation</dd>
+        <dd>Select Nodes</dd>
 
         <dt>
 
           <code><a href="select_edges.html">select_edges()</a></code>
 
         </dt>
-        <dd>Select Edges with Lazy Computation</dd>
+        <dd>Select Edges</dd>
 
         <dt>
 
@@ -445,59 +445,17 @@
 
         <dt>
 
-          <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code>
+          <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code> <code><a href="as_cograph.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
 
         </dt>
         <dd>Convert to Cograph Network</dd>
 
         <dt>
 
-          <code><a href="n_nodes.html">n_nodes()</a></code>
+          <code><a href="get_nodes.html">get_nodes()</a></code> <code><a href="get_nodes.html">get_edges()</a></code> <code><a href="get_nodes.html">get_labels()</a></code> <code><a href="get_nodes.html">get_source()</a></code> <code><a href="get_nodes.html">get_data()</a></code> <code><a href="get_nodes.html">get_meta()</a></code> <code><a href="get_nodes.html">set_nodes()</a></code> <code><a href="get_nodes.html">set_edges()</a></code> <code><a href="get_nodes.html">set_layout()</a></code> <code><a href="get_nodes.html">set_groups()</a></code> <code><a href="get_nodes.html">get_groups()</a></code> <code><a href="get_nodes.html">nodes()</a></code> <code><a href="get_nodes.html">is_directed()</a></code> <code><a href="get_nodes.html">n_nodes()</a></code> <code><a href="get_nodes.html">n_edges()</a></code>
 
         </dt>
-        <dd>Get Number of Nodes</dd>
-
-        <dt>
-
-          <code><a href="n_edges.html">n_edges()</a></code>
-
-        </dt>
-        <dd>Get Number of Edges</dd>
-
-        <dt>
-
-          <code><a href="get_edges.html">get_edges()</a></code>
-
-        </dt>
-        <dd>Get Edges from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_labels.html">get_labels()</a></code>
-
-        </dt>
-        <dd>Get Labels from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_nodes.html">get_nodes()</a></code>
-
-        </dt>
-        <dd>Get Nodes from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="set_edges.html">set_edges()</a></code>
-
-        </dt>
-        <dd>Set Edges in Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="set_nodes.html">set_nodes()</a></code>
-
-        </dt>
-        <dd>Set Nodes in Cograph Network</dd>
+        <dd>Access and Modify a Cograph Network</dd>
 
         <dt>
 
@@ -529,27 +487,6 @@
 
         <dt>
 
-          <code><a href="aes-nodes.html">aes-nodes</a></code>
-
-        </dt>
-        <dd>Node Aesthetics</dd>
-
-        <dt>
-
-          <code><a href="aes-edges.html">aes-edges</a></code>
-
-        </dt>
-        <dd>Edge Aesthetics</dd>
-
-        <dt>
-
-          <code><a href="output-save.html">output-save</a></code>
-
-        </dt>
-        <dd>Output and Saving</dd>
-
-        <dt>
-
           <code><a href="from_qgraph.html">from_qgraph()</a></code>
 
         </dt>
@@ -566,10 +503,10 @@
 
       <dl><dt>
 
-          <code><a href="list_palettes.html">list_palettes()</a></code>
+          <code><a href="palettes.html">list_palettes()</a></code> <code><a href="palettes.html">palette_rainbow()</a></code> <code><a href="palettes.html">palette_colorblind()</a></code> <code><a href="palettes.html">palette_pastel()</a></code> <code><a href="palettes.html">palette_viridis()</a></code> <code><a href="palettes.html">palette_blues()</a></code> <code><a href="palettes.html">palette_reds()</a></code> <code><a href="palettes.html">palette_diverging()</a></code>
 
         </dt>
-        <dd>List Available Color Palettes</dd>
+        <dd>Color Palettes</dd>
 
         <dt>
 
@@ -577,62 +514,6 @@
 
         </dt>
         <dd>Apply Color Palette to Network</dd>
-
-        <dt>
-
-          <code><a href="palette_blues.html">palette_blues()</a></code>
-
-        </dt>
-        <dd>Blues Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_colorblind.html">palette_colorblind()</a></code>
-
-        </dt>
-        <dd>Colorblind-friendly Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_diverging.html">palette_diverging()</a></code>
-
-        </dt>
-        <dd>Diverging Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_pastel.html">palette_pastel()</a></code>
-
-        </dt>
-        <dd>Pastel Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_rainbow.html">palette_rainbow()</a></code>
-
-        </dt>
-        <dd>Rainbow Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_reds.html">palette_reds()</a></code>
-
-        </dt>
-        <dd>Reds Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_viridis.html">palette_viridis()</a></code>
-
-        </dt>
-        <dd>Viridis Palette</dd>
-
-        <dt>
-
-          <code><a href="palettes.html">palettes</a></code>
-
-        </dt>
-        <dd>Color Palettes</dd>
       </dl></div><div class="section level2">
       <h2 id="shapes">Shapes<a class="anchor" aria-label="anchor" href="#shapes"></a></h2>
 
@@ -645,45 +526,10 @@
 
       <dl><dt>
 
-          <code><a href="get_shape.html">get_shape()</a></code>
+          <code><a href="shapes.html">register_shape()</a></code> <code><a href="shapes.html">get_shape()</a></code> <code><a href="shapes.html">list_shapes()</a></code> <code><a href="shapes.html">register_svg_shape()</a></code> <code><a href="shapes.html">list_svg_shapes()</a></code> <code><a href="shapes.html">unregister_svg_shape()</a></code>
 
         </dt>
-        <dd>Get a Registered Shape</dd>
-
-        <dt>
-
-          <code><a href="list_shapes.html">list_shapes()</a></code>
-
-        </dt>
-        <dd>List Available Shapes</dd>
-
-        <dt>
-
-          <code><a href="list_svg_shapes.html">list_svg_shapes()</a></code>
-
-        </dt>
-        <dd>List Registered SVG Shapes</dd>
-
-        <dt>
-
-          <code><a href="register_shape.html">register_shape()</a></code>
-
-        </dt>
-        <dd>Register a Custom Shape</dd>
-
-        <dt>
-
-          <code><a href="register_svg_shape.html">register_svg_shape()</a></code>
-
-        </dt>
-        <dd>Register Custom SVG Shape</dd>
-
-        <dt>
-
-          <code><a href="unregister_svg_shape.html">unregister_svg_shape()</a></code>
-
-        </dt>
-        <dd>Unregister SVG Shape</dd>
+        <dd>Node Shapes</dd>
       </dl></div><div class="section level2">
       <h2 id="themes">Themes<a class="anchor" aria-label="anchor" href="#themes"></a></h2>
 
@@ -696,17 +542,10 @@
 
       <dl><dt>
 
-          <code><a href="get_theme.html">get_theme()</a></code>
+          <code><a href="themes.html">register_theme()</a></code> <code><a href="themes.html">get_theme()</a></code> <code><a href="themes.html">list_themes()</a></code> <code><a href="themes.html">theme_cograph_classic()</a></code> <code><a href="themes.html">theme_cograph_colorblind()</a></code> <code><a href="themes.html">theme_cograph_gray()</a></code> <code><a href="themes.html">theme_cograph_dark()</a></code> <code><a href="themes.html">theme_cograph_minimal()</a></code> <code><a href="themes.html">theme_cograph_viridis()</a></code> <code><a href="themes.html">theme_cograph_nature()</a></code>
 
         </dt>
-        <dd>Get a Registered Theme</dd>
-
-        <dt>
-
-          <code><a href="list_themes.html">list_themes()</a></code>
-
-        </dt>
-        <dd>List Available Themes</dd>
+        <dd>Themes</dd>
 
         <dt>
 
@@ -714,62 +553,6 @@
 
         </dt>
         <dd>Apply Theme to Network</dd>
-
-        <dt>
-
-          <code><a href="register_theme.html">register_theme()</a></code>
-
-        </dt>
-        <dd>Register a Custom Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_classic.html">theme_cograph_classic()</a></code>
-
-        </dt>
-        <dd>Classic Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_colorblind.html">theme_cograph_colorblind()</a></code>
-
-        </dt>
-        <dd>Colorblind-friendly Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_dark.html">theme_cograph_dark()</a></code>
-
-        </dt>
-        <dd>Dark Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_gray.html">theme_cograph_gray()</a></code>
-
-        </dt>
-        <dd>Grayscale Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_minimal.html">theme_cograph_minimal()</a></code>
-
-        </dt>
-        <dd>Minimal Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_nature.html">theme_cograph_nature()</a></code>
-
-        </dt>
-        <dd>Nature Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_viridis.html">theme_cograph_viridis()</a></code>
-
-        </dt>
-        <dd>Viridis Theme</dd>
       </dl></div><div class="section level2">
       <h2 id="layouts">Layouts<a class="anchor" aria-label="anchor" href="#layouts"></a></h2>
 
@@ -782,17 +565,17 @@
 
       <dl><dt>
 
-          <code><a href="get_layout.html">get_layout()</a></code>
+          <code><a href="layout_registry.html">register_layout()</a></code> <code><a href="layout_registry.html">get_layout()</a></code> <code><a href="layout_registry.html">list_layouts()</a></code>
 
         </dt>
-        <dd>Get a Registered Layout</dd>
+        <dd>Layout Registry</dd>
 
         <dt>
 
-          <code><a href="set_layout.html">set_layout()</a></code>
+          <code><a href="get_nodes.html">get_nodes()</a></code> <code><a href="get_nodes.html">get_edges()</a></code> <code><a href="get_nodes.html">get_labels()</a></code> <code><a href="get_nodes.html">get_source()</a></code> <code><a href="get_nodes.html">get_data()</a></code> <code><a href="get_nodes.html">get_meta()</a></code> <code><a href="get_nodes.html">set_nodes()</a></code> <code><a href="get_nodes.html">set_edges()</a></code> <code><a href="get_nodes.html">set_layout()</a></code> <code><a href="get_nodes.html">set_groups()</a></code> <code><a href="get_nodes.html">get_groups()</a></code> <code><a href="get_nodes.html">nodes()</a></code> <code><a href="get_nodes.html">is_directed()</a></code> <code><a href="get_nodes.html">n_nodes()</a></code> <code><a href="get_nodes.html">n_edges()</a></code>
 
         </dt>
-        <dd>Set Layout in Cograph Network</dd>
+        <dd>Access and Modify a Cograph Network</dd>
 
         <dt>
 
@@ -800,34 +583,6 @@
 
         </dt>
         <dd>Apply Layout to Network</dd>
-
-        <dt>
-
-          <code><a href="layout-circle.html">layout-circle</a></code>
-
-        </dt>
-        <dd>Circular Layout</dd>
-
-        <dt>
-
-          <code><a href="layout-groups.html">layout-groups</a></code>
-
-        </dt>
-        <dd>Group-based Layout</dd>
-
-        <dt>
-
-          <code><a href="layout-oval.html">layout-oval</a></code>
-
-        </dt>
-        <dd>Oval/Ellipse Layout</dd>
-
-        <dt>
-
-          <code><a href="layout-spring.html">layout-spring</a></code>
-
-        </dt>
-        <dd>Fruchterman-Reingold Spring Layout</dd>
 
         <dt>
 
@@ -856,20 +611,22 @@
 
         </dt>
         <dd>Fruchterman-Reingold Spring Layout</dd>
+      </dl></div><div class="section level2">
+      <h2 id="plotting-analysis-results">Plotting analysis results<a class="anchor" aria-label="anchor" href="#plotting-analysis-results"></a></h2>
 
-        <dt>
 
-          <code><a href="list_layouts.html">list_layouts()</a></code>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="plot-results.html">plot(<i>&lt;cograph_communities&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_core_periphery&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;tna_disparity&gt;</i>)</a></code> <code><a href="plot-results.html">splot.tna_disparity()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_degree_fit&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motif_result&gt;</i>)</a></code> <code><a href="plot-results.html">plot_motifs()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motif_analysis&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motifs&gt;</i>)</a></code> <code><a href="plot-results.html">splot.tna_bootstrap()</a></code> <code><a href="plot-results.html">plot_netobject_group()</a></code> <code><a href="plot-results.html">plot_netobject_ml()</a></code> <code><a href="plot-results.html">plot_net_bootstrap_group()</a></code> <code><a href="plot-results.html">plot_net_stability()</a></code> <code><a href="plot-results.html">splot.tna_permutation()</a></code> <code><a href="plot-results.html">splot.group_tna_permutation()</a></code> <code><a href="plot-results.html">plot_permutation()</a></code> <code><a href="plot-results.html">plot_group_permutation()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_rich_club&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_vulnerability&gt;</i>)</a></code>
 
         </dt>
-        <dd>List Available Layouts</dd>
-
-        <dt>
-
-          <code><a href="register_layout.html">register_layout()</a></code>
-
-        </dt>
-        <dd>Register a Custom Layout</dd>
+        <dd>Plot Analysis Results</dd>
       </dl></div><div class="section level2">
       <h2 id="motif-analysis">Motif Analysis<a class="anchor" aria-label="anchor" href="#motif-analysis"></a></h2>
 
@@ -882,14 +639,21 @@
 
       <dl><dt>
 
-          <code><a href="motif_census.html">motif_census()</a></code> <code><a href="motif_census.html">print(<i>&lt;cograph_motifs&gt;</i>)</a></code>
+          <code><a href="motif_census.html">motif_census()</a></code>
 
         </dt>
         <dd>Network Motif Analysis</dd>
 
         <dt>
 
-          <code><a href="extract_motifs.html">extract_motifs()</a></code> <code><a href="extract_motifs.html">print(<i>&lt;cograph_motif_analysis&gt;</i>)</a></code>
+          <code><a href="motifs.html">motifs()</a></code> <code><a href="motifs.html">as.data.frame(<i>&lt;cograph_motif_result&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Network Motif Analysis</dd>
+
+        <dt>
+
+          <code><a href="extract_motifs.html">extract_motifs()</a></code>
 
         </dt>
         <dd>Extract Motifs from Network Data</dd>
@@ -936,14 +700,14 @@
           <code><a href="centrality_adaptive_leaderrank.html">centrality_adaptive_leaderrank()</a></code>
 
         </dt>
-        <dd>Adaptive LeaderRank centrality</dd>
+        <dd>Adaptive LeaderRank</dd>
 
         <dt>
 
           <code><a href="centrality_alpha.html">centrality_alpha()</a></code>
 
         </dt>
-        <dd>Alpha (Katz) Centrality</dd>
+        <dd>Alpha Centrality</dd>
 
         <dt>
 
@@ -957,7 +721,7 @@
           <code><a href="centrality_average_distance.html">centrality_average_distance()</a></code>
 
         </dt>
-        <dd>Average Distance Centrality</dd>
+        <dd>Average Distance</dd>
 
         <dt>
 
@@ -971,7 +735,7 @@
           <code><a href="centrality_beta_measure.html">centrality_beta_measure()</a></code>
 
         </dt>
-        <dd>BG-index or beta power measure</dd>
+        <dd>Beta Measure</dd>
 
         <dt>
 
@@ -999,49 +763,49 @@
           <code><a href="centrality_bridging_capital.html">centrality_bridging_capital()</a></code>
 
         </dt>
-        <dd>Bridging capital from lost information walks</dd>
+        <dd>Bridging Capital</dd>
 
         <dt>
 
           <code><a href="centrality_brokerage_coordinator.html">centrality_brokerage_coordinator()</a></code>
 
         </dt>
-        <dd>Gould-Fernandez Brokerage — Coordinator Role</dd>
+        <dd>Coordinator Brokerage</dd>
 
         <dt>
 
           <code><a href="centrality_brokerage_gatekeeper.html">centrality_brokerage_gatekeeper()</a></code>
 
         </dt>
-        <dd>Gould-Fernandez Brokerage — Gatekeeper Role</dd>
+        <dd>Gatekeeper Brokerage</dd>
 
         <dt>
 
           <code><a href="centrality_brokerage_itinerant.html">centrality_brokerage_itinerant()</a></code>
 
         </dt>
-        <dd>Gould-Fernandez Brokerage — Itinerant (Consultant) Role</dd>
+        <dd>Itinerant Brokerage</dd>
 
         <dt>
 
           <code><a href="centrality_brokerage_liaison.html">centrality_brokerage_liaison()</a></code>
 
         </dt>
-        <dd>Gould-Fernandez Brokerage — Liaison Role</dd>
+        <dd>Liaison Brokerage</dd>
 
         <dt>
 
           <code><a href="centrality_brokerage_representative.html">centrality_brokerage_representative()</a></code>
 
         </dt>
-        <dd>Gould-Fernandez Brokerage — Representative Role</dd>
+        <dd>Representative Brokerage</dd>
 
         <dt>
 
           <code><a href="centrality_cda.html">centrality_cda()</a></code>
 
         </dt>
-        <dd>Clustering degree algorithm centrality</dd>
+        <dd>Clustering Degree Algorithm</dd>
 
         <dt>
 
@@ -1069,14 +833,14 @@
           <code><a href="centrality_clusterrank.html">centrality_clusterrank()</a></code>
 
         </dt>
-        <dd>ClusterRank Centrality</dd>
+        <dd>ClusterRank</dd>
 
         <dt>
 
           <code><a href="centrality_coleman_theil.html">centrality_coleman_theil()</a></code>
 
         </dt>
-        <dd>Coleman-Theil hierarchy index</dd>
+        <dd>Coleman-Theil Hierarchy Index</dd>
 
         <dt>
 
@@ -1090,14 +854,14 @@
           <code><a href="centrality_communicability_betweenness.html">centrality_communicability_betweenness()</a></code>
 
         </dt>
-        <dd>Communicability Betweenness Centrality</dd>
+        <dd>Communicability Betweenness</dd>
 
         <dt>
 
           <code><a href="centrality_community_based.html">centrality_community_based()</a></code> <code><a href="centrality_community_based.html">centrality_comm_centrality()</a></code> <code><a href="centrality_community_based.html">centrality_community_mediator()</a></code>
 
         </dt>
-        <dd>Community-Based Centrality, Comm Centrality and Community-Based Mediator</dd>
+        <dd>Community-Based Centralities</dd>
 
         <dt>
 
@@ -1118,14 +882,14 @@
           <code><a href="centrality_controlrank.html">centrality_controlrank()</a></code>
 
         </dt>
-        <dd>ControlRank centrality</dd>
+        <dd>ControlRank Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_coreness.html">centrality_coreness()</a></code>
 
         </dt>
-        <dd>K-Core Decomposition (Coreness)</dd>
+        <dd>Coreness</dd>
 
         <dt>
 
@@ -1139,21 +903,21 @@
           <code><a href="centrality_current_flow_betweenness.html">centrality_current_flow_betweenness()</a></code>
 
         </dt>
-        <dd>Current Flow Betweenness Centrality</dd>
+        <dd>Current-Flow Betweenness</dd>
 
         <dt>
 
           <code><a href="centrality_current_flow_closeness.html">centrality_current_flow_closeness()</a></code>
 
         </dt>
-        <dd>Current Flow Closeness Centrality</dd>
+        <dd>Current-Flow Closeness</dd>
 
         <dt>
 
           <code><a href="centrality_dangalchev.html">centrality_dangalchev()</a></code>
 
         </dt>
-        <dd>Dangalchev Closeness Centrality</dd>
+        <dd>Dangalchev Closeness</dd>
 
         <dt>
 
@@ -1174,7 +938,7 @@
           <code><a href="centrality_degree_discount.html">centrality_degree_discount()</a></code> <code><a href="centrality_degree_discount.html">centrality_single_discount()</a></code>
 
         </dt>
-        <dd>DegreeDiscountIC and SingleDiscount Rankings</dd>
+        <dd>DegreeDiscountIC and SingleDiscount</dd>
 
         <dt>
 
@@ -1188,7 +952,7 @@
           <code><a href="centrality_diffusion_centrality.html">centrality_diffusion_centrality()</a></code>
 
         </dt>
-        <dd>Finite-horizon diffusion centrality</dd>
+        <dd>Diffusion Centrality</dd>
 
         <dt>
 
@@ -1216,28 +980,28 @@
           <code><a href="centrality_dkgm.html">centrality_dkgm()</a></code>
 
         </dt>
-        <dd>DK-based gravity model</dd>
+        <dd>DK-Based Gravity Model</dd>
 
         <dt>
 
           <code><a href="centrality_dmnc.html">centrality_dmnc()</a></code>
 
         </dt>
-        <dd>Density of Maximum Neighborhood Component (DMNC)</dd>
+        <dd>Density of Maximum Neighborhood Component</dd>
 
         <dt>
 
           <code><a href="centrality_dynamical_importance.html">centrality_dynamical_importance()</a></code>
 
         </dt>
-        <dd>Dynamical importance by exact vertex deletion</dd>
+        <dd>Dynamical Importance</dd>
 
         <dt>
 
           <code><a href="centrality_dynamics_sensitive.html">centrality_dynamics_sensitive()</a></code>
 
         </dt>
-        <dd>Dynamics-sensitive centrality</dd>
+        <dd>Dynamics-Sensitive Centrality</dd>
 
         <dt>
 
@@ -1251,14 +1015,14 @@
           <code><a href="centrality_effective_size.html">centrality_effective_size()</a></code>
 
         </dt>
-        <dd>Effective Size (Burt's)</dd>
+        <dd>Effective Size</dd>
 
         <dt>
 
           <code><a href="centrality_ehcc.html">centrality_ehcc()</a></code>
 
         </dt>
-        <dd>Extended hybrid characteristic centrality</dd>
+        <dd>Extended Hybrid Characteristic Centrality</dd>
 
         <dt>
 
@@ -1286,7 +1050,7 @@
           <code><a href="centrality_exogenous.html">centrality_exogenous()</a></code>
 
         </dt>
-        <dd>Exogenous centrality</dd>
+        <dd>Exogenous Centrality</dd>
 
         <dt>
 
@@ -1300,56 +1064,56 @@
           <code><a href="centrality_expected_force.html">centrality_expected_force()</a></code>
 
         </dt>
-        <dd>Expected Force centrality</dd>
+        <dd>Expected Force Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_expected_influence_1.html">centrality_expected_influence_1()</a></code>
 
         </dt>
-        <dd>Expected Influence (one-step)</dd>
+        <dd>One-Step Expected Influence</dd>
 
         <dt>
 
           <code><a href="centrality_expected_influence_2.html">centrality_expected_influence_2()</a></code>
 
         </dt>
-        <dd>Expected Influence (two-step)</dd>
+        <dd>Two-Step Expected Influence</dd>
 
         <dt>
 
           <code><a href="centrality_extended_coreness.html">centrality_extended_coreness()</a></code>
 
         </dt>
-        <dd>Extended neighborhood coreness</dd>
+        <dd>Extended Neighborhood Coreness</dd>
 
         <dt>
 
           <code><a href="centrality_extended_gravity.html">centrality_extended_gravity()</a></code>
 
         </dt>
-        <dd>Extended gravity centrality</dd>
+        <dd>Extended Gravity Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_extended_local_bridging.html">centrality_extended_local_bridging()</a></code>
 
         </dt>
-        <dd>Extended local bridging centrality</dd>
+        <dd>Extended Local Bridging Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_extended_mixed_gravity.html">centrality_extended_mixed_gravity()</a></code>
 
         </dt>
-        <dd>Extended mixed gravitational centrality</dd>
+        <dd>Extended Mixed Gravitational Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_flow_betweenness.html">centrality_flow_betweenness()</a></code>
 
         </dt>
-        <dd>Flow Betweenness Centrality</dd>
+        <dd>Flow Betweenness</dd>
 
         <dt>
 
@@ -1363,7 +1127,7 @@
           <code><a href="centrality_generalized_closeness.html">centrality_generalized_closeness()</a></code>
 
         </dt>
-        <dd>Generalized Closeness Centrality</dd>
+        <dd>Generalized Closeness</dd>
 
         <dt>
 
@@ -1377,21 +1141,21 @@
           <code><a href="centrality_global_structure.html">centrality_global_structure()</a></code>
 
         </dt>
-        <dd>Global structure model centrality</dd>
+        <dd>Global Structure Model Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_graph_regularization.html">centrality_graph_regularization()</a></code>
 
         </dt>
-        <dd>Graph regularization centrality</dd>
+        <dd>Graph Regularization Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_gravity.html">centrality_gravity()</a></code>
 
         </dt>
-        <dd>Gravity centrality</dd>
+        <dd>Gravity Centrality</dd>
 
         <dt>
 
@@ -1412,14 +1176,14 @@
           <code><a href="centrality_hcc.html">centrality_hcc()</a></code>
 
         </dt>
-        <dd>Hybrid characteristic centrality</dd>
+        <dd>Hybrid Characteristic Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_heatmap.html">centrality_heatmap()</a></code> <code><a href="centrality_heatmap.html">centrality_flow_coefficient()</a></code> <code><a href="centrality_heatmap.html">centrality_local_entropy()</a></code> <code><a href="centrality_heatmap.html">centrality_weighted_h_index()</a></code> <code><a href="centrality_heatmap.html">centrality_redundancy()</a></code>
 
         </dt>
-        <dd>Heatmap, Flow Coefficient, Local Entropy, Weighted h-index, Redundancy</dd>
+        <dd>Heatmap, Flow Coefficient, Local Entropy, Weighted h-index and Redundancy</dd>
 
         <dt>
 
@@ -1433,7 +1197,7 @@
           <code><a href="centrality_hybrid_global_structure.html">centrality_hybrid_global_structure()</a></code>
 
         </dt>
-        <dd>Hybrid global structure model centrality</dd>
+        <dd>Hybrid Global Structure Model Centrality</dd>
 
         <dt>
 
@@ -1447,28 +1211,28 @@
           <code><a href="centrality_iira.html">centrality_iira()</a></code>
 
         </dt>
-        <dd>Improved iterative resource allocation (IIRA)</dd>
+        <dd>Improved Iterative Resource Allocation</dd>
 
         <dt>
 
           <code><a href="centrality_improved_closeness.html">centrality_improved_closeness()</a></code>
 
         </dt>
-        <dd>Improved closeness centrality</dd>
+        <dd>Improved Closeness Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_improved_global_structure.html">centrality_improved_global_structure()</a></code>
 
         </dt>
-        <dd>Improved global structure model centrality</dd>
+        <dd>Improved Global Structure Model Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_information.html">centrality_information()</a></code>
 
         </dt>
-        <dd>Information Centrality (Stephenson-Zelen)</dd>
+        <dd>Information Centrality</dd>
 
         <dt>
 
@@ -1482,7 +1246,7 @@
           <code><a href="centrality_ira.html">centrality_ira()</a></code>
 
         </dt>
-        <dd>Iterative resource allocation (IRA)</dd>
+        <dd>Iterative Resource Allocation</dd>
 
         <dt>
 
@@ -1496,21 +1260,21 @@
           <code><a href="centrality_ked.html">centrality_ked()</a></code>
 
         </dt>
-        <dd>KED method centrality</dd>
+        <dd>KED Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_kreach.html">centrality_kreach()</a></code>
 
         </dt>
-        <dd>Geodesic K-Path Centrality</dd>
+        <dd>Geodesic K-Reach Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_lac.html">centrality_lac()</a></code>
 
         </dt>
-        <dd>Local Average Connectivity (LAC)</dd>
+        <dd>Local Average Connectivity</dd>
 
         <dt>
 
@@ -1531,7 +1295,7 @@
           <code><a href="centrality_length_scaled_betweenness.html">centrality_length_scaled_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_delta_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_ego_betweenness()</a></code> <code><a href="centrality_length_scaled_betweenness.html">centrality_delta_closeness()</a></code>
 
         </dt>
-        <dd>Betweenness and closeness variants that carry a tuning parameter</dd>
+        <dd>Length-Scaled, Delta and Ego Betweenness, and Delta Closeness</dd>
 
         <dt>
 
@@ -1559,14 +1323,14 @@
           <code><a href="centrality_linerank.html">centrality_linerank()</a></code>
 
         </dt>
-        <dd>LineRank centrality</dd>
+        <dd>LineRank Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_lnc.html">centrality_lnc()</a></code>
 
         </dt>
-        <dd>Local neighbor contribution centrality</dd>
+        <dd>Local Neighbor Contribution Centrality</dd>
 
         <dt>
 
@@ -1580,7 +1344,7 @@
           <code><a href="centrality_lobby.html">centrality_lobby()</a></code>
 
         </dt>
-        <dd>Lobby Index (H-Index of Neighborhood)</dd>
+        <dd>Lobby Index</dd>
 
         <dt>
 
@@ -1608,7 +1372,7 @@
           <code><a href="centrality_local_efficiency.html">centrality_local_efficiency()</a></code> <code><a href="centrality_local_efficiency.html">centrality_s_core()</a></code> <code><a href="centrality_local_efficiency.html">centrality_fragmentation()</a></code> <code><a href="centrality_local_efficiency.html">centrality_kpath()</a></code> <code><a href="centrality_local_efficiency.html">centrality_epc()</a></code>
 
         </dt>
-        <dd>Local efficiency, s-core, fragmentation, k-path census and EPC</dd>
+        <dd>Local Efficiency, s-Core, Fragmentation, k-Path and EPC</dd>
 
         <dt>
 
@@ -1622,21 +1386,21 @@
           <code><a href="centrality_localized_bridging.html">centrality_localized_bridging()</a></code>
 
         </dt>
-        <dd>Localized bridging centrality from ego betweenness</dd>
+        <dd>Localized Bridging Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_malatya.html">centrality_malatya()</a></code>
 
         </dt>
-        <dd>Malatya centrality</dd>
+        <dd>Malatya Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_map_equation.html">centrality_map_equation()</a></code>
 
         </dt>
-        <dd>Map equation centrality with explicit coding and flow conventions</dd>
+        <dd>Map Equation Centrality</dd>
 
         <dt>
 
@@ -1650,35 +1414,35 @@
           <code><a href="centrality_mcc.html">centrality_mcc()</a></code>
 
         </dt>
-        <dd>Maximal clique centrality</dd>
+        <dd>Maximal Clique Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_mcgm.html">centrality_mcgm()</a></code>
 
         </dt>
-        <dd>Multi-characteristics gravity model</dd>
+        <dd>Multi-Characteristics Gravity Model Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_mixed_gravity.html">centrality_mixed_gravity()</a></code>
 
         </dt>
-        <dd>Mixed gravitational centrality</dd>
+        <dd>Mixed Gravitational Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_mnc.html">centrality_mnc()</a></code>
 
         </dt>
-        <dd>Maximum Neighborhood Component (MNC)</dd>
+        <dd>Maximum Neighborhood Component</dd>
 
         <dt>
 
           <code><a href="centrality_modified_expected_force.html">centrality_modified_expected_force()</a></code>
 
         </dt>
-        <dd>Modified Expected Force centrality</dd>
+        <dd>Modified Expected Force Centrality</dd>
 
         <dt>
 
@@ -1699,7 +1463,7 @@
           <code><a href="centrality_neighbor_distance.html">centrality_neighbor_distance()</a></code>
 
         </dt>
-        <dd>Neighborhood centrality, and its neighbor distance special case</dd>
+        <dd>Neighborhood Centrality</dd>
 
         <dt>
 
@@ -1713,14 +1477,14 @@
           <code><a href="centrality_ninl.html">centrality_ninl()</a></code>
 
         </dt>
-        <dd>Node and Neighbor Layer Information centrality</dd>
+        <dd>Node and Neighbor Layer Information Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_node_contraction.html">centrality_node_contraction()</a></code> <code><a href="centrality_node_contraction.html">centrality_node_contraction_improved()</a></code>
 
         </dt>
-        <dd>Node Contraction Centrality (IMC and IIMC)</dd>
+        <dd>Node Contraction Centrality</dd>
 
         <dt>
 
@@ -1734,7 +1498,7 @@
           <code><a href="centrality_pairwisedis.html">centrality_pairwisedis()</a></code>
 
         </dt>
-        <dd>Pairwise Disconnectivity (Potapov et al. 2008)</dd>
+        <dd>Pairwise Disconnectivity</dd>
 
         <dt>
 
@@ -1776,7 +1540,7 @@
           <code><a href="centrality_proximal_betweenness.html">centrality_proximal_betweenness()</a></code>
 
         </dt>
-        <dd>Proximal betweenness centrality</dd>
+        <dd>Proximal Betweenness Centrality</dd>
 
         <dt>
 
@@ -1797,14 +1561,14 @@
           <code><a href="centrality_random_walk_decay.html">centrality_random_walk_decay()</a></code>
 
         </dt>
-        <dd>Random walk decay centrality</dd>
+        <dd>Random Walk Decay Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_reaching_local.html">centrality_reaching_local()</a></code>
 
         </dt>
-        <dd>Local Reaching Centrality (Mones, Vicsek &amp; Vicsek 2012)</dd>
+        <dd>Local Reaching Centrality</dd>
 
         <dt>
 
@@ -1825,7 +1589,7 @@
           <code><a href="centrality_resistance_curvature.html">centrality_resistance_curvature()</a></code>
 
         </dt>
-        <dd>Node resistance curvature</dd>
+        <dd>Resistance Curvature</dd>
 
         <dt>
 
@@ -1867,21 +1631,21 @@
           <code><a href="centrality_shapley_game1.html">centrality_shapley_game1()</a></code> <code><a href="centrality_shapley_game1.html">centrality_shapley_game2()</a></code> <code><a href="centrality_shapley_game1.html">centrality_shapley_game3()</a></code>
 
         </dt>
-        <dd>Shapley Value Centrality (Games 1, 2 and 3)</dd>
+        <dd>Shapley Value Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_spectralrank.html">centrality_spectralrank()</a></code>
 
         </dt>
-        <dd>SpectralRank with optional diagonal prior information</dd>
+        <dd>SpectralRank Centrality</dd>
 
         <dt>
 
           <code><a href="centrality_strength.html">centrality_strength()</a></code> <code><a href="centrality_strength.html">centrality_instrength()</a></code> <code><a href="centrality_strength.html">centrality_outstrength()</a></code>
 
         </dt>
-        <dd>Strength Centrality (Weighted Degree)</dd>
+        <dd>Strength Centrality</dd>
 
         <dt>
 
@@ -1909,14 +1673,14 @@
           <code><a href="centrality_transitivity.html">centrality_transitivity()</a></code>
 
         </dt>
-        <dd>Local Transitivity (Clustering Coefficient)</dd>
+        <dd>Local Transitivity</dd>
 
         <dt>
 
           <code><a href="centrality_truss.html">centrality_truss()</a></code> <code><a href="centrality_truss.html">centrality_mdd()</a></code> <code><a href="centrality_truss.html">centrality_bridging_coefficient()</a></code> <code><a href="centrality_truss.html">centrality_godfather()</a></code> <code><a href="centrality_truss.html">centrality_support()</a></code>
 
         </dt>
-        <dd>Truss, mixed-degree decomposition and local social-capital measures</dd>
+        <dd>Truss, Mixed-Degree Decomposition, Bridging Coefficient, Godfather and Support</dd>
 
         <dt>
 
@@ -1937,7 +1701,7 @@
           <code><a href="centrality_volume.html">centrality_volume()</a></code>
 
         </dt>
-        <dd>Volume centrality</dd>
+        <dd>Volume Centrality</dd>
 
         <dt>
 
@@ -1958,7 +1722,7 @@
           <code><a href="centrality_weighted_leaderrank.html">centrality_weighted_leaderrank()</a></code>
 
         </dt>
-        <dd>Weighted LeaderRank centrality</dd>
+        <dd>Weighted LeaderRank</dd>
 
         <dt>
 
@@ -1986,7 +1750,7 @@
           <code><a href="centrality_x_degree.html">centrality_x_degree()</a></code>
 
         </dt>
-        <dd>X-degree centrality</dd>
+        <dd>X-Degree Centrality</dd>
 
         <dt>
 
@@ -2098,7 +1862,7 @@
           <code><a href="select_edges.html">select_edges()</a></code>
 
         </dt>
-        <dd>Select Edges with Lazy Computation</dd>
+        <dd>Select Edges</dd>
 
         <dt>
 
@@ -2133,7 +1897,7 @@
           <code><a href="select_nodes.html">select_nodes()</a></code>
 
         </dt>
-        <dd>Select Nodes with Lazy Centrality Computation</dd>
+        <dd>Select Nodes</dd>
 
         <dt>
 
@@ -2249,7 +2013,7 @@
 
         <dt>
 
-          <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code>
+          <code><a href="as_cograph.html">as_cograph()</a></code> <code><a href="as_cograph.html">to_cograph()</a></code> <code><a href="as_cograph.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
 
         </dt>
         <dd>Convert to Cograph Network</dd>
@@ -2295,6 +2059,13 @@
 
         </dt>
         <dd>Convert a Directed Network to Undirected</dd>
+
+        <dt>
+
+          <code><a href="plot-results.html">plot(<i>&lt;cograph_communities&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_core_periphery&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;tna_disparity&gt;</i>)</a></code> <code><a href="plot-results.html">splot.tna_disparity()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_degree_fit&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motif_result&gt;</i>)</a></code> <code><a href="plot-results.html">plot_motifs()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motif_analysis&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_motifs&gt;</i>)</a></code> <code><a href="plot-results.html">splot.tna_bootstrap()</a></code> <code><a href="plot-results.html">plot_netobject_group()</a></code> <code><a href="plot-results.html">plot_netobject_ml()</a></code> <code><a href="plot-results.html">plot_net_bootstrap_group()</a></code> <code><a href="plot-results.html">plot_net_stability()</a></code> <code><a href="plot-results.html">splot.tna_permutation()</a></code> <code><a href="plot-results.html">splot.group_tna_permutation()</a></code> <code><a href="plot-results.html">plot_permutation()</a></code> <code><a href="plot-results.html">plot_group_permutation()</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_rich_club&gt;</i>)</a></code> <code><a href="plot-results.html">plot(<i>&lt;cograph_vulnerability&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot Analysis Results</dd>
 
         <dt>
 
@@ -2389,13 +2160,6 @@
 
         <dt>
 
-          <code><a href="plot_group_permutation.html">splot.group_tna_permutation()</a></code> <code><a href="plot_group_permutation.html">plot_group_permutation()</a></code>
-
-        </dt>
-        <dd>Plot Group Permutation Test Results</dd>
-
-        <dt>
-
           <code><a href="plot_heatmap.html">plot_heatmap()</a></code>
 
         </dt>
@@ -2438,13 +2202,6 @@
 
         <dt>
 
-          <code><a href="plot_motifs.html">plot_motifs()</a></code>
-
-        </dt>
-        <dd>Plot a motif/subgraph result</dd>
-
-        <dt>
-
           <code><a href="plot_mtna.html">plot_mtna()</a></code> <code><a href="plot_mtna.html">mtna()</a></code>
 
         </dt>
@@ -2452,45 +2209,10 @@
 
         <dt>
 
-          <code><a href="plot_net_bootstrap_group.html">plot_net_bootstrap_group()</a></code> <code><a href="plot_net_bootstrap_group.html">plot(<i>&lt;net_bootstrap_group&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot a Group Bootstrap Result</dd>
-
-        <dt>
-
-          <code><a href="plot_net_stability.html">plot_net_stability()</a></code>
-
-        </dt>
-        <dd>Plot Centrality Stability Results</dd>
-
-        <dt>
-
-          <code><a href="plot_netobject_group.html">plot_netobject_group()</a></code> <code><a href="plot_netobject_group.html">plot(<i>&lt;netobject_group&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot a Group of Nestimate netobjects</dd>
-
-        <dt>
-
-          <code><a href="plot_netobject_ml.html">plot_netobject_ml()</a></code> <code><a href="plot_netobject_ml.html">plot(<i>&lt;netobject_ml&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot a Multilevel Nestimate netobject</dd>
-
-        <dt>
-
           <code><a href="plot_network_evolution.html">plot_network_evolution()</a></code>
 
         </dt>
         <dd>Plot Network Evolution (Small Multiples)</dd>
-
-        <dt>
-
-          <code><a href="plot_permutation.html">splot.tna_permutation()</a></code> <code><a href="plot_permutation.html">plot_permutation()</a></code>
-
-        </dt>
-        <dd>Plot Permutation Test Results</dd>
 
         <dt>
 
@@ -2592,13 +2314,6 @@
 
         <dt>
 
-          <code><a href="cograph-main.html">cograph-main</a></code>
-
-        </dt>
-        <dd>Main Entry Point</dd>
-
-        <dt>
-
           <code><a href="cograph-package.html">cograph-package</a></code>
 
         </dt>
@@ -2655,17 +2370,17 @@
 
         <dt>
 
-          <code><a href="get_groups.html">get_groups()</a></code>
+          <code><a href="get_nodes.html">get_nodes()</a></code> <code><a href="get_nodes.html">get_edges()</a></code> <code><a href="get_nodes.html">get_labels()</a></code> <code><a href="get_nodes.html">get_source()</a></code> <code><a href="get_nodes.html">get_data()</a></code> <code><a href="get_nodes.html">get_meta()</a></code> <code><a href="get_nodes.html">set_nodes()</a></code> <code><a href="get_nodes.html">set_edges()</a></code> <code><a href="get_nodes.html">set_layout()</a></code> <code><a href="get_nodes.html">set_groups()</a></code> <code><a href="get_nodes.html">get_groups()</a></code> <code><a href="get_nodes.html">nodes()</a></code> <code><a href="get_nodes.html">is_directed()</a></code> <code><a href="get_nodes.html">n_nodes()</a></code> <code><a href="get_nodes.html">n_edges()</a></code>
 
         </dt>
-        <dd>Get Node Groups from Cograph Network</dd>
+        <dd>Access and Modify a Cograph Network</dd>
 
         <dt>
 
-          <code><a href="get_shape.html">get_shape()</a></code>
+          <code><a href="shapes.html">register_shape()</a></code> <code><a href="shapes.html">get_shape()</a></code> <code><a href="shapes.html">list_shapes()</a></code> <code><a href="shapes.html">register_svg_shape()</a></code> <code><a href="shapes.html">list_svg_shapes()</a></code> <code><a href="shapes.html">unregister_svg_shape()</a></code>
 
         </dt>
-        <dd>Get a Registered Shape</dd>
+        <dd>Node Shapes</dd>
 
         <dt>
 
@@ -2673,13 +2388,6 @@
 
         </dt>
         <dd>Compare Network Robustness (ggplot2)</dd>
-
-        <dt>
-
-          <code><a href="is_directed.html">is_directed()</a></code>
-
-        </dt>
-        <dd>Check if Network is Directed</dd>
 
         <dt>
 
@@ -2700,7 +2408,7 @@
           <code><a href="mcml.html">mcml()</a></code>
 
         </dt>
-        <dd>mcml - Deprecated alias for csum</dd>
+        <dd>Deprecated Alias for csum</dd>
 
         <dt>
 
@@ -2708,13 +2416,6 @@
 
         </dt>
         <dd>Get Number of Communities</dd>
-
-        <dt>
-
-          <code><a href="nodes.html">nodes()</a></code>
-
-        </dt>
-        <dd>Get Nodes from Cograph Network (Deprecated)</dd>
 
         <dt>
 
@@ -2736,13 +2437,6 @@
 
         </dt>
         <dd>Summary of Robustness Analysis</dd>
-
-        <dt>
-
-          <code><a href="set_groups.html">set_groups()</a></code>
-
-        </dt>
-        <dd>Set Node Groups</dd>
 
         <dt>
 
@@ -2795,150 +2489,10 @@
 
         <dt>
 
-          <code><a href="themes-builtin.html">themes-builtin</a></code>
-
-        </dt>
-        <dd>Built-in Themes</dd>
-
-        <dt>
-
-          <code><a href="extract_motifs.html">extract_motifs()</a></code> <code><a href="extract_motifs.html">print(<i>&lt;cograph_motif_analysis&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Extract Motifs from Network Data</dd>
-
-        <dt>
-
-          <code><a href="motif_census.html">motif_census()</a></code> <code><a href="motif_census.html">print(<i>&lt;cograph_motifs&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Network Motif Analysis</dd>
-
-        <dt>
-
-          <code><a href="motifs.html">motifs()</a></code> <code><a href="motifs.html">print(<i>&lt;cograph_motif_result&gt;</i>)</a></code> <code><a href="motifs.html">plot(<i>&lt;cograph_motif_result&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Network Motif Analysis</dd>
-
-        <dt>
-
-          <code><a href="print.cograph_communities.html">print(<i>&lt;cograph_communities&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print Community Structure</dd>
-
-        <dt>
-
-          <code><a href="print.cograph_degree_fit.html">print(<i>&lt;cograph_degree_fit&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print method for cograph_degree_fit</dd>
-
-        <dt>
-
-          <code><a href="print.cograph_network.html">print(<i>&lt;cograph_network&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print cograph_network Object</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_cluster_significance.html">plot(<i>&lt;cograph_cluster_significance&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Cluster Significance</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_communities.html">plot(<i>&lt;cograph_communities&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Community Structure</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_core_periphery.html">plot(<i>&lt;cograph_core_periphery&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Core-Periphery Structure</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_degree_fit.html">plot(<i>&lt;cograph_degree_fit&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot method for cograph_degree_fit</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_motif_analysis.html">plot(<i>&lt;cograph_motif_analysis&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Motif Analysis Results</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_motifs.html">plot(<i>&lt;cograph_motifs&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Network Motifs</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_network.html">plot(<i>&lt;cograph_network&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot cograph_network Object</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_rich_club.html">plot(<i>&lt;cograph_rich_club&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Rich Club Results</dd>
-
-        <dt>
-
-          <code><a href="plot.cograph_vulnerability.html">plot(<i>&lt;cograph_vulnerability&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Node Vulnerability</dd>
-
-        <dt>
-
-          <code><a href="plot.tna_disparity.html">plot(<i>&lt;tna_disparity&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot Disparity Filter Result</dd>
-
-        <dt>
-
-          <code><a href="splot.tna_bootstrap.html">plot(<i>&lt;tna_bootstrap&gt;</i>)</a></code> <code><a href="splot.tna_bootstrap.html">splot.tna_bootstrap()</a></code>
-
-        </dt>
-        <dd>Plot Bootstrap Results</dd>
-
-        <dt>
-
-          <code><a href="summary.cograph_network.html">summary(<i>&lt;cograph_network&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Summary of cograph_network Object</dd>
-
-        <dt>
-
           <code><a href="splot.html">splot.net_bootstrap()</a></code> <code><a href="splot.html">splot.tna_communities()</a></code> <code><a href="splot.html">splot.cograph_communities()</a></code> <code><a href="splot.html">splot.net_mlvar()</a></code> <code><a href="splot.html">splot.netobject()</a></code> <code><a href="splot.html">splot.boot_glasso()</a></code> <code><a href="splot.html">splot.wtna_mixed()</a></code> <code><a href="splot.html">splot.net_permutation()</a></code> <code><a href="splot.html">splot()</a></code>
 
         </dt>
-        <dd>Plot Nestimate Bootstrap Results</dd>
-
-        <dt>
-
-          <code><a href="splot.tna_disparity.html">splot.tna_disparity()</a></code>
-
-        </dt>
-        <dd>Plot Disparity Results with splot</dd>
+        <dd>Base R Graphics Network Plotting</dd>
 
         <dt>
 
@@ -2960,20 +2514,6 @@
 
         </dt>
         <dd>Add Nodes to a Network</dd>
-
-        <dt>
-
-          <code><a href="as.data.frame.cograph_motif_result.html">as.data.frame(<i>&lt;cograph_motif_result&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Motif Results as a Data Frame</dd>
-
-        <dt>
-
-          <code><a href="as.data.frame.cograph_network.html">as.data.frame(<i>&lt;cograph_network&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Cograph Network as a Data Frame</dd>
 
         <dt>
 
@@ -3103,6 +2643,13 @@
 
         <dt>
 
+          <code><a href="extract_motifs.html">extract_motifs()</a></code>
+
+        </dt>
+        <dd>Extract Motifs from Network Data</dd>
+
+        <dt>
+
           <code><a href="extract_triads.html">extract_triads()</a></code>
 
         </dt>
@@ -3128,62 +2675,6 @@
 
         </dt>
         <dd>Convert a tna object to cograph parameters</dd>
-
-        <dt>
-
-          <code><a href="get_data.html">get_data()</a></code>
-
-        </dt>
-        <dd>Get Original Data from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_edges.html">get_edges()</a></code>
-
-        </dt>
-        <dd>Get Edges from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_labels.html">get_labels()</a></code>
-
-        </dt>
-        <dd>Get Labels from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_layout.html">get_layout()</a></code>
-
-        </dt>
-        <dd>Get a Registered Layout</dd>
-
-        <dt>
-
-          <code><a href="get_meta.html">get_meta()</a></code>
-
-        </dt>
-        <dd>Get Metadata from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_nodes.html">get_nodes()</a></code>
-
-        </dt>
-        <dd>Get Nodes from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_source.html">get_source()</a></code>
-
-        </dt>
-        <dd>Get Source Type from Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="get_theme.html">get_theme()</a></code>
-
-        </dt>
-        <dd>Get a Registered Theme</dd>
 
         <dt>
 
@@ -3243,6 +2734,13 @@
 
         <dt>
 
+          <code><a href="layout_registry.html">register_layout()</a></code> <code><a href="layout_registry.html">get_layout()</a></code> <code><a href="layout_registry.html">list_layouts()</a></code>
+
+        </dt>
+        <dd>Layout Registry</dd>
+
+        <dt>
+
           <code><a href="layout_saqr.html">layout_saqr()</a></code>
 
         </dt>
@@ -3271,38 +2769,17 @@
 
         <dt>
 
-          <code><a href="list_layouts.html">list_layouts()</a></code>
+          <code><a href="motif_census.html">motif_census()</a></code>
 
         </dt>
-        <dd>List Available Layouts</dd>
+        <dd>Network Motif Analysis</dd>
 
         <dt>
 
-          <code><a href="list_palettes.html">list_palettes()</a></code>
+          <code><a href="motifs.html">motifs()</a></code> <code><a href="motifs.html">as.data.frame(<i>&lt;cograph_motif_result&gt;</i>)</a></code>
 
         </dt>
-        <dd>List Available Color Palettes</dd>
-
-        <dt>
-
-          <code><a href="list_shapes.html">list_shapes()</a></code>
-
-        </dt>
-        <dd>List Available Shapes</dd>
-
-        <dt>
-
-          <code><a href="list_svg_shapes.html">list_svg_shapes()</a></code>
-
-        </dt>
-        <dd>List Registered SVG Shapes</dd>
-
-        <dt>
-
-          <code><a href="list_themes.html">list_themes()</a></code>
-
-        </dt>
-        <dd>List Available Themes</dd>
+        <dd>Network Motif Analysis</dd>
 
         <dt>
 
@@ -3317,20 +2794,6 @@
 
         </dt>
         <dd>Add or Change Node Attributes</dd>
-
-        <dt>
-
-          <code><a href="n_edges.html">n_edges()</a></code>
-
-        </dt>
-        <dd>Get Number of Edges</dd>
-
-        <dt>
-
-          <code><a href="n_nodes.html">n_nodes()</a></code>
-
-        </dt>
-        <dd>Get Number of Nodes</dd>
 
         <dt>
 
@@ -3355,56 +2818,7 @@
 
         <dt>
 
-          <code><a href="palette_blues.html">palette_blues()</a></code>
-
-        </dt>
-        <dd>Blues Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_colorblind.html">palette_colorblind()</a></code>
-
-        </dt>
-        <dd>Colorblind-friendly Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_diverging.html">palette_diverging()</a></code>
-
-        </dt>
-        <dd>Diverging Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_pastel.html">palette_pastel()</a></code>
-
-        </dt>
-        <dd>Pastel Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_rainbow.html">palette_rainbow()</a></code>
-
-        </dt>
-        <dd>Rainbow Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_reds.html">palette_reds()</a></code>
-
-        </dt>
-        <dd>Reds Palette</dd>
-
-        <dt>
-
-          <code><a href="palette_viridis.html">palette_viridis()</a></code>
-
-        </dt>
-        <dd>Viridis Palette</dd>
-
-        <dt>
-
-          <code><a href="palettes.html">palettes</a></code>
+          <code><a href="palettes.html">list_palettes()</a></code> <code><a href="palettes.html">palette_rainbow()</a></code> <code><a href="palettes.html">palette_colorblind()</a></code> <code><a href="palettes.html">palette_pastel()</a></code> <code><a href="palettes.html">palette_viridis()</a></code> <code><a href="palettes.html">palette_blues()</a></code> <code><a href="palettes.html">palette_reds()</a></code> <code><a href="palettes.html">palette_diverging()</a></code>
 
         </dt>
         <dd>Color Palettes</dd>
@@ -3429,34 +2843,6 @@
 
         </dt>
         <dd>Global Reaching Centrality (Mones, Vicsek &amp; Vicsek 2012)</dd>
-
-        <dt>
-
-          <code><a href="register_layout.html">register_layout()</a></code>
-
-        </dt>
-        <dd>Register a Custom Layout</dd>
-
-        <dt>
-
-          <code><a href="register_shape.html">register_shape()</a></code>
-
-        </dt>
-        <dd>Register a Custom Shape</dd>
-
-        <dt>
-
-          <code><a href="register_svg_shape.html">register_svg_shape()</a></code>
-
-        </dt>
-        <dd>Register Custom SVG Shape</dd>
-
-        <dt>
-
-          <code><a href="register_theme.html">register_theme()</a></code>
-
-        </dt>
-        <dd>Register a Custom Theme</dd>
 
         <dt>
 
@@ -3534,27 +2920,6 @@
 
         </dt>
         <dd>Local Rich Club Score</dd>
-
-        <dt>
-
-          <code><a href="set_edges.html">set_edges()</a></code>
-
-        </dt>
-        <dd>Set Edges in Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="set_layout.html">set_layout()</a></code>
-
-        </dt>
-        <dd>Set Layout in Cograph Network</dd>
-
-        <dt>
-
-          <code><a href="set_nodes.html">set_nodes()</a></code>
-
-        </dt>
-        <dd>Set Nodes in Cograph Network</dd>
 
         <dt>
 
@@ -3684,52 +3049,10 @@
 
         <dt>
 
-          <code><a href="theme_cograph_classic.html">theme_cograph_classic()</a></code>
+          <code><a href="themes.html">register_theme()</a></code> <code><a href="themes.html">get_theme()</a></code> <code><a href="themes.html">list_themes()</a></code> <code><a href="themes.html">theme_cograph_classic()</a></code> <code><a href="themes.html">theme_cograph_colorblind()</a></code> <code><a href="themes.html">theme_cograph_gray()</a></code> <code><a href="themes.html">theme_cograph_dark()</a></code> <code><a href="themes.html">theme_cograph_minimal()</a></code> <code><a href="themes.html">theme_cograph_viridis()</a></code> <code><a href="themes.html">theme_cograph_nature()</a></code>
 
         </dt>
-        <dd>Classic Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_colorblind.html">theme_cograph_colorblind()</a></code>
-
-        </dt>
-        <dd>Colorblind-friendly Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_dark.html">theme_cograph_dark()</a></code>
-
-        </dt>
-        <dd>Dark Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_gray.html">theme_cograph_gray()</a></code>
-
-        </dt>
-        <dd>Grayscale Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_minimal.html">theme_cograph_minimal()</a></code>
-
-        </dt>
-        <dd>Minimal Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_nature.html">theme_cograph_nature()</a></code>
-
-        </dt>
-        <dd>Nature Theme</dd>
-
-        <dt>
-
-          <code><a href="theme_cograph_viridis.html">theme_cograph_viridis()</a></code>
-
-        </dt>
-        <dd>Viridis Theme</dd>
+        <dd>Themes</dd>
 
         <dt>
 
@@ -3751,13 +3074,6 @@
 
         </dt>
         <dd>Trophic Incoherence Parameter</dd>
-
-        <dt>
-
-          <code><a href="unregister_svg_shape.html">unregister_svg_shape()</a></code>
-
-        </dt>
-        <dd>Unregister SVG Shape</dd>
 
         <dt>
 

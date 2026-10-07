@@ -1,8 +1,9 @@
 # Multi-Cluster TNA Network Plot
 
-Visualizes multiple network clusters with summary edges between clusters
-and individual edges within clusters. Each cluster is displayed as a
-shell shape containing its nodes.
+Plots a network whose nodes are grouped into clusters. Each cluster is
+plotted as a shell shape containing its nodes. By default, edges between
+clusters are aggregated into summary edges and edges within clusters are
+plotted individually.
 
 ## Usage
 
@@ -78,19 +79,20 @@ mtna(
 
 - cluster_list:
 
-  Clusters can be specified as:
+  Cluster assignment of the nodes. One of
 
-  - A list of character vectors (node names per cluster)
+  - a named list of character vectors with the node names of each
+    cluster; at least two non-overlapping clusters are required;
 
-  - A string column name from nodes data (e.g., "groups")
+  - a single string naming a column of the node data (e.g., "groups");
 
-  - NULL with `community` specified for auto-detection
-
-  - NULL with a cograph_network that has a common cluster/group column
+  - NULL, in which case the first node-data column found among
+    "clusters", "cluster", "groups", "group", "community" and "module"
+    is used.
 
 - community:
 
-  Community detection method to use for auto-clustering. If specified,
+  Community detection method used to form the clusters. When given, it
   overrides `cluster_list`. See
   [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
   for available methods.
@@ -110,31 +112,37 @@ mtna(
 
 - node_spacing:
 
-  Radius for node placement within shapes (0-1 relative to shape_size).
-  Default 0.5.
+  Radius for node placement within shapes in summary mode, as a
+  proportion (0-1) of `shape_size`. Default 0.5. When
+  `summary_edges = FALSE`, nodes are placed at radius `shape_size`.
 
 - colors:
 
-  Vector of colors for each cluster. Default auto-generated.
+  Vector of colors for each cluster. NULL (default) uses a built-in
+  palette.
 
 - shapes:
 
   Vector of shapes for each cluster. Defaults cycle through "circle",
   "square", "diamond", "triangle", "pentagon", "hexagon", "star", and
-  "cross"; summary shells draw non-shell shapes with the circular
-  fallback.
+  "cross". In summary mode, shells other than circle, square, diamond
+  and triangle are plotted as circles.
 
 - edge_colors:
 
-  Vector of edge colors by source cluster. Default auto-generated.
+  Vector of edge colors by source cluster. NULL (default) uses a
+  built-in palette.
 
 - bundle_edges:
 
-  Logical. Bundle inter-cluster edges through channels. Default TRUE.
+  Logical. Order the nodes around each shell by the direction of the
+  clusters they connect to, so that edges toward the same cluster leave
+  from neighbouring nodes. Used when `summary_edges = FALSE`. Default
+  TRUE.
 
 - bundle_strength:
 
-  How tightly to bundle edges (0-1). Default 0.8.
+  Currently unused.
 
 - summary_edges:
 
@@ -155,7 +163,8 @@ mtna(
 
 - show_border:
 
-  Logical. Draw a border around each cluster. Default TRUE.
+  Logical. When `summary_edges = FALSE`, plot a dashed circle around
+  each cluster. Default TRUE.
 
 - legend:
 
@@ -171,11 +180,12 @@ mtna(
 
 - node_size:
 
-  Size of nodes inside shapes. Default 3.
+  Size of nodes inside shapes (summary mode). Default 3.
 
 - layout_margin:
 
-  Margin around the layout as fraction of range. Default 0.15.
+  Margin around the layout as fraction of range (summary mode). Default
+  0.15.
 
 - scale:
 
@@ -185,27 +195,24 @@ mtna(
 
 - show_labels:
 
-  Logical. Show node labels inside clusters. Default FALSE.
+  Logical. Show node labels inside clusters (summary mode). Default
+  FALSE.
 
 - nodes:
 
-  Node metadata. Can be:
-
-  - NULL (default): Use existing nodes data from cograph_network
-
-  - Data frame: Must have `label` column for matching; if `labels`
-    column exists, uses it for display text
-
-  Display priority: `labels` column \> `label` column (identifiers).
+  Node metadata. NULL (default) uses the node data of a cograph_network.
+  A data frame replaces it and must have one row per node in the node
+  order of `x`. In summary mode, display text is taken from its `labels`
+  column if present, otherwise from its `label` column.
 
 - label_size:
 
-  Label text size. Default NULL (auto-scaled).
+  Label text size (summary mode). Default NULL (auto-scaled).
 
 - label_abbrev:
 
-  Label abbreviation: NULL (none), integer (max chars), or "auto"
-  (adaptive based on node count).
+  Label abbreviation in summary mode: NULL (none), integer (max chars),
+  or "auto" (adaptive based on node count).
 
 - cluster_shape:
 
@@ -214,7 +221,10 @@ mtna(
 
 - ...:
 
-  Additional parameters passed to plot_tna().
+  When `summary_edges = FALSE`, additional parameters passed to
+  [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md). In
+  summary mode, only `edge.lwd`, `edge.labels`, `edge.label.cex` and
+  `minimum` are read.
 
 ## Value
 
@@ -233,18 +243,7 @@ See `plot_mtna`.
 ## Examples
 
 ``` r
-set.seed(42)
-nodes <- paste0("N", 1:20)
-m <- matrix(runif(400, 0, 0.3), 20, 20); diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
-clusters <- list(N = nodes[1:5], E = nodes[6:10],
-                 S = nodes[11:15], W = nodes[16:20])
-plot_mtna(m, clusters, summary_edges = TRUE)
-
-set.seed(1)
-nodes <- paste0("N", 1:12)
-m <- matrix(runif(144, 0, 0.3), 12, 12); diag(m) <- 0
-colnames(m) <- rownames(m) <- nodes
-clusters <- list(C1 = nodes[1:4], C2 = nodes[5:8], C3 = nodes[9:12])
-mtna(m, clusters)
+clusters <- list(Plan = c("Explore", "Plan", "Monitor", "Adapt", "Reflect"),
+                 Act = c("Discuss", "Synthesize", "Evaluate", "Create", "Share"))
+plot_mtna(regulation_net, cluster_list = clusters)
 ```

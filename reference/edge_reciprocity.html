@@ -9,7 +9,7 @@ reciprocity information for directed networks."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@ object.</p></dd>
     <p>A data frame with one row per directed edge and columns
 <code>from</code>, <code>to</code>, <code>weight</code>, <code>reciprocated</code> (logical),
 <code>reverse_weight</code> (NA when not reciprocated) and <code>weight_ratio</code>
-(<code>weight / reverse_weight</code>; NA when not reciprocated). Rows are
+(<code>reverse_weight / weight</code>; NA when not reciprocated). Rows are
 ordered with reciprocated edges first, then by <code>|weight_ratio|</code>
 descending.</p>
     </div>
@@ -105,14 +105,13 @@ only defined for directed edges.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span>, <span class="fl">0</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span>, <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">edge_reciprocity</span><span class="op">(</span><span class="va">adj</span>, directed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   from to weight reciprocated reverse_weight weight_ratio</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    B  A    0.3         TRUE            0.8     2.666667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    A  B    0.8         TRUE            0.3     0.375000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    B  C    0.5        FALSE             NA           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    C  A    0.7        FALSE             NA           NA</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">edge_reciprocity</span><span class="op">(</span><span class="va">regulation_net</span>, top <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      from      to weight reciprocated reverse_weight weight_ratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Reflect Explore   0.05         TRUE           0.35    7.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Create Monitor   0.17         TRUE           0.37    2.1764706</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   Share    Plan   0.21         TRUE           0.36    1.7142857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    Plan   Share   0.36         TRUE           0.21    0.5833333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Monitor  Create   0.37         TRUE           0.17    0.4594595</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

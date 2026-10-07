@@ -1,6 +1,7 @@
 # Add Nodes to a Network
 
-Add Nodes to a Network
+Appends new nodes, identified by label, to a network. A label that
+already exists raises a `cograph_bad_selection` error.
 
 ## Usage
 
@@ -46,27 +47,18 @@ are added), or the input format when `keep_format = TRUE`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 0), 2, 2)
-rownames(adj) <- colnames(adj) <- c("A", "B")
-
-add_nodes(adj, labels = c("C", "D"))
-#> Cograph network: 4 nodes, 1 edges ( undirected )
+add_nodes(regulation_net, labels = "Revise")
+#> Cograph network: 11 nodes, 30 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 1 / 6 (density: 16.7%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (11): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +5 more
+#>   Edges: 30 / 110 (density: 27.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.265
 #>   Strongest edges:
-#>     A -- B  1.000
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-add_nodes(adj, labels = "C", group = "new")
-#> Cograph network: 3 nodes, 1 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 1 / 3 (density: 33.3%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     A -- B  1.000
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

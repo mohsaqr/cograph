@@ -1,15 +1,13 @@
 # Extract Specific Motif Instances (Subgraphs)
 
-Convenience wrapper for `motifs(x, named_nodes = TRUE, ...)`. Returns
-one row per concrete node-triple and MAN type. At individual level,
-`observed` counts sessions/units exhibiting that combination, so one
-triple can occupy multiple rows when its type differs across units. The
-same MAN type can also appear in many rows, each with its own `z` / `p`.
-For per-triple significance use `plot(., type = "significance")` or
-`plot(., type = "triads")`; the per-type plots (`"types"`, `"patterns"`)
-deliberately drop the significance decoration here, because aggregating
-per type requires a rule (median? max-\|z\|?) that isn't pinned and
-would be misleading by default.
+Calls `motifs(x, named_nodes = TRUE, ...)`. The result has one row per
+node triple and MAN type. At individual level, `observed` counts the
+units in which the triple has that type, so one triple can occupy
+several rows. One MAN type can also appear in many rows, each with its
+own `z` and `p`. Per-triple significance is plotted by
+`plot(., type = "significance")` and `plot(., type = "triads")`. The
+per-type plots (`"types"`, `"patterns"`) omit significance for instance
+results.
 
 ## Usage
 
@@ -22,30 +20,27 @@ subgraphs(...)
 - ...:
 
   Arguments forwarded to
-  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md). See
-  [`?motifs`](https://sonsoles.me/cograph/reference/motifs.md) for the
-  full parameter list (`x`, `actor`, `window`, `window_type`, `pattern`,
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md), which
+  documents them (`x`, `actor`, `window`, `window_type`, `pattern`,
   `include`, `exclude`, `significance`, `n_perm`, `cores`, `min_count`,
   `edge_method`, `edge_threshold`, `min_transitions`, `top`, `seed`).
   `named_nodes` is fixed to `TRUE` and must not be supplied.
 
 ## Value
 
-A `cograph_motif_result` object with `named_nodes = TRUE`. Contains
-`$results` (data frame with columns `triad`, `node1`, `node2`, `node3`,
-`observed`, `type`, and when `significance = TRUE` also `expected`, `z`,
-`p`, `sig`), `$type_summary`, `$level`, `$n_units`, and `$params`. At
-individual level, each result row is a node-triple and MAN-type
-combination, and `observed` counts sessions/units exhibiting it. In
-instance mode, `$type_summary` is built via `table(results$type)` so it
-counts how many node-triples fall under each MAN type.
+A `cograph_motif_result` object with `named_nodes = TRUE`, described in
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md), or NULL
+with a message when no triple passes the filters. Its results table has
+the columns `triad`, `node1`, `node2`, `node3`, `type` and `observed`,
+and with `significance = TRUE` also `expected`, `z`, `p` and `sig`. Its
+`type_summary` counts the node triples of each MAN type.
 
 ## Details
 
-The `"triads"` diagram uses a canonical representative of the row's MAN
-isomorphism class. Concrete labels identify the participating nodes;
-their positions in that representative diagram do not encode the nodes'
-observed source/sink roles.
+The `"triads"` diagram shows a canonical representative of the MAN
+isomorphism class of each row. The labels name the participating nodes.
+Their positions in the diagram do not encode the observed source and
+sink roles of the nodes.
 
 ## See also
 
@@ -57,30 +52,29 @@ Other motifs:
 [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
 [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
 [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
 ``` r
-mat <- matrix(c(0,3,2,0, 0,0,5,1, 0,0,0,4, 2,0,0,0), 4, 4, byrow = TRUE)
-rownames(mat) <- colnames(mat) <- c("Plan","Execute","Monitor","Adapt")
-subgraphs(mat, significance = FALSE)
-#> Showing triangle patterns (count >= 5). For all MAN types use pattern = 'all'.
+subgraphs(regulation_net, significance = FALSE, min_count = 1)
+#> Showing triangle patterns (count >= 1). For all MAN types use pattern = 'all'.
 #> Motif Subgraphs 
-#> Level: aggregate | States: 4 | Pattern: triangle 
-#> Min count: >= 5 
+#> Level: aggregate | States: 10 | Pattern: triangle 
+#> Min count: >= 1 
 #> 
 #> Type distribution:
 #> 
-#> 030C 030T 
-#>    2    2 
+#> 120C 030T 120D 120U 
+#>    3    2    1    1 
 #> 
-#> Top 4 results:
-#>                      triad   node1   node2   node3 type observed
-#>   Plan - Execute - Monitor    Plan Execute Monitor 030T       10
-#>  Execute - Monitor - Adapt Execute Monitor   Adapt 030T       10
-#>     Plan - Monitor - Adapt    Plan Monitor   Adapt 030C        8
-#>     Plan - Execute - Adapt    Plan Execute   Adapt 030C        6
+#> Top 7 results:
+#>                        triad   node1    node2   node3 type observed
+#>  Monitor - Evaluate - Create Monitor Evaluate  Create 120C     1.26
+#>     Monitor - Create - Share Monitor   Create   Share 120C     1.26
+#>       Plan - Monitor - Share    Plan  Monitor   Share 120U     1.19
+#>     Plan - Evaluate - Create    Plan Evaluate  Create 030T     1.08
+#>  Explore - Reflect - Discuss Explore  Reflect Discuss 120D     1.05
+#>      Monitor - Adapt - Share Monitor    Adapt   Share 030T     1.04
+#>        Plan - Create - Share    Plan   Create   Share 120C     1.00
 ```

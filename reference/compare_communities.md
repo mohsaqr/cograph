@@ -1,6 +1,7 @@
 # Compare Community Structures
 
-Compares two community structures using various similarity measures.
+Compares two partitions of the same nodes with igraph's partition
+comparison measures.
 
 ## Usage
 
@@ -14,32 +15,29 @@ compare_communities(
 
 ## Arguments
 
-- comm1:
+- comm1, comm2:
 
-  First community structure (communities object or membership vector)
-
-- comm2:
-
-  Second community structure (communities object or membership vector)
+  Partitions to compare. Each is a `cograph_communities` data frame, an
+  igraph `communities` object or a membership vector.
 
 - method:
 
-  Comparison method: "vi" (variation of information), "nmi" (normalized
-  mutual information), "split.join", "rand" (Rand index),
-  "adjusted.rand"
+  Comparison measure, one of `"vi"` (default; variation of information),
+  `"nmi"` (normalized mutual information), `"split.join"` (split-join
+  distance), `"rand"` (Rand index) or `"adjusted.rand"` (adjusted Rand
+  index).
 
 ## Value
 
-Numeric similarity/distance value
+A single numeric value. `"vi"` and `"split.join"` are distances (0 for
+identical partitions); `"nmi"`, `"rand"` and `"adjusted.rand"` are
+similarities (1 for identical partitions).
 
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  c1 <- community_louvain(g)
-  c2 <- community_leiden(g)
-  compare_communities(c1, c2, "nmi")
-}
-#> [1] 0.5449399
+walktrap <- community_walktrap(regulation_net)
+fast_greedy <- community_fast_greedy(regulation_net)
+compare_communities(walktrap, fast_greedy, method = "nmi")
+#> [1] 1
 ```

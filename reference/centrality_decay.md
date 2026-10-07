@@ -1,8 +1,10 @@
 # Decay Centrality
 
-Sum of delta^d over all nodes, where d is the shortest path distance.
-Nodes near many others get higher scores. The `decay_parameter` controls
-the distance penalty.
+Decay centrality sums a decay factor \\\delta\\ raised to the distance
+from the node to every node: \$\$D(v) = \sum\_{w} \delta^{d(v, w)}.\$\$
+The sum includes the node itself, which adds one to every score, and
+unreachable nodes contribute 0. Values of \\\delta\\ between 0 and 1
+discount distant nodes.
 
 ## Usage
 
@@ -14,36 +16,52 @@ centrality_decay(x, mode = "all", decay_parameter = 0.5, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - decay_parameter:
 
-  Numeric between 0 and 1. Default 0.5.
+  Decay factor \\\delta\\. Default 0.5.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (default `TRUE`), `invert_weights`
+  (default `NULL`, which is `TRUE` for tna input), `alpha` (inversion
+  exponent, default 1) and `cutoff` (largest path length considered,
+  default -1 for no limit).
 
 ## Value
 
-Named numeric vector of decay centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are read as path lengths. `invert_weights = TRUE` uses
+\\1/w^\alpha\\ as the length, and `weighted = FALSE` counts hops. `mode`
+sets the direction of the paths. The value of `decay_parameter` is not
+checked, and values above 1 give more weight to distant nodes.
+[`centrality_generalized_closeness`](https://sonsoles.me/cograph/reference/centrality_generalized_closeness.md)
+computes the same quantity, and `decay_parameter = 0.5` gives
+[`centrality_dangalchev`](https://sonsoles.me/cograph/reference/centrality_dangalchev.md).
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_generalized_closeness`](https://sonsoles.me/cograph/reference/centrality_generalized_closeness.md),
+[`centrality_dangalchev`](https://sonsoles.me/cograph/reference/centrality_dangalchev.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_decay(adj, decay_parameter = 0.5)
-#>    A    B    C 
-#> 1.75 2.00 1.75 
+centrality_decay(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   8.765551   8.592851   8.877387   8.354837   8.781835   8.213449   8.690109 
+#>   Evaluate     Create      Share 
+#>   8.458391   8.781042   8.238714 
 ```

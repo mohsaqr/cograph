@@ -1,15 +1,13 @@
 # Plot Multi-Cluster Multi-Layer Network
 
 Produces a two-layer hierarchical visualization of a clustered network.
-The **bottom layer** shows every node arranged inside elliptical cluster
-shells with full within-cluster and between-cluster edges drawn at the
-individual-node level. The **top layer** collapses each cluster into a
-single summary pie-chart node whose colored slice represents, by
-default, the cluster's share of the initial state distribution (see
-`summary_pie` for the alternative self-retention interpretation), with
-edges carrying the aggregated between-cluster weights. Dashed
-inter-layer lines connect each detail node to its corresponding summary
-node, making the hierarchical mapping explicit.
+The bottom layer shows every node inside an elliptical cluster shell,
+with the within-cluster and between-cluster edges of the individual
+nodes. The top layer shows one summary node per cluster, with edges
+carrying the aggregated between-cluster weights. By default the colored
+slice of a summary node is the cluster's share of the initial state
+distribution (see `summary_pie`). Dashed lines connect each detail node
+to its summary node.
 
 ## Usage
 
@@ -93,287 +91,211 @@ plot_mcml(
 
 - x:
 
-  A weight matrix, `tna` object, `cograph_network`, `cluster_summary`,
-  or `mcml`/`mcml_pc` object (the latter from
-  [`Nestimate::build_mcml_pc()`](https://saqr.me/Nestimate/reference/build_mcml_pc.html),
-  rendered undirected via its `meta$directed` flag). When a
-  `cluster_summary` is provided (e.g., from
-  [`csum`](https://sonsoles.me/cograph/reference/csum.md)), all
-  aggregation has already been performed and the `cluster_list`,
-  `aggregation`, and `nodes` parameters are ignored. See the **Input
-  Formats** section for details.
+  A square weight matrix with row and column names matching the node
+  names in `cluster_list`, a `tna` object (its `$weights` are used), a
+  `cograph_network` (its weights and node table are used), a
+  `cluster_summary` from
+  [`csum`](https://sonsoles.me/cograph/reference/csum.md), or an `mcml`
+  or `mcml_pc` object from Nestimate. A `cluster_summary`, `mcml` or
+  `mcml_pc` object is plotted as it is, and `cluster_list`,
+  `aggregation` and `nodes` are ignored.
 
 - cluster_list:
 
-  How to assign nodes to clusters. Accepts:
-
-  - A **named list** of character vectors — each element contains the
-    node names belonging to that cluster, and the list names become the
-    cluster labels (e.g.,
-    `list(GroupA = c("A","B"), GroupB = c("C","D"))`).
-
-  - A **string** giving a column name in the node metadata (from a
-    `cograph_network`) to use as the grouping variable.
-
-  - `NULL` — attempt auto-detection from common column names (`cluster`,
-    `group`, etc.) in node metadata.
-
-  Ignored when `x` is a `cluster_summary`.
+  Assignment of nodes to clusters. A named list of character vectors
+  gives the node names of each cluster, and the list names become the
+  cluster labels, for example
+  `list(GroupA = c("A", "B"), GroupB = c("C", "D"))`. A
+  `cograph_communities` object from
+  [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
+  is also accepted. For a `cograph_network`, a string names a node
+  column to group by, and `NULL` uses a node column named `clusters`,
+  `cluster`, `groups` or `group`.
 
 - expand:
 
-  Names of clusters whose member states are drawn as separate nodes in
-  the top (macro) layer; `"all"` or `TRUE` expands every cluster. The
-  bottom layer always shows the partition, so an expanded state appears
-  as its own summary node while staying inside its cluster's shell
-  below, linked by the dashed line. Default `NULL` draws one summary
-  node per cluster.
-
-  The expanded macro is re-counted from `x` with a refined partition (an
-  expanded cluster contributes one group per member state), because a k
-  x k aggregate cannot be disaggregated after the fact. That needs the
-  source, so passing a pre-built `cluster_summary` or `mcml` instead of
-  the data falls back to `Nestimate::macro_network()` and raises a
-  `cograph_expand_unavailable` error when that is not available.
+  Names of clusters whose member states are shown as separate nodes in
+  the summary layer. `"all"` or `TRUE` expands every cluster, and `NULL`
+  (default) shows one summary node per cluster. The bottom layer always
+  shows the clusters. The summary layer is then recomputed from `x` with
+  each expanded cluster split into its states. For a `cluster_summary`,
+  `mcml` or `mcml_pc` input it is computed with
+  `Nestimate::macro_network()`, and a `cograph_expand_unavailable` error
+  is raised when that function is not available.
 
 - mode:
 
-  What values to display on edges:
-
-  `"weights"`
-
-  :   (default) Shows raw aggregated edge values. Useful when absolute
-      magnitudes (e.g., total co-occurrences) matter.
-
-  `"tna"`
-
-  :   Row-normalizes the summary matrix so each row sums to 1, producing
-      transition probabilities. Automatically enables `edge_labels` and
-      `summary_edge_labels` unless you explicitly set them to `FALSE`.
+  `"weights"` (default) or `"tna"`. With `"tna"`, `edge_labels` and
+  `summary_edge_labels` default to `TRUE` unless they are supplied. The
+  plotted weights are the same in both modes.
 
 - theme:
 
-  Visual preset controlling node and edge styling. One of:
-
-  `"classic"`
-
-  :   (default) The historical look — pie-chart nodes and straight
-      summary edges, with thin borders and slightly larger detail nodes.
-
-  `"rich"`
-
-  :   Donut nodes on both layers plus curved (qgraph-style) summary
-      edges and splot self-loops.
-
-  `"light"`
-
-  :   Like `"rich"` but with no cluster-shell outline and a softer shell
-      fill.
-
-  The granular style arguments (`node_donut`, `curved_edges`) override
-  the preset when supplied.
+  Visual preset, one of `"classic"` (default, pie-chart nodes and
+  straight summary edges), `"rich"` (donut nodes on both layers, curved
+  summary edges and self-loops) or `"light"` (as `"rich"` with no shell
+  outline and a lighter shell fill). `node_donut` and `curved_edges`
+  override the preset when supplied.
 
 - layer_spacing:
 
-  Vertical position of the summary (top) layer, which is what decides
-  how tall the figure is.
-
-  - `NULL` (default): placed automatically, just clear of the bottom
-    layer (`inter_layer_gap` sets the clearance). The figure then has a
-    fixed shape, and a taller image only adds white space.
-
-  - `"fill"`: the gap between the layers is stretched so the figure uses
-    the full height of the image it is drawn on. Change the image height
-    and the plot follows. Shapes stay round; only the space between the
-    layers grows. Never tighter than the automatic layout.
-
-  - A single positive number: the distance from the centre of the bottom
-    layer to the centre of the summary layer, in the same units as
-    `spacing`. Overrides `inter_layer_gap`. A value small enough to
-    overlap the two layers raises a `cograph_layers_overlap` warning.
+  Vertical position of the summary layer, which sets the height of the
+  figure. `NULL` (default) places it automatically above the bottom
+  layer, at a distance set by `inter_layer_gap`. `"fill"` increases the
+  gap between the layers so that the figure uses the full height of the
+  device, and never makes it smaller than the automatic gap. A single
+  positive number gives the height of the center of the summary layer
+  above the center of the bottom layer, in the units of `spacing`, and
+  overrides `inter_layer_gap`. A number that places the summary layer
+  inside the bottom layer raises a `cograph_layers_overlap` warning, and
+  any other value raises a `cograph_bad_layer_spacing` error.
 
 - spacing:
 
-  Distance from the center to each cluster's position in the bottom
-  layer. Larger values spread clusters farther apart. Default 3.
+  Distance from the center to each cluster in the bottom layer. Default
+  3.
 
 - shape_size:
 
-  Radius of each cluster's elliptical shell in the bottom layer.
-  Increase when nodes overlap or shells feel cramped. Default 1.2.
+  Radius of each cluster shell in the bottom layer. Default 1.2.
 
 - summary_size:
 
-  Size of the pie-chart summary nodes in the top layer. Controls the
-  visual radius of each pie chart. Default 4.
+  Size of the summary nodes. The radius of a summary node is
+  `0.0875 * summary_size`. Default 4.
 
 - skew_angle:
 
-  Perspective tilt angle in degrees (0–90). At 0 the bottom layer is
-  viewed from directly above (fully circular); at 90 it collapses to a
-  flat line. Values around 45–70 give a natural table-top perspective.
-  Default 60.
+  Perspective tilt in degrees, from 0 to 90. At 0 the bottom layer is
+  seen from directly above and at 90 it collapses to a line. Default 60.
 
 - aggregation:
 
-  Method for collapsing individual edge weights into between-cluster and
-  within-cluster summaries:
-
-  `"sum"`
-
-  :   (default) Total flow — appropriate when you care about the volume
-      of all transitions between clusters.
-
-  `"mean"`
-
-  :   Average flow per node pair — useful when clusters differ in size
-      and you want a size-normalized comparison.
-
-  `"max"`
-
-  :   Strongest single edge — highlights the dominant connection between
-      each pair of clusters.
-
-  Ignored when `x` is a `cluster_summary`.
+  Method for aggregating node-level edge weights into cluster-level
+  weights: `"sum"` (default), `"mean"` or `"max"`.
 
 - minimum:
 
-  Edge weight threshold. Edges with absolute weight below this value are
-  not drawn. Set to a small positive value (e.g., 0.01) to remove visual
-  noise from near-zero edges. Default 0 (show all).
+  Edge weight threshold. Edges whose absolute weight does not exceed
+  this value are not plotted. Default 0.
 
 - colors:
 
-  Character vector of colors for the clusters. The first color is
-  applied to the first cluster, and so on. Must have length equal to the
-  number of clusters, or it will be recycled. When `NULL` (default),
-  colors are auto-generated from a colorblind-safe palette.
+  Character vector of cluster colors, recycled to the number of
+  clusters. `NULL` (default) uses the Okabe-Ito palette.
 
 - legend:
 
-  Logical. Whether to draw a legend mapping cluster names to colors.
-  Default `TRUE`.
+  Logical. Add a legend of cluster colors. Default `TRUE`.
 
 - show_labels:
 
-  Logical. Show node labels in the bottom layer. Default `TRUE`. Set to
-  `FALSE` for dense networks where labels create clutter.
+  Logical. Show node labels in the bottom layer. Default `TRUE`.
 
 - nodes:
 
-  Node metadata data frame for custom display labels. Must contain a
-  `label` column whose values match the row/column names of the weight
-  matrix. If a `labels` column also exists, those values are used as
-  display text (e.g., full names instead of codes). Display priority:
-  `labels` column \> `label` column. Ignored when `x` is a
-  `cluster_summary` or `cograph_network` (which carries its own node
-  metadata).
+  Node metadata data frame for display labels. Its `labels` column, or
+  else its `label` column, is used as the label text of the nodes in row
+  order. It replaces the node table of a `cograph_network` and is
+  ignored when `x` is a `cluster_summary`.
 
 - label_size:
 
-  Text size (`cex`) for bottom-layer node labels. `NULL` (default)
-  auto-scales to 0.6. Increase for readability in publication figures;
-  decrease for dense networks.
+  Text size (`cex`) of bottom-layer node labels. `NULL` (default) uses
+  0.6.
 
 - label_abbrev:
 
-  Controls label abbreviation to reduce overlap:
-
-  - `NULL` — no abbreviation (show full labels).
-
-  - An **integer** — truncate labels to this many characters.
-
-  - `"auto"` — adaptively abbreviates based on the total number of
-    nodes: more nodes triggers shorter abbreviations.
+  Label abbreviation passed to
+  [`abbrev_label`](https://sonsoles.me/cograph/reference/abbrev_label.md):
+  `NULL` (default) for full labels, an integer for the maximum number of
+  characters, or `"auto"` for a length chosen from the number of nodes.
 
 - node_size:
 
-  Size of individual detail nodes in the bottom layer. This controls the
-  pie-chart radius for each node. Default 2.4.
+  Size of the detail nodes. The radius of a detail node is
+  `0.035 * node_size`. Default 2.4.
 
 - node_shape:
 
-  Shape for detail nodes in the bottom layer. Supported values:
-  `"circle"`, `"square"`, `"diamond"`, `"triangle"`. Can be a single
-  value applied to all nodes or a character vector of length equal to
-  the number of nodes (one shape per node). Default `"circle"`.
+  Shape of the detail nodes, a single value or one value per node.
+  `"circle"` (default) plots a pie chart of the node's self-transition
+  share. Other node shapes, such as `"square"`, `"diamond"` or
+  `"triangle"`, are plotted as solid shapes in the cluster color.
 
 - cluster_shape:
 
-  Accepted for backward compatibility. Summary nodes are currently drawn
-  as pie charts, so this parameter does not change their shape.
+  Not used. It is kept for compatibility with earlier versions.
 
 - title:
 
-  Main plot title displayed above the figure. Default `NULL` (no title).
+  Plot title. Default `NULL`.
 
 - subtitle:
 
-  Subtitle displayed below the title. Default `NULL` (no subtitle).
+  Subtitle shown below the figure. Default `NULL`.
 
 - title_size:
 
-  Text size (`cex.main`) for the title. Default 1.2.
+  Text size (`cex.main`) of the title. Default 1.2.
 
 - subtitle_size:
 
-  Text size (`cex.sub`) for the subtitle. Default 0.9.
+  Text size (`cex.sub`) of the subtitle. Default 0.9.
 
 - legend_position:
 
-  Where to place the legend: `"right"`, `"left"`, `"top"`, `"bottom"`,
-  or `"none"` to suppress it entirely. Default `"right"`.
+  Legend position: `"right"` (default), `"left"`, `"top"`, `"bottom"` or
+  `"none"`.
 
 - legend_size:
 
-  Text size (`cex`) for legend labels. Default 0.7.
+  Text size (`cex`) of legend labels. Default 0.7.
 
 - legend_pt_size:
 
-  Point size (`pt.cex`) for legend symbols. Default 1.2.
+  Point size (`pt.cex`) of legend symbols. Default 1.2.
 
 - summary_labels:
 
-  Logical. Show cluster name labels next to the summary pie-chart nodes
-  in the top layer. Default `TRUE`.
+  Logical. Show cluster names next to the summary nodes. Default `TRUE`.
 
 - summary_label_size:
 
-  Text size for summary labels. Default 0.8.
+  Text size of summary labels. Default 0.8.
 
 - summary_label_position:
 
-  Position of summary labels relative to nodes: 1 = below, 2 = left, 3 =
-  above, 4 = right. Default 3 (above).
+  Position of summary labels relative to their nodes: 1 = below, 2 =
+  left, 3 = above, 4 = right. When it is not supplied, each label is
+  placed on the side of its node that faces away from the center of the
+  summary layer.
 
 - summary_label_color:
 
-  Color for summary labels. Default `"gray20"`.
+  Color of summary labels. Default `"gray20"`.
 
 - summary_arrows:
 
-  Logical. Draw arrowheads on summary-layer directed edges. Default
-  `TRUE`. For fully undirected networks prefer `directed = FALSE`, which
-  also suppresses these arrowheads and draws each symmetric edge pair
-  only once.
+  Logical. Add arrowheads to summary edges. Default `TRUE`. Arrowheads
+  are removed when `directed = FALSE`.
 
 - summary_arrow_size:
 
-  Size of arrowheads on summary edges. Default 0.10.
+  Size of the arrowheads on summary edges. Default 0.10.
 
 - node_donut:
 
-  Logical or `NULL`. Force donut node rendering on (`TRUE`) or off
-  (`FALSE`), overriding `theme`. `NULL` (default) follows the preset
-  (donut for `"rich"`/`"light"`).
+  Logical or `NULL`. `TRUE` or `FALSE` turns donut nodes on or off.
+  `NULL` (default) follows `theme`.
 
 - node_donut_inner_ratio:
 
-  Hole size (0–1) of the detail-node donut ring. Default 0.55.
+  Hole size, from 0 to 1, of the detail-node donut. Default 0.55.
 
 - summary_donut_inner_ratio:
 
-  Hole size (0–1) of the top-layer summary donut ring. Default 0.6.
+  Hole size, from 0 to 1, of the summary donut. Default 0.6.
 
 - summary_donut_show_value:
 
@@ -382,361 +304,237 @@ plot_mcml(
 
 - curved_edges:
 
-  Logical or `NULL`. Force curved summary edges on or off, overriding
-  `theme`. `NULL` (default) follows the preset.
+  Logical or `NULL`. `TRUE` or `FALSE` turns curved summary edges on or
+  off. `NULL` (default) follows `theme`.
 
 - summary_curve:
 
-  Numeric or `NULL`. Curvature of curved summary edges (only used when
-  curved). `NULL` auto-selects (0.25 for directed, straight for
-  undirected).
+  Numeric or `NULL`. Curvature of curved summary edges. `NULL` (default)
+  uses 0.25 for directed and 0 for undirected networks.
 
 - summary_pie:
 
-  Character scalar controlling what the colored slice of the top-layer
-  pie chart represents. One of:
-
-  `"inits"`
-
-  :   (default) The cluster's share of the initial state distribution
-      (`cs$macro$inits[i]`). Answers "how often do sequences start in
-      this cluster?" Summed across clusters the colored slices equal 1.
-
-  `"self"`
-
-  :   The cluster's self-retention share of out-strength
-      (`bw[i, i] / rowSums(bw)[i]`). Answers "how sticky is this cluster
-      — how much of its outgoing flow loops back to itself?" Each pie is
-      normalized independently.
+  What the colored slice of a summary node shows. `"inits"` (default)
+  shows the cluster's share of the initial state distribution, so the
+  slices of all clusters sum to 1. `"self"` shows the cluster's
+  self-retention, the diagonal weight divided by the row sum of the
+  summary matrix.
 
 - edge_color_by:
 
-  How to color edges on all layers:
-
-  `"auto"`
-
-  :   (default) Color edges by their cluster when the weights are
-      non-negative (transition networks), but switch to sign-based
-      coloring automatically when any negative weight is present
-      (correlation / association networks).
-
-  `"cluster"`
-
-  :   Always color edges by the source cluster's color.
-
-  `"sign"`
-
-  :   Always color edges by weight sign — positive in
-      `edge_positive_color`, negative in `edge_negative_color`.
-
-  Sign coloring uses each edge's absolute weight for the threshold
-  (`minimum`) and line-width scaling, so negative edges are drawn rather
-  than dropped.
+  Edge coloring on all layers. `"auto"` (default) colors edges by
+  cluster when all weights are non-negative and by sign when any weight
+  is negative. `"cluster"` always uses the color of the source cluster.
+  `"sign"` always uses `edge_positive_color` and `edge_negative_color`.
+  The threshold `minimum` and the edge widths use absolute weights, so
+  negative edges are plotted.
 
 - edge_positive_color:
 
-  Color for positive-weight edges when sign coloring is active. Default
-  `"#2E7D32"` (green).
+  Color of positive edges under sign coloring. Default `"#2E7D32"`
+  (green).
 
 - edge_negative_color:
 
-  Color for negative-weight edges when sign coloring is active. Default
-  `"#C62828"` (red).
+  Color of negative edges under sign coloring. Default `"#C62828"`
+  (red).
 
 - between_arrows:
 
-  Logical. Draw arrowheads on between-cluster edges in the bottom layer.
+  Logical. Add arrowheads to between-cluster edges in the bottom layer.
   Default `FALSE`.
 
 - edge_width_range:
 
-  Numeric vector `c(min, max)` controlling the line-width range for
-  **within-cluster** edges in the bottom layer. The weakest edge gets
-  `min` and the strongest gets `max`. Default `c(0.3, 1.3)`.
+  Numeric vector `c(min, max)` of line widths for within-cluster edges.
+  Widths grow linearly with absolute weight, from `min` at zero to `max`
+  at the largest absolute weight. Default `c(0.3, 1.3)`.
 
 - between_edge_width_range:
 
-  Numeric vector `c(min, max)` for **between-cluster** edges in the
-  bottom layer (shell-to-shell lines). Default `c(0.5, 2.0)`.
+  Numeric vector `c(min, max)` of line widths for between-cluster edges.
+  Default `c(0.5, 2.0)`.
 
 - summary_edge_width_range:
 
-  Numeric vector `c(min, max)` for **summary** edges in the top layer.
-  Default `c(0.5, 2.0)`.
+  Numeric vector `c(min, max)` of line widths for summary edges. Default
+  `c(0.5, 2.0)`.
 
 - edge_alpha:
 
-  Transparency (0–1) for within-cluster edges. Lower values make these
-  edges more subtle, keeping focus on between-cluster structure. Default
-  0.35.
+  Opacity, from 0 to 1, of within-cluster edges. Default 0.35.
 
 - between_edge_alpha:
 
-  Transparency (0–1) for between-cluster edges in the bottom layer.
-  Default 0.6.
+  Opacity, from 0 to 1, of between-cluster edges. Default 0.6.
 
 - summary_edge_alpha:
 
-  Transparency (0–1) for summary-layer edges. Default 0.7.
+  Opacity, from 0 to 1, of summary edges. Default 0.7.
 
 - inter_layer_alpha:
 
-  Transparency (0–1) for the dashed inter-layer lines connecting detail
-  nodes to their summary node. Lower values make these scaffolding lines
-  less visually dominant. Default 0.5.
+  Opacity, from 0 to 1, of the dashed inter-layer lines. Default 0.5.
 
 - edge_labels:
 
-  Logical. Show numeric weight labels on within-cluster edges. Default
-  `FALSE` (automatically set to `TRUE` when `mode = "tna"`).
+  Logical. Show weight labels on within-cluster edges. Default `FALSE`,
+  or `TRUE` when `mode = "tna"`.
 
 - edge_label_size:
 
-  Text size for within-cluster edge labels. Default 0.5.
+  Text size of within-cluster edge labels. Default 0.5.
 
 - edge_label_color:
 
-  Color for within-cluster edge labels. Default `"gray40"`.
+  Color of within-cluster edge labels. Default `"gray40"`.
 
 - edge_label_digits:
 
-  Number of decimal places for edge weight labels on both layers.
-  Default 2.
+  Number of decimal places of edge labels on both layers. Default 2.
 
 - summary_edge_labels:
 
-  Logical. Show numeric weight labels on summary-layer edges. Default
-  `FALSE` (automatically set to `TRUE` when `mode = "tna"`).
+  Logical. Show weight labels on summary edges. Default `FALSE`, or
+  `TRUE` when `mode = "tna"`.
 
 - summary_edge_label_size:
 
-  Text size for summary edge labels. Default 0.6.
+  Text size of summary edge labels. Default 0.6.
 
 - top_layer_scale:
 
-  Numeric vector `c(x_scale, y_scale)` controlling the horizontal and
-  vertical radii of the oval on which summary nodes are placed, as
-  multiples of `spacing`. Widen with `c(1.0, 0.25)` or flatten with
-  `c(0.8, 0.15)` to adjust the top-layer shape. Default `c(0.8, 0.25)`.
+  Numeric vector `c(x_scale, y_scale)` giving the horizontal and
+  vertical radii of the oval of summary nodes as multiples of `spacing`.
+  Default `c(0.8, 0.25)`.
 
 - inter_layer_gap:
 
-  Vertical gap between the top of the bottom layer and the bottom of the
-  top layer, as a multiple of `spacing`. Increase to separate the layers
-  more. Default 0.6.
+  Vertical distance from the upper edge of the bottom layer to the
+  center of the summary layer, as a multiple of `spacing`. Default 0.6.
 
 - node_radius_scale:
 
-  Radius of the circle on which nodes are arranged inside each cluster
-  shell, as a fraction of `shape_size`. Increase to push nodes outward
-  toward the shell border; decrease to pack them tighter. Default 0.55.
+  Radius of the circle of nodes inside each cluster shell, as a fraction
+  of `shape_size`. Default 0.55.
 
 - shell_alpha:
 
-  Fill transparency (0–1) for cluster shells. Higher values make shells
-  more opaque, giving stronger visual grouping but potentially obscuring
-  edges. Default 0.15.
+  Fill opacity, from 0 to 1, of the cluster shells. Default 0.15, or
+  0.10 with `theme = "light"`.
 
 - shell_border_width:
 
-  Line width for cluster shell borders. Default 0.75 (thin).
-  `theme = "light"` drops the outline entirely.
+  Line width of the cluster shell borders. Default 0.75, or 0 with
+  `theme = "light"`.
 
 - node_border_color:
 
-  Border color for detail nodes in the bottom layer. Default `"gray30"`.
+  Border color of the detail nodes. Default `"gray30"`.
 
 - node_border_width:
 
-  Line width for detail-node borders in the bottom layer. Default 0.4
-  (thin). Increase for heavier outlines.
+  Border width of the detail nodes. Default 0.4.
 
 - summary_border_color:
 
-  Border color for summary pie-chart nodes. Default `"gray20"`.
+  Border color of the summary nodes. Default `"gray20"`.
 
 - summary_border_width:
 
-  Border line width for summary nodes. Default 0.6 (thin).
+  Border width of the summary nodes. Default 0.6.
 
 - label_color:
 
-  Text color for detail node labels. Default `"gray20"`.
+  Text color of detail node labels. Default `"gray20"`.
 
 - label_position:
 
-  Accepted for backward compatibility. Detail labels are currently
-  positioned automatically to the left or right of each node.
+  Not used. Detail labels are placed to the left or right of each node
+  according to its position in the shell.
 
 - directed:
 
-  Logical or `NULL`. `NULL` (default) auto-detects: a
-  `cluster_summary`/`mcml` input uses its own `$meta$directed` flag;
-  other objects use their `$directed` field when present; a plain matrix
-  is undirected when symmetric (the same contract as
-  [`splot`](https://sonsoles.me/cograph/reference/splot.md)). When
-  `TRUE`, every non-zero cell of the weight matrices is drawn as a
-  directed edge with an arrowhead. When `FALSE` (undirected, e.g.
-  co-occurrence weights): arrowheads are suppressed on all three edge
-  layers (within-cluster, between-cluster, and summary), each symmetric
-  pair is drawn once instead of twice (the upper triangle is used; a
-  warning is issued if the weights are not symmetric), edge labels move
-  to the edge midpoint, and matrix input is aggregated with
-  `type = "cooccurrence"` (symmetrized counts) instead of the
-  row-normalized `type = "tna"`. Overrides `summary_arrows` and
-  `between_arrows`.
+  Logical or `NULL`. `NULL` (default) uses the `$meta$directed` flag of
+  a `cluster_summary` or `mcml` input and the `$directed` field of other
+  objects, and treats a plain matrix as undirected when it is symmetric.
+  With `TRUE`, every non-zero weight is plotted as a directed edge with
+  an arrowhead. With `FALSE`, arrowheads are removed from all layers,
+  overriding `summary_arrows` and `between_arrows`, each pair is plotted
+  once from the upper triangle with its label at the midpoint, and a
+  warning is raised when the aggregated weights are not symmetric.
 
 - ...:
 
-  Additional arguments (currently unused).
+  Not used.
 
 ## Value
 
-Invisibly returns the `cluster_summary` object used for plotting. This
-object can be passed back to `plot_mcml()` to avoid recomputation,
-inspected with [`print()`](https://rdrr.io/r/base/print.html), or fed to
-[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md) for further
-analysis.
+Invisibly, the `cluster_summary` object used for plotting. It can be
+passed back to `plot_mcml()`, printed, or converted with
+[`as_tna`](https://sonsoles.me/cograph/reference/as_tna.md).
 
 ## Details
 
-Use `plot_mcml` when you need a simultaneous micro/macro view of cluster
-structure — the bottom layer reveals internal cluster dynamics while the
-top layer provides a bird's-eye summary. For a flat multi-cluster plot
-without the summary layer, see
+For a multi-cluster plot without the summary layer, see
 [`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md). For
-stacked multilevel/multiplex layers, see
+stacked multilevel or multiplex layers, see
 [`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md).
 
-**Two workflows:**
+A weight matrix, tna object or cograph_network is passed together with
+`cluster_list`, and the aggregated weights are computed with
+[`csum`](https://sonsoles.me/cograph/reference/csum.md). A
+`cluster_summary` computed beforehand with
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) can be passed as
+`x` instead, which avoids repeating the aggregation when the same
+clustering is plotted several times.
 
-1.  **Direct**: pass a weight matrix (or tna / cograph_network object)
-    together with `cluster_list`. The function calls
-    [`csum`](https://sonsoles.me/cograph/reference/csum.md) internally
-    to compute aggregated weights.
+For a directed network the aggregated weights are computed with
+`type = "tna"`, so each row of the summary matrix sums to 1. For an
+undirected network they are computed with `type = "cooccurrence"`. The
+`mode` argument changes only the default of the edge labels.
 
-2.  **Pre-computed**: call
-    [`csum`](https://sonsoles.me/cograph/reference/csum.md) yourself,
-    inspect or modify the result, then pass the `cluster_summary` object
-    as `x`. This avoids redundant computation when you plot the same
-    clustering repeatedly with different visual settings.
-
-**Mode:**
-
-- `"weights"` (default) — displays raw aggregated edge values. Use this
-  when the absolute magnitude of transitions matters.
-
-- `"tna"` — row-normalizes the summary matrix to transition
-  probabilities (rows sum to 1) and automatically enables edge labels on
-  both layers (unless you explicitly set `edge_labels` or
-  `summary_edge_labels` to `FALSE`).
-
-**Directionality:** `directed = NULL` (default) auto-detects
-directedness from the input: `cluster_summary`/`mcml` objects carry it
-in `$meta$directed`, and plain matrices are treated as undirected when
-symmetric. Directed edges get arrowheads; undirected weights (e.g.,
-co-occurrence aggregations) are drawn as a single plain line per
-symmetric pair on every layer, with no arrowheads. Pass
-`directed = TRUE`/`FALSE` to override the detection.
-
-**Layout logic:** Bottom-layer clusters are arranged on a circle of
-radius `spacing`, flattened by the perspective `skew_angle`. Nodes
-inside each cluster sit on a smaller circle of radius
-`shape_size * node_radius_scale`. The top-layer summary nodes are placed
-on an oval above the bottom layer whose proportions are controlled by
-`top_layer_scale`.
-
-## Input Formats
-
-`x` accepts the following types:
-
-- **matrix**:
-
-  A square numeric weight matrix with row/column names matching the node
-  identifiers in `cluster_list`.
-
-- **tna**:
-
-  A TNA model object. The `$weights` matrix is extracted automatically.
-
-- **cograph_network**:
-
-  A cograph network object. Weights are extracted via
-  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md)
-  and node metadata (display labels) is read from the `$nodes` data
-  frame.
-
-- **cluster_summary**:
-
-  A pre-computed summary from
-  [`csum`](https://sonsoles.me/cograph/reference/csum.md). When this
-  type is passed, the `cluster_list`, `aggregation`, and `nodes`
-  parameters are ignored because the summary already contains everything
-  needed.
-
-- **mcml / mcml_pc**:
-
-  A Nestimate multi-cluster multi-layer object; handled exactly like a
-  `cluster_summary`, with `mcml_pc` rendered undirected via its
-  `meta$directed` flag.
+Bottom-layer clusters are arranged on a circle of radius `spacing`,
+flattened by the perspective `skew_angle`. Nodes inside each cluster sit
+on a smaller circle of radius `shape_size * node_radius_scale`. The
+summary nodes are placed on an oval above the bottom layer whose radii
+are set by `top_layer_scale`.
 
 ## Edge Types
 
-The plot contains four distinct edge categories, each with its own set
-of visual parameters:
+The plot contains four kinds of edges, each with its own visual
+parameters.
 
-- **Within-cluster (bottom)**:
+- Within-cluster (bottom):
 
-  Edges connecting nodes inside the same cluster shell. Controlled by
-  `edge_width_range`, `edge_alpha`, `edge_labels`, `edge_label_size`,
-  `edge_label_color`, and `edge_label_digits`.
+  Edges between nodes of the same cluster, set by `edge_width_range`,
+  `edge_alpha`, `edge_labels`, `edge_label_size`, `edge_label_color` and
+  `edge_label_digits`.
 
-- **Between-cluster (bottom)**:
+- Between-cluster (bottom):
 
-  Edges from one cluster shell to another, drawn between shell borders.
-  Controlled by `between_edge_width_range` and `between_edge_alpha`.
+  Edges between cluster shells, set by `between_edge_width_range`,
+  `between_edge_alpha` and `between_arrows`.
 
-- **Summary (top)**:
+- Summary (top):
 
-  Edges between summary pie-chart nodes in the top layer. Controlled by
-  `summary_edge_width_range`, `summary_edge_alpha`,
-  `summary_edge_labels`, `summary_edge_label_size`, `summary_arrows`,
-  and `summary_arrow_size`.
+  Edges between summary nodes, set by `summary_edge_width_range`,
+  `summary_edge_alpha`, `summary_edge_labels`,
+  `summary_edge_label_size`, `summary_arrows` and `summary_arrow_size`.
 
-- **Inter-layer (dashed)**:
+- Inter-layer (dashed):
 
-  Dashed lines connecting each detail node to its cluster's summary
-  node. Controlled by `inter_layer_alpha`.
-
-## Customization Quick Reference
-
-|  |  |
-|----|----|
-| **Visual element** | **Key parameters** |
-| Cluster spacing / perspective | `spacing`, `skew_angle` |
-| Cluster shell appearance | `shape_size`, `shell_alpha`, `shell_border_width`, `colors` |
-| Detail nodes | `node_size`, `node_shape`, `node_border_color` |
-| Detail labels | `show_labels`, `label_size`, `label_abbrev`, `label_color`, `label_position` |
-| Summary nodes | `summary_size`, `summary_border_color`, `summary_border_width` |
-| Summary labels | `summary_labels`, `summary_label_size`, `summary_label_color`, `summary_label_position` |
-| Within-cluster edges | `edge_width_range`, `edge_alpha`, `edge_labels` |
-| Between-cluster edges | `between_edge_width_range`, `between_edge_alpha` |
-| Summary edges | `summary_edge_width_range`, `summary_edge_alpha`, `summary_edge_labels`, `summary_arrows` |
-| Directed vs undirected | `directed` |
-| Inter-layer lines | `inter_layer_alpha` |
-| Top-layer layout | `top_layer_scale`, `inter_layer_gap` |
-| Title / legend | `title`, `subtitle`, `legend`, `legend_position` |
+  Lines from each detail node to its summary node, set by
+  `inter_layer_alpha`.
 
 ## See also
 
-[`csum`](https://sonsoles.me/cograph/reference/csum.md) for
-pre-computing aggregated cluster data,
-[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for
-flat multi-cluster visualization (no summary layer),
+[`csum`](https://sonsoles.me/cograph/reference/csum.md) for the
+aggregated cluster data,
+[`plot_mtna`](https://sonsoles.me/cograph/reference/plot_mtna.md) for a
+multi-cluster plot without a summary layer,
 [`plot_mlna`](https://sonsoles.me/cograph/reference/plot_mlna.md) for
-stacked multilevel/multiplex layer visualization,
-[`aggregate_weights`](https://sonsoles.me/cograph/reference/aggregate_weights.md)
-for the low-level weight aggregation used internally,
+stacked multilevel or multiplex layers,
 [`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md)
 for algorithmic cluster detection
 
@@ -747,10 +545,4 @@ clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
                  C2 = c("Plan", "Create", "Share"),
                  C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
 plot_mcml(regulation_net, clusters)
-
-# \donttest{
-cs <- csum(regulation_net, clusters)
-plot_mcml(cs, mode = "tna", edge_labels = TRUE)
-
-# }
 ```

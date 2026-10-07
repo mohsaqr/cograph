@@ -1,10 +1,9 @@
-# Extended neighborhood coreness
+# Extended Neighborhood Coreness
 
-Bae and Kim's extended neighborhood coreness sums the neighborhood
-coreness of every immediate neighbor: \\C\_{nc+}(i)=\sum\_{j\in
-N(i)}\sum\_{l\in N(j)}k_s(l)\\. Equivalently, the score is \\A^2 k_s\\.
-Here k_s is the core-number vector of the original simple undirected
-graph. Core numbers are not recomputed inside each neighborhood.
+Extended neighborhood coreness (Bae and Kim 2014) sums the neighborhood
+coreness of every neighbor of a node: \$\$C\_{nc+}(i) = \sum\_{j \in
+N(i)} \sum\_{l \in N(j)} k_s(l),\$\$ where \\k_s\\ is the core number in
+the whole network. The score equals \\A^2 k_s\\.
 
 ## Usage
 
@@ -21,30 +20,21 @@ centrality_extended_coreness(x, ...)
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive scores are divided by their
-  maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Every length-two walk contributes its endpoint's core number, including
-returns to the focal node and repeated endpoints reached via different
-neighbors. This is not a sum over distinct nodes at distance two.
-Isolates score zero. On a tree, it equals the sum of neighboring
-degrees; on a d-regular graph it equals d cubed. A larger score means
-more access to core-rich neighborhoods; numerical equivalence does not
-imply superior spreading prediction for every network.
-
-Uses the simple undirected unweighted skeleton: either direction creates
-an edge, parallel edges count once and loops are removed. This
-projection is a cograph convention for inputs outside the published
-domain. Weights, `mode` and shortest-path weight inversion do not affect
-the score.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Every walk of length two adds the
+core number of its endpoint, including walks that return to the focal
+node. Isolated nodes score 0. On a tree the score equals the sum of the
+neighbors' degrees, and on a \\d\\-regular network it equals \\d^3\\.
 
 ## References
 
@@ -53,10 +43,18 @@ in complex networks by neighborhood coreness. Physica A, 395, 549-559.
 [doi:10.1016/j.physa.2013.10.047](https://doi.org/10.1016/j.physa.2013.10.047)
 .
 
+## See also
+
+[`centrality_coreness`](https://sonsoles.me/cograph/reference/centrality_coreness.md),
+[`centrality_extended_gravity`](https://sonsoles.me/cograph/reference/centrality_extended_gravity.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_extended_coreness(igraph::make_ring(6))
-#> 1 2 3 4 5 6 
-#> 8 8 8 8 8 8 
+centrality_extended_coreness(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        108        128        148        124        104        112         96 
+#>   Evaluate     Create      Share 
+#>        120        132        120 
 ```

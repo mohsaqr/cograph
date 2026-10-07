@@ -1,6 +1,10 @@
 # Grid Rendering
 
-Main grid-based rendering functions.
+The grid rendering engine.
+[`soplot`](https://sonsoles.me/cograph/reference/soplot.md) plots a
+network with grid graphics, and
+[`sn_ggplot`](https://sonsoles.me/cograph/reference/sn_ggplot.md)
+converts a network into a ggplot2 object.
 
 ## Value
 
@@ -13,6 +17,5 @@ returns a ggplot2 object.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-soplot(adj)
+soplot(regulation_net)
 ```

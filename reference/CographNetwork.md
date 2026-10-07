@@ -23,11 +23,12 @@ A `CographNetwork` R6 object.
 
 - `has_weights`:
 
-  Whether edges have weights.
+  `TRUE` when any edge weight differs from 1.
 
 - `node_labels`:
 
-  Vector of node labels (priority: labels \> label).
+  Vector of node labels, taken from the `labels` column of the node
+  table when present and from `label` otherwise.
 
 ## Methods
 
@@ -96,24 +97,29 @@ Create a new CographNetwork object.
 
 - `input`:
 
-  Network input supported by `parse_input`, such as a matrix, edge list,
-  igraph, statnet network, qgraph, or tna object.
+  Network input, such as a matrix, edge list, igraph, statnet network,
+  qgraph or tna object. `NULL` creates an empty object.
 
 - `directed`:
 
-  Logical. Force directed interpretation. NULL for auto-detect.
+  Logical. Forces a directed or undirected interpretation. `NULL`
+  detects it from the input.
 
 - `nodes`:
 
-  Node metadata. Can be NULL or a data frame with node attributes. If
-  data frame has a `label` or `labels` column, those are used for
-  display.
+  `NULL` or a data frame of node attributes. Its rows are matched to the
+  node labels by a `name`, `label` or `id` column, tried in that order,
+  and the remaining columns are added to the node table. When no column
+  matches and the row count equals the number of nodes, the columns are
+  added in row order. A `labels` column supplies the display labels
+  returned by `$node_labels`.
 
 - `simplify`:
 
   Logical or character. If FALSE (default), every transition from tna
   sequence data is a separate edge. If TRUE or a string ("sum", "mean",
-  "max", "min"), duplicate edges are aggregated.
+  "max", "min"), duplicate transitions are aggregated. Other inputs are
+  not affected.
 
 #### Returns
 
@@ -123,7 +129,8 @@ A new CographNetwork object.
 
 ### Method `clone_network()`
 
-Clone the network with optional modifications.
+Create a copy with the same nodes, edges, weights, layout, aesthetics,
+theme, layout information and plot parameters.
 
 #### Usage
 
@@ -135,7 +142,7 @@ A new CographNetwork object.
 
 ------------------------------------------------------------------------
 
-### Method [`set_nodes()`](https://sonsoles.me/cograph/reference/set_nodes.md)
+### Method [`set_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 Set nodes data frame.
 
@@ -155,7 +162,7 @@ The object itself, invisibly.
 
 ------------------------------------------------------------------------
 
-### Method [`set_edges()`](https://sonsoles.me/cograph/reference/set_edges.md)
+### Method [`set_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 Set edges data frame.
 
@@ -227,7 +234,9 @@ Set layout coordinates.
 
 - `coords`:
 
-  Matrix or data frame with x, y columns, one row per node.
+  Matrix or data frame with at least two columns and one row per node.
+  The first two columns are renamed `x` and `y` and are also written to
+  the node table. `NULL` leaves the layout unchanged.
 
 #### Returns
 
@@ -237,7 +246,8 @@ The object itself, invisibly.
 
 ### Method `set_node_aes()`
 
-Set node aesthetics.
+Set node aesthetics. The list is merged into the current node
+aesthetics.
 
 #### Usage
 
@@ -247,7 +257,7 @@ Set node aesthetics.
 
 - `aes`:
 
-  List of aesthetic parameters.
+  Named list of aesthetic parameters.
 
 #### Returns
 
@@ -257,7 +267,8 @@ The object itself, invisibly.
 
 ### Method `set_edge_aes()`
 
-Set edge aesthetics.
+Set edge aesthetics. The list is merged into the current edge
+aesthetics.
 
 #### Usage
 
@@ -267,7 +278,7 @@ Set edge aesthetics.
 
 - `aes`:
 
-  List of aesthetic parameters.
+  Named list of aesthetic parameters.
 
 #### Returns
 
@@ -309,7 +320,7 @@ Data frame with node information.
 
 ------------------------------------------------------------------------
 
-### Method [`get_edges()`](https://sonsoles.me/cograph/reference/get_edges.md)
+### Method [`get_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md)
 
 Get edges data frame.
 
@@ -323,7 +334,7 @@ Data frame with edge information.
 
 ------------------------------------------------------------------------
 
-### Method [`get_layout()`](https://sonsoles.me/cograph/reference/get_layout.md)
+### Method [`get_layout()`](https://sonsoles.me/cograph/reference/layout_registry.md)
 
 Get layout coordinates.
 
@@ -333,7 +344,7 @@ Get layout coordinates.
 
 #### Returns
 
-Data frame with x, y coordinates.
+A data frame with `x` and `y` columns, or `NULL` when no layout is set.
 
 ------------------------------------------------------------------------
 
@@ -365,7 +376,7 @@ List of edge aesthetic parameters.
 
 ------------------------------------------------------------------------
 
-### Method [`get_theme()`](https://sonsoles.me/cograph/reference/get_theme.md)
+### Method [`get_theme()`](https://sonsoles.me/cograph/reference/themes.md)
 
 Get theme.
 
@@ -375,7 +386,7 @@ Get theme.
 
 #### Returns
 
-CographTheme object.
+The stored theme (a CographTheme object or theme name), or `NULL`.
 
 ------------------------------------------------------------------------
 
@@ -478,15 +489,10 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Create network from adjacency matrix
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-
-# Access properties
-net$n_nodes
-#> [1] 3
-net$n_edges
-#> [1] 3
-net$is_directed
-#> [1] FALSE
+CographNetwork$new(regulation_net)
+#> CographNetwork
+#>   Nodes: 10 
+#>   Edges: 30 
+#>   Directed: TRUE 
+#>   Layout: none 
 ```

@@ -1,9 +1,10 @@
 # Ego-Network Metrics
 
-Extracts the ego network of each requested node (the node, its neighbors
-up to a given order, and the ties among them) and reports a tidy table
-of personal-network metrics: size, internal tie counts and densities,
-and Burt's structural-hole measures. One row per ego.
+Extracts the ego network of each requested node and computes a table of
+personal-network metrics with one row per ego. An ego network consists
+of the node, its neighbors up to a given order and the ties among them.
+The metrics are the network size, tie counts and densities, and Burt's
+structural-hole measures.
 
 ## Usage
 
@@ -28,19 +29,21 @@ ego_networks(
 - nodes:
 
   Character vector of node names or integer vector of node indices
-  selecting which egos to report. NULL (default) uses every node.
+  selecting which egos to report. NULL (default) uses every node. An
+  unknown name or an index out of range raises an error.
 
 - order:
 
   Integer neighborhood order defining the ego network. 1 (default) is
-  the standard ego network (ego + direct neighbors). Burt's
+  the standard ego network (ego and direct neighbors). Burt's
   `effective_size` and `constraint` are only defined for `order = 1` and
   are returned as `NA` otherwise.
 
 - mode:
 
   For directed networks, which ties define the neighborhood: `"all"`
-  (default), `"out"`, or `"in"`.
+  (default), `"out"`, or `"in"`. The Burt measures do not depend on
+  `mode`.
 
 - directed:
 
@@ -48,14 +51,15 @@ ego_networks(
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which takes no further arguments, so any argument supplied here raises
+  an error.
 
 ## Value
 
-A tidy data.frame of class `"cograph_ego_networks"` with one row per ego
-and columns:
+A data frame of class `"cograph_ego_networks"` with one row per ego and
+columns:
 
 - node:
 
@@ -67,11 +71,12 @@ and columns:
 
 - ego_ties:
 
-  Number of edges in the ego network (ego + alters).
+  Number of edges in the ego network (ego and alters).
 
 - ego_density:
 
-  Edge density of the ego network including ego.
+  Edge density of the ego network including ego. `NA` for an ego without
+  alters.
 
 - alter_ties:
 
@@ -79,8 +84,9 @@ and columns:
 
 - alter_density:
 
-  Edge density among the alters. Low values indicate many structural
-  holes / brokerage opportunities.
+  Edge density among the alters. `NA` for an ego with fewer than two
+  alters. Low values indicate many structural holes and brokerage
+  opportunities.
 
 - effective_size:
 
@@ -90,14 +96,22 @@ and columns:
 
   Burt's constraint (`order = 1` only).
 
+The arguments `order` and `mode` and the directedness of the network are
+stored as attributes. Printing the result shows `order` and `mode` above
+the table.
+
 ## Details
 
-`effective_size` and `constraint` are computed on the full network
-(Burt's measures are defined directly from each node's order-1 ego
-network), reusing the same implementations as
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) so
-results match
-`centrality(x, measures = c("effective_size", "constraint"))`.
+Self-loops are dropped before ties are counted. In a directed network
+the tie counts are counts of directed edges, and the densities divide by
+\\m(m-1)\\ for \\m\\ members.
+
+`effective_size` and `constraint` are computed on the full network from
+all ties of each node, with the same implementations as
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md), so
+the values equal
+`centrality(x, measures = c("effective_size", "constraint"))`. Effective
+size uses the unweighted ties. Constraint uses the edge weights.
 
 ## References
 
@@ -107,34 +121,19 @@ Competition*. Harvard University Press.
 ## See also
 
 [`centrality`](https://sonsoles.me/cograph/reference/centrality.md) (for
-`effective_size`, `constraint`, `dispersion`),
+`effective_size` and `constraint`),
+[`dispersion`](https://sonsoles.me/cograph/reference/dispersion.md),
 [`select_neighbors`](https://sonsoles.me/cograph/reference/select_neighbors.md),
 [`neighborhood_overlap`](https://sonsoles.me/cograph/reference/neighborhood_overlap.md)
 
 ## Examples
 
 ``` r
-adj <- matrix(c(
-  0, 1, 1, 0, 0,
-  1, 0, 1, 0, 0,
-  1, 1, 0, 1, 1,
-  0, 0, 1, 0, 1,
-  0, 0, 1, 1, 0
-), 5, 5, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-cograph::ego_networks(adj)
+cograph::ego_networks(regulation_net, nodes = "Plan")
 #> Ego Networks (order = 1, mode = all)
 #> ================================================== 
 #>  node size ego_ties ego_density alter_ties alter_density effective_size
-#>     A    2        3         1.0          1     1.0000000              1
-#>     B    2        3         1.0          1     1.0000000              1
-#>     C    4        6         0.6          2     0.3333333              3
-#>     D    2        3         1.0          1     1.0000000              1
-#>     E    2        3         1.0          1     1.0000000              1
+#>  Plan    6       15   0.3571429          8     0.2666667       4.714286
 #>  constraint
-#>    0.953125
-#>    0.953125
-#>    0.562500
-#>    0.953125
-#>    0.953125
+#>   0.3609471
 ```

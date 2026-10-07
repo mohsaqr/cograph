@@ -1,8 +1,9 @@
 # Plot Network Evolution (Small Multiples)
 
-Displays a network at different time points side by side. Accepts an
-edge list data frame with a time column, or a pre-built list of
-networks. All panels share the same node layout for visual comparison.
+Plots a network at different time points side by side. The input is an
+edge list data frame with a time column, a `cograph_network` whose
+stored edge data contain such a column, or a list of networks. All
+panels share one node layout. At least two periods are required.
 
 ## Usage
 
@@ -26,18 +27,19 @@ plot_network_evolution(
 
 - x:
 
-  An edge list data frame with columns `from`, `to`, and a time column,
-  OR a list of network objects (matrices, igraph, etc.).
+  An edge list data frame with columns `from`, `to`, optionally
+  `weight`, and a time column; a `cograph_network` with stored edge
+  data; or a list of network objects (matrices, igraph, etc.).
 
 - time:
 
-  Character. Name of the time/group column in `x`. Ignored if `x` is a
-  list.
+  Character. Name of the time column in `x`. Required for data frame
+  input and ignored if `x` is a list.
 
 - slices:
 
-  Integer or NULL. Number of equal-width time bins. Default NULL uses
-  unique values of the time column.
+  Integer or NULL. Number of equal-width bins of the numeric time
+  column. Default NULL uses the unique time values.
 
 - cumulative:
 
@@ -47,31 +49,38 @@ plot_network_evolution(
 
 - labels:
 
-  Character vector of panel labels. Default NULL (auto from time
-  values).
+  Character vector of panel labels, one per period. The default NULL
+  uses the time values, or `"T1"`, `"T2"`, ... for list input.
 
 - layout:
 
-  Layout specification. Default `"spring"`.
+  Character. Any character value computes one Fruchterman-Reingold
+  layout from the union of all edges and uses it for every panel.
+  Default `"spring"`.
 
 - ncol:
 
-  Integer. Grid columns. Default auto.
+  Integer. Number of grid columns. The default NULL uses
+  `min(number of periods, 4)`.
 
 - node_size:
 
-  Numeric. Default 5.
+  Numeric. Node size passed to
+  [`splot`](https://sonsoles.me/cograph/reference/splot.md). Default 5.
 
 - seed:
 
-  Integer or NULL. Default 42.
+  Integer or NULL. Random seed for the shared layout. The caller's
+  random number state is restored on exit. NULL sets no seed. Default
+  42.
 
 - combined:
 
-  Logical: when TRUE (default), arrange period panels in an internal
-  grid via `graphics::par(mfrow=...)`. Set to FALSE to draw into a
-  layout the caller has already configured (e.g. via
-  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)).
+  Logical. When TRUE (default), the period panels are arranged in an
+  internal grid via `graphics::par(mfrow = ...)`. When FALSE, the panels
+  are plotted into a layout the caller has already configured, for
+  example with
+  [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md).
 
 - ...:
 
@@ -80,7 +89,9 @@ plot_network_evolution(
 
 ## Value
 
-Invisible list of per-panel networks or edge-list data frames.
+Invisibly, a list with one element per period. For data frame input each
+element is the edge-list data frame of that period (all earlier periods
+included when `cumulative = TRUE`). For list input it is the input list.
 
 ## Examples
 
@@ -91,6 +102,4 @@ edges <- data.frame(
   to   = sample(LETTERS[1:5], 30, replace = TRUE),
   week = sample(1:4, 30, replace = TRUE))
 cograph::plot_network_evolution(edges, time = "week")
-
-cograph::plot_network_evolution(edges, time = "week", cumulative = TRUE)
 ```

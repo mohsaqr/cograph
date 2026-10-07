@@ -1,10 +1,8 @@
 # Neighborhood Connectivity
 
-Mean degree of a node's neighbors (Maslov & Sneppen 2002), the "average
-neighbor degree" reported by Cytoscape: \$\$C\_{NC}(i) = \frac{1}{k_i}
-\sum\_{j \in N(i)} k_j.\$\$ High values mark nodes attached to hubs.
-Isolates score 0. Under `mode = "out"` the out-neighbors' out-degrees
-are averaged, under `"in"` the in-neighbors' in-degrees.
+Neighborhood connectivity (Maslov and Sneppen 2002) is the mean degree
+of the neighbors of a node, the average neighbor degree reported by
+Cytoscape: \$\$C\_{NC}(i) = \frac{1}{k_i} \sum\_{j \in N(i)} k_j.\$\$
 
 ## Usage
 
@@ -16,21 +14,30 @@ centrality_neighborhood_connectivity(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"` (distances along
-  out-edges), or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `loops` (keep self-loops, default `TRUE`).
 
 ## Value
 
-Named numeric vector, one value per node.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. Under `mode = "out"` the out-degrees of the
+out-neighbors are averaged, and under `mode = "in"` the in-degrees of
+the in-neighbors. Self-loops change the degrees, and `loops = FALSE`
+drops them. Isolated nodes score 0. High values mark nodes attached to
+hubs.
 
 ## References
 
@@ -40,16 +47,14 @@ of protein networks. Science, 296(5569), 910-913.
 ## See also
 
 [`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
-and [`igraph::knn()`](https://r.igraph.org/reference/knn.html) for the
-Barrat weighted generalization.
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_neighborhood_connectivity(star5)
-#> A B C D E 
-#> 1 4 4 4 4 
+centrality_neighborhood_connectivity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>   5.400000   5.333333   5.285714   5.166667   5.200000   5.600000   6.000000 
+#>   Evaluate     Create      Share 
+#>   6.000000   5.500000   6.000000 
 ```

@@ -118,7 +118,7 @@ centrality(
 - x:
 
   Network input (matrix, edge-list data frame, igraph, network,
-  cograph_network, tna object)
+  cograph_network, tna object).
 
 - type:
 
@@ -127,162 +127,218 @@ centrality(
 
   `"basic"`
 
-  :   (default) 6 canonical measures: `degree`, `strength`, `closeness`,
+  :   The default. Six measures: `degree`, `strength`, `closeness`,
       `betweenness`, `eigenvector`, `pagerank`.
 
   `"extended"`
 
-  :   Basic plus commonly-reported second-tier measures: harmonic,
-      coreness, eccentricity, radiality, lin, decay, load, stress, katz,
-      alpha, power, authority, leverage, constraint, effective_size,
-      bridging, transitivity, subgraph, diffusion, laplacian, kreach,
-      current_flow_betweenness, current_flow_closeness.
+  :   The basic tier plus harmonic, coreness, eccentricity, radiality,
+      lin, decay, load, stress, katz, alpha, power, authority, leverage,
+      constraint, effective_size, bridging, transitivity, subgraph,
+      diffusion, laplacian, kreach, current_flow_betweenness and
+      current_flow_closeness.
 
   `"all"`
 
-  :   Every measure except the costly ones, which are held back (see
-      `include` and
+  :   Every measure except the costly ones (see `include` and
       [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)).
 
   Passing `measures` explicitly overrides `type`.
 
 - measures:
 
-  Character vector of specific measure names to compute. When `NULL`
-  (default) the tier selected by `type` is used. Accepts `"all"` as a
-  shortcut for `type = "all"`, i.e. every measure except the costly
-  ones. Any custom vector of valid measure names is also accepted, and
-  naming a costly measure there always computes it. **Core**
-  (igraph-backed): "degree", "strength", "betweenness", "closeness",
-  "eigenvector", "pagerank", "authority", "hub", "eccentricity",
-  "coreness", "constraint", "transitivity", "harmonic", "alpha",
-  "power", "subgraph". **Native**: "diffusion", "leverage", "kreach",
-  "laplacian", "load", "current_flow_closeness",
-  "current_flow_betweenness", "voterank", "percolation".
-  **Distance-based**: "radiality", "lin", "decay", "residual_closeness",
-  "dangalchev", "generalized_closeness", "harary", "average_distance",
-  "barycenter", "wiener", "closeness_vitality". **Spectral/walk**:
-  "communicability", "communicability_betweenness", "random_walk".
-  **Path-based**: "stress", "flow_betweenness". **Local/neighborhood**:
-  "lobby", "entropy", "semilocal", "clusterrank", "bottleneck",
-  "centroid", "mnc", "dmnc", "lac", "topological_coefficient",
-  "bridging", "local_bridging", "effective_size", "diversity",
-  "cross_clique", "markov". **Influence**: "integration", "expected",
-  "gilschmidt". **Directed-only**: "salsa", "leaderrank",
-  "trophic_level", "pairwisedis", "prestige_domain",
-  "prestige_domain_proximity". **Community-aware** (require
-  `membership`): "participation", "within_module_z", "gateway",
-  "brokerage_coordinator", "brokerage_itinerant",
-  "brokerage_representative", "brokerage_gatekeeper",
-  "brokerage_liaison" (the last 5 also require a directed graph; see
-  [`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md)).
-  **Zoo (batch 2)**: "gravity", "collective_influence", "local_hindex",
-  "hindex_strength", "onion", "second_order", "infection",
-  "nonbacktracking", "spanning_tree". **Classical (batch 3,
-  reference-validated)**: "katz" (Katz 1953), "hubbell" (Hubbell 1965),
-  "information" (Stephenson-Zelen 1989), "reaching_local" (Mones et al.
-  2012). See
-  [`centrality_katz`](https://sonsoles.me/cograph/reference/centrality_katz.md),
-  [`centrality_hubbell`](https://sonsoles.me/cograph/reference/centrality_hubbell.md),
-  [`centrality_information`](https://sonsoles.me/cograph/reference/centrality_information.md),
-  [`centrality_pairwisedis`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md),
-  [`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md).
-  **Psychometric (signed-weight)**: "expected_influence_1",
-  "expected_influence_2" (Robinaugh, Millner & McNally 2016). Expected
-  influence keeps signed edge contributions, which is important when
-  edges can be negative (partial-correlation, glasso, signed correlation
-  networks). **Zoo (batch 7, lowest rank-redundancy with the rest of the
-  package per the Centrality Zoo comparison)**: "distance_entropy"
-  (Stella & De Domenico 2018), "local_dimension" (Pu et al. 2014),
-  "local_information_dimension" (Wen & Deng 2020),
-  "neighborhood_connectivity" (Maslov & Sneppen 2002), and
-  "modularity_vitality" (Magelinski et al. 2021; requires `membership`).
-  The first three are hop-count measures and ignore edge weights. See
-  [`centrality_distance_entropy`](https://sonsoles.me/cograph/reference/centrality_distance_entropy.md),
-  [`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md),
-  [`centrality_local_information_dimension`](https://sonsoles.me/cograph/reference/centrality_local_information_dimension.md),
-  [`centrality_neighborhood_connectivity`](https://sonsoles.me/cograph/reference/centrality_neighborhood_connectivity.md),
-  [`centrality_modularity_vitality`](https://sonsoles.me/cograph/reference/centrality_modularity_vitality.md).
-  **Zoo (batch 8, the measures the Zoo comparison left "on the way")**:
-  "shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
-  2013), "access_information", "hide_information" (Rosvall et al. 2005),
-  "rumor" (Shah & Zaman 2011), "community_hub_bridge" (Ghalmane et al.
-  2019; requires `membership`), "entropy_variation_degree",
-  "entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al.
-  2017), "degree_discount", "single_discount" (Chen, Wang & Yang 2009),
-  "ncvoterank" (Kumar & Panda 2020). All are hop-count or topology-only
-  measures; edge weights are ignored. See the per-measure pages, e.g.
-  [`centrality_shapley_game1`](https://sonsoles.me/cograph/reference/centrality_shapley_game1.md),
-  [`centrality_access_information`](https://sonsoles.me/cograph/reference/centrality_access_information.md),
-  [`centrality_rumor`](https://sonsoles.me/cograph/reference/centrality_rumor.md),
-  [`centrality_community_hub_bridge`](https://sonsoles.me/cograph/reference/centrality_community_hub_bridge.md),
-  [`centrality_entropy_variation`](https://sonsoles.me/cograph/reference/centrality_entropy_variation.md),
-  [`centrality_s_shell`](https://sonsoles.me/cograph/reference/centrality_s_shell.md),
-  [`centrality_degree_discount`](https://sonsoles.me/cograph/reference/centrality_degree_discount.md),
-  [`centrality_ncvoterank`](https://sonsoles.me/cograph/reference/centrality_ncvoterank.md).
-  **Zoo (batch 9, the remaining measures with a pinned definition)**:
-  community-aware "community_based" (Zhao et al. 2015),
-  "comm_centrality" (Gupta et al. 2016), "community_mediator" (Tulu et
-  al. 2018), all requiring `membership`; dimension family
-  "local_dimension_fixed" (Silva & Costa 2013), "fuzzy_local_dimension"
-  (Wen & Jiang 2019), "local_volume_dimension" (Li & Deng 2021);
-  VoteRank family "wvoterank" (Sun et al. 2019), "enrenew" (Guo et al.
-  2020), "voterank_plus" (Liu et al. 2021); "node_contraction",
-  "node_contraction_improved" (Tan et al. 2006; Wang et al. 2011);
-  "two_way_rw" (Curado et al. 2022); local measures "heatmap" (Duron
-  2020), "flow_coefficient" (Honey et al. 2007), "local_entropy" (Nie et
-  al. 2016), "weighted_h_index" (Gao et al. 2019), "redundancy" (Burt
-  1992); "weighted_kshell" (Garas et al. 2012), "renewed_coreness" (Liu
-  et al. 2015), "geodesic_kpath" (Borgatti & Everett 2006). Only
-  "wvoterank", "two_way_rw" and "weighted_kshell" use edge weights. See
-  [`centrality_community_based`](https://sonsoles.me/cograph/reference/centrality_community_based.md),
-  [`centrality_local_dimension_fixed`](https://sonsoles.me/cograph/reference/centrality_local_dimension_fixed.md),
-  [`centrality_wvoterank`](https://sonsoles.me/cograph/reference/centrality_wvoterank.md),
-  [`centrality_node_contraction`](https://sonsoles.me/cograph/reference/centrality_node_contraction.md),
-  [`centrality_two_way_rw`](https://sonsoles.me/cograph/reference/centrality_two_way_rw.md),
-  [`centrality_heatmap`](https://sonsoles.me/cograph/reference/centrality_heatmap.md),
-  [`centrality_weighted_kshell`](https://sonsoles.me/cograph/reference/centrality_weighted_kshell.md).
+  Character vector of measure names to compute. When `NULL` (default)
+  the tier selected by `type` is used. `"all"` is a shortcut for
+  `type = "all"`. Unknown names raise an error.
+  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)
+  returns every valid name together with its orientation, mode support,
+  partition requirement, weight use and cost. The measures fall into
+  these groups:
 
-  Batch 10 closes the gaps other centrality packages had and cograph did
-  not: "local_efficiency" (Latora & Marchiori 2001), "s_core" (Eidsaa &
-  Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade 1989) and
-  "epc" (Lin et al. 2008). "fragmentation" and "epc" are costly, so
-  `type = "all"` holds them back. See
-  [`centrality_local_efficiency`](https://sonsoles.me/cograph/reference/centrality_local_efficiency.md).
+  Core
 
-  Batch 11 tunes families cograph already had:
-  "length_scaled_betweenness" (Brandes 2008), "delta_betweenness" and
-  "delta_closeness" (Agneessens et al. 2017), "ego_betweenness" (Everett
-  & Borgatti 2005). "gravity" gained `gravity_mass` and
-  `gravity_radius`, and its formula was corrected – see
-  [`centrality_gravity`](https://sonsoles.me/cograph/reference/centrality_gravity.md).
-  Bounded-distance ("k-") betweenness needs no measure of its own: it is
-  `cutoff = k`. See
-  [`centrality_length_scaled_betweenness`](https://sonsoles.me/cograph/reference/centrality_length_scaled_betweenness.md).
+  :   "degree", "strength", "betweenness", "closeness", "eigenvector",
+      "pagerank", "authority", "hub", "eccentricity", "coreness",
+      "constraint", "transitivity", "harmonic", "alpha", "power",
+      "subgraph".
+
+  Flow and spreading
+
+  :   "diffusion", "leverage", "kreach", "laplacian", "load",
+      "current_flow_closeness", "current_flow_betweenness", "voterank",
+      "percolation".
+
+  Distance-based
+
+  :   "radiality", "lin", "decay", "residual_closeness", "dangalchev",
+      "generalized_closeness", "harary", "average_distance",
+      "barycenter", "wiener", "closeness_vitality".
+
+  Spectral and walk-based
+
+  :   "communicability", "communicability_betweenness", "random_walk".
+
+  Path-based
+
+  :   "stress", "flow_betweenness".
+
+  Local and neighborhood
+
+  :   "lobby", "entropy", "semilocal", "clusterrank", "bottleneck",
+      "centroid", "mnc", "dmnc", "lac", "topological_coefficient",
+      "bridging", "local_bridging", "effective_size", "diversity",
+      "cross_clique", "markov".
+
+  Influence
+
+  :   "integration", "expected", "gilschmidt".
+
+  Directed only
+
+  :   "salsa", "leaderrank", "trophic_level", "pairwisedis",
+      "prestige_domain", "prestige_domain_proximity".
+
+  Community-aware (require `membership`)
+
+  :   "participation", "within_module_z", "gateway",
+      "modularity_vitality" (Magelinski et al. 2021),
+      "community_hub_bridge" (Ghalmane et al. 2019), "community_based"
+      (Zhao et al. 2015), "comm_centrality" (Gupta et al. 2016),
+      "community_mediator" (Tulu et al. 2018), and the Gould-Fernandez
+      roles "brokerage_coordinator", "brokerage_itinerant",
+      "brokerage_representative", "brokerage_gatekeeper",
+      "brokerage_liaison", which also require a directed graph. See
+      [`centrality_modularity_vitality`](https://sonsoles.me/cograph/reference/centrality_modularity_vitality.md)
+      and
+      [`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md).
+
+  Spreader identification
+
+  :   "gravity", "collective_influence", "local_hindex",
+      "hindex_strength", "onion", "second_order", "infection",
+      "nonbacktracking", "spanning_tree". See
+      [`centrality_gravity`](https://sonsoles.me/cograph/reference/centrality_gravity.md).
+
+  Classical
+
+  :   "katz" (Katz 1953), "hubbell" (Hubbell 1965), "information"
+      (Stephenson and Zelen 1989), "reaching_local" (Mones et al. 2012).
+      See
+      [`centrality_katz`](https://sonsoles.me/cograph/reference/centrality_katz.md),
+      [`centrality_hubbell`](https://sonsoles.me/cograph/reference/centrality_hubbell.md),
+      [`centrality_information`](https://sonsoles.me/cograph/reference/centrality_information.md),
+      [`centrality_pairwisedis`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md)
+      and
+      [`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md).
+
+  Psychometric
+
+  :   "expected_influence_1", "expected_influence_2" (Robinaugh, Millner
+      and McNally 2016). Expected influence keeps the sign of each edge,
+      which matters in networks with negative edges such as
+      partial-correlation and glasso networks.
+
+  Scaling and dimension
+
+  :   "distance_entropy" (Stella and De Domenico 2018),
+      "local_dimension" (Pu et al. 2014), "local_information_dimension"
+      (Wen and Deng 2020), "neighborhood_connectivity" (Maslov and
+      Sneppen 2002), "local_dimension_fixed" (Silva and Costa 2013),
+      "fuzzy_local_dimension" (Wen and Jiang 2019),
+      "local_volume_dimension" (Li and Deng 2021). See
+      [`centrality_distance_entropy`](https://sonsoles.me/cograph/reference/centrality_distance_entropy.md),
+      [`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md),
+      [`centrality_local_information_dimension`](https://sonsoles.me/cograph/reference/centrality_local_information_dimension.md),
+      [`centrality_neighborhood_connectivity`](https://sonsoles.me/cograph/reference/centrality_neighborhood_connectivity.md)
+      and
+      [`centrality_local_dimension_fixed`](https://sonsoles.me/cograph/reference/centrality_local_dimension_fixed.md).
+
+  Games, information and seed selection
+
+  :   "shapley_game1", "shapley_game2", "shapley_game3" (Michalak et al.
+      2013), "access_information", "hide_information" (Rosvall et al.
+      2005), "rumor" (Shah and Zaman 2011), "entropy_variation_degree",
+      "entropy_variation_betweenness" (Ai 2017), "s_shell" (Liu et al.
+      2017), "degree_discount", "single_discount" (Chen, Wang and Yang
+      2009). See
+      [`centrality_shapley_game1`](https://sonsoles.me/cograph/reference/centrality_shapley_game1.md),
+      [`centrality_access_information`](https://sonsoles.me/cograph/reference/centrality_access_information.md),
+      [`centrality_rumor`](https://sonsoles.me/cograph/reference/centrality_rumor.md),
+      [`centrality_community_hub_bridge`](https://sonsoles.me/cograph/reference/centrality_community_hub_bridge.md),
+      [`centrality_entropy_variation`](https://sonsoles.me/cograph/reference/centrality_entropy_variation.md),
+      [`centrality_s_shell`](https://sonsoles.me/cograph/reference/centrality_s_shell.md),
+      [`centrality_degree_discount`](https://sonsoles.me/cograph/reference/centrality_degree_discount.md)
+      and
+      [`centrality_community_based`](https://sonsoles.me/cograph/reference/centrality_community_based.md).
+
+  VoteRank family
+
+  :   "ncvoterank" (Kumar and Panda 2020), "wvoterank" (Sun et al.
+      2019), "enrenew" (Guo et al. 2020), "voterank_plus" (Liu et al.
+      2021). See
+      [`centrality_ncvoterank`](https://sonsoles.me/cograph/reference/centrality_ncvoterank.md)
+      and
+      [`centrality_wvoterank`](https://sonsoles.me/cograph/reference/centrality_wvoterank.md).
+
+  Contraction, walks and local structure
+
+  :   "node_contraction", "node_contraction_improved" (Tan et al. 2006;
+      Wang et al. 2011), "two_way_rw" (Curado et al. 2022), "heatmap"
+      (Duron 2020), "flow_coefficient" (Honey et al. 2007),
+      "local_entropy" (Nie et al. 2016), "weighted_h_index" (Gao et al.
+      2019), "redundancy" (Burt 1992), "weighted_kshell" (Garas et al.
+      2012), "renewed_coreness" (Liu et al. 2015), "geodesic_kpath"
+      (Borgatti and Everett 2006). See
+      [`centrality_node_contraction`](https://sonsoles.me/cograph/reference/centrality_node_contraction.md),
+      [`centrality_two_way_rw`](https://sonsoles.me/cograph/reference/centrality_two_way_rw.md),
+      [`centrality_heatmap`](https://sonsoles.me/cograph/reference/centrality_heatmap.md)
+      and
+      [`centrality_weighted_kshell`](https://sonsoles.me/cograph/reference/centrality_weighted_kshell.md).
+
+  Efficiency, cores and percolation
+
+  :   "local_efficiency" (Latora and Marchiori 2001), "s_core" (Eidsaa
+      and Almaas 2013), "fragmentation" (Borgatti 2006), "kpath" (Sade
+      1989), "epc" (Lin et al. 2008). See
+      [`centrality_local_efficiency`](https://sonsoles.me/cograph/reference/centrality_local_efficiency.md).
+
+  Betweenness and closeness variants
+
+  :   "length_scaled_betweenness" (Brandes 2008), "delta_betweenness"
+      and "delta_closeness" (Agneessens et al. 2017), "ego_betweenness"
+      (Everett and Borgatti 2005). Bounded-distance (k-) betweenness is
+      betweenness with `cutoff = k`. See
+      [`centrality_length_scaled_betweenness`](https://sonsoles.me/cograph/reference/centrality_length_scaled_betweenness.md).
+
+  The remaining measures are described under Details.
 
 - include:
 
-  Character vector of costly measures to add back to a tier, or
-  `"costly"` for all of them. `type = "all"` holds back the measures
-  whose cost grows steeply with network size (see
-  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)),
-  so that one call cannot take minutes by accident. Naming a measure in
-  `measures` always computes it, whatever its cost. Default `NULL`.
+  Character vector of costly measures to add to a tier, or `"costly"`
+  for all of them. `type = "all"` holds back the measures whose cost
+  grows steeply with network size (the `costly` column of
+  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)).
+  A measure named in `measures` is always computed, whatever its cost.
+  Unknown names raise a `cograph_unknown_measure` error. Default `NULL`.
 
 - mode:
 
-  For directed networks: "all", "in", or "out". Affects measures whose
-  output columns carry a mode suffix, including degree, strength,
-  closeness, eccentricity, coreness, harmonic, diffusion, leverage,
-  k-reach, distance-based measures, community-aware measures, and
-  expected influence.
+  For directed networks: "all" (default), "in", or "out". Affects the
+  mode-aware measures, whose output columns carry a mode suffix. These
+  include degree, strength, closeness, eccentricity, coreness, harmonic,
+  diffusion, leverage, kreach, the distance-based measures, most
+  community-aware measures, and expected influence (the `mode_aware`
+  column of
+  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md)).
 
 - normalized:
 
-  Logical. Normalize values by dividing by max. Most measures are scaled
-  to 0-1; signed expected-influence measures can retain negative values
-  under psychometric normalization. For closeness, this is passed
-  directly to igraph.
+  Logical. If `TRUE`, each measure is divided by its maximum, which
+  scales non-negative measures to 0-1. A measure whose maximum is not
+  positive is left unchanged. Closeness follows igraph's normalization
+  instead, multiplying each value by the number of nodes the node
+  reaches. Under `psych_network = TRUE` expected influence is divided by
+  its maximum absolute value and keeps its sign. Default `FALSE`.
 
 - weighted:
 
@@ -296,15 +352,16 @@ centrality(
 - loops:
 
   Logical. If TRUE (default), keep self-loops. Set to FALSE to remove
-  them before calculation.
+  them before calculation. `tna_network = TRUE` changes the default to
+  FALSE.
 
 - simplify:
 
   How to combine multiple edges between the same node pair (possible
   only from edge-list, cograph_network or igraph input). Options: "sum"
-  (default), "mean", "max", "min". `FALSE` and `"none"` also sum them:
-  the network is held as a dense weight matrix, which cannot carry
-  parallel edges.
+  (default), "mean", "max", "min". `FALSE` and `"none"` also sum them,
+  because the network is held as a dense weight matrix, which cannot
+  carry parallel edges.
 
 - digits:
 
@@ -314,7 +371,8 @@ centrality(
 - sort_by:
 
   Character or NULL. Column name to sort results by (descending order).
-  Default NULL (original node order).
+  Default NULL (original node order). A name that is not a column of the
+  result raises an error.
 
 - cutoff:
 
@@ -322,19 +380,21 @@ centrality(
   centrality and the distance-based closeness variants (radiality, lin,
   decay, residual_closeness, dangalchev, generalized_closeness, harary,
   average_distance, barycenter, wiener, centroid, closeness_vitality,
-  delta_closeness). Default -1 (no limit). Set to a positive value for
-  faster computation on large networks at the cost of accuracy.
+  delta_closeness). Default -1 (no limit). A positive value ignores
+  longer paths, which shortens computation on large networks and changes
+  the values.
 
 - invert_weights:
 
-  Logical or NULL. For path- and distance-based measures (for example
-  betweenness, closeness, harmonic, eccentricity, k-reach, radiality,
-  decay, stress, flow betweenness, and related variants), should weights
-  be inverted so that higher weights mean shorter paths? Default NULL
-  auto-detects: TRUE for tna objects (transition probabilities), FALSE
-  otherwise (matching igraph/sna). Set explicitly to TRUE for
-  strength/frequency weights (qgraph style) or FALSE for distance/cost
-  weights.
+  Logical or NULL. Whether path- and distance-based measures (for
+  example betweenness, closeness, harmonic, k-reach, radiality, decay,
+  stress, flow betweenness and related variants) invert the weights, so
+  that higher weights mean shorter paths. A message reports the
+  inversion. Eccentricity always reads the raw edge weights as
+  distances. The default `NULL` is TRUE for tna objects (transition
+  probabilities) and FALSE otherwise, as in igraph and sna. TRUE suits
+  strength or frequency weights (the qgraph convention) and FALSE suits
+  distance or cost weights.
 
 - alpha:
 
@@ -349,24 +409,26 @@ centrality(
 
 - personalized:
 
-  Named numeric vector for personalized PageRank. Default NULL (standard
-  PageRank). Values should sum to 1.
+  Non-negative numeric vector of reset probabilities for personalized
+  PageRank, one value per node in node order. Names are not used for
+  matching. The vector is rescaled to sum to 1. Default NULL (standard
+  PageRank).
 
 - transitivity_type:
 
   Type of transitivity to calculate: "local" (default), "global",
   "undirected", "localundirected", "barrat" (weighted), "weighted", or
-  "onnela". The first six dispatch to
-  [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html);
-  `"onnela"` computes the Onnela / Holme weighted clustering coefficient
-  on the symmetrized matrix (`wcc(x + t(x))`) and matches
-  `tna::centralities(., "Clustering")` byte-for-byte. Auto-set to
-  `"onnela"` when `tna_network = TRUE` and the user did not pass an
-  explicit value.
+  "onnela". The first six follow the conventions of
+  [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html).
+  `"global"` and `"undirected"` give one graph-level value, repeated on
+  every row. `"onnela"` computes the Onnela weighted clustering
+  coefficient on the symmetrized matrix `x + t(x)` and matches
+  `tna::centralities(x, "Clustering")`. `tna_network = TRUE` changes the
+  default to `"onnela"`.
 
 - isolates:
 
-  How to handle isolate nodes in transitivity calculation: "nan"
+  Value of local transitivity at nodes where it is undefined: "nan"
   (default) returns NaN, "zero" returns 0.
 
 - lambda:
@@ -388,38 +450,43 @@ centrality(
 
 - k:
 
-  Path length parameter for geodesic k-path centrality. Default 3.
+  Distance bound for `"kreach"`, the number of nodes reachable within
+  `k` steps. Default 3.
 
 - states:
 
-  Named numeric vector of percolation states (0-1) for percolation
-  centrality. Each value represents how "activated" or "infected" a node
-  is. Default NULL (all nodes get state 1, equivalent to betweenness).
+  Numeric vector of percolation states for percolation centrality, one
+  per node. Each value represents how "activated" or "infected" a node
+  is. A named vector is matched to the node labels, missing nodes get
+  state 1, and values are clipped to 0-1. Default NULL gives every node
+  state 1, which makes percolation equal to betweenness divided by
+  \\(n-1)(n-2)\\.
 
 - decay_parameter:
 
   Numeric. Decay parameter for decay and generalized closeness
-  centrality. Default 0.5. Must be between 0 and 1.
+  centrality. A value between 0 and 1 discounts distant nodes. Default
+  0.5.
 
 - dmnc_epsilon:
 
   Numeric. Epsilon exponent for DMNC (Density of Maximum Neighborhood
-  Component). Default 1.7 as recommended by Lin et al. (2008).
-  centiserve uses 1.67 (four-community assumption). Must be between 1
-  and 2.
+  Component). Default 1.7, as recommended by Lin et al. (2008).
+  centiserve uses 1.67.
 
 - membership:
 
-  Integer vector of community assignments (one per node) for
-  community-aware measures: participation, within_module_z, gateway,
-  modularity_vitality, and the Gould-Fernandez brokerage roles. Default
-  NULL. Required when requesting these measures.
+  Integer vector of community assignments (one per node) for the
+  community-aware measures listed under `measures`. Default NULL.
+  Without it those measures warn and return `NA`. `"map_equation"` uses
+  it when supplied.
 
 - katz_alpha:
 
-  Attenuation factor for Katz centrality. Must satisfy \\\alpha \< 1 /
-  \rho(A)\\. Default 0.1 (matches centiserve and NetworkX conventions).
-  Only used when `"katz"` is in `measures`.
+  Attenuation factor for Katz centrality. The Katz series converges only
+  for \\\alpha \< 1 / \rho(A)\\. Otherwise the measure raises a
+  `cograph_katz_diverged` warning. Default 0.1, the centiserve and
+  NetworkX convention. Only used when `"katz"` is in `measures`.
 
 - hubbell_weight:
 
@@ -504,8 +571,10 @@ centrality(
 
 - epc_seed:
 
-  Random seed for `"epc"`. Default `NULL`, which leaves the caller's
-  stream alone and lets the estimate vary between calls.
+  Random seed for `"epc"`. Default `NULL` draws from the session's
+  random number stream, so the estimate varies between calls. A seed
+  makes the estimate reproducible, and the caller's random number state
+  is restored afterwards.
 
 - betweenness_delta:
 
@@ -520,16 +589,16 @@ centrality(
 - gravity_mass:
 
   Mass in `"gravity"`: `"kshell"` (default, Ma et al. 2016), `"degree"`
-  (Li et al. 2019) or `"legacy"` for cograph's pre-2.4.8 form.
+  (Li et al. 2019) or `"legacy"`, which uses a unit focal mass and a
+  partner mass equal to degree times k-shell index.
 
 - gravity_radius:
 
   Largest distance each gravity source reaches in `"gravity"`,
   `"extended_gravity"`, `"mixed_gravity"` or `"extended_mixed_gravity"`:
   a number (default 3), `"auto"` for half the mean distance, or `NULL`
-  for the whole graph. The auto radius uses finite positive distances,
-  rounds to the nearest integer (ties to even), and has minimum 1; these
-  are cograph conventions.
+  for the whole graph. The automatic radius averages the finite positive
+  distances, rounds half to even, and is at least 1.
 
 - mdd_lambda:
 
@@ -545,8 +614,8 @@ centrality(
 
 - diffusion_q:
 
-  Multiplier between 0 and 1 for `"diffusion_centrality"`, default 1.
-  Independent of the existing `lambda` argument.
+  Multiplier between 0 and 1 for `"diffusion_centrality"`, default 1. It
+  is separate from `lambda`, which scales `"diffusion"`.
 
 - diffusion_steps:
 
@@ -726,8 +795,9 @@ centrality(
 - ira_max_iter:
 
   Iteration bound for `"ira"`, a whole number of at least one,
-  default 1000. Reaching it raises `cograph_no_converge`, which a
-  bipartite component with unequal vertex classes always does. See
+  default 1000. Reaching it raises a `cograph_no_converge` warning,
+  which always happens on a bipartite component with unequal vertex
+  classes. See
   [`centrality_ira`](https://sonsoles.me/cograph/reference/centrality_ira.md).
 
 - iira_beta:
@@ -745,18 +815,18 @@ centrality(
 
   Weight on a node's own degree in the extended degree used by `"hcc"`
   and `"ehcc"`, a single number in \\\[0,1\]\\, default 0.5 as in the
-  source; one recovers the classical degree and zero drops the node's
-  own degree entirely. Values outside \\\[0,1\]\\ are refused. See
+  source. A value of one gives the classical degree and zero drops the
+  node's own degree. Values outside \\\[0,1\]\\ raise an error. See
   [`centrality_hcc`](https://sonsoles.me/cograph/reference/centrality_hcc.md).
 
 - lhc_radius:
 
   Radius of the ball \\\Phi(v)\\ summed over by `"lhc"`, the \\d\\ of
   the source's equation (1); a single whole number of at least one,
-  default 2 as the source sets it. The source sweeps it and reports 2-3
-  as optimal. At one the ball collapses to the neighbors; at or above
-  the diameter the score stops moving. Values below one and non-integers
-  are refused. See
+  default 2 as in the source, which reports 2-3 as optimal. At one the
+  ball contains only the neighbors. At or above the diameter the score
+  no longer changes. Values below one and non-integers raise an error.
+  See
   [`centrality_lhc`](https://sonsoles.me/cograph/reference/centrality_lhc.md).
 
 - tpr_alpha:
@@ -768,53 +838,49 @@ centrality(
 
 - tpr_k:
 
-  Weight the trust-value puts on the degree ratio rather than the
-  similarity ratio in `"trust_pagerank"`, the \\k\\ of the source's
-  equation (6); a single number in \\\[0,1\]\\, default 0.85, the value
-  the source's section 3.3 selects from a Kendall-against-SIR sweep. One
-  drops the similarity entirely and zero drops the degree.
+  Weight of the degree ratio in the trust value of `"trust_pagerank"`,
+  the \\k\\ of the source's equation (6). The similarity ratio receives
+  weight \\1-k\\. A single number in \\\[0,1\]\\, default 0.85, the
+  value selected in section 3.3 of the source. One drops the similarity
+  and zero drops the degree.
 
 - tpr_decay:
 
   Attenuation factor of the similarity recursion used by
   `"trust_pagerank"`, the \\C\\ of the source's equation (4); a single
-  number in \\(0,1\]\\, default 1 as the source fixes it. The source's
-  claim that \\C\\ does not affect the result holds only for a
-  homogeneous recursion and not for this one; see
+  number in \\(0,1\]\\, default 1 as in the source. \\C\\ changes the
+  result. See
   [`centrality_trust_pagerank`](https://sonsoles.me/cograph/reference/centrality_trust_pagerank.md).
 
 - tpr_tol:
 
-  Convergence tolerance on the largest *relative* change of either
+  Convergence tolerance on the largest relative change of either
   trust-PageRank recursion, a single positive number, default `1e-14`.
-  The source fixes no iteration count because it does not need one: both
-  recursions have unique fixed points. The test is relative rather than
-  absolute because the similarities on one graph span many orders of
-  magnitude; see
+  The tolerance is relative because the similarities on one graph span
+  many orders of magnitude. See
   [`centrality_trust_pagerank`](https://sonsoles.me/cograph/reference/centrality_trust_pagerank.md).
 
 - tpr_max_iter:
 
   Iteration bound for both trust-PageRank recursions, a whole number of
-  at least one, default 1000. Reaching it raises `cograph_no_converge`.
+  at least one, default 1000. Reaching it raises a `cograph_no_converge`
+  warning.
 
 - rsp_beta:
 
   Inverse temperature of the randomized-shortest-paths model used by
   `"rsp_betweenness"`, a single finite number strictly above zero,
-  default 0.01. The source fixes no default; 0.01 is the value
-  `NetworkToolbox::rspbc()` recommends, and it sits near the random-walk
-  limit, so raise it towards 1 and beyond to move the reading towards
-  shortest paths. See
+  default 0.01, the value `NetworkToolbox::rspbc()` recommends. Small
+  values approach the random-walk limit. Values of 1 and above move the
+  measure towards shortest paths. See
   [`centrality_rsp_betweenness`](https://sonsoles.me/cograph/reference/centrality_rsp_betweenness.md).
 
 - rsp_cost:
 
   How an edge weight becomes a traversal cost for `"rsp_betweenness"`:
   `"inverse"` (default) for \\C=1/w\\, reading a weight as an affinity,
-  or `"weight"` for \\C=w\\, reading it as a distance. The source leaves
-  the cost matrix free; both settings give unit cost per arc on a binary
-  graph. See
+  or `"weight"` for \\C=w\\, reading it as a distance. Both settings
+  give unit cost per arc on a binary graph. See
   [`centrality_rsp_betweenness`](https://sonsoles.me/cograph/reference/centrality_rsp_betweenness.md).
 
 - re_indexes:
@@ -833,14 +899,14 @@ centrality(
 - tna_network:
 
   Logical or NULL. Umbrella switch that forces tna-style conventions
-  across all measures. `NULL` (default) auto-detects from the input
-  class — TRUE iff `x` is a `tna` or related sequence-network object.
-  `TRUE` forces tna conventions even on raw matrices:
-  `invert_weights = TRUE`, `loops = FALSE`,
-  `diffusion_method = "power_series"`, `transitivity_type = "onnela"`.
-  `FALSE` suppresses all tna defaults even for tna inputs, giving the
-  cograph defaults verbatim. Precedence: any arg the user passes
-  explicitly always wins over `tna_network`.
+  across all measures. `NULL` (default) is TRUE when `x` is a `tna`,
+  `group_tna`, `ctna`, `ftna` or `atna` object (or a group of these) and
+  FALSE otherwise. `TRUE` applies the tna conventions to any input,
+  setting `invert_weights = TRUE`, `loops = FALSE`,
+  `diffusion_method = "power_series"` and
+  `transitivity_type = "onnela"`. `FALSE` keeps the cograph defaults for
+  tna inputs as well. An argument passed explicitly always takes
+  precedence over `tna_network`.
 
 - psych_network:
 
@@ -848,8 +914,8 @@ centrality(
   `NULL` (default) auto-detects TRUE when a signed weighted network is
   evaluated with expected-influence measures. When `TRUE`, normalized
   expected influence is divided by the maximum absolute
-  expected-influence value, preserving sign and bounding the result from
-  -1 to 1. `FALSE` keeps the generic cograph normalization convention.
+  expected-influence value, which keeps its sign and bounds it between
+  -1 and 1. `FALSE` keeps the generic cograph normalization.
 
 - ...:
 
@@ -907,7 +973,8 @@ The following centrality measures are available:
 
 - eccentricity:
 
-  Maximum distance to other nodes (supports mode)
+  Maximum distance to other nodes (supports mode). Distances use the raw
+  edge weights, whatever `weighted` and `invert_weights` say.
 
 - coreness:
 
@@ -923,69 +990,72 @@ The following centrality measures are available:
 
 - harmonic:
 
-  Harmonic centrality - handles disconnected graphs better than
-  closeness (supports mode: in/out/all)
+  Harmonic centrality, the sum of inverse distances. It stays finite on
+  disconnected graphs (supports mode: in/out/all)
 
 - diffusion:
 
-  Diffusion degree centrality - sum of scaled degrees of node and its
+  Diffusion degree centrality. With `diffusion_method = "kandhway_kuri"`
+  it is the scaled degree of the node plus the scaled degrees of its
   neighbors (supports mode: in/out/all, lambda scaling)
 
 - leverage:
 
-  Leverage centrality - measures influence over neighbors based on
-  relative degree differences (supports mode: in/out/all)
+  Leverage centrality. Influence over neighbors based on relative degree
+  differences (supports mode: in/out/all)
 
 - kreach:
 
-  Geodesic k-path centrality - count of nodes reachable within distance
-  k (supports mode: in/out/all, k parameter)
+  K-reach centrality. Number of nodes reachable within `k` steps
+  (supports mode: in/out/all)
 
 - alpha:
 
-  Alpha/Katz centrality - influence via paths, penalized by distance.
-  Similar to eigenvector but includes exogenous contribution
+  Alpha centrality. Influence through paths, attenuated by length, with
+  a unit exogenous contribution at every node
 
 - power:
 
-  Bonacich power centrality - measures influence based on connections to
-  other influential nodes
+  Bonacich power centrality. Influence based on connections to other
+  influential nodes
 
 - subgraph:
 
-  Subgraph centrality - participation in closed loops/walks, weighting
-  shorter loops more heavily
+  Subgraph centrality. Participation in closed walks, with shorter walks
+  weighted more heavily
 
 - laplacian:
 
-  Laplacian centrality using Qi et al. (2012) local formula. Matches
-  NetworkX and centiserve::laplacian()
+  Laplacian centrality with the local formula of Qi et al. (2012).
+  Matches NetworkX and
+  [`centiserve::laplacian()`](https://rdrr.io/pkg/centiserve/man/laplacian.html)
 
 - load:
 
-  Load centrality - fraction of all shortest paths through node, similar
-  to betweenness but weights paths by 1/count
+  Load centrality. Share of shortest-path load passing through the node,
+  with load split evenly at each branching point
 
 - current_flow_closeness:
 
-  Information centrality - closeness based on electrical current flow
-  (requires connected graph)
+  Information centrality. Closeness based on electrical current flow
+  (requires a connected graph)
 
 - current_flow_betweenness:
 
-  Random walk betweenness - betweenness based on current flow rather
-  than shortest paths (requires connected graph)
+  Random-walk betweenness. Betweenness based on electrical current flow
+  (requires a connected graph)
 
 - voterank:
 
-  VoteRank - identifies influential spreaders via iterative voting
-  mechanism. Returns normalized rank (1 = most influential)
+  VoteRank. Influential spreaders selected by iterative voting. The
+  value is the election order rescaled so that the first elected node
+  scores 1 and the last scores \\1/n\\
 
 - percolation:
 
-  Percolation centrality - importance for spreading processes. Uses node
-  states (0-1) to weight paths. When all states equal, equivalent to
-  betweenness. Useful for epidemic/information spreading analysis.
+  Percolation centrality. Shortest-path betweenness weighted by the node
+  states in `states`. With equal states it is betweenness divided by
+  \\(n-1)(n-2)\\
 
 - radiality:
 
@@ -998,19 +1068,22 @@ The following centrality measures are available:
 
 - decay:
 
-  Decay centrality. Sum of delta^d for parameter delta.
+  Decay centrality. Sum of \\\delta^d\\ over all nodes, the node itself
+  included, with \\\delta\\ = `decay_parameter`.
 
 - residual_closeness:
 
-  Residual closeness. Sum of 1/2^d.
+  Residual closeness. Sum of \\1/2^d\\ over all nodes, the node itself
+  included.
 
 - dangalchev:
 
-  Dangalchev closeness (alias for residual closeness).
+  Dangalchev closeness. Same values as `residual_closeness`.
 
 - generalized_closeness:
 
-  Generalized closeness. Sum of alpha^d.
+  Generalized closeness. Same formula as `decay`, using
+  `decay_parameter`.
 
 - harary:
 
@@ -1153,18 +1226,19 @@ The following centrality measures are available:
 
 - distance_entropy:
 
-  Normalized Shannon entropy of a node's hop-distance profile; 1 =
-  distances spread evenly, 0 = all at one distance.
+  Normalized Shannon entropy of a node's hop-distance profile. It is 1
+  when the distances are spread evenly and 0 when all lie at one
+  distance.
 
 - local_dimension:
 
   Growth exponent of the ball around a node (slope of \\\ln B_i(r)\\ on
-  \\\ln r\\); lower = more influential.
+  \\\ln r\\). Lower values mark more influential nodes.
 
 - local_information_dimension:
 
   Entropy-weighted local dimension over boxes up to half the node's
-  eccentricity; higher = more influential.
+  eccentricity. Higher values mark more influential nodes.
 
 - neighborhood_connectivity:
 
@@ -1173,8 +1247,9 @@ The following centrality measures are available:
 
 - modularity_vitality:
 
-  Drop in modularity when the node is removed under a fixed partition;
-  positive = community hub, negative = bridge (requires `membership`).
+  Drop in modularity when the node is removed under a fixed partition.
+  Positive values mark community hubs and negative values mark bridges
+  (requires `membership`).
 
 - shapley_game1, shapley_game2, shapley_game3:
 
@@ -1185,11 +1260,11 @@ The following centrality measures are available:
 - access_information:
 
   Mean bits needed to reach every other node along shortest paths
-  without a map; low = well connected.
+  without a map. Low values mark well-connected nodes.
 
 - hide_information:
 
-  Mean bits others need to find the node; high = hidden.
+  Mean bits others need to find the node. High values mark hidden nodes.
 
 - rumor:
 
@@ -1231,9 +1306,9 @@ The following centrality measures are available:
 
 - local_dimension_fixed, fuzzy_local_dimension, local_volume_dimension:
 
-  Silva-Costa estimator at `ld_radius`; slope of the fuzzy ball (higher
-  = more influential); slope of the degree volume (lower = more
-  important).
+  Silva-Costa estimator at `ld_radius`; slope of the fuzzy ball, where
+  higher values mark more influential nodes; slope of the degree volume,
+  where lower values mark more important nodes.
 
 - wvoterank, enrenew, voterank_plus:
 
@@ -1254,7 +1329,8 @@ The following centrality measures are available:
 
 - heatmap:
 
-  Farness minus mean neighbor farness; lower = more central.
+  Farness minus mean neighbor farness. Lower values mark more central
+  nodes.
 
 - flow_coefficient:
 
@@ -1262,7 +1338,8 @@ The following centrality measures are available:
 
 - local_entropy:
 
-  \\-\sum\_{j \in N(i)} k_j \ln k_j\\; lower = more central.
+  \\-\sum\_{j \in N(i)} k_j \ln k_j\\. Lower values mark more central
+  nodes.
 
 - weighted_h_index:
 
@@ -1292,10 +1369,10 @@ The following centrality measures are available:
 - local_efficiency:
 
   Global efficiency of the subgraph induced on the node's neighbors, the
-  node itself removed. Note that
-  [`igraph::local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html)
-  instead measures the distances between those neighbors through the
-  rest of the network.
+  node itself removed. This differs from
+  [`igraph::local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html),
+  which measures the distances between those neighbors through the rest
+  of the network.
 
 - s_core:
 
@@ -1316,7 +1393,7 @@ The following centrality measures are available:
 
   Edge percolated component: mean size of the node's component over
   `epc_runs` bond-percolation realizations, as a share of the network. A
-  Monte Carlo estimate.
+  Monte Carlo estimate; `epc_seed` makes it reproducible.
 
 - length_scaled_betweenness:
 
@@ -1403,8 +1480,7 @@ The following centrality measures are available:
 - neighbor_distance:
 
   Benchmark centrality plus its decayed sums over non-backtracking walks
-  of up to `nd_order` steps; the Zoo's neighbor distance centrality at
-  the defaults. See
+  of up to `nd_order` steps. See
   [`centrality_neighbor_distance`](https://sonsoles.me/cograph/reference/centrality_neighbor_distance.md).
 
 - ira:
@@ -1647,140 +1723,41 @@ The following centrality measures are available:
 
 ## Measures without a value on a given input
 
-A few measures are undefined on some graphs – the community-partition
-measures without `membership`, or `"relative_entropy"` when one of its
-constituent indexes is zero at every node. Naming such a measure in
-`measures` or `include` raises a classed condition, because you asked
-for that measure. When a tier (`type = "basic"`, `"extended"` or
-`"all"`) supplied it, the condition becomes a
-`cograph_undefined_measure` warning and the column is `NA`, so one
-undefined measure does not take the rest of the tier with it.
+The community-aware measures warn and return an all-`NA` column when
+`membership` is missing, and the brokerage roles do the same on an
+undirected graph. `"relative_entropy"` has no value when one of its
+constituent indexes is zero at every node. Named in `measures` or
+`include`, it then raises a `cograph_undefined_index` error. Supplied by
+a tier, it gives a `cograph_undefined_measure` warning and an all-`NA`
+column, and the other measures of the tier are still computed.
+`"flow_betweenness"` requires the igraph package. Without igraph, naming
+it raises a `cograph_needs_igraph` error, and a tier gives the same
+warning and all-`NA` column.
 
 ## Examples
 
 ``` r
-# Built-in edge-list data
-data(student_interactions)
-centrality(student_interactions)
-#>    node degree_all strength_all closeness_all betweenness  eigenvector
-#> 1    Ac         33          129    0.01754386   26.342857 1.000000e+00
-#> 2    Ad         20           36    0.01754386   42.541520 1.096110e-01
-#> 3    Fi         24           51    0.01666667   35.721634 1.789565e-01
-#> 4    Ik         14           24    0.01666667   25.844874 1.551369e-02
-#> 5    Vx         26           43    0.01960784   90.717124 7.238902e-02
-#> 6    Rt         20           37    0.01785714   63.135739 1.159931e-01
-#> 7    Km         11           16    0.01639344   18.175108 2.804725e-02
-#> 8    Gj         19           31    0.01818182  114.599049 3.265786e-02
-#> 9    Bd         12           18    0.01612903   21.769264 9.607736e-03
-#> 10   Ce         10           13    0.01612903   16.648629 4.473504e-03
-#> 11   Oq         14           20    0.01754386   34.151726 2.293068e-02
-#> 12   Ya         13           19    0.01612903   18.216122 1.758656e-02
-#> 13   Mo         12           17    0.01587302   38.264502 1.003629e-01
-#> 14   Hj         12           19    0.01754386   85.816522 2.013125e-02
-#> 15   Tv         10           13    0.01666667   25.916306 1.320877e-02
-#> 16   Eg         10           12    0.01639344   22.335171 5.783916e-03
-#> 17   Pr         11           18    0.01666667   23.974060 7.602231e-02
-#> 18   Qs         15           19    0.01785714   76.910851 1.511764e-02
-#> 19   Xz         14           18    0.01639344   22.280159 8.533484e-03
-#> 20   Np          8            8    0.01666667   12.044048 1.549052e-02
-#> 21   Dg         13           13    0.01886792   29.240901 6.260099e-03
-#> 22   Hk         16           25    0.01818182   72.176441 1.201845e-01
-#> 23   Wy         11           16    0.01639344   34.014358 1.054705e-03
-#> 24   Jl         15           18    0.01818182   67.359085 5.009801e-02
-#> 25   Fh         21           55    0.01818182   78.588877 2.817489e-01
-#> 26   Zb          7            8    0.01538462    9.583333 5.429715e-05
-#> 27   Eh          7           13    0.01428571   34.325000 1.163185e-03
-#> 28   Be         14           16    0.01851852  105.250898 2.203252e-03
-#> 29   Df          8           10    0.01562500   11.026190 4.800876e-06
-#> 30   Cf         12           15    0.01724138  119.109163 1.243207e-02
-#> 31   Su          6            9    0.01369863   33.154401 1.028472e-04
-#> 32   Ln          7            8    0.01408451    5.749708 1.376854e-02
-#> 33   Gi          3            4    0.01351351    0.000000 0.000000e+00
-#> 34   Uw          4            7    0.01250000    0.000000 0.000000e+00
-#>       pagerank
-#> 1  0.285861728
-#> 2  0.052985644
-#> 3  0.077591140
-#> 4  0.024836857
-#> 5  0.057364714
-#> 6  0.042552472
-#> 7  0.016655998
-#> 8  0.025444498
-#> 9  0.014321668
-#> 10 0.010679742
-#> 11 0.016087378
-#> 12 0.016588876
-#> 13 0.031180263
-#> 14 0.019051413
-#> 15 0.012644206
-#> 16 0.010425091
-#> 17 0.022794289
-#> 18 0.019784870
-#> 19 0.013229134
-#> 20 0.008466679
-#> 21 0.010345027
-#> 22 0.040383192
-#> 23 0.009067435
-#> 24 0.020529375
-#> 25 0.070538086
-#> 26 0.005635780
-#> 27 0.010080122
-#> 28 0.009378924
-#> 29 0.004957518
-#> 30 0.017877547
-#> 31 0.005136500
-#> 32 0.007628879
-#> 33 0.005483193
-#> 34 0.004411765
-
-# Matrix input also works
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality(adj)
-#>   node degree_all strength_all closeness_all betweenness eigenvector  pagerank
-#> 1    A          2            2           0.5           0           1 0.3333333
-#> 2    B          2            2           0.5           0           1 0.3333333
-#> 3    C          2            2           0.5           0           1 0.3333333
-
-# Specific measures
-centrality(adj, measures = c("degree", "betweenness"))
-#>   node degree_all betweenness
-#> 1    A          2           0
-#> 2    B          2           0
-#> 3    C          2           0
-
-# Directed network with normalization
-centrality(adj, mode = "in", normalized = TRUE)
-#>   node degree_in strength_in closeness_in betweenness eigenvector pagerank
-#> 1    A         1           1            1           0           1        1
-#> 2    B         1           1            1           0           1        1
-#> 3    C         1           1            1           0           1        1
-
-# Sort by pagerank
-centrality(adj, sort_by = "pagerank", digits = 3)
-#>   node degree_all strength_all closeness_all betweenness eigenvector pagerank
-#> 1    A          2            2           0.5           0           1    0.333
-#> 2    B          2            2           0.5           0           1    0.333
-#> 3    C          2            2           0.5           0           1    0.333
-
-# PageRank with custom damping
-centrality(adj, measures = "pagerank", damping = 0.9)
-#>   node  pagerank
-#> 1    A 0.3333333
-#> 2    B 0.3333333
-#> 3    C 0.3333333
-
-# Harmonic centrality (better for disconnected graphs)
-centrality(adj, measures = "harmonic")
-#>   node harmonic_all
-#> 1    A            2
-#> 2    B            2
-#> 3    C            2
-
-# Global transitivity
-centrality(adj, measures = "transitivity", transitivity_type = "global")
-#>   node transitivity
-#> 1    A            1
-#> 2    B            1
-#> 3    C            1
+centrality(regulation_net)
+#>          node degree_all strength_all closeness_all betweenness eigenvector
+#> 1     Explore          6         1.39     0.5154639         5.0   0.7209674
+#> 2        Plan          7         1.90     0.4484305        15.5   0.2010163
+#> 3     Monitor          8         1.87     0.5714286        18.0   1.0000000
+#> 4       Adapt          6         1.77     0.3787879        15.0   0.8380103
+#> 5     Reflect          6         1.39     0.5208333        10.0   0.7619198
+#> 6     Discuss          5         1.53     0.3460208         0.5   0.5077694
+#> 7  Synthesize          4         0.77     0.4830918         6.5   0.1980065
+#> 8    Evaluate          5         1.71     0.4032258         3.0   0.4995074
+#> 9      Create          7         1.64     0.5263158        13.0   0.6689427
+#> 10      Share          6         1.95     0.3521127         9.0   0.5849834
+#>      pagerank
+#> 1  0.11846147
+#> 2  0.03640953
+#> 3  0.18376724
+#> 4  0.12356096
+#> 5  0.12513119
+#> 6  0.06803638
+#> 7  0.03760071
+#> 8  0.07386400
+#> 9  0.13821279
+#> 10 0.09495573
 ```

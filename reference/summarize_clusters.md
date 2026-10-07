@@ -2,10 +2,10 @@
 
 Builds a Multi-Cluster Multi-Level (MCML) model from raw transition data
 (edge lists or sequences) by recoding node labels to cluster labels and
-counting actual transitions. Unlike
-[`csum`](https://sonsoles.me/cograph/reference/csum.md) which aggregates
-a pre-computed weight matrix, this function works from the original
-transition data to produce the TRUE Markov chain over cluster states.
+counting the observed transitions. The macro network is then the Markov
+chain over cluster states. Weight matrices are passed to
+[`csum`](https://sonsoles.me/cograph/reference/csum.md), which
+aggregates them.
 
 ## Usage
 
@@ -49,9 +49,14 @@ summarize_clusters(
       Otherwise falls back to
       [`csum`](https://sonsoles.me/cograph/reference/csum.md).
 
-  cluster_summary
+  group_tna
 
-  :   Returns as-is.
+  :   Converted as by
+      [`as_mcml`](https://sonsoles.me/cograph/reference/as_mcml.md).
+
+  mcml or cluster_summary
+
+  :   Returned unchanged.
 
   square numeric matrix
 
@@ -102,12 +107,13 @@ summarize_clusters(
 - type:
 
   Post-processing: "tna" (row-normalize), "frequency" or "raw" (no
-  normalization), "cooccurrence" (symmetrize), or "semi_markov". Default
-  "tna".
+  normalization), "cooccurrence" (symmetrize), or "semi_markov"
+  (row-normalize, identical to "tna"). Default "tna".
 
 - directed:
 
-  Logical. Treat as directed network? Default TRUE.
+  Logical. Default `TRUE`. The value is recorded in `meta$directed`; the
+  weights are not modified.
 
 - compute_within:
 
@@ -133,29 +139,23 @@ visualization
 ## Examples
 
 ``` r
-# Edge list with clusters
-edges <- data.frame(
-  from = c("A", "A", "B", "C", "C", "D"),
-  to   = c("B", "C", "A", "D", "D", "A"),
-  weight = c(1, 2, 1, 3, 1, 2)
-)
-clusters <- list(G1 = c("A", "B"), G2 = c("C", "D"))
-cs <- summarize_clusters(edges, clusters)
-cs$macro$weights
-#>           G1        G2
-#> G1 0.5000000 0.5000000
-#> G2 0.3333333 0.6666667
-
-# Sequence data with clusters
-seqs <- data.frame(
-  T1 = c("A", "C", "B"),
-  T2 = c("B", "D", "A"),
-  T3 = c("C", "C", "D"),
-  T4 = c("D", "A", "C")
-)
-cs <- summarize_clusters(seqs, clusters, type = "raw")
-cs$macro$weights
-#>    G1 G2
-#> G1  2  2
-#> G2  1  4
+clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
+                 C2 = c("Plan", "Create", "Share"),
+                 C3 = c("Monitor", "Adapt", "Synthesize", "Evaluate"))
+summarize_clusters(regulation_net, clusters = clusters, method = "mean")
+#> MCML Network
+#> ============
+#> Type: tna  | Method: mean 
+#> Nodes: 10  | Clusters: 3 
+#> 
+#> Clusters:
+#>   C1 (3): Explore, Reflect, Discuss
+#>   C2 (3): Plan, Create, Share
+#>   C3 (4): Monitor, Adapt, Synthesize, Evaluate
+#> 
+#> Macro (cluster-level) weights:
+#>        C1     C2     C3
+#> C1 0.4251 0.3320 0.2429
+#> C2 0.3127 0.2896 0.3977
+#> C3 0.3702 0.3202 0.3095
 ```

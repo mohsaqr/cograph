@@ -38,9 +38,8 @@ shortest_paths(x, from = NULL, to = NULL, weights = NULL, directed = NULL, ...)
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Not used. Any argument supplied here raises an `"unused argument"`
+  error.
 
 ## Value
 
@@ -60,17 +59,10 @@ Depends on the query:
 
 ## Details
 
-Uses
-[`igraph::distances()`](https://r.igraph.org/reference/distances.html)
-internally. For weighted networks, edge weights are used as distances by
-default. Pass `weights = NA` to ignore weights and treat all edges as
-having unit distance.
-
-Note:
-[`igraph::distances()`](https://r.igraph.org/reference/distances.html)
-with `weights = NULL` automatically uses edge weight attributes if
-present. To force unweighted computation, pass `weights = NA`
-explicitly.
+Distances are computed with
+[`igraph::distances()`](https://r.igraph.org/reference/distances.html).
+For weighted networks, edge weights are used as distances by default.
+With `weights = NA`, every edge has unit distance.
 
 igraph also exports a `shortest_paths()` with a different signature and
 return value; when both packages are attached, qualify the call as
@@ -84,27 +76,9 @@ return value; when both packages are attached, qualify the call as
 ## Examples
 
 ``` r
-# All-pairs distances
-adj <- matrix(c(
-  0, 1, 0, 0,
-  1, 0, 1, 0,
-  0, 1, 0, 1,
-  0, 0, 1, 0
-), 4, 4)
-rownames(adj) <- colnames(adj) <- LETTERS[1:4]
-cograph::shortest_paths(adj)
-#>   A B C D
-#> A 0 1 2 3
-#> B 1 0 1 2
-#> C 2 1 0 1
-#> D 3 2 1 0
-
-# Single source to all
-cograph::shortest_paths(adj, from = "A")
-#> A B C D 
-#> 0 1 2 3 
-
-# Point-to-point
-cograph::shortest_paths(adj, from = "A", to = "D")
-#> [1] 3
+cograph::shortest_paths(regulation_net, from = "Plan")
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>       0.34       0.00       0.13       0.29       0.56       0.40       0.46 
+#>   Evaluate     Create      Share 
+#>       0.49       0.20       0.36 
 ```

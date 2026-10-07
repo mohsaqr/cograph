@@ -1,6 +1,9 @@
 # Set Node Aesthetics
 
-Customize the visual appearance of nodes in a network plot.
+Sets the visual properties of the nodes in a network plot. Every
+argument except `network` defaults to `NULL`, which leaves the current
+setting unchanged; the defaults stated below are the values used at
+render time.
 
 ## Usage
 
@@ -64,19 +67,23 @@ sn_nodes(
 
 - shape:
 
-  Node shape. Options: "circle", "square", "triangle", "diamond",
-  "pentagon", "hexagon", "ellipse", "heart", "star", "pie", "donut",
-  "cross", "rectangle", or any custom SVG shape registered with
-  register_svg_shape().
+  Node shape. One of the shapes listed by
+  [`list_shapes()`](https://sonsoles.me/cograph/reference/shapes.md)
+  (for example "circle", "square", "triangle", "diamond", "pentagon",
+  "hexagon", "ellipse", "heart", "star", "pie", "donut", "cross",
+  "rectangle"), or a custom SVG shape registered with
+  [`register_svg_shape()`](https://sonsoles.me/cograph/reference/shapes.md).
 
 - node_svg:
 
-  Custom SVG for node shape: path to SVG file OR inline SVG string.
-  Overrides shape parameter when provided.
+  Custom SVG for the node shape: a path to an SVG file or an inline SVG
+  string. It is registered as a temporary shape and replaces `shape`.
 
 - svg_preserve_aspect:
 
-  Logical: maintain SVG aspect ratio? Default TRUE.
+  Logical: maintain the SVG aspect ratio? The value is stored with the
+  network, but the renderer always preserves the aspect ratio, so it has
+  no effect at present.
 
 - fill:
 
@@ -92,7 +99,7 @@ sn_nodes(
 
 - alpha:
 
-  Node transparency (0-1).
+  Node opacity in \[0, 1\]. Values outside this range raise an error.
 
 - label_size:
 
@@ -104,7 +111,8 @@ sn_nodes(
 
 - label_position:
 
-  Label position: "center", "above", "below", "left", "right".
+  Label position: "center" (render default), "above", "below", "left" or
+  "right".
 
 - show_labels:
 
@@ -125,25 +133,24 @@ sn_nodes(
 
 - donut_fill:
 
-  For donut shape: numeric value (0-1) specifying fill proportion. 0.1 =
-  10% filled, 0.5 = 50% filled, 1.0 = fully filled ring. Can be a single
-  value (all nodes) or vector (per-node values).
+  For donut shape: numeric value (0-1) specifying fill proportion. A
+  value of 0.5 fills half of the ring and 1 fills the whole ring. Can be
+  a single value (all nodes) or vector (per-node values).
 
 - donut_values:
 
-  Deprecated. Use donut_fill for simple fill proportion. Still works for
-  backwards compatibility.
+  Deprecated. Use `donut_fill`. Ignored when `donut_fill` is supplied.
 
 - donut_color:
 
   For donut shape: fill color(s) for the donut ring. Single color sets
   fill for all nodes. Two colors set fill and background for all nodes.
-  More than 2 colors set per-node fill colors (recycled to n_nodes).
-  Default: "maroon" fill, "gray90" background when shape="donut".
+  More than 2 colors set per-node fill colors (recycled to n_nodes). The
+  render default is a "maroon" fill on a "gray90" background.
 
 - donut_colors:
 
-  Deprecated. Use donut_color instead.
+  Deprecated. Use `donut_color`. Ignored when `donut_color` is supplied.
 
 - donut_border_width:
 
@@ -200,7 +207,8 @@ sn_nodes(
 
 - donut_value_format:
 
-  For donut shape: custom format function (overrides digits).
+  For donut shape: a function that formats the center value. It replaces
+  `donut_value_digits`. A non-function raises an error.
 
 - donut2_values:
 
@@ -245,35 +253,27 @@ sn_nodes(
 
 ## Value
 
-Modified cograph_network object that can be piped to further
-customization functions or plotting functions.
+The input as a `cograph_network` object, with the supplied settings
+merged into its node aesthetics. It can be piped to further
+customization or plotting functions.
 
 ## Details
 
 ### Vectorization
 
-All aesthetic parameters can be specified as:
-
-- **Single value**: Applied to all nodes (e.g., `fill = "blue"`)
-
-- **Vector**: Per-node values, recycled if shorter than node count
-
-- **Column name**: String referencing a column in the node data frame
-
-Parameters are validated for correct length; providing a vector with
-length other than 1 or n_nodes will produce a warning about recycling.
+The arguments `size`, `shape`, `fill`, `border_color`, `border_width`,
+`alpha`, `label_size`, `label_color`, `label_position` and `node_names`
+accept a single value, which is applied to all nodes, or a per-node
+vector. A vector of another length is recycled to the number of nodes
+without a warning. A single string that matches a column of the node
+data frame is replaced by that column.
 
 ### Donut Charts
 
-Donut charts are ideal for showing a single proportion (0-1) per node:
-
-- Set `donut_fill` to a numeric value or vector (0 = empty, 1 = full)
-
-- Use `donut_color` to set fill color(s)
-
-- Use `donut_shape` for non-circular donuts ("square", "hexagon", etc.)
-
-- Enable `donut_show_value = TRUE` to display the value in the center
+A donut node shows one proportion in \[0, 1\] per node. `donut_fill`
+sets the proportion, `donut_color` the ring color, `donut_shape` the
+base shape of the ring, and `donut_show_value = TRUE` prints the value
+in the center.
 
 ## See also
 
@@ -292,16 +292,7 @@ visual themes
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |>
-  sn_nodes(size = 0.08, fill = "steelblue", shape = "circle") |>
-  splot()
-
-
-# Per-node customization: vectors of length n
-cograph(adj) |>
-  sn_nodes(size = c(0.08, 0.06, 0.1),
-           fill = c("#E41A1C", "#377EB8", "#4DAF4A"),
-           shape = c("circle", "square", "triangle")) |>
+cograph(regulation_net) |>
+  sn_nodes(fill = "steelblue", shape = "square") |>
   splot()
 ```

@@ -1,7 +1,11 @@
 # Entropy Centrality
 
-Graph-theoretic entropy based on shortest path distribution in the
-residual graph after removing the node.
+Entropy centrality, in the form of the centiserve package, removes the
+node and measures how evenly reachability is spread over the remaining
+network. With \\r_j\\ the number of nodes that node \\j\\ reaches in
+\\G - v\\ and \\P\\ half the total of the \\r_j\\, \$\$H(v) = -\sum\_{j}
+y_j \log_2 y_j, \qquad y_j = \frac{r_j}{P}.\$\$ Terms with \\y_j = 0\\
+are dropped.
 
 ## Usage
 
@@ -13,33 +17,41 @@ centrality_entropy(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector of entropy centrality values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored, and `mode` sets the direction of reachability.
+When the network stays strongly connected after the removal of any one
+node, every node scores \\2 \log_2((n-1)/2)\\, as on `regulation_net`.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_distance_entropy`](https://sonsoles.me/cograph/reference/centrality_distance_entropy.md),
+[`centrality_diversity`](https://sonsoles.me/cograph/reference/centrality_diversity.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_entropy(adj)
-#> A B C 
-#> 0 0 0 
+centrality_entropy(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>    4.33985    4.33985    4.33985    4.33985    4.33985    4.33985    4.33985 
+#>   Evaluate     Create      Share 
+#>    4.33985    4.33985    4.33985 
 ```

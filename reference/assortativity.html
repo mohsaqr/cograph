@@ -13,7 +13,7 @@ negative values indicate disassortative mixing."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,8 @@ Default NULL (no rounding).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Currently unused; <code>directed</code> is already an explicit
-argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts no others.</p></dd>
+<dd><p>Not used. Any argument supplied here raises an
+<code>"unused argument"</code> error.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -109,10 +109,10 @@ argument above and <code><a href="to_igraph.html">to_igraph</a></code> accepts n
 <dd><p>Logical: whether the network was treated as directed.</p></dd>
 
 <dt>n_nodes</dt>
-<dd><p>Integer: number of nodes.</p></dd>
+<dd><p>Numeric: number of nodes.</p></dd>
 
 <dt>n_edges</dt>
-<dd><p>Integer: number of edges.</p></dd>
+<dd><p>Numeric: number of edges.</p></dd>
 
 <dt>network</dt>
 <dd><p>The original input network.</p></dd>
@@ -129,9 +129,10 @@ coefficient between the degrees of nodes at either end of each edge
 degree-\(k\) vertices, \(q_k\) is the excess degree distribution, and
 \(\sigma_q^2\) its variance.</p>
 <p>Because the Pearson correlation is invariant to subtracting a constant, the
-implementation computes the correlation of the raw (rather than excess)
-degrees at the two ends of each edge, counting every undirected edge in both
-orientations; this is numerically identical to the formula above.</p>
+implementation computes the correlation of the raw degrees at the two ends
+of each edge, counting every undirected edge in both orientations. This is
+numerically identical to the formula above. Degrees are unweighted counts
+of edges, so edge weights do not enter the coefficient.</p>
 <p>For directed networks, the coefficient is the Pearson correlation between
 the source-end and target-end degrees over each edge in its stored
 orientation, with the degree mode at each end chosen by <code>type</code>
@@ -156,22 +157,13 @@ Edge direction and the structure of networks. <em>PNAS</em>, 107(24),
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Assortative network (high-degree connect to high-degree)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span></span></span>
-<span class="r-in"><span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">assortativity</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Assortativity (Degree)</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">assortativity</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Assortativity (Degree (out-in))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> =================================== </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Coefficient: -0.1667 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Coefficient: -0.1162 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Interpretation: disassortative </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 5   Edges: 7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Directed: FALSE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 10   Edges: 30 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Directed: TRUE </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

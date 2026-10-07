@@ -1,7 +1,9 @@
 # Network Motif Analysis
 
-Analyze recurring subgraph patterns (motifs) in networks and test their
-statistical significance against null models.
+Counts the subgraph classes (motifs) of size 3 or 4 in a network and
+tests their frequencies against random networks from a null model. Edge
+weights are ignored, and self-loops and multiple edges are removed
+before counting.
 
 ## Usage
 
@@ -14,16 +16,13 @@ motif_census(
   directed = NULL,
   seed = NULL
 )
-
-# S3 method for class 'cograph_motifs'
-print(x, ...)
 ```
 
 ## Arguments
 
 - x:
 
-  A matrix, igraph object, or cograph_network
+  A matrix, igraph object, or cograph_network.
 
 - size:
 
@@ -36,21 +35,22 @@ print(x, ...)
 
 - method:
 
-  Null model method: "configuration" (preserves degree) or "gnm"
-  (preserves edge count). Default "configuration".
+  Null model method. `"configuration"` (default) rewires the graph with
+  degree-preserving edge swaps. `"gnm"` draws random graphs with the
+  same numbers of nodes and edges.
 
 - directed:
 
-  Logical. Treat as directed? Default auto-detected.
+  Logical or NULL. Whether the network is treated as directed. NULL
+  (default) treats a matrix as directed when it is not symmetric and
+  takes the directedness of an igraph or cograph_network input. A value
+  that conflicts with an igraph or cograph_network input raises an
+  error.
 
 - seed:
 
   Random seed for reproducibility. Default NULL. When supplied, the
   caller's RNG state is saved and restored.
-
-- ...:
-
-  Passed to methods; currently unused.
 
 ## Value
 
@@ -58,8 +58,10 @@ A `cograph_motifs` data frame with one row per motif class and columns:
 
 - motif:
 
-  Motif class name (the 16 MAN codes for directed triads, the four
-  undirected triad classes, or `motif_<i>` labels for size 4).
+  Motif class name. Directed triads use the 16 MAN codes, undirected
+  triads the classes `empty`, `edge`, `wedge` and `triangle`, and size 4
+  the igraph isomorphism class labels `M1` to `M218` (directed) or `M1`
+  to `M11` (undirected).
 
 - count:
 
@@ -72,13 +74,13 @@ A `cograph_motifs` data frame with one row per motif class and columns:
 
 - z_score:
 
-  `(count - null_mean) / null_sd`; `NA` when the null is degenerate
-  (`null_sd = 0`) and the observation differs from it.
+  `(count - null_mean) / null_sd`. When `null_sd = 0`, it is 0 if the
+  count equals the null mean and `NA` otherwise.
 
 - p_value:
 
-  Two-sided empirical (add-one corrected) permutation p-value, not a
-  Gaussian approximation.
+  Two-sided empirical permutation p-value with add-one correction, based
+  on the absolute deviation from the null mean.
 
 - significant:
 
@@ -86,8 +88,16 @@ A `cograph_motifs` data frame with one row per motif class and columns:
 
 The motif size (`"size"`), directed flag (`"directed"`), null-model
 method (`"method"`), and number of random networks (`"n_random"`) are
-stored as attributes. Self-loops and multiple edges are removed before
-counting.
+stored as attributes.
+
+## Details
+
+Printing the result shows the motif table with the null-model settings
+and the number of over- and under-represented motifs. The result is a
+data frame and serves as the tidy table directly.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on the result
+is documented in
+[`plot-results`](https://sonsoles.me/cograph/reference/plot-results.md).
 
 ## See also
 
@@ -95,7 +105,7 @@ counting.
 unified API,
 [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
 for detailed triad extraction,
-[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md)
+[`plot-results`](https://sonsoles.me/cograph/reference/plot-results.md)
 for plotting
 
 Other motifs:
@@ -103,47 +113,33 @@ Other motifs:
 [`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md),
 [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md),
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
-[`plot.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/plot.cograph_motif_analysis.md),
-[`plot.cograph_motifs()`](https://sonsoles.me/cograph/reference/plot.cograph_motifs.md),
 [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
 [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
 
 ## Examples
 
 ``` r
-# Create a directed network
-mat <- matrix(c(
-  0, 1, 1, 0,
-  0, 0, 1, 1,
-  0, 0, 0, 1,
-  1, 0, 0, 0
-), 4, 4, byrow = TRUE)
-
-# Analyze triadic motifs
-m <- motif_census(mat)
-print(m)
+motif_census(regulation_net, n_random = 20, seed = 1)
 #> Network Motif Analysis
-#> Size: 3-node motifs (directed) | Null: configuration (n=100)
+#> Size: 3-node motifs (directed) | Null: configuration (n=20)
 #> 
-#>  motif count null_mean  null_sd    z_score p_value significant
-#>    003     0      0.00 0.000000  0.0000000       1       FALSE
-#>    012     0      0.00 0.000000  0.0000000       1       FALSE
-#>    102     0      0.00 0.000000  0.0000000       1       FALSE
-#>   021D     0      0.00 0.000000  0.0000000       1       FALSE
-#>   021U     0      0.00 0.000000  0.0000000       1       FALSE
-#>   021C     0      0.00 0.000000  0.0000000       1       FALSE
-#>   111D     0      0.98 1.004837 -0.9752828       1       FALSE
-#>   111U     0      0.98 1.004837 -0.9752828       1       FALSE
-#>   030T     2      1.02 1.004837  0.9752828       1       FALSE
-#>   030C     2      1.02 1.004837  0.9752828       1       FALSE
-#>    201     0      0.00 0.000000  0.0000000       1       FALSE
-#>   120D     0      0.00 0.000000  0.0000000       1       FALSE
-#>   120U     0      0.00 0.000000  0.0000000       1       FALSE
-#>   120C     0      0.00 0.000000  0.0000000       1       FALSE
-#>    210     0      0.00 0.000000  0.0000000       1       FALSE
-#>    300     0      0.00 0.000000  0.0000000       1       FALSE
+#>  motif count null_mean  null_sd     z_score   p_value significant
+#>    003     7      6.90 2.149663  0.04651891 1.0000000       FALSE
+#>    012    27     31.00 4.316431 -0.92669146 0.3809524       FALSE
+#>    102     2      8.20 3.721912 -1.66581032 0.1428571       FALSE
+#>   021D     9      8.05 2.305029  0.41214235 0.9047619       FALSE
+#>   021U    11     10.25 2.788605  0.26895172 0.8571429       FALSE
+#>   021C    29     19.70 4.910783  1.89379169 0.1428571       FALSE
+#>   111D     9      9.05 2.910507 -0.01717914 1.0000000       FALSE
+#>   111U     7      6.20 2.587419  0.30918843 0.8571429       FALSE
+#>   030T    11      9.35 3.183427  0.51830928 0.5714286       FALSE
+#>   030C     2      3.00 1.521772 -0.65712874 0.7142857       FALSE
+#>    201     0      1.25 1.332785 -0.93788572 0.5714286       FALSE
+#>   120D     2      1.45 1.190975  0.46180657 0.6190476       FALSE
+#>   120U     1      1.50 1.235442 -0.40471361 1.0000000       FALSE
+#>   120C     3      3.50 1.147079 -0.43588989 1.0000000       FALSE
+#>    210     0      0.60 0.680557 -0.88163072 0.6190476       FALSE
+#>    300     0      0.00 0.000000  0.00000000 1.0000000       FALSE
 #> 
 #> Over-represented: 0 | Under-represented: 0
-plot(m)
-#> No motifs to plot. Try show_nonsig = TRUE
 ```

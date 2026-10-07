@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,11 +77,12 @@
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
-<dd><p>Layout type (e.g., "circle", "spring", "groups").</p></dd>
+<dd><p>Layout name. One of the names returned by
+<code><a href="layout_registry.html">list_layouts()</a></code>, or <code>"custom"</code> together with a <code>coords</code> argument.</p></dd>
 
 
 <dt><code>...</code></dt>
-<dd><p>Additional parameters for the layout algorithm.</p></dd>
+<dd><p>Additional parameters stored and passed to the layout function.</p></dd>
 
 
 </dl><p></p></div>
@@ -105,19 +106,23 @@
 
 
 <dt><code>...</code></dt>
-<dd><p>Additional parameters passed to the layout function.</p></dd>
+<dd><p>Additional parameters passed to the layout function. They
+override parameters given to <code>$new()</code>.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>Data frame with x, y coordinates.</p>
+<p>A data frame with columns <code>x</code> and <code>y</code>, one row per node, rescaled
+by <code>$normalize_coords()</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographLayout-normalize_coords"></a><div class="section">
 <h3 id="method-normalize-coords-">Method <code>normalize_coords()</code><a class="anchor" aria-label="anchor" href="#method-normalize-coords-"></a></h3>
-<p>Normalize coordinates to 0-1 range with padding.</p><div class="section">
+<p>Rescale coordinates into the unit square. Both axes are
+scaled by the same factor, so the larger spread spans
+<code>[padding, 1 - padding]</code> and the layout is centered at 0.5.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographLayout</span><span class="op">$</span><span class="fu">normalize_coords</span><span class="op">(</span><span class="va">coords</span>, padding <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -125,18 +130,19 @@
 <div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>coords</code></dt>
-<dd><p>Matrix or data frame with x, y columns.</p></dd>
+<dd><p>Matrix or data frame. Columns <code>x</code> and <code>y</code> are used, or the
+first two columns when these names are absent.</p></dd>
 
 
 <dt><code>padding</code></dt>
-<dd><p>Numeric. Padding around edges (default 0.1).</p></dd>
+<dd><p>Numeric. Margin left on each side of the larger spread.</p></dd>
 
 
 </dl><p></p></div>
 </div>
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>Normalized coordinates.</p>
+<p>A data frame with rescaled <code>x</code> and <code>y</code> columns.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographLayout-get_type"></a><div class="section">
@@ -148,7 +154,7 @@
 
 <div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
-<p>Character string.</p>
+<p>A character string.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographLayout-get_params"></a><div class="section">
@@ -160,7 +166,7 @@
 
 <div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>List of parameters.</p>
+<p>A list of the parameters given to <code>$new()</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographLayout-print"></a><div class="section">
@@ -197,13 +203,19 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a circular layout</span></span></span>
-<span class="r-in"><span><span class="va">layout</span> <span class="op">&lt;-</span> <span class="va">CographLayout</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Apply to network</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="va"><a href="CographNetwork.html">CographNetwork</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="va">layout</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">layout</span> <span class="op">&lt;-</span> <span class="va">CographLayout</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">layout</span><span class="op">$</span><span class="fu">compute</span><span class="op">(</span><span class="va"><a href="CographNetwork.html">CographNetwork</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            x         y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.7351141 0.8236068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.8804226 0.6236068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.8804226 0.3763932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.7351141 0.1763932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.5000000 0.1000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.2648859 0.1763932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.1195774 0.3763932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.1195774 0.6236068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.2648859 0.8236068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.5000000 0.9000000</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

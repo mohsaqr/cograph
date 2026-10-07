@@ -2,13 +2,20 @@
 
 A modern, extensible network visualization package that provides
 high-quality static network plots and ggplot2 conversions. cograph
-accepts adjacency matrices, edge lists, or igraph objects and offers
-customizable layouts, node shapes, edge styles, and themes.
+accepts adjacency matrices, edge lists, igraph, statnet network, qgraph
+and tna objects and offers customizable layouts, node shapes, edge
+styles, and themes.
 
 ## Main Functions
 
-- [`cograph`](https://sonsoles.me/cograph/reference/cograph.md): Main
-  entry point for creating network visualizations
+- [`splot`](https://sonsoles.me/cograph/reference/splot.md): Plot a
+  network with base R graphics
+
+- [`soplot`](https://sonsoles.me/cograph/reference/soplot.md): Plot a
+  network with grid graphics
+
+- [`cograph`](https://sonsoles.me/cograph/reference/cograph.md): Create
+  a network object for the builder functions
 
 - [`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md):
   Apply layout algorithms
@@ -60,32 +67,24 @@ Built-in themes include:
 
 ## Weight conventions
 
-cograph's analytic functions follow a single convention for edge
-weights:
+In the analytic functions an edge weight is a strength. A higher weight
+means a stronger connection, such as a larger transition probability or
+a stronger correlation. This follows the convention of qgraph and tna.
 
-- **Semantics.** A weight is a *strength*: higher weight means a
-  stronger connection (larger transition probability, thicker
-  correlation, stronger tie). This matches the qgraph / tna convention
-  and the intuition of most user-facing inputs.
+Path-based measures such as betweenness, closeness, harmonic centrality
+and eccentricity can convert weights to distances as `1 / weight^alpha`.
+The `invert_weights` argument of
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
+controls this conversion. Its default is `TRUE` for tna objects and
+`FALSE` for other inputs, which matches igraph and sna. The `alpha`
+argument (default 1) sets the exponent.
 
-- **Path-based measures** (betweenness, closeness, harmonic,
-  eccentricity, stress, load, radiality, etc.) invert weights to
-  *distances* via `1 / weight ^ alpha`. The `alpha` argument (default 1)
-  tunes how strongly weight differences compress paths. Controlled by
-  the `invert_weights` argument, which auto-detects to `TRUE` for tna
-  objects and `FALSE` for matrices/igraph (matching native igraph / sna
-  defaults).
-
-- **Non-path measures** (degree, strength, eigenvector, PageRank,
-  transitivity, modularity, ...) use the raw weights as-is without
-  inversion.
-
-- **Unweighted override.** Passing `weights = NA` to any analytic
-  function forces unweighted behavior regardless of what is attached to
-  the graph.
-
-Individual functions may document exceptions in their own help pages.
-Any deviation from this convention is a bug — please report.
+Measures that do not use paths, such as degree, strength, eigenvector
+centrality, PageRank and transitivity, use the weights as given.
+Functions with a `weights` argument, such as
+[`shortest_paths`](https://sonsoles.me/cograph/reference/shortest_paths.md),
+compute unweighted results when `weights = NA`. Individual help pages
+document exceptions.
 
 ## See also
 

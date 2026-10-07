@@ -1,8 +1,10 @@
-# Strength Centrality (Weighted Degree)
+# Strength Centrality
 
-Sum of edge weights connected to each node. For directed networks,
-`centrality_instrength` sums incoming weights and
-`centrality_outstrength` sums outgoing weights.
+Strength (Barrat et al. 2004) is the sum of the weights of the edges
+incident to a node, the weighted counterpart of degree. With
+`mode = "in"` it sums incoming weights and with `mode = "out"` outgoing
+weights. `centrality_instrength()` and `centrality_outstrength()` are
+these two forms.
 
 ## Usage
 
@@ -18,35 +20,52 @@ centrality_outstrength(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  Direction for directed networks: `"all"` (default), `"in"` or `"out"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `loops` (keep self-loops, default `TRUE`) and
+  `normalized` (default `FALSE`).
 
 ## Value
 
-Named numeric vector of strength values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+The stored weights are always summed, and `weighted = FALSE` has no
+effect;
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md)
+counts edges. A self-loop counts twice on an undirected network and
+under `mode = "all"`, and once under `"in"` or `"out"`; `loops = FALSE`
+drops it. Negative weights are summed with their sign.
+`normalized = TRUE` divides the scores by their maximum.
+
+## References
+
+Barrat, A., Barthelemy, M., Pastor-Satorras, R., & Vespignani, A.
+(2004). The architecture of complex weighted networks. Proceedings of
+the National Academy of Sciences, 101(11), 3747-3752.
+[doi:10.1073/pnas.0400087101](https://doi.org/10.1073/pnas.0400087101) .
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md)
-for the unweighted version.
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-mat <- matrix(c(0, .5, .3, .5, 0, .8, .3, .8, 0), 3, 3)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-centrality_strength(mat)
-#>   A   B   C 
-#> 0.8 1.3 1.1 
+centrality_strength(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>       1.39       1.90       1.87       1.77       1.39       1.53       0.77 
+#>   Evaluate     Create      Share 
+#>       1.71       1.64       1.95 
 ```

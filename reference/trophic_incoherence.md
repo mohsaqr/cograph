@@ -1,8 +1,8 @@
 # Trophic Incoherence Parameter
 
-The trophic incoherence parameter \\q\\ is a measure of how "vertically
-ordered" a directed network is (Johnson et al. 2014). For each edge
-\\(u, v)\\, the trophic difference is \\x\_{uv} = s_v - s_u\\ where
+Computes the trophic incoherence parameter \\q\\, which measures how
+vertically ordered a directed network is (Johnson et al. 2014). For each
+edge \\(u, v)\\, the trophic difference is \\x\_{uv} = s_v - s_u\\ where
 \\s_i\\ is the trophic level of node \\i\\. The trophic incoherence
 parameter is the (population) standard deviation of these differences:
 \$\$q = \sqrt{\frac{1}{\|E\|} \sum\_{(u,v) \in E} (x\_{uv} -
@@ -27,20 +27,21 @@ trophic_incoherence(x, cannibalism = TRUE)
 
 ## Value
 
-A single numeric value (`NA_real_` for empty edge sets or undirected
-input).
+Numeric scalar: the trophic incoherence parameter. `NA` when the network
+has no edges or when some node cannot be reached from a basal node. An
+undirected network returns `NA` with a warning.
 
 ## Details
 
-Low values (\\q \approx 0\\) indicate a perfectly coherent network
-(e.g., a pure food web where every edge goes up one level). High values
-indicate an incoherent network with many level-skipping or downward
-edges. Johnson et al. 2014 showed that low-\\q\\ food webs are
-dynamically more stable.
+Values near 0 indicate a coherent network, in which every edge rises by
+about one level. High values indicate many level-skipping or downward
+edges. Johnson et al. (2014) reported that food webs with low \\q\\ are
+more stable.
 
-Matches `networkx.trophic_incoherence_parameter` at machine epsilon.
-Directed-only; requires at least one basal node (node with no incoming
-edges) for trophic levels to be well-defined.
+Trophic levels are computed on the binary adjacency matrix, so edge
+weights are ignored. The levels are defined only for a directed network
+in which every node can be reached from a basal node (a node with no
+incoming edges).
 
 ## References
 
@@ -57,9 +58,7 @@ calculation.
 ## Examples
 
 ``` r
-# Small directed 3-node chain: 1 -> 2 -> 3 (perfectly coherent, q = 0)
-adj <- matrix(c(0,1,0, 0,0,1, 0,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-trophic_incoherence(adj)
-#> [1] 0
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+trophic_incoherence(strong)
+#> [1] 1.26085
 ```

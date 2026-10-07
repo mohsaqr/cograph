@@ -39,10 +39,12 @@ cograph(
 - layout:
 
   Layout algorithm name such as "circle", "oval", "spring", "groups",
-  "grid", "random", "star", "bipartite", "gephi", or "custom"; a
-  coordinate matrix/data frame; a CographLayout; or an igraph layout
-  function/name. Default NULL (no layout computed). Set to a layout to
-  compute immediately, or use sn_layout() later.
+  "grid", "random", "star", "bipartite" or "gephi" (see
+  [`list_layouts`](https://sonsoles.me/cograph/reference/layout_registry.md));
+  a coordinate matrix or data frame; or an igraph layout function, name
+  or two-letter code. Default NULL computes no layout. A layout can also
+  be set later with
+  [`sn_layout`](https://sonsoles.me/cograph/reference/sn_layout.md).
 
 - directed:
 
@@ -61,9 +63,10 @@ cograph(
 
 - simplify:
 
-  Logical or character. If FALSE (default), every transition from tna
-  sequence data is a separate edge. If TRUE or a string ("sum", "mean",
-  "max", "min"), duplicate edges are aggregated.
+  Logical or character. Used for tna input only. If FALSE (default),
+  every transition from tna sequence data is a separate edge. If TRUE or
+  a string ("sum", "mean", "max", "min"), duplicate edges are
+  aggregated, and TRUE uses "sum".
 
 - ...:
 
@@ -71,7 +74,8 @@ cograph(
 
 ## Value
 
-A cograph_network object that can be further customized and rendered.
+A `cograph_network` object. It is a list with the elements `nodes`,
+`edges`, `directed`, `weights`, `data`, `meta` and `node_groups`.
 
 ## See also
 
@@ -96,19 +100,5 @@ converting external objects
 ## Examples
 
 ``` r
-# From adjacency matrix (layout computed lazily on first plot)
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-cograph(adj) |> splot()
-
-
-# From edge list
-edges <- data.frame(from = c(1, 1, 2), to = c(2, 3, 3))
-cograph(edges) |> splot(layout = "circle")
-
-
-# Pipe-friendly customization
-cograph(adj) |>
-  sn_nodes(fill = "steelblue") |>
-  sn_edges(color = "gray50") |>
-  splot(layout = "circle")
+cograph(regulation_net) |> splot(layout = "circle")
 ```

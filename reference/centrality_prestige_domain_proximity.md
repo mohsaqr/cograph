@@ -1,11 +1,10 @@
 # Domain Proximity Prestige
 
-Distance-weighted variant of domain prestige. For each directed node
-\\v\\: \$\$PD(v) = R_v^2 / (D_v \cdot (n - 1))\$\$ where \\R_v\\ is the
-number of other nodes that reach \\v\\, and \\D_v\\ is the sum of
-geodesic distances from those reachers to \\v\\. A node that is
-reachable quickly from many others scores high; unreachable nodes score
-0.
+Domain proximity prestige (Wasserman and Faust 1994) combines the number
+of nodes that reach a node with their distance to it: \$\$PD(v) =
+\frac{R_v^2}{(n - 1)\\D_v},\$\$ where \\R_v\\ is the number of other
+nodes with a directed path to \\v\\ and \\D_v\\ the sum of their hop
+distances to \\v\\.
 
 ## Usage
 
@@ -17,33 +16,27 @@ centrality_prestige_domain_proximity(x, ...)
 
 - x:
 
-  Directed network input (matrix, igraph, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of domain proximity prestige values in \\\[0,
-1\]\\.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Bit-exact match against `sna::prestige(cmode = "domain.proximity")` on
-strongly connected directed graphs. Directed-only; returns `NA` with a
-warning on undirected input.
-
-## Divergence from sna on disconnected graphs
-
-sna's formula computes `(counts > 0) * gdist` element-wise and then sums
-to get the denominator. For any pair where `gdist = Inf` (unreachable),
-R evaluates `FALSE * Inf = NaN`, so the entire denominator becomes `NaN`
-and sna zeros every node via `p[is.nan(p)] <- 0`. cograph masks with
-[`is.finite()`](https://rdrr.io/r/base/is.finite.html) before summing,
-producing mathematically correct values on any directed graph, including
-those with disconnected components.
+The measure needs a directed network. On undirected input every score is
+`NA` with a warning that carries no condition class. Edge weights are
+ignored. A node that no other node reaches scores 0, and the score lies
+between 0 and 1. On strongly connected networks the values equal
+`sna::prestige(cmode = "domain.proximity")`. On other networks sna sets
+some scores to 0, because its sum multiplies an infinite distance by
+zero; cograph sums the finite distances only.
 
 ## References
 
@@ -52,19 +45,16 @@ Applications*. Cambridge University Press.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
-[`centrality_prestige_domain`](https://sonsoles.me/cograph/reference/centrality_prestige_domain.md)
-for the unweighted count,
-[`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md)
-for the dual out-reachability measure.
+[`centrality_prestige_domain`](https://sonsoles.me/cograph/reference/centrality_prestige_domain.md),
+[`centrality_reaching_local`](https://sonsoles.me/cograph/reference/centrality_reaching_local.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-# Directed 3-cycle: each node is reached by both others at distance 1 and 2
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_prestige_domain_proximity(adj)
-#>         A         B         C 
-#> 0.6666667 0.6666667 0.6666667 
+centrality_prestige_domain_proximity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.6428571  0.4500000  0.7500000  0.5625000  0.5625000  0.4736842  0.3913043 
+#>   Evaluate     Create      Share 
+#>  0.4736842  0.5625000  0.5625000 
 ```

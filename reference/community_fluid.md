@@ -1,7 +1,10 @@
 # Fluid Communities Detection
 
-Simulates fluid dynamics where communities compete for nodes. Requires
-specifying the number of communities.
+Fluid communities algorithm, in which a fixed number of communities
+expand and compete for nodes. A directed graph is collapsed to an
+undirected graph. A disconnected graph raises a warning and only its
+largest component is partitioned, so the result has one row per node of
+that component. Edge weights are not used.
 
 ## Usage
 
@@ -15,11 +18,12 @@ com_fl(x, no.of.communities, ...)
 
 - x:
 
-  Network input
+  Network input.
 
 - no.of.communities:
 
-  Number of communities to detect. Required.
+  Number of communities to detect. Required; a missing value raises an
+  error.
 
 - ...:
 
@@ -30,10 +34,10 @@ com_fl(x, no.of.communities, ...)
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -45,23 +49,20 @@ Computational Intelligence*, 689, 229-240.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-
-  # Detect exactly 2 communities
-  comm <- community_fluid(g, no.of.communities = 2)
-}
-m <- matrix(runif(25), 5, 5); diag(m) <- 0
-net <- as_cograph(m)
-com_fl(net, no.of.communities = 2)
+community_fluid(regulation_net, no.of.communities = 2)
 #> Community structure (fluid)
-#>   Nodes: 5  | Communities: 2  | Modularity: NA 
-#>   Sizes: 2, 3 
+#>   Nodes: 10  | Communities: 2  | Modularity: NA 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     1         2
-#>     2         1
-#>     3         1
-#>     4         2
-#>     5         2
+#>        node community
+#>     Explore         1
+#>        Plan         1
+#>     Monitor         2
+#>       Adapt         2
+#>     Reflect         2
+#>     Discuss         1
+#>  Synthesize         2
+#>    Evaluate         2
+#>      Create         1
+#>       Share         1
 ```

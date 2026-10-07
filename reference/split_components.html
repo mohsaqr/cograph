@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,16 +63,20 @@
 
 
 <dt id="arg-min-size">min_size<a class="anchor" aria-label="anchor" href="#arg-min-size"></a></dt>
-<dd><p>Integer. Drop components smaller than this. Default 1
-(keep all, including isolated nodes).</p></dd>
+<dd><p>Integer. Components with fewer nodes are dropped. Default 1
+keeps every component, including isolated nodes.</p></dd>
 
 
 <dt id="arg-keep-format">keep_format<a class="anchor" aria-label="anchor" href="#arg-keep-format"></a></dt>
-<dd><p>Logical. Return each component in the input format.</p></dd>
+<dd><p>Logical. If TRUE, each component of a matrix, igraph,
+statnet network or tna input is returned in that format. An edge-list
+data frame or a qgraph object gives <code>cograph_network</code> components
+with a <code>cograph_no_format_roundtrip</code> warning. Default FALSE.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
-<dd><p>Logical or NULL. If NULL (default), auto-detect.</p></dd>
+<dd><p>Logical or NULL. Directedness used to read the input. NULL
+(default) detects it from the input.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -80,7 +84,8 @@
     <p>A list of <code>cograph_network</code> objects, one per component, ordered
 from largest to smallest and named <code>"component_1"</code>,
 <code>"component_2"</code>, and so on. Components are weakly connected, matching
-<code>igraph::components(mode = "weak")</code>.</p>
+<code>igraph::components(mode = "weak")</code>. A network with no nodes gives an
+empty list and a warning.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -89,13 +94,22 @@ from largest to smallest and named <code>"component_1"</code>,
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">5</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="st">"B"</span>, <span class="st">"A"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="va">adj</span><span class="op">[</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">adj</span><span class="op">[</span><span class="st">"D"</span>, <span class="st">"C"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">parts</span> <span class="op">&lt;-</span> <span class="fu">split_components</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">parts</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">split_components</span><span class="op">(</span><span class="fu"><a href="threshold_edges.html">threshold_edges</a></span><span class="op">(</span><span class="va">regulation_net</span>, minimum <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $component_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 10 nodes, 14 edges ( directed )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 14 / 90 (density: 15.6%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.300, 0.490]  |  mean: 0.386</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Share -&gt; Monitor  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan -&gt; Evaluate  0.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Adapt  0.430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Synthesize -&gt; Reflect  0.420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan -&gt; Discuss  0.400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

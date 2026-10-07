@@ -137,7 +137,7 @@ Get a theme parameter.
 
 #### Returns
 
-Parameter value.
+Parameter value, or `NULL` if the parameter is not set.
 
 ------------------------------------------------------------------------
 
@@ -181,7 +181,8 @@ List of parameters.
 
 ### Method [`merge()`](https://rdrr.io/r/base/merge.html)
 
-Merge with another theme.
+Merge with another theme. Parameters in `other` replace the matching
+parameters of this theme.
 
 #### Usage
 
@@ -195,7 +196,7 @@ Merge with another theme.
 
 #### Returns
 
-A new merged CographTheme.
+A new CographTheme named `"merged"`.
 
 ------------------------------------------------------------------------
 
@@ -244,10 +245,12 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-# Create a custom theme
-theme <- CographTheme$new(
-  background = "white",
-  node_fill = "steelblue",
-  edge_color = "gray60"
-)
+CographTheme$new(background = "white", node_fill = "steelblue")
+#> CographTheme: custom 
+#>   Background: white 
+#>   Node fill: steelblue 
+#>   Node border: #2C5AA0 
+#>   Edge color: gray50 
+#>   Edge positive: #2E7D32 
+#>   Edge negative: #C62828 
 ```

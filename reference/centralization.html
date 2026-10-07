@@ -9,7 +9,7 @@ or eigenvector centrality."><meta property="og:image" content="https://sonsoles.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,11 +94,16 @@ centrality verbs.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A single number: the summed gap between the most central node and
-every other node, divided by the theoretical maximum for the measure, so
-0 marks a perfectly even network and 1 a perfect star. Nodes whose score
-is <code>NA</code> or <code>NaN</code> are dropped from the sum. Returns 0 when the
-network has two or fewer nodes.</p>
+    <p>A single number. It is the summed gap between the most central node
+and every other node, divided by a theoretical maximum. For degree,
+betweenness and closeness the maximum is the value of an unweighted
+star, so unweighted input gives 0 for a perfectly even network and 1 for
+an undirected star. For eigenvector centrality, whose scores are scaled to
+a maximum of 1, the divisor is \(n - 1\), and a star gives a value
+below 1. Weighted closeness
+scales with the inverse of the edge weights, so its centralization can
+exceed 1. Nodes whose score is <code>NA</code> or <code>NaN</code> are dropped from
+the sum. The value is 0 when the network has two or fewer nodes.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -108,10 +113,8 @@ eigenvector centrality; degree centralization ignores them.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">star</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">star</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>; <span class="va">star</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">centralization</span><span class="op">(</span><span class="va">star</span>, <span class="st">"degree"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu">centralization</span><span class="op">(</span><span class="va">regulation_net</span>, measure <span class="op">=</span> <span class="st">"degree"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2469136</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

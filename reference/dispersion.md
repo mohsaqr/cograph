@@ -1,8 +1,9 @@
 # Dispersion (Backstrom-Kleinberg 2014)
 
-Per-pair measure of tie strength from the Facebook
-relationship-inference paper. For each pair \\(u, v)\\ where \\v\\ is a
-neighbor of \\u\\:
+Computes the dispersion of a tie (Backstrom and Kleinberg 2014), a
+per-pair measure of tie strength. Edge weights are ignored, and directed
+networks use out-neighbors. For each pair \\(u, v)\\ where \\v\\ is a
+neighbor of \\u\\, the computation proceeds as follows.
 
 ## Usage
 
@@ -48,7 +49,7 @@ dispersion(x, u = NULL, v = NULL, normalized = TRUE, alpha = 1, b = 0, c = 0)
 
 - Named numeric vector if exactly one of `u`, `v` is given, one element
   per neighbor of that node; the names are the neighbors' 1-based node
-  *indices* as character strings, not their labels.
+  indices as character strings.
 
 - A data frame with columns `from`, `to`, `dispersion` when neither `u`
   nor `v` is given, one row per ordered (node, neighbor) pair, with
@@ -62,7 +63,7 @@ dispersion(x, u = NULL, v = NULL, normalized = TRUE, alpha = 1, b = 0, c = 0)
 
 2.  Count pairs \\(s, t) \subset S_T\\ such that:
 
-    - \\s\\ and \\t\\ are not directly connected, AND
+    - \\s\\ and \\t\\ are not directly connected, and
 
     - \\s\\ and \\t\\ share no common neighbor inside \\N(u)\\ other
       than \\u\\ and \\v\\.
@@ -71,9 +72,6 @@ dispersion(x, u = NULL, v = NULL, normalized = TRUE, alpha = 1, b = 0, c = 0)
     result is \\(\mathrm{dispersion} + b)^{\alpha} /
     (\mathrm{embeddedness} + c)\\ (normalization is skipped when
     `embeddedness + c == 0`).
-
-Matches `networkx.dispersion` bit-exact for all three call modes (single
-pair, single source, full matrix).
 
 ## References
 
@@ -85,12 +83,7 @@ Facebook. In *Proceedings of CSCW* (pp. 831-841). ACM.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-# Node 0 (R index 1) to node 33 (R index 34)
-dispersion(g, u = 1, v = 34)
-#> [1] 1
-# All pairs from node 1
-head(dispersion(g, u = 1))
-#>        2        3        4        5        6        7 
-#> 2.142857 0.800000 0.800000 0.000000 0.000000 0.000000 
+dispersion(regulation_net, u = "Plan")
+#>         3         6         8         9        10 
+#> 0.0000000 0.0000000 0.0000000 0.6666667 0.0000000 
 ```

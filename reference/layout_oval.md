@@ -56,7 +56,16 @@ Data frame with x, y coordinates.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow = 3)
-net <- CographNetwork$new(adj)
-coords <- layout_oval(net, ratio = 1.5)
+layout_oval(CographNetwork$new(regulation_net), ratio = 1.5)
+#>             x         y
+#> 1  0.78795479 0.7642238
+#> 2  0.96592064 0.6009245
+#> 3  0.96592064 0.3990755
+#> 4  0.78795479 0.2357762
+#> 5  0.50000000 0.1734014
+#> 6  0.21204521 0.2357762
+#> 7  0.03407936 0.3990755
+#> 8  0.03407936 0.6009245
+#> 9  0.21204521 0.7642238
+#> 10 0.50000000 0.8265986
 ```

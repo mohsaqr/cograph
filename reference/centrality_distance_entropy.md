@@ -1,16 +1,11 @@
 # Distance Entropy
 
-Shannon entropy of the distribution of hop distances from a node to
-every node it can reach (Stella & De Domenico 2018), normalized so that
-a uniform spread over the node's distance range scores 1: \$\$h(i) =
--\frac{1}{\log(M_i - m_i + 1)} \sum\_{k = m_i}^{M_i} p_k^{(i)} \log
-p_k^{(i)}, \qquad p_k^{(i)} = n_k^{(i)} / R_i,\$\$ where \\n_k^{(i)}\\
-is the number of nodes at distance \\k\\ from \\i\\, \\R_i\\ the number
-of reachable nodes, and \\m_i, M_i\\ the minimum and maximum distance.
-High values mark nodes whose reach is spread evenly across many network
-layers; a node whose reachable nodes all sit at one distance scores 0.
-Closeness summarizes the mean of the same distribution; distance entropy
-summarizes its spread.
+Distance entropy (Stella and De Domenico 2018) is the Shannon entropy of
+the distribution of hop distances from a node to the nodes it reaches,
+scaled by the logarithm of the number of distance values in its range.
+With \\p_k\\ the share of reachable nodes at distance \\k\\, and \\m_i\\
+and \\M_i\\ the smallest and largest distance, \$\$h_i =
+-\frac{1}{\log(M_i - m_i + 1)} \sum\_{k = m_i}^{M_i} p_k \log p_k.\$\$
 
 ## Usage
 
@@ -22,29 +17,32 @@ centrality_distance_entropy(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"out"` (distances along
-  out-edges), or `"in"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector, one value per node, in \[0, 1\]. `NaN` for a node
-that reaches no other node.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Distances are hop counts (edge weights are ignored). The original paper
-normalizes by \\\log(M_i - m_i)\\, which is undefined when only two
-distinct distances occur; \\\log(M_i - m_i + 1)\\ is used here so the
-index is bounded by 1 for a uniform distribution.
+Distances are hop counts, so edge weights are ignored. On a directed
+network `mode` sets the direction of the paths. Scores lie between 0
+and 1. A node whose reachable nodes all lie at one distance scores 0,
+and a node that reaches no other node returns `NaN`. The source divides
+by \\\log(M_i - m_i)\\, which is zero when the range holds two
+distances. The implementation divides by \\\log(M_i - m_i + 1)\\, so a
+uniform distribution scores 1.
 
 ## References
 
@@ -53,17 +51,16 @@ characterises centrality in complex networks. Entropy, 20(4), 268.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md)
-for the growth-rate view of the same distance profile.
+[`centrality_local_dimension`](https://sonsoles.me/cograph/reference/centrality_local_dimension.md),
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-path4 <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-rownames(path4) <- colnames(path4) <- c("A", "B", "C", "D")
-centrality_distance_entropy(path4)
-#>         A         B         C         D 
-#> 1.0000000 0.9182958 0.9182958 1.0000000 
+centrality_distance_entropy(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.9910761  0.9182958  0.7642045  0.9182958  0.9910761  0.9910761  0.9910761 
+#>   Evaluate     Create      Share 
+#>  0.9910761  0.9182958  0.9910761 
 ```

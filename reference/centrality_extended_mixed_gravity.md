@@ -1,12 +1,8 @@
-# Extended mixed gravitational centrality
+# Extended Mixed Gravitational Centrality
 
-Extended mixed gravitational centrality (EMGC), also called IGC+, sums
-the raw MGC scores of immediate neighbors: \\EMGC_i=\sum\_{j\in
-N(i)}MGC_j\\. Each inner MGC score uses its own source node j's core
-number, partner degrees, and original-graph hop distances. The inner
-radius is centered on j, so a contribution can reach r+1 hops from i.
-Paths from j back to i are included. The outer neighbor sum has no
-distance or mass factor.
+Extended mixed gravitational centrality (Wang, Li and Xia 2018), also
+called IGC+, sums the mixed gravitational scores of the immediate
+neighbors of a node: \$\$EMGC_i = \sum\_{j \in N(i)} MGC_j.\$\$
 
 ## Usage
 
@@ -23,36 +19,28 @@ centrality_extended_mixed_gravity(x, gravity_radius = 3, ...)
 
 - gravity_radius:
 
-  Nonnegative hop-distance cutoff, default three. NULL or infinity
-  includes every reachable partner. Fractional cutoffs include exactly
-  integer hop distances not exceeding them; values below one give zero.
-  The optional `"auto"` is a cograph heuristic: round half the mean
-  finite positive distance to the nearest integer (ties to even), with
-  minimum one. It is not the cited radius rule and can change when
-  disconnected components are added.
+  Hop-distance cutoff of the inner scores. Default 3. `NULL` or `Inf`
+  includes every reachable node.
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized` (divide by the maximum, default `FALSE`).
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Follows the reproduction in Li and Huang (2022), equation 8, attributed
-to Wang et al. (2018); the original full equations and software have not
-been inspected. Uses the same skeleton and radius conventions as
-[`centrality_mixed_gravity`](https://sonsoles.me/cograph/reference/centrality_mixed_gravity.md).
-Default inner radius three follows the reproduced definition; radius one
-matches the Zoo's literal inner neighbor sum. Optional maximum
-normalization occurs only after summing raw neighbor scores. Isolates
-and radii below one score zero. Empty and singleton graphs give no
-scores and zero, respectively. Dense O(n cubed) time and O(n squared)
-memory. Verification of these numerical equations does not establish
-author-software parity or predictive superiority.
+Each inner score \\MGC_j\\ uses the radius around \\j\\, so a
+contribution can come from up to `gravity_radius + 1` hops from the
+focal node. The implementation follows the reproduction in Li and Huang
+(2022), equation 8. The input handling and radius options of
+[`centrality_mixed_gravity`](https://sonsoles.me/cograph/reference/centrality_mixed_gravity.md)
+apply, so direction, weights, loops and parallel edges are ignored.
+Isolated nodes score zero.
 
 ## References
 
@@ -68,10 +56,18 @@ Reports, 12, 9879.
 [doi:10.1038/s41598-022-14005-3](https://doi.org/10.1038/s41598-022-14005-3)
 .
 
+## See also
+
+[`centrality_mixed_gravity`](https://sonsoles.me/cograph/reference/centrality_mixed_gravity.md),
+[`centrality_gravity`](https://sonsoles.me/cograph/reference/centrality_gravity.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+
 ## Examples
 
 ``` r
-centrality_extended_mixed_gravity(igraph::make_ring(6))
-#>        1        2        3        4        5        6 
-#> 20.88889 20.88889 20.88889 20.88889 20.88889 20.88889 
+centrality_extended_mixed_gravity(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>        687        838        959        821        682        689        570 
+#>   Evaluate     Create      Share 
+#>        717        843        720 
 ```

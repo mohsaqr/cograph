@@ -1,7 +1,9 @@
 # Edge Betweenness Community Detection
 
-Girvan-Newman algorithm. Iteratively removes edges with highest
-betweenness centrality to reveal community structure.
+The Girvan-Newman algorithm. It repeatedly removes the edge with the
+highest edge betweenness and keeps the partition with the highest
+modularity. On a weighted graph igraph warns that the membership is
+selected by modularity.
 
 ## Usage
 
@@ -35,48 +37,53 @@ com_eb(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - directed:
 
-  Logical; treat graph as directed? Default TRUE.
+  Logical. Whether edge directions are used. Default `TRUE`. `NULL` uses
+  the direction of the network.
 
 - edge.betweenness:
 
-  Logical; return edge betweenness values? Default TRUE.
+  Logical. Whether igraph stores the edge betweenness values. Default
+  `TRUE`.
 
 - merges:
 
-  Logical; return merge matrix? Default TRUE.
+  Logical. Whether igraph stores the merge matrix. Default `TRUE`.
 
 - bridges:
 
-  Logical; return bridge edges? Default TRUE.
+  Logical. Whether igraph stores the bridge edges. Default `TRUE`.
 
 - modularity:
 
-  Logical; return modularity scores? Default TRUE.
+  Logical. Whether igraph stores the modularity scores. Default `TRUE`.
 
 - membership:
 
-  Logical; return membership vector? Default TRUE.
+  Logical. Whether igraph computes the membership vector. Default
+  `TRUE`.
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md). Its
+  only other argument, `directed`, is already taken by this function, so
+  any further argument raises an "unused argument" error.
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -86,25 +93,44 @@ biological networks. *PNAS*, 99(12), 7821-7826.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_edge_betweenness(g)
-membership(comm)
-#>  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-#>  1  1  2  1  3  3  3  1  4  5  3  1  1  1  4  4  3  1  4  1  4  1  4  4  2  2 
-#> 27 28 29 30 31 32 33 34 
-#>  4  2  2  4  4  2  4  4 
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_eb(net)
-#> Warning: Membership vector will be selected based on the highest modularity score.
-#> Source: community/edge_betweenness.c:503
+community_edge_betweenness(igraph::make_graph("Zachary"))
 #> Community structure (edge_betweenness)
-#>   Nodes: 5  | Communities: 4  | Modularity: 0.0297 
-#>   Sizes: 1, 1, 1, 2 
+#>   Nodes: 34  | Communities: 5  | Modularity: 0.4013 
+#>   Sizes: 10, 6, 5, 12, 1 
 #> 
 #>  node community
 #>     1         1
-#>     2         2
-#>     3         3
-#>     4         4
-#>     5         4
+#>     2         1
+#>     3         2
+#>     4         1
+#>     5         3
+#>     6         3
+#>     7         3
+#>     8         1
+#>     9         4
+#>    10         5
+#>    11         3
+#>    12         1
+#>    13         1
+#>    14         1
+#>    15         4
+#>    16         4
+#>    17         3
+#>    18         1
+#>    19         4
+#>    20         1
+#>    21         4
+#>    22         1
+#>    23         4
+#>    24         4
+#>    25         2
+#>    26         2
+#>    27         4
+#>    28         2
+#>    29         2
+#>    30         4
+#>    31         4
+#>    32         2
+#>    33         4
+#>    34         4
 ```

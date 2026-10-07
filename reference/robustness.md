@@ -1,13 +1,13 @@
 # Network Robustness Analysis
 
-Performs a targeted attack or random failure analysis on a network,
-calculating the size of the largest connected component after sequential
+Performs a targeted attack or random failure analysis on a network and
+computes the size of the largest (weakly) connected component after each
 vertex or edge removal.
 
-In a targeted attack, vertices are sorted by degree or betweenness
-centrality (or edges by betweenness), and successively removed from
-highest to lowest. In a random failure analysis, vertices/edges are
-removed in random order.
+In a targeted attack, vertices are ranked by degree or betweenness
+centrality (edges by edge betweenness) and removed from highest to
+lowest. In a random failure analysis, vertices or edges are removed in
+random order.
 
 ## Usage
 
@@ -37,24 +37,26 @@ robustness(
 
 - measure:
 
-  Character string; sort by "betweenness", "degree", or "random".
-  Default: "betweenness"
+  Character string; rank by "betweenness", "degree", or remove in
+  "random" order. Default: "betweenness". "degree" is not available for
+  edge removals and raises an error.
 
 - strategy:
 
-  Character string; "sequential" (default) recalculates centrality after
-  each removal. "static" computes centrality once on the original
-  network and removes nodes in that fixed order (brainGraph-style). Only
-  affects targeted attacks; random removal is unaffected.
+  Character string. "sequential" (default) recomputes the centrality
+  after each removal. "static" computes the centrality once on the
+  original network and removes elements in that fixed order, as in
+  brainGraph. The argument applies to targeted attacks only.
 
 - n_iter:
 
-  Integer; number of iterations for random analysis. Default: 1000
-  (matching brainGraph convention)
+  Integer; number of random removal sequences averaged when
+  `measure = "random"`. Default: 1000.
 
 - mode:
 
-  For directed networks: "all", "in", or "out". Default "all".
+  Degree mode for directed networks: "all", "in", or "out". Default
+  "all". Used only when `measure = "degree"`.
 
 - seed:
 
@@ -92,42 +94,28 @@ number of vertices or edges), and columns:
 
 - type:
 
-  A human-readable label for the analysis, one of "Targeted vertex
-  attack", "Targeted edge attack", "Random vertex removal" or "Random
-  edge removal" - not the bare `type` argument
+  A label for the analysis, one of "Targeted vertex attack", "Targeted
+  edge attack", "Random vertex removal" or "Random edge removal"
 
-The original number of vertices/edges (`"n_original"`) and the original
-largest-component size (`"orig_max"`) are stored as attributes.
+The last row always has `comp_size = 0`. The original number of vertices
+or edges (`"n_original"`) and the original largest-component size
+(`"orig_max"`) are stored as attributes.
 
 ## Details
 
-Three attack strategies are available:
+A betweenness attack removes the vertices or edges that lie on the most
+shortest paths, which bridge different regions of the network. A degree
+attack removes the most connected vertices first. Random failure removes
+vertices or edges in random order and averages the component sizes over
+`n_iter` sequences. Betweenness is computed with igraph, which treats
+edge weights as distances.
 
-**Targeted Attack - Betweenness (default):** Vertices/edges are sorted
-by betweenness centrality and removed from highest to lowest. This
-targets nodes that bridge different network regions.
+The sequential strategy updates the ranking after every removal, so the
+attack follows the vertices that become new bridges or hubs. The static
+strategy ranks once on the original network, as in Albert et al. (2000).
 
-**Targeted Attack - Degree:** Vertices are sorted by degree and removed
-from highest to lowest. This targets highly connected hub nodes. Note:
-for edge attacks, degree is not available; use betweenness instead.
-
-**Random Failure:** Vertices/edges are removed in random order, averaged
-over n_iter iterations. This simulates random component failures.
-
-**Strategy:** The `strategy` parameter controls how targeted attacks
-work:
-
-- `"sequential"` (default): Recalculates centrality after each removal.
-  This is a stronger attack because removing a hub changes which nodes
-  become the new bridges/hubs.
-
-- `"static"`: Computes centrality once on the original network and
-  removes nodes in that fixed order (as in brainGraph). This matches the
-  original Albert et al. (2000) method.
-
-Scale-free networks are typically robust to random failures but
-vulnerable to targeted attacks, while random networks degrade more
-uniformly.
+Scale-free networks are typically robust to random failures and
+vulnerable to targeted attacks. Random networks degrade more uniformly.
 
 ## References
 
@@ -143,27 +131,17 @@ tolerance of complex networks. *Nature*, 406, 378-381.
 ## Examples
 
 ``` r
-# Create a scale-free network
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::sample_pa(50, m = 2, directed = FALSE)
-
-  # Targeted attack by betweenness
-  rob_btw <- robustness(g, measure = "betweenness")
-
-  # Targeted attack by degree
-  rob_deg <- robustness(g, measure = "degree")
-
-  # Random failure
-  rob_rnd <- robustness(g, measure = "random", n_iter = 50)
-
-  # View results
-  head(rob_btw)
-}
-#>   removed_pct comp_size comp_pct     measure                   type
-#> 1        0.00        50     1.00 betweenness Targeted vertex attack
-#> 2        0.02        49     0.98 betweenness Targeted vertex attack
-#> 3        0.04        48     0.96 betweenness Targeted vertex attack
-#> 4        0.06        47     0.94 betweenness Targeted vertex attack
-#> 5        0.08        46     0.92 betweenness Targeted vertex attack
-#> 6        0.10        44     0.88 betweenness Targeted vertex attack
+robustness(regulation_net, measure = "betweenness")
+#>    removed_pct comp_size comp_pct     measure                   type
+#> 1          0.0        10      1.0 betweenness Targeted vertex attack
+#> 2          0.1         9      0.9 betweenness Targeted vertex attack
+#> 3          0.2         8      0.8 betweenness Targeted vertex attack
+#> 4          0.3         7      0.7 betweenness Targeted vertex attack
+#> 5          0.4         6      0.6 betweenness Targeted vertex attack
+#> 6          0.5         5      0.5 betweenness Targeted vertex attack
+#> 7          0.6         3      0.3 betweenness Targeted vertex attack
+#> 8          0.7         1      0.1 betweenness Targeted vertex attack
+#> 9          0.8         1      0.1 betweenness Targeted vertex attack
+#> 10         0.9         1      0.1 betweenness Targeted vertex attack
+#> 11         1.0         0      0.0 betweenness Targeted vertex attack
 ```

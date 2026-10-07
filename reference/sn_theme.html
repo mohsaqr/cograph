@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,12 +68,15 @@ Matrices and other inputs are auto-converted.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional theme parameters to override.</p></dd>
+<dd><p>Theme parameters to override, such as <code>background</code>,
+<code>node_fill</code> or <code>edge_color</code>. An unknown parameter name raises
+an error.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Modified cograph_network object.</p>
+    <p>The <code>cograph_network</code> with the theme stored in its
+<code>theme</code> element.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -82,29 +85,29 @@ Matrices and other inputs are auto-converted.</p></dd>
 <h3 id="available-themes">Available Themes<a class="anchor" aria-label="anchor" href="#available-themes"></a></h3>
 
 
-<dl><dt><strong>classic</strong></dt>
-<dd><p>Default theme with white background, blue nodes, gray edges.</p></dd>
+<dl><dt><code>"classic"</code></dt>
+<dd><p>White background, blue nodes and gray edges.</p></dd>
 
-<dt><strong>dark</strong></dt>
-<dd><p>Dark background with light nodes. Good for presentations.</p></dd>
+<dt><code>"dark"</code></dt>
+<dd><p>Dark background with bright nodes, for presentations.</p></dd>
 
-<dt><strong>minimal</strong></dt>
+<dt><code>"minimal"</code></dt>
 <dd><p>Subtle styling with thin edges and muted colors.</p></dd>
 
-<dt><strong>colorblind</strong></dt>
+<dt><code>"colorblind"</code></dt>
 <dd><p>Optimized for color vision deficiency.</p></dd>
 
-<dt><strong>gray</strong>/<strong>grey</strong></dt>
+<dt><code>"gray"</code>/<code>"grey"</code></dt>
 <dd><p>Black and white theme suitable for print.</p></dd>
 
-<dt><strong>viridis</strong></dt>
+<dt><code>"viridis"</code></dt>
 <dd><p>Perceptually uniform colors.</p></dd>
 
-<dt><strong>nature</strong></dt>
+<dt><code>"nature"</code></dt>
 <dd><p>Nature-inspired colors.</p></dd>
 
 
-</dl><p>Use <code><a href="list_themes.html">list_themes()</a></code> to see all available themes.</p>
+</dl><p>Use <code><a href="themes.html">list_themes()</a></code> to see all available themes.</p>
 </div>
 
     </div>
@@ -114,18 +117,14 @@ Matrices and other inputs are auto-converted.</p></dd>
 <code><a href="sn_palette.html">sn_palette</a></code> for color palettes,
 <code><a href="sn_nodes.html">sn_nodes</a></code> for node customization,
 <code><a href="sn_edges.html">sn_edges</a></code> for edge customization,
-<code><a href="list_themes.html">list_themes</a></code> to see available themes,
+<code><a href="themes.html">list_themes</a></code> to see available themes,
 <code><a href="splot.html">splot</a></code> and <code><a href="soplot.html">soplot</a></code> for plotting</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_theme</span><span class="op">(</span><span class="st">"dark"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_theme</span><span class="op">(</span><span class="st">"dark"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_theme-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Override a theme property</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_theme</span><span class="op">(</span><span class="st">"classic"</span>, background <span class="op">=</span> <span class="st">"lightgray"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,8 +1,12 @@
 # Local Rich Club Score
 
-For each node, measures whether it preferentially directs its strongest
-ties toward prominent nodes. A score \> 1 means the node's ties to
-prominent nodes are stronger than average.
+Computes, for each node, whether its strongest ties go to prominent
+nodes. The score is the mean weight of the node's ties to prominent
+neighbors divided by the mean weight of all its ties. A score above 1
+means that the node's ties to prominent nodes are stronger than its
+average tie. A directed network is converted to an undirected one before
+the computation, with the weights of reciprocal edges summed, and
+self-loops are removed.
 
 ## Usage
 
@@ -27,9 +31,11 @@ rich_club_local(
 
 - prominence:
 
-  Integer or logical vector indicating which nodes are prominent (1/TRUE
-  = prominent), OR a numeric threshold. If NULL, nodes above median
-  degree (or strength) are prominent.
+  Which nodes are prominent. Either a logical or 0/1 vector with one
+  element per node (TRUE or 1 marks a prominent node), or a single
+  number used as a threshold, in which case nodes with degree or
+  strength strictly greater than it are prominent. If NULL (default),
+  nodes with degree or strength strictly above the median are prominent.
 
 - rich:
 
@@ -46,25 +52,25 @@ rich_club_local(
 
 - sort_by:
 
-  Character or NULL. Column to sort by (descending). Default `"score"`.
+  Character or NULL. Column to sort by in descending order, `"score"`
+  (default) or `"node"`. Any other value, and NULL, keep the node order.
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which takes no further arguments, so any argument supplied here raises
+  an error.
 
 ## Value
 
 A plain data frame with one row per node and columns `node` (node label)
-and `score`, sorted by `sort_by` descending (`"score"` by default; pass
-`sort_by = NULL` to keep node order). Values \> 1 indicate the node
-directs disproportionately strong ties to prominent nodes; a node with
-no neighbors, no prominent neighbor, or zero mean tie weight scores 1.
+and `score`. A node with no neighbors or no prominent neighbor scores 1.
 
 ## Details
 
-For each node i: \\r_i = \bar{w}\_{i \to rich} / \bar{w}\_i\\
+For each node \\i\\, \\r_i = \bar{w}\_{i, rich} / \bar{w}\_i\\, where
+both means are taken over the ties of \\i\\ with positive weight.
 
 ## References
 
@@ -80,12 +86,16 @@ Letters*, 101, 168702.
 ## Examples
 
 ``` r
-adj <- matrix(c(0,5,3,1, 5,0,4,2, 3,4,0,1, 1,2,1,0), 4, 4)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-cograph::rich_club_local(adj, prominence = c(1, 1, 0, 0))
-#>   node    score
-#> 1    A 1.666667
-#> 2    B 1.363636
-#> 3    C 1.312500
-#> 4    D 1.125000
+cograph::rich_club_local(regulation_net)
+#>          node     score
+#> 1      Create 1.3536585
+#> 2    Evaluate 1.1988304
+#> 3       Share 1.0769231
+#> 4     Monitor 1.0356506
+#> 5     Discuss 0.9586057
+#> 6     Explore 0.7553957
+#> 7  Synthesize 0.6060606
+#> 8       Adapt 0.5423729
+#> 9     Reflect 0.5395683
+#> 10       Plan 0.5210526
 ```

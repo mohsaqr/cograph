@@ -1,7 +1,10 @@
 # Minimum or Maximum Spanning Tree
 
-Prim's algorithm on each connected component, so a disconnected network
-yields a spanning forest.
+Computes a spanning tree with Prim's algorithm on each connected
+component, so a disconnected network yields a spanning forest. A
+directed network is symmetrized first, each pair taking the larger of
+its two arc weights. Self-loops are ignored. Missing or infinite weights
+raise a `cograph_bad_selection` error.
 
 ## Usage
 
@@ -33,12 +36,16 @@ spanning_tree(
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. Directedness to read the input with; the tree itself
-  is undirected.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input. The tree itself is undirected.
 
 ## Value
 
@@ -58,34 +65,18 @@ generalizations. *Bell System Technical Journal*, 36(6), 1389–1401.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-spanning_tree(adj)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
+spanning_tree(regulation_net, maximum = TRUE)
+#> Cograph network: 10 nodes, 9 edges ( undirected )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.300, 0.500]  |  mean: 0.400
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 9 / 45 (density: 20.0%)
+#>   Weights: [0.350, 0.490]  |  mean: 0.412
 #>   Strongest edges:
-#>     A -- B  0.500
-#>     C -- D  0.400
-#>     B -- C  0.300
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-spanning_tree(adj, maximum = TRUE)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.633
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
+#>     Plan -- Evaluate  0.490
+#>     Monitor -- Share  0.490
+#>     Adapt -- Evaluate  0.430
+#>     Reflect -- Synthesize  0.420
+#>     Plan -- Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

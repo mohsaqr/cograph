@@ -2,8 +2,8 @@
 
 Filter edges using dplyr-style expressions on any edge column. Returns a
 cograph_network object by default (universal format), or optionally a
-matrix, igraph, or statnet network object when `keep_format = TRUE` and
-the input used one of those formats.
+matrix, igraph, statnet network or tna object when `keep_format = TRUE`
+and the input used one of those formats.
 
 ## Usage
 
@@ -50,7 +50,7 @@ subset_edges(
 
 - keep_format:
 
-  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  Logical. If TRUE, matrix, igraph, statnet network and tna inputs are
   returned in that format. Default FALSE returns cograph_network
   (universal format).
 
@@ -67,11 +67,9 @@ subset_edges(
 ## Value
 
 A cograph_network object with filtered edges. If `keep_format = TRUE`,
-matrix, igraph, and statnet network inputs are converted back to that
-type. Nodes are never removed by the filter itself; when the filter
-strands a node a `cograph_isolates_created` warning is raised.
-
-See `filter_edges`.
+matrix, igraph, statnet network and tna inputs are converted back to
+that type. With `keep_isolates = TRUE`, a node that loses all its edges
+stays in the network and a `cograph_isolates_created` warning is raised.
 
 ## See also
 
@@ -82,34 +80,18 @@ See `filter_edges`.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Keep only strong edges
-filter_edges(adj, weight > 0.5)
-#> Cograph network: 4 nodes, 2 edges ( undirected )
+filter_edges(regulation_net, weight > 0.15)
+#> Cograph network: 10 nodes, 22 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.600, 0.800]  |  mean: 0.700
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 22 / 90 (density: 24.4%)
+#>   Weights: [0.160, 0.490]  |  mean: 0.323
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-
-# Matrix in, matrix out
-filter_edges(adj, weight > 0.5, keep_format = TRUE)
-#>     A   B   C   D
-#> A 0.0 0.0 0.8 0.0
-#> B 0.0 0.0 0.0 0.6
-#> C 0.8 0.0 0.0 0.0
-#> D 0.0 0.6 0.0 0.0
-
-# Pipe-friendly with cograph_network
-as_cograph(adj) |>
-  filter_edges(weight > 0.3) |>
-  filter_nodes(degree >= 2) |>
-  splot()
 ```

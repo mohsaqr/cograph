@@ -1,10 +1,10 @@
-# Pairwise Disconnectivity (Potapov et al. 2008)
+# Pairwise Disconnectivity
 
-For a directed network, `pairwisedis(v)` is the fraction of ordered
-reachable pairs \\(s, t)\\ that become unreachable when node \\v\\ is
-removed: \$\$PD(v) = (\|P(G)\| - \|P(G - v)\|) / \|P(G)\|\$\$ where
-\\\|P(G)\|\\ is the number of ordered pairs \\(s, t), s \ne t\\ with a
-directed path from \\s\\ to \\t\\.
+Pairwise disconnectivity (Potapov et al. 2008) is the share of ordered
+reachable pairs that become unreachable when a node is removed:
+\$\$PD(v) = \frac{\|P(G)\| - \|P(G - v)\|}{\|P(G)\|},\$\$ where
+\\\|P(G)\|\\ is the number of ordered pairs \\(s, t)\\, \\s \ne t\\,
+with a directed path from \\s\\ to \\t\\.
 
 ## Usage
 
@@ -16,23 +16,26 @@ centrality_pairwisedis(x, ...)
 
 - x:
 
-  Directed network input (matrix, igraph, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of pairwise disconnectivity values in \\\[0, 1\]\\.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Bit-exact match against
-[`centiserve::pairwisedis`](https://rdrr.io/pkg/centiserve/man/pairwisedis.html)
-on directed graphs. Requires the input to be directed; returns `NA` with
-a warning on undirected inputs.
+The measure needs a directed network. On undirected input every score is
+`NA` with a warning that carries no condition class. Reachability uses
+hop counts, so edge weights are ignored. The score lies between 0 and 1,
+and a network without reachable pairs scores 0 everywhere. The values
+equal
+[`centiserve::pairwisedis()`](https://rdrr.io/pkg/centiserve/man/pairwisedis.html).
 
 ## References
 
@@ -43,15 +46,16 @@ regulatory networks. *BMC Bioinformatics*, 9, 227.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
-[`robustness`](https://sonsoles.me/cograph/reference/robustness.md).
+[`centrality_prestige_domain`](https://sonsoles.me/cograph/reference/centrality_prestige_domain.md),
+[`robustness`](https://sonsoles.me/cograph/reference/robustness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,0, 0,0,1, 1,0,0), 3, 3, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_pairwisedis(adj)
-#>         A         B         C 
-#> 0.8333333 0.8333333 0.8333333 
+centrality_pairwisedis(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.2000000  0.2000000  0.2000000  0.2888889  0.2000000  0.2000000  0.2000000 
+#>   Evaluate     Create      Share 
+#>  0.2000000  0.2000000  0.2000000 
 ```

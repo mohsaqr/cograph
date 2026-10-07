@@ -1,8 +1,8 @@
-# Select Edges with Lazy Computation
+# Select Edges
 
-A powerful edge selection function with lazy computation (only computes
-metrics actually referenced), multiple selection modes, and structural
-awareness (bridges, communities, reciprocity).
+Selects edges by filter expressions, by node sets, by rank on a metric,
+or by structural properties such as bridges, communities and
+reciprocity.
 
 ## Usage
 
@@ -101,7 +101,7 @@ select_edges(
 
 - keep_format:
 
-  Logical. If TRUE, matrix, igraph, and statnet network inputs are
+  Logical. If TRUE, matrix, igraph, statnet network and tna inputs are
   returned in that format. Default FALSE returns cograph_network.
 
 - directed:
@@ -115,21 +115,21 @@ select_edges(
 ## Value
 
 A cograph_network object with selected edges. If `keep_format = TRUE`,
-matrix, igraph, and statnet network inputs are converted back to that
-type. Nodes left without edges are kept and reported in a
+matrix, igraph, statnet network and tna inputs are converted back to
+that type. Nodes left without edges are kept and reported in a
 `cograph_isolates_created` warning, unless `keep_isolates = FALSE`.
 
 ## Details
 
-Selection modes are combined with AND logic:
+Selection criteria are combined with AND logic, so an edge is selected
+only when it satisfies all of them. The `top` ranking is applied to the
+edges that pass `involving`, `between`, `bridges_only` and
+`mutual_only`, and the filter expressions in `...` are applied
+afterwards. For example, `select_edges(x, top = 10, involving = "A")`
+selects the 10 strongest edges among those involving node A.
 
-- `select_edges(x, top = 10, involving = "A")` selects top 10 edges
-  **among those involving node A**
-
-- All criteria must be satisfied for an edge to be selected
-
-Edge metrics are computed lazily - only those actually referenced in
-expressions or required by selection modes are computed.
+Only the edge metrics referenced in expressions or required by a
+selection criterion are computed.
 
 ## See also
 
@@ -141,55 +141,18 @@ expressions or required by selection modes are computed.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0, .5, 0, .3, .6,
-                .8, .3, 0, .4, 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_edges(adj, weight > 0.5)
-#> Cograph network: 4 nodes, 2 edges ( undirected )
+select_edges(regulation_net, top = 5, keep_isolates = FALSE)
+#> Cograph network: 8 nodes, 5 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.600, 0.800]  |  mean: 0.700
+#>   Nodes (8): Plan, Monitor, Adapt, Reflect, Discuss, Synthesize, Evaluate, Share
+#>   Edges: 5 / 56 (density: 8.9%)
+#>   Weights: [0.400, 0.490]  |  mean: 0.446
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_edges(adj, top = 3)
-#> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.633
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_edges(adj, involving = "A")
-#> Warning: 1 node(s) have no edges left. Nodes are kept; call remove_isolates() to drop them.
-#> Cograph network: 4 nodes, 2 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [0.500, 0.800]  |  mean: 0.650
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     A -- B  0.500
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-select_edges(adj, between = list(c("A", "B"), c("C", "D")))
-#> Cograph network: 4 nodes, 3 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.567
-#>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     B -- C  0.300
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

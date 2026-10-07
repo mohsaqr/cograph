@@ -1,9 +1,9 @@
 # Global Efficiency
 
-Computes the global efficiency of a network - the average of the inverse
-shortest path lengths between all pairs of nodes. Higher values indicate
-better global communication efficiency. Handles disconnected graphs
-gracefully (infinite distances contribute 0).
+Computes the global efficiency of a network, the average of the inverse
+shortest path lengths between all ordered pairs of distinct nodes.
+Higher values indicate more efficient global communication. Unreachable
+pairs contribute 0. A graph with fewer than two nodes returns `NA`.
 
 ## Usage
 
@@ -31,43 +31,36 @@ network_global_efficiency(
 
 - weights:
 
-  Edge weights (NULL for unweighted). Set to NA to ignore existing
-  weights.
+  Numeric vector of edge weights. Default NULL uses the graph's `weight`
+  attribute when present. NA ignores weights when `invert_weights` is
+  FALSE.
 
 - invert_weights:
 
-  Logical or NULL. Invert weights so higher weights = shorter paths?
-  Default NULL which auto-detects: TRUE for tna objects, FALSE otherwise
-  (matching igraph/sna). Set TRUE for strength/frequency weights (qgraph
-  style).
+  Logical or NULL. If TRUE, weights are converted to distances as
+  \\1/w^{\alpha}\\, so stronger ties give shorter paths. If FALSE,
+  weights are used as distances. Default NULL uses TRUE for tna objects
+  and FALSE otherwise.
 
 - alpha:
 
-  Numeric. Exponent for weight inversion: distance = 1/weight^alpha.
-  Default 1.
+  Numeric. Exponent for weight inversion. Default 1.
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which accepts no arguments besides `directed`.
 
 ## Value
 
-Numeric global efficiency. For unweighted simple graphs this is in
-\\\[0, 1\]\\; weighted graphs can exceed 1 when edge distances are below
-1.
+Numeric scalar: the global efficiency. For unweighted simple graphs it
+lies in \\\[0, 1\]\\. Weighted graphs can exceed 1 when edge distances
+are below 1.
 
 ## Examples
 
 ``` r
-# Complete graph has efficiency 1
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-network_global_efficiency(k4)  # 1
-#> [1] 1
-
-# Star has lower efficiency
-star <- matrix(c(0,1,1,1, 1,0,0,0, 1,0,0,0, 1,0,0,0), 4, 4)
-network_global_efficiency(star)  # 0.75
-#> [1] 0.75
+network_global_efficiency(regulation_net)
+#> [1] 3.304491
 ```

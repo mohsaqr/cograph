@@ -1,8 +1,10 @@
-# Gould-Fernandez Brokerage — Liaison Role
+# Liaison Brokerage
 
-Liaison brokerage (b_O): count of open directed 2-paths \\A \to V \to
-B\\ where all three nodes belong to different groups. The broker
-mediates between two groups to neither of which they belong.
+Liaison brokerage (Gould and Fernandez 1989) counts the open two-paths
+\\a \to v \to c\\ through node \\v\\ in which \\a\\, \\v\\ and \\c\\
+belong to three different groups. A two-path is open when the network
+has no edge from \\a\\ to \\c\\. This role is \\b_O\\ in the notation of
+the source.
 
 ## Usage
 
@@ -14,44 +16,52 @@ centrality_brokerage_liaison(x, membership = NULL, ...)
 
 - x:
 
-  Directed network input (matrix, igraph, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - membership:
 
-  Integer or character vector of group assignments, length equal to the
-  number of nodes. Required.
+  Group labels, one per node.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named integer vector of liaison role counts.
+A named integer vector with one count per node, in input node order.
+`normalized = TRUE` returns a numeric vector.
 
 ## Details
 
-Bit-exact match against `sna::brokerage$raw.nli[, "b_O"]`.
-Directed-only.
+The measure is defined for directed networks. On an undirected network
+it raises an unclassed warning and returns `NA`, and the same happens
+when `membership` is missing. A `membership` whose length differs from
+the number of nodes raises an unclassed error. Group labels may be
+numbers or strings. With fewer than three groups every count is 0. Edge
+weights and self-loops are ignored.
 
 ## References
 
 Gould, R. V., & Fernandez, R. M. (1989). Structures of mediation: A
-formal approach to brokerage in transaction networks. *Sociological
-Methodology*, 19, 89-126.
+formal approach to brokerage in transaction networks. Sociological
+Methodology, 19, 89-126.
 [doi:10.2307/270949](https://doi.org/10.2307/270949) .
 
 ## See also
 
-[`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md).
+[`centrality_brokerage_itinerant`](https://sonsoles.me/cograph/reference/centrality_brokerage_itinerant.md),
+[`centrality_brokerage_coordinator`](https://sonsoles.me/cograph/reference/centrality_brokerage_coordinator.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0, 0,0,1,1, 0,0,0,1, 1,0,0,0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-centrality_brokerage_liaison(adj, membership = c(1, 1, 2, 2))
-#> A B C D 
-#> 0 0 0 0 
+centrality_brokerage_liaison(regulation_net, membership = rep(1:3, length.out = 10))
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>          1          4          2          1          1          2          0 
+#>   Evaluate     Create      Share 
+#>          1          1          1 
 ```

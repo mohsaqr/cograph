@@ -1,11 +1,9 @@
-# Volume centrality
+# Volume Centrality
 
-Sum of the original-graph degrees of all vertices within `volume_radius`
-hops, including the focal vertex. This is the localized volume measure
-of Wehmuth & Ziviani (DANCE/DACCER). Degrees include edges leaving the
-neighborhood; they are not recomputed inside the induced subgraph.
-Radius zero returns degree. Infinite radius returns twice the number of
-edges in the focal connected component.
+Volume centrality (Wehmuth and Ziviani 2011, 2013) is the sum of the
+degrees of all nodes within `volume_radius` hops of a node, the node
+itself included. Degrees are those of the whole network, so edges that
+leave the neighborhood also count.
 
 ## Usage
 
@@ -22,26 +20,25 @@ centrality_volume(x, volume_radius = 2, ...)
 
 - volume_radius:
 
-  Nonnegative integer hop radius, or `Inf`. Default 2, the local radius
-  investigated by Wehmuth & Ziviani.
+  Hop radius: a nonnegative integer or `Inf`. Default 2.
 
 - ...:
 
-  Additional arguments to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
-  With `normalized = TRUE`, positive scores are divided by their
-  maximum.
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md),
+  such as `normalized`.
 
 ## Value
 
-Named numeric vector in input node order.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Uses the simple undirected, unweighted skeleton: either direction
-creates an edge, parallel edges count once, and self-loops are removed.
-This is an explicit input projection, not a weighted or directed
-generalization. Isolates score zero.
+The measure uses the simple undirected skeleton, so direction, weights,
+loops and parallel edges are ignored. Isolated nodes score 0. Radius 0
+gives the degree, and an infinite radius gives twice the number of edges
+in the node's component. A radius that is negative or not a whole number
+raises an error.
 
 ## References
 
@@ -57,15 +54,15 @@ Closeness CEntrality Ranking in complex networks. Computer Networks, 57,
 ## See also
 
 [`centrality_kreach`](https://sonsoles.me/cograph/reference/centrality_kreach.md),
-[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md).
+[`centrality_degree`](https://sonsoles.me/cograph/reference/centrality_degree.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-centrality_volume(igraph::make_ring(6), volume_radius = 1)
-#> 1 2 3 4 5 6 
-#> 6 6 6 6 6 6 
-centrality_volume(igraph::make_ring(6), volume_radius = 0)
-#> 1 2 3 4 5 6 
-#> 2 2 2 2 2 2 
+centrality_volume(regulation_net, volume_radius = 1)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         32         38         44         37         31         33         28 
+#>   Evaluate     Create      Share 
+#>         35         39         35 
 ```

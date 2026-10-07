@@ -9,7 +9,7 @@ network layout that is wider than it is tall (or vice versa depending on ratio).
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,9 +105,18 @@ values &lt; 1 create vertical ovals. Default 1.5.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="va"><a href="CographNetwork.html">CographNetwork</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="fu">layout_oval</span><span class="op">(</span><span class="va">net</span>, ratio <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">layout_oval</span><span class="op">(</span><span class="va"><a href="CographNetwork.html">CographNetwork</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span>, ratio <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x         y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.78795479 0.7642238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.96592064 0.6009245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.96592064 0.3990755</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.78795479 0.2357762</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.50000000 0.1734014</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.21204521 0.2357762</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.03407936 0.3990755</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.03407936 0.6009245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.21204521 0.7642238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.50000000 0.8265986</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

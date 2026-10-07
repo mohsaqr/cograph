@@ -2,6 +2,8 @@
 
 The k-core is the maximal subgraph in which every node has degree at
 least `k`, found by repeatedly removing nodes of degree below `k`.
+Degree is the total degree, which is in-degree plus out-degree in a
+directed network. A self-loop adds 2 to the degree of its node.
 
 ## Usage
 
@@ -17,21 +19,26 @@ select_k_core(x, k, keep_format = FALSE, directed = NULL)
 
 - k:
 
-  Integer. The core number.
+  A single non-negative whole number. The core number.
 
 - keep_format:
 
-  Logical. Return the input format when TRUE.
+  Logical. If TRUE, a matrix, igraph, statnet network or tna input is
+  returned in its own format. An edge-list data frame or a qgraph object
+  is returned as a `cograph_network` with a
+  `cograph_no_format_roundtrip` warning. Default FALSE returns a
+  `cograph_network`.
 
 - directed:
 
-  Logical or NULL. If NULL (default), auto-detect.
+  Logical or NULL. Directedness used to read the input. NULL (default)
+  detects it from the input.
 
 ## Value
 
 A `cograph_network` holding the k-core, or the input format when
-`keep_format = TRUE`. An empty network when no node reaches coreness
-`k`.
+`keep_format = TRUE`. When no node reaches coreness `k`, the result is
+an empty network and a warning is raised.
 
 ## References
 
@@ -46,22 +53,18 @@ Networks*, 5(3), 269–287.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1,
-                1, 0, 1, 0,
-                1, 1, 0, 0,
-                1, 0, 0, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-select_k_core(adj, k = 2)
-#> Cograph network: 3 nodes, 3 edges ( undirected )
+select_k_core(regulation_net, k = 2)
+#> Cograph network: 10 nodes, 30 edges ( directed )
 #> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 3 / 3 (density: 100.0%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 30 / 90 (density: 33.3%)
+#>   Weights: [0.050, 0.490]  |  mean: 0.265
 #>   Strongest edges:
-#>     A -- B  1.000
-#>     A -- C  1.000
-#>     B -- C  1.000
+#>     Share -> Monitor  0.490
+#>     Plan -> Evaluate  0.490
+#>     Evaluate -> Adapt  0.430
+#>     Synthesize -> Reflect  0.420
+#>     Plan -> Discuss  0.400
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

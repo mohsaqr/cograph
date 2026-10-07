@@ -1,6 +1,8 @@
-# Average Distance Centrality
+# Average Distance
 
-Sum of shortest path distances divided by (n + 1). Lower values indicate
+Average distance is the sum of the shortest-path distances from a node
+to every node, divided by \\n + 1\\ as in the centiserve package:
+\$\$AD(v) = \frac{1}{n + 1} \sum\_{w} d(v, w).\$\$ Lower values mark
 more central nodes.
 
 ## Usage
@@ -13,33 +15,45 @@ centrality_average_distance(x, mode = "all", ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `normalized`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `weighted` (default `TRUE`), `invert_weights`
+  (default `NULL`, which is `TRUE` for tna input), `alpha` (inversion
+  exponent, default 1) and `cutoff` (largest path length considered,
+  default -1 for no limit).
 
 ## Value
 
-Named numeric vector of average distance values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are read as path lengths. `invert_weights = TRUE` uses
+\\1/w^\alpha\\ as the length, and `weighted = FALSE` counts hops. `mode`
+sets the direction of the paths. A node that cannot reach every other
+node scores `Inf`, so on a disconnected network every score is `Inf`.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_barycenter`](https://sonsoles.me/cograph/reference/centrality_barycenter.md),
+[`centrality_closeness`](https://sonsoles.me/cograph/reference/centrality_closeness.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_average_distance(adj)
-#>    A    B    C 
-#> 0.75 0.50 0.75 
+centrality_average_distance(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>  0.1763636  0.2027273  0.1590909  0.2400000  0.1745455  0.2627273  0.1881818 
+#>   Evaluate     Create      Share 
+#>  0.2254545  0.1727273  0.2581818 
 ```

@@ -1,8 +1,9 @@
 # Plot Centrality Heatmap
 
-Heatmap of nodes (rows) by centrality measures (columns), z-standardized
-within measure so the diverging palette is meaningful. Optional row
-clustering groups nodes with similar centrality profiles.
+Plots a heatmap of nodes (rows) by centrality measures (columns). Cell
+fill is the z-score of each value within its measure, mapped to a
+diverging color scale. Optional row clustering places nodes with similar
+centrality profiles next to each other.
 
 ## Usage
 
@@ -34,21 +35,26 @@ plot_centrality_heatmap(
 
 - measures:
 
-  Character vector of measure names.
+  Character vector of measure names. When `x` is a network and
+  `measures` is NULL (default), degree, strength, betweenness, closeness
+  and eigenvector are computed. When `x` is a centrality data frame,
+  NULL keeps all its measure columns.
 
 - cluster_rows:
 
-  Logical. Hierarchically cluster rows so nodes with similar profiles
-  are adjacent. Default TRUE.
+  Logical. Order rows by hierarchical clustering (Euclidean distance,
+  average linkage) of the z-scored profiles. Applied when there are more
+  than two nodes. Default TRUE.
 
 - order_by:
 
-  If `cluster_rows = FALSE`, optionally the name of a measure to sort
-  rows by (descending). Default: first measure.
+  Used when rows are not clustered. Name of the measure that sorts rows
+  in descending order. NULL (default) or an unknown name uses the first
+  measure.
 
 - show_values:
 
-  Logical. Print z-scores in cells. Default FALSE.
+  Logical. Print the raw centrality values in the cells. Default FALSE.
 
 - value_digits:
 
@@ -56,8 +62,7 @@ plot_centrality_heatmap(
 
 - low, mid, high:
 
-  Color stops for the diverging scale. Defaults to blue -\> white -\>
-  red.
+  Color stops for the diverging scale. Defaults to blue, white and red.
 
 - limits:
 
@@ -66,7 +71,8 @@ plot_centrality_heatmap(
 
 - title, subtitle:
 
-  Plot title and subtitle.
+  Plot title and subtitle. The default subtitle is "z-scored within
+  measure".
 
 - ...:
 
@@ -81,8 +87,5 @@ A ggplot object.
 ## Examples
 
 ``` r
-adj <- matrix(c(0,1,1,0,0, 1,0,1,1,0, 1,1,0,1,1, 0,1,1,0,1, 0,0,1,1,0),
-              5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-plot_centrality_heatmap(adj)
+plot_centrality_heatmap(regulation_net)
 ```

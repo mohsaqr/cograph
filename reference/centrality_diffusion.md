@@ -1,7 +1,11 @@
 # Diffusion Centrality
 
-Sum of scaled degrees of a node and its neighbors, measuring the node's
-potential for spreading information through the network.
+Diffusion centrality has two forms, chosen by `diffusion_method`. The
+`"kandhway_kuri"` form (Kandhway and Kuri 2014) adds the degrees of a
+node's neighbors to its own degree, both scaled by \\\lambda\\: \\DC(v)
+= \lambda k_v + \lambda \sum\_{u \in N(v)} k_u\\. The `"power_series"`
+form sums the rows of the first \\n\\ powers of the weight matrix:
+\$\$DC(v) = \sum\_{w} \left( W + W^2 + \cdots + W^n \right)\_{vw}.\$\$
 
 ## Usage
 
@@ -13,53 +17,53 @@ centrality_diffusion(x, mode = "all", lambda = 1, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - mode:
 
-  For directed networks: `"all"` (default), `"in"`, or `"out"`. Only
-  used when `diffusion_method = "kandhway_kuri"` (the default for
-  non-tna inputs); ignored under `"power_series"`, which always treats
-  the matrix as the row transition operator.
+  For directed networks: `"all"` (default), `"out"` or `"in"`.
 
 - lambda:
 
-  Scaling factor for neighbor contributions. Default 1. Only used when
-  `diffusion_method = "kandhway_kuri"`.
+  Scale factor \\\lambda\\ of the `"kandhway_kuri"` form. Default 1.
 
 - ...:
 
-  Additional arguments passed to
-  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md)
-  (e.g., `diffusion_method`, `loops`, `weighted`, `directed`).
+  Further arguments to
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The measure uses `diffusion_method` (`"kandhway_kuri"` or
+  `"power_series"`, default `NULL`, which picks by input type) and
+  `loops` (default `TRUE`, `FALSE` for tna input).
 
 ## Value
 
-Named numeric vector of diffusion centrality values.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Two methods are supported. `"kandhway_kuri"` (Kandhway & Kuri, 2014)
-computes the 1-hop binary-degree neighborhood sum and is the default for
-raw matrices, igraph objects, and other non-tna inputs. `"power_series"`
-computes \\\mathrm{rowSums}(P + P^2 + \ldots + P^n)\\ on the weighted
-matrix (with `diag(P) := 0` when `loops = FALSE`) and matches
-`tna::centralities(., measures = "Diffusion")` byte-for-byte. For tna
-inputs, the default switches to `"power_series"` to match user
-expectation; pass `diffusion_method = "kandhway_kuri"` to force the
-binary-degree formula.
+The default is `"kandhway_kuri"`, and `"power_series"` for tna input.
+The `"kandhway_kuri"` form uses binary degrees, so edge weights are
+ignored, and `mode` sets both the degrees and the neighbor set. On a
+directed network `mode = "all"` uses total degrees and the undirected
+neighbor set. `lambda` multiplies every score. The `"power_series"` form
+uses the edge weights and ignores `mode`, `lambda` and `weighted`. With
+`loops = FALSE` the diagonal of \\W\\ is set to zero. The
+`"power_series"` values match
+`tna::centralities(measures = "Diffusion")`.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_expected`](https://sonsoles.me/cograph/reference/centrality_expected.md),
+[`centrality_diffusion_centrality`](https://sonsoles.me/cograph/reference/centrality_diffusion_centrality.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_diffusion(adj)
-#> A B C 
-#> 6 6 6 
+centrality_diffusion(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#>         36         42         49         40         34         37         31 
+#>   Evaluate     Create      Share 
+#>         39         44         40 
 ```

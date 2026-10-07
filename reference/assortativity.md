@@ -39,9 +39,8 @@ assortativity(x, directed = NULL, type = NULL, digits = NULL, ...)
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Not used. Any argument supplied here raises an `"unused argument"`
+  error.
 
 ## Value
 
@@ -61,11 +60,11 @@ An object of class `"cograph_assortativity"` with components:
 
 - n_nodes:
 
-  Integer: number of nodes.
+  Numeric: number of nodes.
 
 - n_edges:
 
-  Integer: number of edges.
+  Numeric: number of edges.
 
 - network:
 
@@ -84,10 +83,11 @@ degree-\\k\\ vertices, \\q_k\\ is the excess degree distribution, and
 \\\sigma_q^2\\ its variance.
 
 Because the Pearson correlation is invariant to subtracting a constant,
-the implementation computes the correlation of the raw (rather than
-excess) degrees at the two ends of each edge, counting every undirected
-edge in both orientations; this is numerically identical to the formula
-above.
+the implementation computes the correlation of the raw degrees at the
+two ends of each edge, counting every undirected edge in both
+orientations. This is numerically identical to the formula above.
+Degrees are unweighted counts of edges, so edge weights do not enter the
+coefficient.
 
 For directed networks, the coefficient is the Pearson correlation
 between the source-end and target-end degrees over each edge in its
@@ -116,20 +116,11 @@ direction and the structure of networks. *PNAS*, 107(24), 10815-10820.
 ## Examples
 
 ``` r
-# Assortative network (high-degree connect to high-degree)
-adj <- matrix(c(
-  0, 1, 1, 1, 0,
-  1, 0, 1, 1, 0,
-  1, 1, 0, 0, 1,
-  1, 1, 0, 0, 1,
-  0, 0, 1, 1, 0
-), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-cograph::assortativity(adj)
-#> Assortativity (Degree)
+cograph::assortativity(regulation_net)
+#> Assortativity (Degree (out-in))
 #> =================================== 
-#>   Coefficient: -0.1667 
+#>   Coefficient: -0.1162 
 #>   Interpretation: disassortative 
-#>   Nodes: 5   Edges: 7 
-#>   Directed: FALSE 
+#>   Nodes: 10   Edges: 30 
+#>   Directed: TRUE 
 ```

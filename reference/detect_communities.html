@@ -9,7 +9,7 @@ algorithms. Returns a data frame with node-community assignments."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,13 +66,21 @@ algorithms. Returns a data frame with node-community assignments.</p>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Community detection algorithm to use. One of:</p><ul><li><p><code>"louvain"</code>: Louvain method (default, fast and accurate)</p></li>
+<dd><p>Community detection algorithm to use. One of:</p><ul><li><p><code>"louvain"</code>: Louvain modularity optimization (default)</p></li>
 <li><p><code>"walktrap"</code>: Walktrap algorithm based on random walks</p></li>
 <li><p><code>"fast_greedy"</code>: Fast greedy modularity optimization</p></li>
 <li><p><code>"label_prop"</code>: Label propagation algorithm</p></li>
 <li><p><code>"infomap"</code>: Infomap algorithm based on information flow</p></li>
-<li><p><code>"leiden"</code>: Leiden algorithm (improved Louvain)</p></li>
-</ul></dd>
+<li><p><code>"leiden"</code>: Leiden algorithm, run with the defaults of
+<code><a href="https://r.igraph.org/reference/cluster_leiden.html" class="external-link">igraph::cluster_leiden()</a></code>. Its default constant Potts model
+objective can place every node in its own community.</p></li>
+</ul><p><code>"louvain"</code>, <code>"leiden"</code> and <code>"fast_greedy"</code> require an
+undirected graph. A directed network is collapsed to an undirected one for
+these methods, with the weights of reciprocal edges averaged, and a
+message is issued for <code>"louvain"</code> and <code>"leiden"</code>. The
+<code>"louvain"</code>, <code>"leiden"</code>, <code>"label_prop"</code> and
+<code>"infomap"</code> methods use random numbers, so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> makes
+their result reproducible.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>
@@ -88,7 +96,7 @@ symmetry. Set TRUE to force directed, FALSE to force undirected.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>cograph_communities</code> object, which inherits from
 <code>data.frame</code> and has one row per node with columns:</p><ul><li><p><code>node</code>: Node labels/names</p></li>
-<li><p><code>community</code>: Integer community membership</p></li>
+<li><p><code>community</code>: Numeric community membership</p></li>
 </ul><p>The algorithm name, the igraph community object, the modularity and the
 input network are carried as attributes for the <code>print</code>, <code>plot</code>
 and <code>modularity</code> methods.</p>
@@ -96,34 +104,22 @@ and <code>modularity</code> methods.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Basic usage</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">detect_communities</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Community structure (louvain)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 4  | Communities: 2  | Modularity: 0.0355 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Sizes: 2, 2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  node community</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B         2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     C         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     D         2</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Different algorithm</span></span></span>
-<span class="r-in"><span><span class="fu">detect_communities</span><span class="op">(</span><span class="va">adj</span>, method <span class="op">=</span> <span class="st">"walktrap"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">detect_communities</span><span class="op">(</span><span class="va">regulation_net</span>, method <span class="op">=</span> <span class="st">"walktrap"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Community structure (walktrap)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 4  | Communities: 2  | Modularity: 0.0355 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Sizes: 2, 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 10  | Communities: 2  | Modularity: 0.1976 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sizes: 5, 5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  node community</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A         2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     B         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     C         2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     D         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        node community</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Explore         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Plan         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Monitor         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Adapt         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Reflect         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Discuss         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Synthesize         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Evaluate         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Create         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Share         2</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

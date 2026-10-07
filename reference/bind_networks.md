@@ -67,30 +67,18 @@ only `y` has.
 ## Examples
 
 ``` r
-a <- matrix(0, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-a["A", "B"] <- a["B", "A"] <- 1
-b <- matrix(0, 3, 3, dimnames = list(c("B", "C", "D"), c("B", "C", "D")))
-b["B", "C"] <- b["C", "B"] <- 2
-
-bind_networks(a, b)
-#> Cograph network: 4 nodes, 2 edges ( undirected )
+bind_networks(regulation_net, t(regulation_net))
+#> Cograph network: 10 nodes, 54 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 2 / 6 (density: 33.3%)
-#>   Weights: [1.000, 2.000]  |  mean: 1.500
+#>   Nodes (10): Explore, Plan, Monitor, Adapt, Reflect, Discuss, ... +4 more
+#>   Edges: 54 / 90 (density: 60.0%)
+#>   Weights: [0.070, 0.570]  |  mean: 0.295
 #>   Strongest edges:
-#>     B -- C  2.000
-#>     A -- B  1.000
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-bind_networks(a, b, method = "difference")
-#> Cograph network: 3 nodes, 1 edges ( undirected )
-#> Source: matrix 
-#>   Nodes (3): A, B, C
-#>   Edges: 1 / 3 (density: 33.3%)
-#>   Weights: [1.000, 1.000]  |  mean: 1.000
-#>   Strongest edges:
-#>     A -- B  1.000
+#>     Share -> Plan  0.570
+#>     Plan -> Share  0.570
+#>     Create -> Monitor  0.540
+#>     Monitor -> Create  0.540
+#>     Evaluate -> Plan  0.490
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

@@ -28,16 +28,14 @@ network_cut_vertices(x, count_only = FALSE, ...)
 
 ## Value
 
-If count_only = FALSE, vector of node indices (or names if graph is
-named). If count_only = TRUE, integer count.
+If `count_only = FALSE`, a character vector of node names, or an integer
+vector of node indices when the graph has no names. If
+`count_only = TRUE`, an integer count.
 
 ## Examples
 
 ``` r
-# Bridge node connecting two components
-adj <- matrix(c(0,1,1,0,0, 1,0,1,0,0, 1,1,0,1,0, 0,0,1,0,1, 0,0,0,1,0), 5, 5)
-network_cut_vertices(adj)  # Node 3 is cut vertex
-#> [1] 4 3
-network_cut_vertices(adj, count_only = TRUE)  # 1
-#> [1] 2
+strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
+network_cut_vertices(strong)
+#> [1] "Discuss" "Reflect"
 ```

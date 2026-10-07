@@ -1,8 +1,8 @@
 # Overlay Community Blobs on a Network Plot
 
-Render a network with
-[`splot`](https://sonsoles.me/cograph/reference/splot.md) and overlay
-smooth blob shapes highlighting node communities.
+Plots a network with
+[`splot`](https://sonsoles.me/cograph/reference/splot.md) and overlays
+smooth blob shapes that mark node communities.
 
 ## Usage
 
@@ -28,10 +28,19 @@ overlay_communities(
 
 - communities:
 
-  Community assignments in any format: a method name (e.g.,
-  `"walktrap"`, `"louvain"`), a numeric or factor membership vector
-  (e.g., `c(1, 1, 2, 2, 3)`), a named list of character vectors, a
-  `cograph_communities` object, or a `tna_communities` object.
+  Community assignments in any of these formats:
+
+  - the name of an igraph `cluster_*` algorithm (e.g., `"walktrap"`,
+    `"louvain"`, `"leiden"`, `"edge_betweenness"`), matched partially;
+    directed networks are collapsed to undirected before detection;
+
+  - a numeric or factor membership vector in node order (e.g.,
+    `c(1, 1, 2, 2, 3)`), or named by node;
+
+  - a named list of character vectors of node names;
+
+  - a `cograph_communities`, igraph `communities` or `tna_communities`
+    object.
 
 - blob_colors:
 
@@ -58,23 +67,13 @@ overlay_communities(
 
 ## Value
 
-The [`splot`](https://sonsoles.me/cograph/reference/splot.md) result — a
-`cograph_network` object — invisibly. Called for the side effect of
-drawing.
+Invisibly, the `cograph_network` object returned by
+[`splot`](https://sonsoles.me/cograph/reference/splot.md). Called for
+the side effect of plotting.
 
 ## Examples
 
 ``` r
-set.seed(1)
-mat <- matrix(runif(25), 5, 5,
-              dimnames = list(LETTERS[1:5], LETTERS[1:5]))
-diag(mat) <- 0
-overlay_communities(mat, list(g1 = c("A","B"), g2 = c("C","D","E")))
-
-
-if (requireNamespace("igraph", quietly = TRUE)) {
-  comm <- cograph::communities(regulation_net, method = "infomap")
-  overlay_communities(regulation_net, comm)
-}
-
+comm <- cograph::communities(regulation_net, method = "walktrap")
+overlay_communities(regulation_net, comm)
 ```

@@ -1,15 +1,10 @@
 # Entropy Variation
 
-Ai's (2017) vitality measure: the change in the Shannon entropy of a
-node-level distribution when a node and its links are removed,
-\$\$EnV_f(i) = I_f(G) - I_f(G - i), \qquad I_f(G) = -\sum_j p_j \log
-p_j, \quad p_j = \frac{f(j)}{\sum_l f(l)},\$\$ with \\f\\ the degree
-(`"entropy_variation_degree"`, in-, out- or total degree by `mode`) or
-the betweenness (`"entropy_variation_betweenness"`). Natural logarithm,
-as in the author's code. The difference is signed: a positive value
-means the remaining network is less even without the node, a negative
-value that removing it evens the distribution out. Higher = more
-important.
+Entropy variation (Ai 2017) is the change in the Shannon entropy of a
+node-level distribution \\f\\ when a node and its links are removed:
+\$\$EnV_f(i) = I_f(G) - I_f(G - i), \qquad I_f(G) = -\sum_j p_j \ln p_j,
+\quad p_j = \frac{f(j)}{\sum_l f(l)}.\$\$ The distribution \\f\\ is the
+degree or the betweenness. Higher values mark more important nodes.
 
 ## Usage
 
@@ -26,37 +21,38 @@ centrality_entropy_variation(
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - of:
 
-  Which distribution: `"degree"` (default) or `"betweenness"`.
+  Distribution: `"degree"` (default) or `"betweenness"`.
 
 - mode:
 
-  For the degree variant on directed networks: `"all"` (default, in +
-  out), `"out"`, or `"in"`.
+  For the degree variant on directed networks: `"all"` (default, in plus
+  out), `"out"` or `"in"`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
+  The degree variant uses `loops` (keep self-loops, default `TRUE`).
 
 ## Value
 
-Named numeric vector, one value per node, in nats.
+A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-The degree variant is computed in closed form. The betweenness variant
-recomputes betweenness once per node and costs \\O(n \cdot nm)\\; it
-ignores edge weights. Self-loops are counted as igraph counts them. When
-a deletion leaves every \\f\\ at zero (for instance betweenness on a
-clique) that entropy is taken as 0.
-
-Validated against the author's own R code path (`iCalEnV()` from the
-paper's repository) to \\10^{-15}\\ and against the quantiles of Table 2
-of the paper on its 4234-node Snake Idioms network.
+The entropy uses the natural logarithm, as in the code of the author, so
+scores are in nats. The difference is signed, and a negative value means
+that removing the node evens out the distribution. Edge weights are
+ignored in both variants. For the degree variant `mode` selects the in-,
+out- or total degree on a directed network, and self-loops count toward
+the degree, and `loops = FALSE` drops them. The betweenness variant
+ignores `mode` and self-loops. A deletion that leaves every value of
+\\f\\ at zero, such as betweenness on a clique, has entropy 0.
 
 ## References
 
@@ -65,19 +61,16 @@ variation. Entropy, 19(7), 303.
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once.
+[`centrality_betweenness`](https://sonsoles.me/cograph/reference/centrality_betweenness.md),
+[`centrality_distance_entropy`](https://sonsoles.me/cograph/reference/centrality_distance_entropy.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-star5 <- matrix(0, 5, 5)
-star5[1, 2:5] <- 1; star5[2:5, 1] <- 1
-rownames(star5) <- colnames(star5) <- LETTERS[1:5]
-centrality_entropy_variation(star5)
-#>        A        B        C        D        E 
-#> 1.386294 0.143841 0.143841 0.143841 0.143841 
-centrality_entropy_variation(star5, of = "betweenness")
-#> A B C D E 
-#> 0 0 0 0 0 
+centrality_entropy_variation(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.11832094 0.12127395 0.10553447 0.12479343 0.12898833 0.10607669 0.09757111 
+#>   Evaluate     Create      Share 
+#> 0.09986081 0.10338637 0.09996779 
 ```

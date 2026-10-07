@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -180,7 +180,7 @@
 </div>
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>Parameter value.</p>
+<p>Parameter value, or <code>NULL</code> if the parameter is not set.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographTheme-set"></a><div class="section">
@@ -221,7 +221,8 @@
 
 </div><p></p><hr><a id="method-CographTheme-merge"></a><div class="section">
 <h3 id="method-merge-">Method <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code><a class="anchor" aria-label="anchor" href="#method-merge-"></a></h3>
-<p>Merge with another theme.</p><div class="section">
+<p>Merge with another theme. Parameters in <code>other</code>
+replace the matching parameters of this theme.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CographTheme</span><span class="op">$</span><span class="fu">merge</span><span class="op">(</span><span class="va">other</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -236,7 +237,7 @@
 </div>
 <div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>A new merged CographTheme.</p>
+<p>A new CographTheme named <code>"merged"</code>.</p>
 </div>
 
 </div><p></p><hr><a id="method-CographTheme-clone_theme"></a><div class="section">
@@ -285,12 +286,14 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a custom theme</span></span></span>
-<span class="r-in"><span><span class="va">theme</span> <span class="op">&lt;-</span> <span class="va">CographTheme</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  background <span class="op">=</span> <span class="st">"white"</span>,</span></span>
-<span class="r-in"><span>  node_fill <span class="op">=</span> <span class="st">"steelblue"</span>,</span></span>
-<span class="r-in"><span>  edge_color <span class="op">=</span> <span class="st">"gray60"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">CographTheme</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>background <span class="op">=</span> <span class="st">"white"</span>, node_fill <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CographTheme: custom </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Background: white </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Node fill: steelblue </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Node border: #2C5AA0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edge color: gray50 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edge positive: #2E7D32 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edge negative: #C62828 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,8 @@ object, or a coordinate matrix / data frame with one row per node and
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Modified cograph_network object.</p>
+    <p>The <code>cograph_network</code> with node coordinates in the <code>x</code>
+and <code>y</code> columns of its node table.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -89,33 +90,31 @@ object, or a coordinate matrix / data frame with one row per node and
 <h3 id="built-in-layouts">Built-in Layouts<a class="anchor" aria-label="anchor" href="#built-in-layouts"></a></h3>
 
 
-<dl><dt><strong>spring</strong></dt>
-<dd><p>Force-directed layout (Fruchterman-Reingold style).
-Good general-purpose layout. Default.</p></dd>
+<dl><dt><code>"spring"</code></dt>
+<dd><p>Force-directed layout (Fruchterman-Reingold).</p></dd>
 
-<dt><strong>oval</strong>/<strong>ellipse</strong></dt>
+<dt><code>"oval"</code>/<code>"ellipse"</code></dt>
 <dd><p>Nodes arranged around an ellipse.</p></dd>
 
-<dt><strong>circle</strong></dt>
-<dd><p>Nodes arranged in a circle. Good for small networks
-or when structure is less important.</p></dd>
+<dt><code>"circle"</code></dt>
+<dd><p>Nodes arranged in a circle.</p></dd>
 
-<dt><strong>groups</strong></dt>
+<dt><code>"groups"</code></dt>
 <dd><p>Circular layout with grouped nodes clustered together.</p></dd>
 
-<dt><strong>grid</strong></dt>
+<dt><code>"grid"</code></dt>
 <dd><p>Nodes in a regular grid.</p></dd>
 
-<dt><strong>random</strong></dt>
-<dd><p>Random positions. Useful as starting point.</p></dd>
+<dt><code>"random"</code></dt>
+<dd><p>Random positions.</p></dd>
 
-<dt><strong>star</strong></dt>
+<dt><code>"star"</code></dt>
 <dd><p>Central node with others arranged around it.</p></dd>
 
-<dt><strong>bipartite</strong></dt>
+<dt><code>"bipartite"</code></dt>
 <dd><p>Two-column layout for bipartite networks.</p></dd>
 
-<dt><strong>gephi</strong>/<strong>gephi_fr</strong></dt>
+<dt><code>"gephi"</code>/<code>"gephi_fr"</code></dt>
 <dd><p>Gephi-style force-directed layout.</p></dd>
 
 
@@ -127,8 +126,8 @@ or when structure is less important.</p></dd>
 
 <p>Two-letter codes for igraph layouts: "kk" (Kamada-Kawai), "fr" (Fruchterman-Reingold),
 "drl", "mds", "ni" (nicely), "tr" (tree), "ci" (circle), etc.</p>
-<p>You can also pass igraph layout functions directly or use full names like
-"layout_with_kk".</p>
+<p>igraph layout functions and full igraph layout names such as
+<code>"layout_with_kk"</code> are also accepted.</p>
 </div>
 
     </div>
@@ -143,14 +142,8 @@ or when structure is less important.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="st">"circle"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sn_layout-1.png" alt="" width="1080" height="1080"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Custom coordinates</span></span></span>
-<span class="r-in"><span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="cograph.html">cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">sn_layout</span><span class="op">(</span><span class="va">coords</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="splot.html">splot</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="sn_layout-2.png" alt="" width="1080" height="1080"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

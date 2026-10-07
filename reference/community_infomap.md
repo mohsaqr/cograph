@@ -1,7 +1,8 @@
 # Infomap Community Detection
 
-Information-theoretic community detection based on random walk dynamics.
-Minimizes the map equation (description length of random walks).
+Information-theoretic community detection based on random walks. The
+partition minimizes the map equation, the description length of a random
+walk on the network.
 
 ## Usage
 
@@ -31,12 +32,12 @@ com_im(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights for transitions. NULL uses network weights, NA for
-  unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Negative weights are replaced by their absolute values.
 
 - v.weights:
 
@@ -48,7 +49,7 @@ com_im(
 
 - modularity:
 
-  Logical; calculate modularity? Default TRUE.
+  Logical. Whether modularity is computed. Default `TRUE`.
 
 - seed:
 
@@ -63,10 +64,10 @@ com_im(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -76,8 +77,20 @@ networks reveal community structure. *PNAS*, 105(4), 1118-1123.
 ## Examples
 
 ``` r
-if (requireNamespace("igraph", quietly = TRUE)) {
-  g <- igraph::make_graph("Zachary")
-  comm <- community_infomap(g, nb.trials = 20)
-}
+community_infomap(regulation_net, nb.trials = 10, seed = 1)
+#> Community structure (infomap)
+#>   Nodes: 10  | Communities: 1  | Modularity: 0 
+#>   Sizes: 10 
+#> 
+#>        node community
+#>     Explore         1
+#>        Plan         1
+#>     Monitor         1
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         1
+#>      Create         1
+#>       Share         1
 ```

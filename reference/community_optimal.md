@@ -1,7 +1,8 @@
 # Optimal Community Detection
 
-Finds the optimal community structure by maximizing modularity exactly.
-Very slow - only use for small networks (\<50 nodes).
+Finds the partition with maximum modularity by exact optimization. Exact
+modularity maximization is NP-hard, so the computation is feasible only
+for small networks. A network with more than 50 nodes raises a warning.
 
 ## Usage
 
@@ -15,11 +16,12 @@ com_op(x, weights = NULL, ...)
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Weights are passed unchanged.
 
 - ...:
 
@@ -30,14 +32,10 @@ com_op(x, weights = NULL, ...)
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
-
-## Note
-
-This is an NP-hard problem. Use only for tiny networks.
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -48,21 +46,20 @@ Transactions on Knowledge and Data Engineering*, 20(2), 172-188.
 ## Examples
 
 ``` r
-g <- igraph::make_ring(10)
-comm <- community_optimal(g)
-membership(comm)
-#>  1  2  3  4  5  6  7  8  9 10 
-#>  1  1  2  2  2  3  3  3  3  1 
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_op(net)
+community_optimal(regulation_net)
 #> Community structure (optimal)
-#>   Nodes: 5  | Communities: 2  | Modularity: 0.2365 
-#>   Sizes: 2, 3 
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.2033 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     1         1
-#>     2         2
-#>     3         2
-#>     4         2
-#>     5         1
+#>        node community
+#>     Explore         1
+#>        Plan         2
+#>     Monitor         2
+#>       Adapt         1
+#>     Reflect         1
+#>     Discuss         1
+#>  Synthesize         1
+#>    Evaluate         2
+#>      Create         2
+#>       Share         2
 ```

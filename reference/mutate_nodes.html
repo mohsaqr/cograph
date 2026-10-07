@@ -11,7 +11,7 @@ the results as node columns."><meta property="og:image" content="https://sonsole
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,19 +98,18 @@ the input format when <code>keep_format = TRUE</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">mutate_nodes</span><span class="op">(</span><span class="va">adj</span>, deg <span class="op">=</span> <span class="va">degree</span>, hub <span class="op">=</span> <span class="va">degree</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>              what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   id label name  x  y deg   hub</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1     A    A NA NA   3  TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2     B    B NA NA   2 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3     C    C NA NA   2 FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  4     D    D NA NA   1 FALSE</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">mutate_nodes</span><span class="op">(</span><span class="va">regulation_net</span>, deg <span class="op">=</span> <span class="va">degree</span><span class="op">)</span>, what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    id      label       name  x  y deg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   1    Explore    Explore NA NA   6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   2       Plan       Plan NA NA   7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   3    Monitor    Monitor NA NA   8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   4      Adapt      Adapt NA NA   6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   5    Reflect    Reflect NA NA   6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   6    Discuss    Discuss NA NA   5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   7 Synthesize Synthesize NA NA   4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   8   Evaluate   Evaluate NA NA   5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   9     Create     Create NA NA   7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 10      Share      Share NA NA   6</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

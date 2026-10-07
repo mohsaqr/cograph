@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,38 +79,77 @@ available.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># From matrix</span></span></span>
-<span class="r-in"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.5</span>, <span class="fl">0</span>, <span class="fl">.3</span>, <span class="fl">.6</span>,</span></span>
-<span class="r-in"><span>                <span class="fl">.8</span>, <span class="fl">.3</span>, <span class="fl">0</span>, <span class="fl">.4</span>,</span></span>
-<span class="r-in"><span>                 <span class="fl">0</span>, <span class="fl">.6</span>, <span class="fl">.4</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">4</span>, <span class="fl">4</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">to_matrix</span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C   D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.5 0.8 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0.5 0.0 0.3 0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.8 0.3 0.0 0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 0.0 0.6 0.4 0.0</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># From cograph_network</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_cograph.html">as_cograph</a></span><span class="op">(</span><span class="va">adj</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">to_matrix</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C   D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.5 0.8 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0.5 0.0 0.3 0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.8 0.3 0.0 0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 0.0 0.6 0.4 0.0</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># From igraph (weighted graph)</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/graph_from_adjacency_matrix.html" class="external-link">graph_from_adjacency_matrix</a></span><span class="op">(</span><span class="va">adj</span>, mode <span class="op">=</span> <span class="st">"undirected"</span>, weighted <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu">to_matrix</span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C   D</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> A 0.0 0.5 0.8 0.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> B 0.5 0.0 0.3 0.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> C 0.8 0.3 0.0 0.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> D 0.0 0.6 0.4 0.0</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">to_matrix</span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Ac Ad Fi Ik Vx Rt Km Gj Bd Ce Oq Ya Mo Hj Tv Eg Pr Qs Xz Np Dg Hk Wy Jl Fh</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ac  1  1  1  0  0  1  0  0  0  0  0  0  1  0  0  0  1  0  0  0  0  1  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ad  1  0  1  0  1  0  0  0  1  0  0  0  0  0  0  0  0  1  0  0  0  1  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fi  1  1  1  0  1  0  1  1  0  0  0  1  0  0  0  0  0  0  0  0  0  1  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ik  1  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  1  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Vx  1  1  1  1  1  0  0  1  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  1  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rt  1  1  0  0  1  0  0  1  0  0  0  0  0  1  0  0  0  0  1  0  0  1  0  1  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Km  1  0  1  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gj  1  0  0  1  0  0  1  1  1  0  0  0  0  0  0  1  1  0  0  0  0  0  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bd  1  1  0  0  1  0  1  1  0  0  0  1  0  0  0  0  0  0  0  0  0  1  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ce  0  0  0  0  1  1  0  0  1  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Oq  1  1  0  0  0  1  0  0  0  1  0  1  0  1  0  0  0  1  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ya  1  0  1  0  0  1  0  1  0  0  1  0  0  0  0  0  0  1  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mo  1  1  0  0  1  0  0  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Hj  1  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Tv  0  0  0  1  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Eg  0  0  1  0  1  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  1  0  0  1  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pr  1  0  0  0  1  0  0  0  0  0  0  0  0  1  1  1  0  0  0  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Qs  0  0  0  1  0  1  1  1  0  0  0  0  1  0  0  1  1  0  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Xz  1  0  1  0  0  0  0  0  0  0  0  1  0  1  1  0  0  1  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Np  1  1  1  1  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dg  1  1  1  0  1  1  0  0  0  1  1  1  0  0  0  0  0  0  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Hk  1  0  1  0  0  0  0  0  0  0  0  0  1  1  1  0  0  1  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Wy  1  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  1  0  1  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Jl  1  0  0  0  0  1  1  0  0  1  1  1  0  0  0  0  0  0  0  1  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fh  1  0  0  0  0  1  1  0  0  0  1  0  0  0  0  0  1  0  0  1  0  0  0  1  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Zb  1  0  0  0  0  0  0  1  0  0  0  0  0  0  0  1  0  0  0  0  0  0  1  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Eh  1  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Be  1  0  0  0  1  1  0  0  0  0  0  0  0  1  1  0  1  0  0  0  1  0  1  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Df  0  1  1  0  1  0  0  1  1  0  1  0  0  0  0  0  0  0  0  0  0  1  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cf  1  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  1  0  0  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Su  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  1  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ln  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  1  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gi  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Uw  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Zb Eh Be Df Cf Su Ln Gi Uw</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ac  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ad  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fi  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ik  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Vx  0  0  0  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rt  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Km  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gj  0  0  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bd  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ce  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Oq  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ya  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mo  0  0  0  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Hj  0  0  0  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Tv  0  0  0  0  0  0  1  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Eg  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pr  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Qs  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Xz  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Np  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dg  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Hk  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Wy  0  0  1  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Jl  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fh  0  0  0  0  0  0  1  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Zb  0  1  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Eh  1  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Be  0  0  0  0  0  1  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Df  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cf  0  1  1  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Su  0  0  0  1  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ln  0  0  0  0  0  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gi  0  0  0  0  1  0  0  0  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Uw  0  1  1  0  0  0  0  1  0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

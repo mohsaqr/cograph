@@ -1,8 +1,9 @@
 # Detect Core-Periphery Structure
 
-Identifies core-periphery structure in a network using either continuous
-(Borgatti-Everett) or discrete methods. Core nodes are densely
-interconnected, while periphery nodes connect primarily to the core.
+Identifies core-periphery structure in a network with a continuous
+(Borgatti-Everett) or a discrete method. Core nodes are densely
+interconnected, and periphery nodes connect mainly to the core. Edge
+weights are ignored; the analysis uses the binary adjacency matrix.
 
 ## Usage
 
@@ -35,19 +36,21 @@ core_periphery(
 
 - iter:
 
-  Integer; maximum number of iterations for the continuous algorithm.
-  Default 100.
+  Integer; maximum number of power iterations. Must be at least
+
+  1.  Default 100.
 
 - digits:
 
-  Integer or NULL. Round numeric outputs to this many decimal places.
-  Default NULL (no rounding).
+  Integer or NULL. Number of decimal places for the coreness scores, the
+  fitness and the densities. Default NULL (no rounding).
 
 - ...:
 
-  Currently unused; `directed` is already an explicit argument above and
-  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md)
-  accepts no others.
+  Passed to
+  [`to_igraph`](https://sonsoles.me/cograph/reference/to_igraph.md),
+  which accepts no further arguments. Any argument supplied here raises
+  an error.
 
 ## Value
 
@@ -60,34 +63,49 @@ and columns:
 
 - role:
 
-  Character: `"core"` or `"periphery"`.
+  Character: `"core"` or `"periphery"`. For the continuous method a node
+  is core when its coreness is at or above the median coreness.
 
 - coreness:
 
   Numeric continuous coreness score, rescaled to \\\[0, 1\]\\. Reported
   for both methods.
 
-The attributes `"fitness"`, `"core_density"`, `"periphery_density"` and
-`"network"` (the original input) carry the remaining results.
+The attributes `"fitness"`, `"core_density"` and `"periphery_density"`
+hold the fit and the block densities, and `"network"` holds the original
+input.
 
 ## Details
 
-**Continuous method (Borgatti-Everett):** Seeks a coreness vector `c`
-(rescaled to the 0-1 range) whose ideal rank-1 pattern matrix (the outer
-product of the vector with itself) correlates as highly as possible with
-the adjacency matrix. The vector is approximated by initializing from
-the dominant eigenvector of the adjacency matrix and refining it by
-power iteration until convergence or `iter` steps; the achieved
-correlation is reported as the `"fitness"` attribute rather than being
-optimized directly.
+### Continuous method
 
-**Discrete method:** Produces a binary core / periphery assignment.
-Starts from the continuous solution thresholded at the median, then
-greedily flips the single node assignment that most improves fitness
-until no flip improves it. The discrete fitness being maximized is
-`density(core) - density(periphery)`; the `"fitness"` attribute reported
-for `method = "discrete"` is the correlation between the adjacency
-matrix and the ideal block pattern of that assignment.
+The Borgatti-Everett model compares the adjacency matrix with the rank-1
+pattern matrix `outer(c, c)` of a coreness vector `c`. Here `c` is
+estimated from the dominant eigenvector of the adjacency matrix, refined
+by power iteration with rescaling to \\\[0, 1\]\\. The iteration stops
+when the largest change falls below \\10^{-6}\\ or after `iter` steps.
+The vector is not optimized for the correlation. The `"fitness"`
+attribute is the correlation between the off-diagonal entries of the
+adjacency matrix and those of the pattern matrix (the lower triangle for
+a symmetric matrix), and it is 0 when the correlation is undefined.
+
+### Discrete method
+
+The discrete method starts from the continuous solution split at the
+median and repeatedly flips the single node assignment that most
+increases `density(core) - density(periphery)`. It stops when no flip
+increases this quantity. The `"fitness"` attribute is the correlation
+between the adjacency matrix and the ideal block pattern of the final
+assignment.
+
+## Printing and plotting
+
+Printing the result shows the core and periphery sizes, the fitness and
+the two block densities, followed by the node table. The result is a
+data frame and serves as the tidy table directly.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on the result
+is documented in
+[`plot-results`](https://sonsoles.me/cograph/reference/plot-results.md).
 
 ## References
 
@@ -103,37 +121,19 @@ structures. *Social Networks*, 21(4), 375-395.
 ## Examples
 
 ``` r
-# Core-periphery in a simple network
-adj <- matrix(c(
-  0, 1, 1, 1, 0,
-  1, 0, 1, 1, 0,
-  1, 1, 0, 1, 1,
-  1, 1, 1, 0, 1,
-  0, 0, 1, 1, 0
-), 5, 5)
-rownames(adj) <- colnames(adj) <- LETTERS[1:5]
-cp <- cograph::core_periphery(adj)
-cp
-#> Core-Periphery | Core: 4  Periphery: 1  Fitness: 0.569
-#> Core density: 1.000 | Periphery density: 0.000
+core_periphery(regulation_net)
+#> Core-Periphery | Core: 5  Periphery: 5  Fitness: 0.030
+#> Core density: 0.350 | Periphery density: 0.350
 #> 
-#>  node      role  coreness
-#>     A      core 0.6504481
-#>     B      core 0.6504481
-#>     C      core 1.0000000
-#>     D      core 1.0000000
-#>     E periphery 0.0000000
-
-# Discrete assignment
-cp_disc <- cograph::core_periphery(adj, method = "discrete")
-cp_disc
-#> Core-Periphery | Core: 4  Periphery: 1  Fitness: 0.612
-#> Core density: 1.000 | Periphery density: 0.000
-#> 
-#>  node      role  coreness
-#>     A      core 0.6504481
-#>     B      core 0.6504481
-#>     C      core 1.0000000
-#>     D      core 1.0000000
-#>     E periphery 0.0000000
+#>        node      role   coreness
+#>     Explore periphery 0.07985633
+#>        Plan      core 1.00000000
+#>     Monitor periphery 0.00000000
+#>       Adapt      core 0.44368868
+#>     Reflect periphery 0.17972217
+#>     Discuss periphery 0.05077436
+#>  Synthesize      core 0.39000808
+#>    Evaluate periphery 0.12894782
+#>      Create      core 0.72952631
+#>       Share      core 0.51706359
 ```

@@ -1,7 +1,10 @@
 # Spinglass Community Detection
 
-Statistical mechanics approach using simulated annealing. Can handle
-negative edge weights.
+Community detection based on the spinglass model of statistical
+mechanics, optimized by simulated annealing. Negative edge weights are
+supported with `implementation = "neg"`. A disconnected graph raises a
+warning and only its largest component is partitioned, so the result has
+one row per node of that component.
 
 ## Usage
 
@@ -45,24 +48,26 @@ com_sg(
 
 - x:
 
-  Network input
+  Network input.
 
 - weights:
 
-  Edge weights. NULL uses network weights, NA for unweighted.
+  Edge weights. `NULL` uses the network weights and `NA` runs
+  unweighted. Weights are passed unchanged.
 
 - vertex:
 
-  Vertex to find community for (single community mode). NULL for full
-  partitioning.
+  Vertex whose community is searched (single community mode). `NULL`
+  (default) partitions the whole network.
 
 - spins:
 
-  Number of spins (maximum communities). Default 25.
+  Number of spins, the upper limit on the number of communities. Default
+  25.
 
 - parupdate:
 
-  Parallel update mode. Default FALSE.
+  Logical. Whether spins are updated in parallel. Default `FALSE`.
 
 - start.temp:
 
@@ -78,19 +83,22 @@ com_sg(
 
 - update.rule:
 
-  Update rule: "config" (default), "random", or "simple".
+  Null model of the update rule, one of `"config"` (default), `"random"`
+  or `"simple"`.
 
 - gamma:
 
-  Gamma parameter for modularity. Default 1.
+  Weight of the null model term. Default 1.
 
 - implementation:
 
-  "orig" (default) or "neg" (for negative weights).
+  `"orig"` (default) or `"neg"`, the implementation that supports
+  negative weights.
 
 - gamma.minus:
 
-  Gamma for negative weights in "neg" implementation.
+  Weight of the null model term for negative edges in the `"neg"`
+  implementation. Default 1.
 
 - seed:
 
@@ -105,10 +113,10 @@ com_sg(
 
 ## Value
 
-A `cograph_communities` object
-
-A `cograph_communities` object. See
-[`detect_communities`](https://sonsoles.me/cograph/reference/detect_communities.md).
+A `cograph_communities` data frame with columns `node` and `community`.
+See
+[`communities`](https://sonsoles.me/cograph/reference/communities.md)
+for its attributes.
 
 ## References
 
@@ -118,23 +126,20 @@ community detection. *Physical Review E*, 74, 016110.
 ## Examples
 
 ``` r
-g <- igraph::make_graph("Zachary")
-comm <- community_spinglass(g)
-membership(comm)
-#>  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-#>  4  4  4  4  1  1  1  4  3  3  1  4  4  4  3  3  1  4  3  4  3  4  3  2  2  2 
-#> 27 28 29 30 31 32 33 34 
-#>  3  2  2  3  3  2  3  3 
-net <- as_cograph(matrix(runif(25), 5, 5))
-com_sg(net)
+community_spinglass(regulation_net, seed = 1)
 #> Community structure (spinglass)
-#>   Nodes: 5  | Communities: 1  | Modularity: 0.0053 
-#>   Sizes: 5 
+#>   Nodes: 10  | Communities: 2  | Modularity: -3.7742 
+#>   Sizes: 5, 5 
 #> 
-#>  node community
-#>     1         1
-#>     2         1
-#>     3         1
-#>     4         1
-#>     5         1
+#>        node community
+#>     Explore         2
+#>        Plan         1
+#>     Monitor         1
+#>       Adapt         2
+#>     Reflect         2
+#>     Discuss         2
+#>  Synthesize         2
+#>    Evaluate         1
+#>      Create         1
+#>       Share         1
 ```

@@ -63,18 +63,18 @@ simplify(
 
 - remove_loops:
 
-  Logical. Remove self-loops (diagonal entries)?
+  Logical. Remove self-loops (diagonal entries)? Default `TRUE`.
 
 - remove_multiple:
 
-  Logical. Merge duplicate edges? No-op for matrix/tna inputs (see
-  Details).
+  Logical. Merge duplicate edges? Default `TRUE`. Ignored for matrix and
+  tna inputs (see Details).
 
 - edge_attr_comb:
 
-  How to combine weights of duplicate edges: `"sum"`, `"mean"`, `"max"`,
-  `"min"`, `"first"`, or a custom function. Ignored for matrix/tna
-  inputs.
+  How to combine weights of duplicate edges: `"sum"`, `"mean"`
+  (default), `"max"`, `"min"`, `"first"`, or a custom function. Ignored
+  for matrix and tna inputs.
 
 - ...:
 
@@ -91,16 +91,18 @@ and so on). The default method raises an error for any other class.
 The extent of simplification depends on the input representation:
 
 - `matrix` and `tna`: edges are stored as an n x n weight matrix. Each
-  cell (i, j) is unique by construction, so duplicate-edge merging is a
-  no-op regardless of `remove_multiple` / `edge_attr_comb`; only
-  self-loops (the diagonal) can be removed. Convert to `cograph_network`
-  or `igraph` first if you need true duplicate aggregation.
+  cell (i, j) is unique by construction, so duplicate-edge merging has
+  no effect and `remove_multiple` and `edge_attr_comb` are ignored. Only
+  self-loops (the diagonal) are removed. Duplicate aggregation requires
+  a `cograph_network` or `igraph` input.
 
-- `cograph_network`: duplicate edges in the edge-list are merged via
-  `aggregate_duplicate_edges()` using `edge_attr_comb`.
+- `cograph_network`: duplicate edges in the edge list are merged, and
+  their weights are combined with `edge_attr_comb`.
 
 - `igraph`: delegates to
   [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html).
+  The `weight` attribute is combined with `edge_attr_comb` and other
+  edge attributes are dropped.
 
 ## See also
 
@@ -113,32 +115,12 @@ which has its own `simplify` parameter
 
 ``` r
 # igraph also exports simplify(); qualify the call when both are loaded.
-# Matrix with self-loops
-mat <- matrix(c(0.5, 0.3, 0, 0.3, 0.2, 0.4, 0, 0.4, 0.1), 3, 3)
-rownames(mat) <- colnames(mat) <- c("A", "B", "C")
-cograph::simplify(mat)
-#>     A   B   C
-#> A 0.0 0.3 0.0
-#> B 0.3 0.0 0.4
-#> C 0.0 0.4 0.0
-
-# Edge list with duplicates
-edges <- data.frame(from = c(1, 1, 2), to = c(2, 2, 3), weight = c(0.3, 0.7, 0.5))
-net <- cograph(edges, layout = NULL)
-cograph::simplify(net)
-#> Cograph network: 3 nodes, 2 edges ( undirected )
+cograph::simplify(cograph(student_interactions), edge_attr_comb = "sum")
+#> Cograph network: 34 nodes, 220 edges ( directed )
 #> Source: edgelist 
-#> Data: data.frame (3 x 3) 
-#>   Nodes (3): 1, 2, 3
-#> Weights: 0.5 (all equal)
-#> Layout: none 
-#>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
-cograph::simplify(net, edge_attr_comb = "sum")
-#> Cograph network: 3 nodes, 2 edges ( undirected )
-#> Source: edgelist 
-#> Data: data.frame (3 x 3) 
-#>   Nodes (3): 1, 2, 3
-#> Weights: 0.5 to 1 
+#> Data: data.frame (389 x 2) 
+#>   Nodes (34): Ac, Ad, Fi, Ik, Vx, Rt, ... +28 more
+#> Weights: 1 to 14 
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

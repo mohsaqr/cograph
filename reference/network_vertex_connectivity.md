@@ -1,8 +1,8 @@
 # Network Vertex Connectivity
 
-Computes the vertex connectivity of a network - the minimum number of
-vertices that must be removed to disconnect the graph (or make it
-trivial). Higher values indicate more robust network structure.
+Computes the vertex connectivity of a network, the minimum number of
+vertices whose removal disconnects the graph or leaves a single vertex.
+Higher values indicate a more robust structure.
 
 ## Usage
 
@@ -25,18 +25,12 @@ network_vertex_connectivity(x, ...)
 
 ## Value
 
-Integer: minimum vertex cut size
+Numeric scalar: the minimum vertex cut size, or `NA` when igraph cannot
+compute it.
 
 ## Examples
 
 ``` r
-# Complete graph K4 has vertex connectivity 3
-k4 <- matrix(1, 4, 4); diag(k4) <- 0
-network_vertex_connectivity(k4)  # 3
-#> [1] 3
-
-# Path graph has vertex connectivity 1
-path <- matrix(c(0,1,0,0, 1,0,1,0, 0,1,0,1, 0,0,1,0), 4, 4)
-network_vertex_connectivity(path)  # 1
+network_vertex_connectivity(regulation_net)
 #> [1] 1
 ```

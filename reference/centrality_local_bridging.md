@@ -1,10 +1,9 @@
 # Local Bridging Centrality
 
-(1/degree) times bridging coefficient. Local measure of inter-community
-connectivity. This legacy score differs from Nanda and Kotz's
-ego-betweenness product; use
-[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md)
-for their LBC definition.
+Local bridging centrality multiplies the bridging coefficient of a node
+by its inverse degree: \$\$LB(v) = \frac{1}{k_v} \cdot
+\frac{1/k_v}{\sum\_{u \in N(v)} 1/k_u}.\$\$ A node of low degree whose
+neighbors have high degree scores high.
 
 ## Usage
 
@@ -16,30 +15,38 @@ centrality_local_bridging(x, ...)
 
 - x:
 
-  Network input (matrix, igraph, network, cograph_network, tna object).
+  Network input accepted by
+  [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Value
 
-Named numeric vector of local bridging values.
+A named numeric vector with one score per node, in input node order.
+
+## Details
+
+Edge weights are ignored. On a directed network \\k\\ is the total
+degree, in plus out, and a reciprocated tie counts twice. An isolated
+node scores 0. The local bridging centrality of Nanda and Kotz, the
+product of ego betweenness and the bridging coefficient, is
+[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md).
 
 ## See also
 
-[`centrality`](https://sonsoles.me/cograph/reference/centrality.md) for
-computing multiple measures at once,
-[`centrality_bridging`](https://sonsoles.me/cograph/reference/centrality_bridging.md)
-for the betweenness-weighted variant.
+[`centrality_bridging`](https://sonsoles.me/cograph/reference/centrality_bridging.md),
+[`centrality_localized_bridging`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md),
+[`centrality`](https://sonsoles.me/cograph/reference/centrality.md).
 
 ## Examples
 
 ``` r
-adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3, 3)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C")
-centrality_local_bridging(adj)
-#>    A    B    C 
-#> 0.25 0.25 0.25 
+centrality_local_bridging(regulation_net)
+#>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
+#> 0.02751572 0.01631100 0.01133420 0.02506266 0.02506266 0.05090909 0.10396040 
+#>   Evaluate     Create      Share 
+#> 0.05376000 0.01812141 0.03131991 
 ```

@@ -58,23 +58,16 @@ A cograph_network with edges between the two node sets.
 ## Examples
 
 ``` r
-adj <- matrix(c(0, .5, .8, 0,
-                .5, 0, .3, .6,
-                .8, .3, 0, .4,
-                 0, .6, .4, 0), 4, 4, byrow = TRUE)
-rownames(adj) <- colnames(adj) <- c("A", "B", "C", "D")
-
-# Edges between {A, B} and {C, D}
-select_edges_between(adj, set1 = c("A", "B"), set2 = c("C", "D"))
-#> Cograph network: 4 nodes, 3 edges ( undirected )
+select_edges_between(regulation_net, set1 = c("Plan", "Monitor"),
+                     set2 = c("Adapt", "Reflect"), keep_isolates = FALSE)
+#> Cograph network: 3 nodes, 2 edges ( directed )
 #> Source: matrix 
-#>   Nodes (4): A, B, C, D
-#>   Edges: 3 / 6 (density: 50.0%)
-#>   Weights: [0.300, 0.800]  |  mean: 0.567
+#>   Nodes (3): Monitor, Adapt, Reflect
+#>   Edges: 2 / 6 (density: 33.3%)
+#>   Weights: [0.150, 0.160]  |  mean: 0.155
 #>   Strongest edges:
-#>     A -- C  0.800
-#>     B -- D  0.600
-#>     B -- C  0.300
+#>     Monitor -> Adapt  0.160
+#>     Reflect -> Monitor  0.150
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

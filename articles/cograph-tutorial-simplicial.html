@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Higher-Order Network Analysis with Simplicial Complexes</h1>
       <p class="subtitle">From Transition Networks to Topological Analysis</p>
       <p class="author">Mohammed SaqrSonsoles López-Pernas</p>
-      <p class="date">2026-10-07</p>
+      <p class="date">2026-10-08</p>
 
       <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/vignettes/articles/cograph-tutorial-simplicial.qmd" class="external-link"><code>vignettes/articles/cograph-tutorial-simplicial.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
@@ -117,7 +117,7 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"human_long"</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                     action <span class="op">=</span> <span class="st">"code"</span>, actor <span class="op">=</span> <span class="st">"session_id"</span>,</span>
 <span>                     time <span class="op">=</span> <span class="st">"timestamp"</span><span class="op">)</span></span>
 <span><span class="va">net</span></span></code></pre></div>
@@ -175,7 +175,7 @@
 <p>Before investing in higher-order analysis, we should answer: <strong>does sequential memory actually matter?</strong> The Multi-Order Generative Model (MOGen; Scholtes 2017) fits Markov models at increasing orders and compares them using information criteria. Higher-order models fit better but have exponentially more parameters — AIC and BIC find the best tradeoff.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">build_mogen</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_mogen.html" class="external-link">build_mogen</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mg</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Multi-Order Generative Model (MOGen) Summary
@@ -217,10 +217,10 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>Even when order 1 is globally optimal (by BIC), <em>specific pathways</em> may still exhibit higher-order behavior — the global model averages over all states. The HON analysis below detects these local patterns.</p>
 </section><section class="level3"><h3 id="second-order-transition-matrix">Second-order transition matrix<a class="anchor" aria-label="anchor" href="#second-order-transition-matrix"></a>
 </h3>
-<p><code><a href="https://saqr.me/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions()</a></code> extracts the transitions at a given order, showing which two-step contexts lead to different outcomes:</p>
+<p><code><a href="https://pak.dynasite.org/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions()</a></code> extracts the transitions at a given order, showing which two-step contexts lead to different outcomes:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions</a></span><span class="op">(</span><span class="va">mg</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/mogen_transitions.html" class="external-link">mogen_transitions</a></span><span class="op">(</span><span class="va">mg</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">mt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                             path count probability               from
@@ -249,7 +249,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>While MOGen tells us <em>whether</em> higher-order dependencies exist on average, the <strong>Higher-Order Network</strong> (HON; Xu et al. 2016) tells us <em>where</em>. HON tests, for each state, whether adding context significantly changes the outgoing transition distribution using KL-divergence. If the distribution after <em>Request → Specify</em> differs from <em>Frustrate → Specify</em>, HON creates separate nodes for these contexts.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span><span class="va">hon</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Higher-Order Network (HON)
@@ -296,7 +296,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>The most common 3-step sequences regardless of statistical significance:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/path_counts.html" class="external-link">path_counts</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">3</span>, top <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/path_counts.html" class="external-link">path_counts</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">3</span>, top <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                              path count proportion
 1    Specify -&gt; Command -&gt; Specify   281     0.0288
@@ -328,7 +328,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hypa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">hypa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_simplicial.html">plot_simplicial</a></span><span class="op">(</span><span class="va">hypa</span>, dismantled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -386,12 +386,12 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>A powerful application is comparing higher-order structure across conditions. We build grouped networks by superclass (Directive, Evaluative, Metacognitive) and run HYPA on each:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grp_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<code class="sourceCode R"><span><span class="va">grp_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                         action <span class="op">=</span> <span class="st">"code"</span>, actor <span class="op">=</span> <span class="st">"session_id"</span>,</span>
 <span>                         time <span class="op">=</span> <span class="st">"timestamp"</span>, group <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hypa_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nm</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">grp_net</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    group <span class="op">=</span> <span class="va">nm</span>,</span>
 <span>    total_edges <span class="op">=</span> <span class="va">h</span><span class="op">$</span><span class="va">n_edges</span>,</span>
@@ -437,11 +437,11 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"group_regulation_long"</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span>
-<span><span class="va">net_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">group_regulation_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span><span class="va">net_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">group_regulation_long</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>                         action <span class="op">=</span> <span class="st">"Action"</span>, actor <span class="op">=</span> <span class="st">"Actor"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">hypa_coding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
-<span><span class="va">hypa_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net_reg</span><span class="op">)</span></span>
+<span><span class="va">hypa_coding</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
+<span><span class="va">hypa_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">build_hypa</a></span><span class="op">(</span><span class="va">net_reg</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Human-AI Coding"</span>, <span class="st">"Collaborative Regulation"</span><span class="op">)</span>,</span>
@@ -497,7 +497,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">net</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">net</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="va">sc</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Clique Complex
@@ -522,7 +522,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/simplicial_degree.html" class="external-link">simplicial_degree</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/simplicial_degree.html" class="external-link">simplicial_degree</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       node d0 d1 d2 d3 d4 d5 d6 d7 d8 total
 1   Command  1  8 28 56 70 56 28  8  1   255
@@ -552,7 +552,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>A single complex at one threshold gives a static snapshot. <strong>Persistent homology</strong> reveals how topology evolves as we vary the threshold. Start with only the strongest edges and progressively add weaker ones. Features that persist across a wide range are <strong>topologically robust</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology</a></span><span class="op">(</span><span class="va">net</span>, n_steps <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology</a></span><span class="op">(</span><span class="va">net</span>, n_steps <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="va">ph</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Persistent Homology
@@ -587,7 +587,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">qa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/q_analysis.html" class="external-link">q_analysis</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">qa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/q_analysis.html" class="external-link">q_analysis</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span></span>
 <span><span class="va">qa</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Q-Analysis (max q = 8)
@@ -610,7 +610,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>An alternative to the clique complex: build a simplicial complex from the <strong>pathways</strong> discovered by HON — topology derived from sequential dynamics rather than network structure:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sc_hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">hon</span>, type <span class="op">=</span> <span class="st">"pathway"</span>, max_pathways <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sc_hon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial</a></span><span class="op">(</span><span class="va">hon</span>, type <span class="op">=</span> <span class="st">"pathway"</span>, max_pathways <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="va">sc_hon</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Pathway Complex
@@ -635,7 +635,7 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <p>All simplicial computations are cross-validated against igraph’s clique-finding and verified via the Euler-Poincaré theorem:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://saqr.me/Nestimate/reference/verify_simplicial.html" class="external-link">verify_simplicial</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">weights</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/verify_simplicial.html" class="external-link">verify_simplicial</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">weights</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Cliques:  MATCH (511 simplices)
   Betti:    b0=1 b1=0 b2=0 b3=0 b4=0 b5=0 b6=0 b7=0 b8=0
@@ -661,25 +661,25 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <tr class="odd">
 <td>1</td>
 <td><strong>TNA</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network()</a></code></td>
 <td>First-order transition structure</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td><strong>MOGen</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">build_mogen()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_mogen.html" class="external-link">build_mogen()</a></code></td>
 <td>Whether higher-order is needed</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td><strong>HON</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">build_hon()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">build_hon()</a></code></td>
 <td>Where sequential context changes transitions</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td><strong>HYPA</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">build_hypa()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">build_hypa()</a></code></td>
 <td>Which paths are anomalously frequent or rare</td>
 </tr>
 <tr class="odd">
@@ -691,19 +691,19 @@ order_4     4      2990    6136 -11469.73 35211.46 79913.83  AIC      &lt;--</co
 <tr class="even">
 <td>6</td>
 <td><strong>Simplicial</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_simplicial.html" class="external-link">build_simplicial()</a></code></td>
 <td>Topological structure</td>
 </tr>
 <tr class="odd">
 <td>7</td>
 <td><strong>Persistence</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/persistent_homology.html" class="external-link">persistent_homology()</a></code></td>
 <td>Robustness across scales</td>
 </tr>
 <tr class="even">
 <td>8</td>
 <td><strong>Q-analysis</strong></td>
-<td><code><a href="https://saqr.me/Nestimate/reference/q_analysis.html" class="external-link">q_analysis()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/q_analysis.html" class="external-link">q_analysis()</a></code></td>
 <td>Multi-level connectivity</td>
 </tr>
 </tbody>

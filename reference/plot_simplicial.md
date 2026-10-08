@@ -61,7 +61,7 @@ plot_simplicial(
   `net_hon`, `net_hypa`, `net_association_rules`, `net_link_prediction`
   or `simplicial_complex` object, or a data frame with a `path` column,
   such as the output of
-  [`Nestimate::mogen_transitions()`](https://saqr.me/Nestimate/reference/mogen_transitions.html).
+  [`Nestimate::mogen_transitions()`](https://pak.dynasite.org/Nestimate/reference/mogen_transitions.html).
   Accepted string forms are `"A B -> C"`, `"A -> B -> C"`, `"A, B, C"`,
   `"A - B - C"` and `"A B C"`, and the last state is the target. The
   rows of a data frame with a `count` column are sorted by count in
@@ -74,7 +74,7 @@ plot_simplicial(
   (default) for a higher-order network, `"hypa"` for paths that are
   anomalous under a hypergeometric null model, or `"rules"` for
   association-rule itemsets from
-  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html),
+  [`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html),
   which are plotted as sets.
 
 - max_pathways:
@@ -229,10 +229,10 @@ plot_simplicial(
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html),
-  [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html)
+  [`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html),
+  [`Nestimate::build_hypa()`](https://pak.dynasite.org/Nestimate/reference/build_hypa.html)
   or
-  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
+  [`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html)
   when pathways are built from a model.
 
 ## Value

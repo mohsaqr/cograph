@@ -1,5 +1,14 @@
 # Changelog
 
+## cograph 2.7.6
+
+### Bug fixes
+
+- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) is
+  restored to its 2.7.4 behaviour: on directed input both modes plot
+  row-normalized cluster weights, and `mode` changes only the default
+  edge labels. 2.7.5 had changed the default figure.
+
 ## cograph 2.7.5
 
 ### Bug fixes
@@ -63,9 +72,6 @@
   warns (`cograph_null_draw_failed`) when null graphs cannot be drawn.
   [`nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md) now
   signals its deprecation.
-- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
-  plots raw aggregated weights with `mode = "weights"` (the default) and
-  row-normalized weights with `mode = "tna"`.
 - [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md)
   handles missing states;
   [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md)
@@ -632,11 +638,13 @@ own summary node. `expand = "all"` (or `TRUE`) expands every cluster.
 
 The expanded macro is re-counted from the input with a refined
 partition, using cograph’s own
-[`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html);
+[`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html);
 a k x k aggregate cannot be disaggregated after the fact. Only a
 pre-built `cluster_summary` or `mcml`, which carries no source to
-re-count from, falls back to `Nestimate::macro_network()`, and says so
-with a `cograph_expand_unavailable` error when that is unavailable.
+re-count from, falls back to
+[`Nestimate::macro_network()`](https://pak.dynasite.org/Nestimate/reference/macro_network.html),
+and says so with a `cograph_expand_unavailable` error when that is
+unavailable.
 
 This also fixes a silent defect in the previous layout code: the top
 layer was indexed positionally against the cluster count, so a macro
@@ -2243,7 +2251,7 @@ blocks, 6 PASS).
 
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a
   `netobject` with `method = "entropy"` (Nestimate’s
-  [`entropy_network()`](https://saqr.me/Nestimate/reference/entropy_network.html))
+  [`entropy_network()`](https://pak.dynasite.org/Nestimate/reference/entropy_network.html))
   now receives TNA styling — oval layout, TNA palette,
   initial-probability donuts — instead of falling through to psych
   styling, so the entropy re-weighting of a transition network renders
@@ -2486,9 +2494,9 @@ blocks, 6 PASS).
 
 - [`splot()`](https://sonsoles.me/cograph/reference/splot.md) on a
   Nestimate `netdifference` (from
-  [`subtract_networks()`](https://saqr.me/Nestimate/reference/subtract_networks.html)
+  [`subtract_networks()`](https://pak.dynasite.org/Nestimate/reference/subtract_networks.html)
   /
-  [`as_netdifference()`](https://saqr.me/Nestimate/reference/as_netdifference.html))
+  [`as_netdifference()`](https://pak.dynasite.org/Nestimate/reference/as_netdifference.html))
   now routes to
   [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md).
   Previously it fell through to the `netobject` path, which styles by
@@ -2501,7 +2509,7 @@ blocks, 6 PASS).
 - The `netdifference` routing excludes `net_permutation`-family objects:
   `net_bayes` carries both classes and must keep reaching
   `splot.net_permutation`, whose per-edge CI/star arrays are aligned by
-  [`Nestimate::plot.net_bayes`](https://saqr.me/Nestimate/reference/plot.net_bayes.html)
+  [`Nestimate::plot.net_bayes`](https://pak.dynasite.org/Nestimate/reference/bayes_compare.html)
   to that renderer’s edge ordering.
 
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)
@@ -2509,7 +2517,7 @@ blocks, 6 PASS).
   e.g. only the credible differences when coerced with
   `as_netdifference(b, significant_only = TRUE)`), falling back to
   `$difference_matrix`. For
-  [`subtract_networks()`](https://saqr.me/Nestimate/reference/subtract_networks.html)
+  [`subtract_networks()`](https://pak.dynasite.org/Nestimate/reference/subtract_networks.html)
   results the two are identical, so nothing changes there.
 
 - [`plot_permutation()`](https://sonsoles.me/cograph/reference/plot-results.md)
@@ -2519,7 +2527,7 @@ blocks, 6 PASS).
   `args$title` on a dots-list holding `title_size` (but no `title`)
   partially matched `title_size`, so the default title was silently
   skipped and no title was drawn — this is why
-  [`Nestimate::plot.net_bayes()`](https://saqr.me/Nestimate/reference/plot.net_bayes.html)
+  [`Nestimate::plot.net_bayes()`](https://pak.dynasite.org/Nestimate/reference/bayes_compare.html)
   output had no title. Same latent hazard fixed for `layout` /
   `layout_scale`.
 
@@ -2727,7 +2735,7 @@ blocks, 6 PASS).
 - [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md)
   and [`splot()`](https://sonsoles.me/cograph/reference/splot.md) accept
   `mcml_pc` objects
-  ([`Nestimate::build_mcml_pc()`](https://saqr.me/Nestimate/reference/build_mcml_pc.html),
+  ([`Nestimate::build_mcml_pc()`](https://pak.dynasite.org/Nestimate/reference/build_mcml_pc.html),
   experimental psychometric MCML) and render them undirected via their
   `meta$directed` flag.
 
@@ -2736,16 +2744,16 @@ blocks, 6 PASS).
 ### Breaking changes
 
 - The exported names
-  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  [`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
   and
-  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   are removed to end, permanently, the collision with
-  [`Nestimate::cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  [`Nestimate::cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
   and
-  [`Nestimate::build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`Nestimate::build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   — different functions that silently masked each other depending on
   package attach order (the same disease as the
-  [`cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
+  [`cluster_network()`](https://pak.dynasite.org/Nestimate/reference/cluster_network.html)
   alias removed in 2.3.6, where load order silently flipped results
   between raw counts and row-normalized probabilities). Migration is
   name-for-name with identical behavior:
@@ -2755,9 +2763,9 @@ blocks, 6 PASS).
   - `build_mcml(...)` → `summarize_clusters(...)` (same arguments, same
     `mcml` return object). In sessions where both packages are attached,
     the bare names
-    [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+    [`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
     /
-    [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+    [`build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
     now always refer to Nestimate’s data-layer verbs, regardless of
     attach order. The
     [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md)
@@ -2791,9 +2799,9 @@ blocks, 6 PASS).
 
 ### Bug fixes
 
-- [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+- [`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
   and the sequence path of
-  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   now record the *effective* directedness in `$meta$directed`: `FALSE`
   when `type = "cooccurrence"` (which symmetrizes the weights), instead
   of echoing the `directed` argument unchanged.
@@ -2805,11 +2813,11 @@ CRAN release: 2026-05-31
 ### Bug fixes
 
 - Removed the
-  [`cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
+  [`cluster_network()`](https://pak.dynasite.org/Nestimate/reference/cluster_network.html)
   alias for
   [`summarize_network()`](https://sonsoles.me/cograph/reference/summarize_network.md).
   It collided with
-  [`Nestimate::cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
+  [`Nestimate::cluster_network()`](https://pak.dynasite.org/Nestimate/reference/cluster_network.html)
   — a completely different function (PAM clustering on sequence data,
   one network per cluster) — and the two silently masked each other
   depending on package attach order, producing confusing
@@ -3045,7 +3053,7 @@ CRAN release: 2026-05-31
 
 - `splot.netobject` now routes on the Nestimate `$method` slot rather
   than just direction. Undirected sequence-based networks from
-  [`build_cna()`](https://saqr.me/Nestimate/reference/build_cna.html)
+  [`build_cna()`](https://pak.dynasite.org/Nestimate/reference/build_cna.html)
   and `wtna(method = "cooccurrence")` get oval TNA-family styling
   (layout, palette, donuts) with arrows and dotted edge starts
   automatically dropped because the matrix is symmetric. Glasso / cor /
@@ -3301,7 +3309,7 @@ Directed-only; warns and returns `NA` on undirected input.
   now suppresses zero-weight edges instead of drawing invisible lines,
   and strips leading zeros from edge labels (`.32` instead of `0.32`)
 - Self-loops in
-  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  [`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
   are now preserved in the macro diagonal, reflecting intra-cluster
   retention rates
 - Sequence data is properly propagated through the full tna → macro →
@@ -3346,11 +3354,11 @@ Directed-only; warns and returns `NA` on undirected input.
 #### Cluster Analysis
 
 - Added
-  [`cluster_summary()`](https://saqr.me/Nestimate/reference/cluster_summary.html)
+  [`cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html)
   for aggregating network weights at the cluster level, producing
   between-cluster and within-cluster matrices from raw transition data
 - Added
-  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   for constructing Markov Chain Multi-Level models from edge lists or
   sequence data with automatic cluster detection
 - Added
@@ -3491,7 +3499,7 @@ Directed-only; warns and returns `NA` on undirected input.
   [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
   so high values get dark colors
 - Fixed
-  [`build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   density method crash when weight vector had no names
 - Fixed display label priority resolution (labels \> label \>
   identifier)

@@ -62,7 +62,7 @@ American Journal of Sociology, 92(5), 1170-1182.
 ``` r
 centrality_power(regulation_net)
 #>       Explore          Plan       Monitor         Adapt       Reflect 
-#> -1.217161e+00 -6.756602e-16 -6.085806e-01 -1.217161e+00 -1.825742e+00 
+#> -1.217161e+00 -6.756602e-17 -6.085806e-01 -1.217161e+00 -1.825742e+00 
 #>       Discuss    Synthesize      Evaluate        Create         Share 
-#> -1.217161e+00 -1.217161e+00 -6.085806e-01 -5.855722e-16 -3.941351e-16 
+#> -1.217161e+00 -1.217161e+00 -6.085806e-01 -7.413494e-16 -5.733728e-16 
 ```

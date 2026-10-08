@@ -1060,7 +1060,7 @@ with nodes colored by community.
 
 `splot.net_mlvar()` plots one or all of the temporal, contemporaneous
 and between-subjects networks of a `net_mlvar` object from
-[`Nestimate::build_mlvar()`](https://saqr.me/Nestimate/reference/build_mlvar.html).
+[`Nestimate::build_mlvar()`](https://pak.dynasite.org/Nestimate/reference/build_mlvar.html).
 
 `splot.netobject()` plots a `netobject` from Nestimate. Networks
 estimated by a transition-type method (`"relative"`, `"frequency"`,

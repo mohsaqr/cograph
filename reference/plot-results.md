@@ -126,7 +126,7 @@ Each function accepts one class of result.
 - `plot_net_stability()` on a `net_stability`:
 
   From
-  [`Nestimate::centrality_stability()`](https://saqr.me/Nestimate/reference/centrality_stability.html).
+  [`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html).
   Plots the mean correlation of each centrality measure with the
   original against the proportion of cases dropped.
 

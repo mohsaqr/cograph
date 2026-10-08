@@ -808,15 +808,15 @@ anomalous paths under a hypergeometric null, or as association rules.
 
 | Function | Purpose |
 |----|----|
-| [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) | Higher-Order Network construction |
-| [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html) | Path anomaly detection (hypergeometric null) |
-| [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) | Multi-order model selection (AIC/BIC) |
-| [`Nestimate::path_counts()`](https://saqr.me/Nestimate/reference/path_counts.html) | k-step path frequencies |
+| [`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html) | Higher-Order Network construction |
+| [`Nestimate::build_hypa()`](https://pak.dynasite.org/Nestimate/reference/build_hypa.html) | Path anomaly detection (hypergeometric null) |
+| [`Nestimate::build_mogen()`](https://pak.dynasite.org/Nestimate/reference/build_mogen.html) | Multi-order model selection (AIC/BIC) |
+| [`Nestimate::path_counts()`](https://pak.dynasite.org/Nestimate/reference/path_counts.html) | k-step path frequencies |
 | [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md) | Visualize pathways as blob overlays |
-| [`Nestimate::build_simplicial()`](https://saqr.me/Nestimate/reference/build_simplicial.html) | Simplicial complex from cliques |
-| [`Nestimate::persistent_homology()`](https://saqr.me/Nestimate/reference/persistent_homology.html) | Topological persistence across thresholds |
-| [`Nestimate::q_analysis()`](https://saqr.me/Nestimate/reference/q_analysis.html) | Multi-level structural connectivity |
-| [`Nestimate::verify_simplicial()`](https://saqr.me/Nestimate/reference/verify_simplicial.html) | Cross-validate via Euler-Poincare theorem |
+| [`Nestimate::build_simplicial()`](https://pak.dynasite.org/Nestimate/reference/build_simplicial.html) | Simplicial complex from cliques |
+| [`Nestimate::persistent_homology()`](https://pak.dynasite.org/Nestimate/reference/persistent_homology.html) | Topological persistence across thresholds |
+| [`Nestimate::q_analysis()`](https://pak.dynasite.org/Nestimate/reference/q_analysis.html) | Multi-level structural connectivity |
+| [`Nestimate::verify_simplicial()`](https://pak.dynasite.org/Nestimate/reference/verify_simplicial.html) | Cross-validate via Euler-Poincare theorem |
 
 ## TNA integration
 

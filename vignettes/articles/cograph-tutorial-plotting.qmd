@@ -69,7 +69,7 @@ This tutorial demonstrates everything through a single TNA model of collaborativ
 10. **Permutation testing** --- significant group differences
 11. **Mixed networks** --- directed and undirected edges combined
 
-For TNA-specific workflows, see the [TNA tutorial](./tna-models.html).
+For TNA-specific workflows, see the [TNA tutorial](./plotting-tna-models.html).
 
 ::: {.callout-note}
 ## GitHub Development Version

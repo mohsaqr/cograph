@@ -127,9 +127,9 @@ test_that("bug 31: the highest value maps to the chosen color", {
   expect_true("#F7F7F7" %in% b$fill)
 })
 
-# --- bug 32: plot_mcml() mode -------------------------------------------------
+# --- plot_mcml() mode: plotted weights do not depend on mode ----------------
 
-test_that("bug 32: mode = 'weights' plots raw weights, 'tna' row-normalized", {
+test_that("plot_mcml: both modes plot row-normalized weights on directed input", {
   skip_on_cran()
   clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
                    C2 = c("Plan", "Create", "Share"),
@@ -139,19 +139,12 @@ test_that("bug 32: mode = 'weights' plots raw weights, 'tna' row-normalized", {
   w <- plot_mcml(regulation_net, clusters, mode = "weights", directed = TRUE)
   t <- plot_mcml(regulation_net, clusters, mode = "tna", directed = TRUE)
 
-  # Raw aggregate: the sum of the weights from block i to block j.
-  members <- clusters
-  raw <- outer(names(members), names(members), Vectorize(\(a, b)
-    sum(regulation_net[members[[a]], members[[b]]])))
-  dimnames(raw) <- list(names(members), names(members))
-  expect_equal(unclass(w$macro$weights), raw, ignore_attr = TRUE)
-  expect_equal(unclass(t$macro$weights), raw / rowSums(raw), ignore_attr = TRUE)
-  expect_equal(unname(rowSums(t$macro$weights)), rep(1, 3))
-  expect_identical(c(w$meta$type, t$meta$type), c("raw", "tna"))
-
-  expect_identical(cograph:::.mcml_summary_type("weights", TRUE), "raw")
-  expect_identical(cograph:::.mcml_summary_type("tna", TRUE), "tna")
-  expect_identical(cograph:::.mcml_summary_type("tna", FALSE), "cooccurrence")
+  # Block sums, then row normalization (csum type = "tna").
+  raw <- outer(names(clusters), names(clusters), Vectorize(\(a, b)
+    sum(regulation_net[clusters[[a]], clusters[[b]]])))
+  expect_equal(unclass(w$macro$weights), raw / rowSums(raw), ignore_attr = TRUE)
+  expect_equal(unclass(t$macro$weights), unclass(w$macro$weights))
+  expect_identical(c(w$meta$type, t$meta$type), c("tna", "tna"))
 })
 
 # --- bug 33: plot_ml_heatmap() node labels ----------------------------------

@@ -41,20 +41,6 @@
   unlist(refined, recursive = FALSE)
 }
 
-#' Summary type used by plot_mcml() for a plotting mode
-#'
-#' `mode = "weights"` plots the raw aggregated weights and `mode = "tna"` the
-#' row-normalized ones. Undirected input is always symmetrized
-#' (`"cooccurrence"`), because a row-normalized matrix is not symmetric and the
-#' undirected drawing shows each pair once.
-#'
-#' @return A single string, a `type` for [csum()].
-#' @noRd
-.mcml_summary_type <- function(mode, directed) {
-  if (!isTRUE(directed)) return("cooccurrence")
-  if (identical(mode, "tna")) "tna" else "raw"
-}
-
 #' The macro layer at a finer resolution than the partition
 #'
 #' A k x k aggregate cannot be disaggregated after the fact, so the expanded
@@ -66,8 +52,7 @@
 #'
 #' @return A list with `weights` and `inits`.
 #' @noRd
-.mcml_expanded_macro <- function(x, cluster_list, expand, aggregation, directed,
-                                 mode = "tna") {
+.mcml_expanded_macro <- function(x, cluster_list, expand, aggregation, directed) {
   expand <- .mcml_resolve_expand(expand, names(cluster_list))
 
   if (inherits(x, c("cluster_summary", "mcml", "mcml_pc"))) {
@@ -76,7 +61,7 @@
 
   refined <- .mcml_refined_partition(cluster_list, expand)
   cs <- cluster_summary(x, refined, method = aggregation,
-                        type = .mcml_summary_type(mode, directed),
+                        type = if (directed) "tna" else "cooccurrence",
                         compute_within = TRUE)
   list(weights = cs$macro$weights, inits = cs$macro$inits)
 }
@@ -182,13 +167,10 @@
 #' repeating the aggregation when the same clustering is plotted several
 #' times.
 #'
-#' For a directed network, \code{mode = "weights"} plots the aggregated
-#' weights as computed (\code{type = "raw"} in \code{\link{csum}}), and
-#' \code{mode = "tna"} row-normalizes them (\code{type = "tna"}), so each row
-#' of the summary matrix sums to 1. For an undirected network the weights are
-#' computed with \code{type = "cooccurrence"} in both modes. A
-#' \code{cluster_summary} passed as \code{x} is plotted with the weights it
-#' already holds.
+#' For a directed network the aggregated weights are computed with
+#' \code{type = "tna"}, so each row of the summary matrix sums to 1. For an
+#' undirected network they are computed with \code{type = "cooccurrence"}.
+#' The \code{mode} argument changes only the default of the edge labels.
 #'
 #' Bottom-layer clusters are arranged on a circle of radius \code{spacing},
 #' flattened by the perspective \code{skew_angle}. Nodes inside each cluster
@@ -231,12 +213,9 @@
 #'   is also accepted. For a \code{cograph_network}, a string names a node
 #'   column to group by, and \code{NULL} uses a node column named
 #'   \code{clusters}, \code{cluster}, \code{groups} or \code{group}.
-#' @param mode \code{"weights"} (default) or \code{"tna"}. With
-#'   \code{"weights"} the summary layer shows the raw aggregated weights of a
-#'   directed network. With \code{"tna"} they are row-normalized into
-#'   transition probabilities, and \code{edge_labels} and
-#'   \code{summary_edge_labels} default to \code{TRUE} unless they are
-#'   supplied.
+#' @param mode \code{"weights"} (default) or \code{"tna"}. With \code{"tna"},
+#'   \code{edge_labels} and \code{summary_edge_labels} default to \code{TRUE}
+#'   unless they are supplied. The plotted weights are the same in both modes.
 #' @param theme Visual preset, one of \code{"classic"} (default, pie-chart
 #'   nodes and straight summary edges), \code{"rich"} (donut nodes on both
 #'   layers, curved summary edges and self-loops) or \code{"light"} (as
@@ -604,14 +583,12 @@ plot_mcml <- function(
       }
     }
 
-    # Map aggregation to method and `mode` to the summary type (see
-    # .mcml_summary_type()): "weights" keeps the raw aggregated weights,
-    # "tna" row-normalizes them. Undirected input aggregates with
-    # type = "cooccurrence" (symmetrized counts) in both modes: the "tna"
+    # Map aggregation to method. Undirected input aggregates with
+    # type = "cooccurrence" (symmetrized counts): the "tna"
     # row-normalization would make even symmetric weights asymmetric,
     # which upper-triangle (undirected) drawing cannot represent.
     cs <- cluster_summary(x, cluster_list, method = aggregation,
-                          type = .mcml_summary_type(mode, directed),
+                          type = if (directed) "tna" else "cooccurrence",
                           compute_within = TRUE)
 
     # Store nodes_df and display_labels for visualization
@@ -701,7 +678,7 @@ plot_mcml <- function(
   macro_inits <- cs$macro$inits
   if (!is.null(expand)) {
     expanded <- .mcml_expanded_macro(x, cluster_list, expand, aggregation,
-                                     directed, mode = mode)
+                                     directed)
     bw <- expanded$weights
     macro_inits <- expanded$inits
   }

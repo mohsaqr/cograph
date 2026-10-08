@@ -107,12 +107,9 @@ input it is computed with \code{Nestimate::macro_network()}, and a
 \code{cograph_expand_unavailable} error is raised when that function is
 not available.}
 
-\item{mode}{\code{"weights"} (default) or \code{"tna"}. With
-\code{"weights"} the summary layer shows the raw aggregated weights of a
-directed network. With \code{"tna"} they are row-normalized into
-transition probabilities, and \code{edge_labels} and
-\code{summary_edge_labels} default to \code{TRUE} unless they are
-supplied.}
+\item{mode}{\code{"weights"} (default) or \code{"tna"}. With \code{"tna"},
+\code{edge_labels} and \code{summary_edge_labels} default to \code{TRUE}
+unless they are supplied. The plotted weights are the same in both modes.}
 
 \item{theme}{Visual preset, one of \code{"classic"} (default, pie-chart
 nodes and straight summary edges), \code{"rich"} (donut nodes on both
@@ -382,13 +379,10 @@ A weight matrix, tna object or cograph_network is passed together with
 repeating the aggregation when the same clustering is plotted several
 times.
 
-For a directed network, \code{mode = "weights"} plots the aggregated
-weights as computed (\code{type = "raw"} in \code{\link{csum}}), and
-\code{mode = "tna"} row-normalizes them (\code{type = "tna"}), so each row
-of the summary matrix sums to 1. For an undirected network the weights are
-computed with \code{type = "cooccurrence"} in both modes. A
-\code{cluster_summary} passed as \code{x} is plotted with the weights it
-already holds.
+For a directed network the aggregated weights are computed with
+\code{type = "tna"}, so each row of the summary matrix sums to 1. For an
+undirected network they are computed with \code{type = "cooccurrence"}.
+The \code{mode} argument changes only the default of the edge labels.
 
 Bottom-layer clusters are arranged on a circle of radius \code{spacing},
 flattened by the perspective \code{skew_angle}. Nodes inside each cluster

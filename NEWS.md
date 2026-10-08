@@ -1,3 +1,11 @@
+# cograph 2.7.6
+
+## Bug fixes
+
+* `plot_mcml()` is restored to its 2.7.4 behaviour: on directed input both
+  modes plot row-normalized cluster weights, and `mode` changes only the
+  default edge labels. 2.7.5 had changed the default figure.
+
 # cograph 2.7.5
 
 ## Bug fixes
@@ -41,8 +49,6 @@
   intersection; `cluster_quality()` density ignores self-loops.
 * `rich_club()` warns (`cograph_null_draw_failed`) when null graphs cannot be
   drawn. `nodes()` now signals its deprecation.
-* `plot_mcml()` plots raw aggregated weights with `mode = "weights"` (the
-  default) and row-normalized weights with `mode = "tna"`.
 * `plot_trajectories()` handles missing states; `plot_network_evolution()`
   accumulates slices correctly and accepts a coordinate layout;
   `plot_heatmap()` builds a full diverging scale from one colour;

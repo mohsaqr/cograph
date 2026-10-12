@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,14 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.8" id="cograph-278">cograph 2.7.8<a class="anchor" aria-label="anchor" href="#cograph-278"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-8"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> keeps multi-word state names whole when pathways are given in full arrow notation (<code>"A -&gt; B -&gt; C"</code>), instead of splitting them on spaces. The HYPA, MOGen and HON pathway extractors emit full arrow notation, so every state of a path is drawn as its own vertex.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.6" id="cograph-276">cograph 2.7.6<a class="anchor" aria-label="anchor" href="#cograph-276"></a></h2>
 <div class="section level3">

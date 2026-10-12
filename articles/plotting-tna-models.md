@@ -31,7 +31,7 @@ data.frame(
 )
 #>   package version
 #> 1     tna   1.3.1
-#> 2 cograph   2.7.7
+#> 2 cograph   2.7.8
 ```
 
 ## Shared fixtures
@@ -548,5 +548,5 @@ data.frame(
   rendered_at = format(Sys.time(), tz = "UTC", usetz = TRUE)
 )
 #>   status   tna cograph             rendered_at
-#> 1   PASS 1.3.1   2.7.7 2026-10-08 21:21:47 UTC
+#> 1   PASS 1.3.1   2.7.8 2026-10-12 13:29:51 UTC
 ```

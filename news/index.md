@@ -1,5 +1,15 @@
 # Changelog
 
+## cograph 2.7.8
+
+### Bug fixes
+
+- [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
+  keeps multi-word state names whole when pathways are given in full
+  arrow notation (`"A -> B -> C"`), instead of splitting them on spaces.
+  The HYPA, MOGen and HON pathway extractors emit full arrow notation,
+  so every state of a path is drawn as its own vertex.
+
 ## cograph 2.7.6
 
 ### Bug fixes

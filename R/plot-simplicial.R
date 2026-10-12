@@ -482,11 +482,20 @@ plot_simplicial <- function(x = NULL,
   for (ap in arrow_pat) {
     if (grepl(ap, s, fixed = TRUE)) {
       parts <- trimws(strsplit(s, ap, fixed = TRUE)[[1]])
-      src <- .split_state_tokens(
-        paste(parts[-length(parts)], collapse = " "), states
-      )
-      tgt <- .split_state_tokens(parts[length(parts)], states)
-      return(list(source = src, target = tgt[length(tgt)], ordered = TRUE))
+      parts <- parts[nzchar(parts)]
+      # In full arrow notation ("A -> B -> C", as written by Nestimate) every
+      # part is one state, so a multi-word label such as "Positive emotion"
+      # must stay whole. A part that names a known state is likewise one
+      # state. Only a single-arrow source such as "A B -> C" is split.
+      whole <- length(parts) > 2L
+      tokens <- unlist(lapply(parts, .arrow_part_tokens,
+                              states = states, whole = whole),
+                       use.names = FALSE)
+      if (length(tokens) < 2L) {
+        stop(sprintf("Cannot parse pathway (need at least 2 states): '%s'", s))
+      }
+      return(list(source = tokens[-length(tokens)],
+                  target = tokens[length(tokens)], ordered = TRUE))
     }
   }
   tokens <- .split_state_tokens(s, states)
@@ -495,6 +504,23 @@ plot_simplicial <- function(x = NULL,
   }
   list(source = tokens[-length(tokens)], target = tokens[length(tokens)],
        ordered = TRUE)
+}
+
+#' States named by one arrow-separated part of a pathway string
+#'
+#' @param p One part of a pathway string, between arrows.
+#' @param states Known state labels, or \code{NULL}.
+#' @param whole Logical. Treat the part as a single state when it does not
+#'   match a known state (full arrow notation).
+#' @return Character vector of state labels.
+#' @noRd
+.arrow_part_tokens <- function(p, states = NULL, whole = FALSE) {
+  if (!is.null(states)) {
+    hit <- states[tolower(states) == tolower(p)]
+    if (length(hit) > 0L) return(hit[1L])
+  }
+  if (isTRUE(whole)) return(p)
+  .split_state_tokens(p, states)
 }
 
 #' @noRd

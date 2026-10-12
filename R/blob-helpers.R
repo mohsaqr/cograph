@@ -379,7 +379,7 @@
     }
     src <- parts[-length(parts)]
     tgt <- parts[length(parts)]
-    paste0(paste(src, collapse = " "), " -> ", tgt)
+    paste(c(src, tgt), collapse = " -> ")
   }, character(1), USE.NAMES = FALSE)
 }
 
@@ -420,7 +420,7 @@
     }
     src <- parts[-length(parts)]
     tgt <- parts[length(parts)]
-    paste0(paste(src, collapse = " "), " -> ", tgt)
+    paste(c(src, tgt), collapse = " -> ")
   }, character(1), USE.NAMES = FALSE)
 }
 
@@ -452,7 +452,7 @@
     }
     src <- parts[-length(parts)]
     tgt <- parts[length(parts)]
-    paste0(paste(src, collapse = " "), " -> ", tgt)
+    paste(c(src, tgt), collapse = " -> ")
   }, character(1), USE.NAMES = FALSE)
 }
 

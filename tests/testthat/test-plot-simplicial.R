@@ -507,7 +507,7 @@ test_that("plot_simplicial sorts data.frame pathways by count when present", {
     stringsAsFactors = FALSE
   )
   extracted <- cograph:::.extract_mogen_transitions_pathways(pw_df)
-  expect_match(extracted[1L], "B C -> A", fixed = TRUE)
+  expect_match(extracted[1L], "B -> C -> A", fixed = TRUE)
 })
 
 test_that("plot_simplicial pathway_index selects explicit pathway ranks", {
@@ -605,4 +605,20 @@ test_that("plot_simplicial auto-promotes a data.frame in `x` to pathways", {
     p <- plot_simplicial(mgt_like, shadow = FALSE)
   ))
   expect_s3_class(p, "ggplot")
+})
+
+test_that(".parse_pathway_string keeps multi-word states whole in arrow notation", {
+  states <- c("Positive emotion", "Refine", "Agreement")
+  p <- cograph:::.parse_pathway_string(
+    "Positive emotion -> Positive emotion -> Refine", states)
+  expect_equal(p$source, c("Positive emotion", "Positive emotion"))
+  expect_equal(p$target, "Refine")
+  # Without known states, full arrow notation still keeps each part whole
+  p2 <- cograph:::.parse_pathway_string(
+    "Agreement -> Positive emotion -> Positive emotion", NULL)
+  expect_equal(p2$source, c("Agreement", "Positive emotion"))
+  expect_equal(p2$target, "Positive emotion")
+  # A known state on the single-arrow form is one token
+  p3 <- cograph:::.parse_pathway_string("Positive emotion -> Refine", states)
+  expect_equal(p3$source, "Positive emotion")
 })

@@ -20,7 +20,7 @@ extract_motifs(
   include_types = NULL,
   top = NULL,
   by_type = FALSE,
-  min_transitions = 5,
+  min_transitions = 3,
   significance = FALSE,
   n_perm = 100,
   seed = NULL
@@ -106,7 +106,7 @@ extract_motifs(
 
   "closed"
 
-  :   Excludes 003, 012, 021C and 120C.
+  :   The 7 closed types, the same set as `"triangle"`.
 
   "all"
 
@@ -137,7 +137,8 @@ extract_motifs(
 
   At individual level: minimum total transitions for a person to be
   included in the analysis. At aggregate level: minimum triad weight to
-  count as present. Default 5.
+  count as present. Default 3, the fewest transitions that can form a
+  closed triad.
 
 - significance:
 

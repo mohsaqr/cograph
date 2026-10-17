@@ -26,12 +26,15 @@ motifs(
   significance = TRUE,
   n_perm = 1000L,
   cores = 1L,
-  min_count = if (named_nodes) 5L else NULL,
+  min_count = if (named_nodes) 2L else NULL,
   edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
-  min_transitions = 5,
+  min_transitions = 3,
   top = NULL,
-  seed = NULL
+  seed = NULL,
+  family = c("observed", "all"),
+  p_adjust = "none",
+  strict = TRUE
 )
 
 # S3 method for class 'cograph_motif_result'
@@ -40,7 +43,8 @@ as.data.frame(
   row.names = NULL,
   optional = FALSE,
   ...,
-  what = c("results", "types")
+  what = c("results", "types"),
+  significant = FALSE
 )
 ```
 
@@ -94,7 +98,8 @@ as.data.frame(
 
   `"closed"`
 
-  :   All types except 003, 012, 021C and 120C.
+  :   The same 7 closed types as `"triangle"`: every pair of the three
+      nodes is linked.
 
   `"all"`
 
@@ -141,8 +146,8 @@ as.data.frame(
   instance mode it filters the `observed` column. At individual level
   this is the number of units showing the triad, and at aggregate level
   it is the weighted edge mass of the triad (the sum of its 6 directed
-  edge weights). Default 5 in instance mode and NULL (no filter) in
-  census mode.
+  edge weights). Default 2 in instance mode, since a pattern seen in a
+  single unit cannot recur, and NULL (no filter) in census mode.
 
 - edge_method:
 
@@ -160,9 +165,11 @@ as.data.frame(
 
 - min_transitions:
 
-  Minimum total edge weight for a unit to be included. Default 5. At
-  aggregate level the network is the only unit, so a network whose
-  weights sum to less than this value gives NULL.
+  Minimum total edge weight for a unit to be included, counted after
+  self-loops are removed. Default 3, the fewest transitions that can
+  form a closed triad (030C and 030T have three edges). At aggregate
+  level the network is the only unit, so a network whose weights sum to
+  less than this value gives NULL.
 
 - top:
 
@@ -173,6 +180,40 @@ as.data.frame(
 
   Random seed. Default NULL. When supplied, the caller's RNG state is
   restored on exit.
+
+- family:
+
+  Which rows the instance-mode significance test covers. `"observed"`
+  (default) tests the triple-type rows observed in at least `min_count`
+  units. `"all"` tests every node triple crossed with every retained MAN
+  type, including combinations no unit shows, and `min_count` then
+  filters only the rows returned. Testing only observed rows selects on
+  the outcome: a rare configuration enters the test only when it happens
+  to occur, which inflates the false-positive rate well above the
+  nominal level. `"all"` keeps it at or below the nominal level. The
+  full family has `choose(n_states, 3)` rows per retained type, so the
+  permutation null grows accordingly. Ignored in census mode and without
+  individual-level significance.
+
+- p_adjust:
+
+  Multiplicity correction applied to the p-values of every tested row,
+  one of [`p.adjust.methods`](https://rdrr.io/r/stats/p.adjust.html).
+  Default `"none"`. The adjusted values are returned in `p_adj` and
+  `sig` is `p_adj < 0.05`. With `family = "all"` the adjustment covers
+  the full family before `min_count` is applied.
+
+- strict:
+
+  Logical. In instance mode, whether a row is one labelled pattern of a
+  triple (`TRUE`, default) or one MAN type of a triple (`FALSE`). A MAN
+  type fixes the shape of a triad but not which node plays which role:
+  the cycles A to B to C to A and A to C to B to A are both 030C. With
+  `strict = TRUE` the two are separate rows, a unit counts toward a row
+  only when the triple shows exactly that set of arrows, and the null
+  counts the same exact pattern. With `strict = FALSE` rows pool every
+  labelled pattern of the type and `pattern` reports the most frequent
+  one. Ignored in census mode.
 
 - row.names, optional:
 
@@ -191,6 +232,15 @@ as.data.frame(
   returns, either `"results"` (default) or `"types"`. The Value section
   lists the columns of each.
 
+- significant:
+
+  Logical. When `TRUE`,
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) keeps
+  only the rows whose `sig` flag is `TRUE`. It applies to
+  `what = "results"` and needs a result computed with
+  `significance = TRUE`; otherwise a `cograph_no_significance` error is
+  raised. Default `FALSE`.
+
 ## Value
 
 A `cograph_motif_result` object, or NULL with a message when no motif
@@ -200,13 +250,27 @@ passes the filters. The object is a list with the elements below.
 
   Data frame of results. In census mode it has one row per retained,
   observed MAN type and the columns `type` and `count`. In instance mode
-  it has one row per node triple and MAN type and the columns `triad`,
-  `node1`, `node2`, `node3`, `type` and `observed`. At individual level,
-  `observed` is the number of units in which the triple has that type,
-  so one triple can occupy several rows. With `significance = TRUE`, the
-  columns `expected`, `z`, `p` and `sig` are added and the rows are
-  sorted by decreasing absolute z-score. Otherwise the rows are sorted
-  by decreasing count.
+  it has one row per node triple and labelled pattern (`strict = TRUE`)
+  or per node triple and MAN type (`strict = FALSE`), with the columns
+  `triad`, `node1`, `node2`, `node3`, `type`, `observed`, `pattern`,
+  `pattern_n` and `pattern_code`. At individual level, `observed` is the
+  number of units in which the triple shows that pattern (or type), so
+  one triple can occupy several rows. `pattern` is the labelled edge set
+  of the row (for example `"A -> B, B <-> C"`). With `strict = FALSE` a
+  row pools patterns that differ in direction, so `pattern` is the most
+  frequent of them and `pattern_n` the number of units showing it; with
+  `strict = TRUE` `pattern_n` equals `observed`. `pattern_code` is the
+  same edge set as a six-bit code in `node1`, `node2`, `node3` order (1:
+  node1 to node2, 2: node2 to node1, 4: node1 to node3, 8: node3 to
+  node1, 16: node2 to node3, 32: node3 to node2). Modal ties go to the
+  smallest code. Rows that no unit shows (`family = "all"`) have
+  `observed = 0` and `pattern_n = 0`; their pattern is the row's own
+  pattern when `strict = TRUE` and missing otherwise. At aggregate level
+  `pattern_n` is 1. With `significance = TRUE`, the columns `expected`
+  (null mean), `z`, `p`, `p_adj` and `sig` are added, unrounded, and the
+  rows are sorted by decreasing absolute z-score. Otherwise the rows are
+  sorted by decreasing count. Census results carry `expected`, `z`, `p`,
+  `p_adj` and `sig` in the same way.
 
 - type_summary:
 
@@ -225,13 +289,19 @@ passes the filters. The object is a list with the elements below.
 
 - n_units:
 
-  Number of units analyzed. 1 at aggregate level.
+  Number of units analyzed: the units whose loop-free transition total
+  reaches `min_transitions`. 1 at aggregate level.
+
+- n_units_total:
+
+  Number of units supplied, before the `min_transitions` filter.
 
 - params:
 
   List of the analysis settings: `labels`, `n_states`, `pattern`,
   `edge_method`, `edge_threshold`, `significance`, `n_perm`,
-  `min_count`, `window`, `window_type` and `actor`.
+  `min_count`, `min_transitions`, `family`, `p_adjust`, `strict`,
+  `window`, `window_type` and `actor`.
 
 [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
 one of these tables as a plain data frame. With `what = "results"`

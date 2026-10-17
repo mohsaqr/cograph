@@ -186,6 +186,7 @@ plot(
   spacing = 1,
   base_size = 12,
   combined = TRUE,
+  significant = FALSE,
   ...
 )
 
@@ -471,6 +472,14 @@ plot(x, top = NULL, col = "steelblue", ...)
   Base font size of the ggplot2 theme used by `type = "types"` and
   `type = "significance"`.
 
+- significant:
+
+  Logical. When `TRUE`, `type = "triads"` on a `cograph_motif_result`
+  draws only the triads whose `sig` flag is `TRUE`, still ordered as in
+  the results and capped at `n`. It needs a result computed with
+  `significance = TRUE`; otherwise a `cograph_no_significance` error is
+  raised. Default `FALSE`.
+
 - res:
 
   Unused. It is kept for backward compatibility.
@@ -626,12 +635,18 @@ of the following values.
 - `"triads"`:
 
   (default) Network diagrams of node triples arranged in a grid. A
-  census result without named nodes falls back to `"patterns"`. Each
-  diagram shows a canonical representative of the MAN class, so the node
-  labels identify the participating nodes and their positions do not
-  encode observed source or sink roles. Panel titles read
-  `"<MAN code>: <description>"`, and the caption gives the count and,
-  when significance was tested, the z-score and p-value.
+  census result without named nodes falls back to `"patterns"`. For a
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  result each diagram draws the row's labelled pattern, so the arrows
+  show which node sends to which. With `strict = FALSE` it is the row's
+  most frequent pattern, and the caption says how many units match it
+  when the row pools other patterns.
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  results carry no labelled pattern, so their diagrams show a canonical
+  representative of the MAN class, and node positions there do not
+  encode roles. Panel titles read `"<MAN code>: <description>"`, and the
+  caption gives the count and, when significance was tested, the z-score
+  and p-value.
 
 - `"types"`:
 

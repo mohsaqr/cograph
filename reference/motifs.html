@@ -23,7 +23,7 @@ the result lists the node triples that form each type.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,12 +84,15 @@ the result lists the node triples that form each type.</p></li>
 <span>  significance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_perm <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  min_count <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">named_nodes</span><span class="op">)</span> <span class="fl">5L</span> <span class="kw">else</span> <span class="cn">NULL</span>,</span>
+<span>  min_count <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">named_nodes</span><span class="op">)</span> <span class="fl">2L</span> <span class="kw">else</span> <span class="cn">NULL</span>,</span>
 <span>  edge_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"any"</span>, <span class="st">"expected"</span>, <span class="st">"percent"</span><span class="op">)</span>,</span>
 <span>  edge_threshold <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  min_transitions <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  min_transitions <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  top <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"observed"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
+<span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>  strict <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'cograph_motif_result'</span></span>
@@ -98,7 +101,8 @@ the result lists the node triples that form each type.</p></li>
 <span>  row.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  optional <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"results"</span>, <span class="st">"types"</span><span class="op">)</span></span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"results"</span>, <span class="st">"types"</span><span class="op">)</span>,</span>
+<span>  significant <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -148,7 +152,8 @@ no windowing.</p></dd>
 and 021C (chain).</p></dd>
 
 <dt><code>"closed"</code></dt>
-<dd><p>All types except 003, 012, 021C and 120C.</p></dd>
+<dd><p>The same 7 closed types as <code>"triangle"</code>:
+every pair of the three nodes is linked.</p></dd>
 
 <dt><code>"all"</code></dt>
 <dd><p>All 16 MAN types.</p></dd>
@@ -198,8 +203,8 @@ mode it filters the <code>count</code> column, the number of triads of each MAN
 type. In instance mode it filters the <code>observed</code> column. At
 individual level this is the number of units showing the triad, and at
 aggregate level it is the weighted edge mass of the triad (the sum of its
-6 directed edge weights). Default 5 in instance mode and NULL (no filter)
-in census mode.</p></dd>
+6 directed edge weights). Default 2 in instance mode, since a pattern
+seen in a single unit cannot recur, and NULL (no filter) in census mode.</p></dd>
 
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>
@@ -217,8 +222,10 @@ are percentages. Default 1.5.</p></dd>
 
 
 <dt id="arg-min-transitions">min_transitions<a class="anchor" aria-label="anchor" href="#arg-min-transitions"></a></dt>
-<dd><p>Minimum total edge weight for a unit to be included.
-Default 5. At aggregate level the network is the only unit, so a network
+<dd><p>Minimum total edge weight for a unit to be included,
+counted after self-loops are removed. Default 3, the fewest transitions
+that can form a closed triad (030C and 030T have three edges). At
+aggregate level the network is the only unit, so a network
 whose weights sum to less than this value gives NULL.</p></dd>
 
 
@@ -230,6 +237,40 @@ are kept. NULL (default) keeps all rows.</p></dd>
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Random seed. Default NULL. When supplied, the caller's RNG state
 is restored on exit.</p></dd>
+
+
+<dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
+<dd><p>Which rows the instance-mode significance test covers.
+<code>"observed"</code> (default) tests the triple-type rows observed in at
+least <code>min_count</code> units. <code>"all"</code> tests every node triple
+crossed with every retained MAN type, including combinations no unit
+shows, and <code>min_count</code> then filters only the rows returned. Testing
+only observed rows selects on the outcome: a rare configuration enters
+the test only when it happens to occur, which inflates the false-positive
+rate well above the nominal level. <code>"all"</code> keeps it at or below the
+nominal level. The full family has <code>choose(n_states, 3)</code> rows per
+retained type, so the permutation null grows accordingly. Ignored in
+census mode and without individual-level significance.</p></dd>
+
+
+<dt id="arg-p-adjust">p_adjust<a class="anchor" aria-label="anchor" href="#arg-p-adjust"></a></dt>
+<dd><p>Multiplicity correction applied to the p-values of every
+tested row, one of <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust.methods</a></code>. Default
+<code>"none"</code>. The adjusted values are returned in <code>p_adj</code> and
+<code>sig</code> is <code>p_adj &lt; 0.05</code>. With <code>family = "all"</code> the
+adjustment covers the full family before <code>min_count</code> is applied.</p></dd>
+
+
+<dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
+<dd><p>Logical. In instance mode, whether a row is one labelled
+pattern of a triple (<code>TRUE</code>, default) or one MAN type of a triple
+(<code>FALSE</code>). A MAN type fixes the shape of a triad but not which node
+plays which role: the cycles A to B to C to A and A to C to B to A are
+both 030C. With <code>strict = TRUE</code> the two are separate rows, a unit
+counts toward a row only when the triple shows exactly that set of
+arrows, and the null counts the same exact pattern. With
+<code>strict = FALSE</code> rows pool every labelled pattern of the type and
+<code>pattern</code> reports the most frequent one. Ignored in census mode.</p></dd>
 
 
 <dt id="arg-row-names-optional">row.names, optional<a class="anchor" aria-label="anchor" href="#arg-row-names-optional"></a></dt>
@@ -247,6 +288,14 @@ arguments. <code>row.names</code> replaces the default row names;
 <code>"results"</code> (default) or <code>"types"</code>. The Value section lists the
 columns of each.</p></dd>
 
+
+<dt id="arg-significant">significant<a class="anchor" aria-label="anchor" href="#arg-significant"></a></dt>
+<dd><p>Logical. When <code>TRUE</code>, <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> keeps
+only the rows whose <code>sig</code> flag is <code>TRUE</code>. It applies to
+<code>what = "results"</code> and needs a result computed with
+<code>significance = TRUE</code>; otherwise a <code>cograph_no_significance</code>
+error is raised. Default <code>FALSE</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -254,15 +303,32 @@ columns of each.</p></dd>
 motif passes the filters. The object is a list with the elements below.</p><dl><dt>results</dt>
 <dd><p>Data frame of results. In census mode it has one row per
 retained, observed MAN type and the columns <code>type</code> and
-<code>count</code>. In instance mode it has one row per node triple and MAN
-type and the columns <code>triad</code>, <code>node1</code>, <code>node2</code>,
-<code>node3</code>, <code>type</code> and <code>observed</code>. At individual level,
-<code>observed</code> is the number of units in which the triple has that
-type, so one triple can occupy several rows. With
-<code>significance = TRUE</code>, the columns <code>expected</code>, <code>z</code>,
-<code>p</code> and <code>sig</code> are added and the rows are sorted by
-decreasing absolute z-score. Otherwise the rows are sorted by
-decreasing count.</p></dd>
+<code>count</code>. In instance mode it has one row per node triple and
+labelled pattern (<code>strict = TRUE</code>) or per node triple and MAN
+type (<code>strict = FALSE</code>), with the columns <code>triad</code>,
+<code>node1</code>, <code>node2</code>, <code>node3</code>, <code>type</code>,
+<code>observed</code>, <code>pattern</code>, <code>pattern_n</code> and
+<code>pattern_code</code>. At individual level, <code>observed</code> is the
+number of units in which the triple shows that pattern (or type), so
+one triple can occupy several rows. <code>pattern</code> is the labelled
+edge set of the row (for example <code>"A -&gt; B, B &lt;-&gt; C"</code>). With
+<code>strict = FALSE</code> a row pools patterns that differ in direction,
+so <code>pattern</code> is the most frequent of them and <code>pattern_n</code>
+the number of units showing it; with <code>strict = TRUE</code>
+<code>pattern_n</code> equals <code>observed</code>. <code>pattern_code</code> is
+the same edge set as a six-bit code in
+<code>node1</code>, <code>node2</code>, <code>node3</code> order (1: node1 to node2,
+2: node2 to node1, 4: node1 to node3, 8: node3 to node1, 16: node2 to
+node3, 32: node3 to node2). Modal ties go to the smallest code. Rows
+that no unit shows (<code>family = "all"</code>) have <code>observed = 0</code>
+and <code>pattern_n = 0</code>; their pattern is the row's own pattern
+when <code>strict = TRUE</code> and missing otherwise. At aggregate level
+<code>pattern_n</code> is 1. With <code>significance = TRUE</code>, the columns
+<code>expected</code> (null mean), <code>z</code>, <code>p</code>, <code>p_adj</code> and
+<code>sig</code> are added, unrounded, and the rows are sorted by decreasing
+absolute z-score. Otherwise the rows are sorted by decreasing count.
+Census results carry <code>expected</code>, <code>z</code>, <code>p</code>,
+<code>p_adj</code> and <code>sig</code> in the same way.</p></dd>
 
 <dt>type_summary</dt>
 <dd><p>Named <code>table</code> of counts per MAN type, sorted in
@@ -277,13 +343,20 @@ otherwise <code>"aggregate"</code>.</p></dd>
 <dd><p>The value of the <code>named_nodes</code> argument.</p></dd>
 
 <dt>n_units</dt>
-<dd><p>Number of units analyzed. 1 at aggregate level.</p></dd>
+<dd><p>Number of units analyzed: the units whose loop-free
+transition total reaches <code>min_transitions</code>. 1 at aggregate
+level.</p></dd>
+
+<dt>n_units_total</dt>
+<dd><p>Number of units supplied, before the
+<code>min_transitions</code> filter.</p></dd>
 
 <dt>params</dt>
 <dd><p>List of the analysis settings: <code>labels</code>,
 <code>n_states</code>, <code>pattern</code>, <code>edge_method</code>,
 <code>edge_threshold</code>, <code>significance</code>, <code>n_perm</code>,
-<code>min_count</code>, <code>window</code>, <code>window_type</code> and
+<code>min_count</code>, <code>min_transitions</code>, <code>family</code>,
+<code>p_adjust</code>, <code>strict</code>, <code>window</code>, <code>window_type</code> and
 <code>actor</code>.</p></dd>
 
 

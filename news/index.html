@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,39 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.9" id="cograph-279">cograph 2.7.9<a class="anchor" aria-label="anchor" href="#cograph-279"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-2-7-9">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-7-9"></a></h3>
+<ul><li>
+<code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code>motifs(named_nodes = TRUE)</code> now match labelled patterns by default (<code>strict = TRUE</code>). A row is one node triple with one exact set of arrows, so a cycle and its reverse are separate rows, <code>observed</code> counts the units in which the triple shows exactly that pattern, and the permutation null counts the same exact pattern. <code>strict = FALSE</code> restores one row per triple and MAN type.</li>
+<li>
+<code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> default to <code>min_transitions = 3</code>, the fewest transitions that can form a closed triad (previously 5). In instance mode <code>min_count</code> defaults to 2, since a pattern seen in a single unit cannot recur (previously 5).</li>
+<li>
+<code>pattern = "closed"</code> now selects the seven closed types, the same as <code>"triangle"</code>.</li>
+<li>
+<code>expected</code> and <code>z</code> are stored unrounded.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-2-7-9">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-9"></a></h3>
+<ul><li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on a motif result gain a <code>significant</code> argument. With <code>significant = TRUE</code>, <code>plot(type = "triads")</code> draws only the triads flagged significant and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> returns only those rows. A result computed without significance raises a <code>cograph_no_significance</code> error.</li>
+<li>
+<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>p_adjust</code>, any of <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a></code>, defaulting to <code>"none"</code> as in HYPA. The adjusted values are returned in a new <code>p_adj</code> column and <code>sig</code> is <code>p_adj &lt; 0.05</code>.</li>
+<li>
+<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>family</code>. <code>family = "all"</code> tests every node triple and pattern, including those no unit shows, which keeps the false-positive rate at the nominal level; the default <code>"observed"</code> tests only the observed rows.</li>
+<li>Instance results carry <code>pattern</code> (the labelled edge set, for example <code>"A -&gt; B, B &lt;-&gt; C"</code>), <code>pattern_n</code> and <code>pattern_code</code>.</li>
+<li>The result records <code>n_units</code> (units analysed) and <code>n_units_total</code> (units supplied), and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports both.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-9">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-9"></a></h3>
+<ul><li>
+<code>plot(type = "triads")</code> on a <code><a href="../reference/subgraphs.html">subgraphs()</a></code> result draws the arrows the units actually showed, with <code>node1</code> at the top, <code>node2</code> bottom left and <code>node3</code> bottom right. It previously drew the canonical MAN representative, whose arrows did not correspond to the named nodes.</li>
+<li>
+<code>n_units</code> counted every unit supplied, including those removed by <code>min_transitions</code>.</li>
+<li>Triad captions show p to three decimals, and the adjusted p when an adjustment was requested.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.8" id="cograph-278">cograph 2.7.8<a class="anchor" aria-label="anchor" href="#cograph-278"></a></h2>
 <div class="section level3">

@@ -185,7 +185,7 @@ cases dropped.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -368,6 +368,7 @@ cases dropped.</p></dd>
 <span>  spacing <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  base_size <span class="op">=</span> <span class="fl">12</span>,</span>
 <span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  significant <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -652,6 +653,14 @@ apart.</p></dd>
 <code>type = "types"</code> and <code>type = "significance"</code>.</p></dd>
 
 
+<dt id="arg-significant">significant<a class="anchor" aria-label="anchor" href="#arg-significant"></a></dt>
+<dd><p>Logical. When <code>TRUE</code>, <code>type = "triads"</code> on a
+<code>cograph_motif_result</code> draws only the triads whose <code>sig</code> flag
+is <code>TRUE</code>, still ordered as in the results and capped at <code>n</code>.
+It needs a result computed with <code>significance = TRUE</code>; otherwise a
+<code>cograph_no_significance</code> error is raised. Default <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-res">res<a class="anchor" aria-label="anchor" href="#arg-res"></a></dt>
 <dd><p>Unused. It is kept for backward compatibility.</p></dd>
 
@@ -809,9 +818,13 @@ panel is returned, and with no groups <code>NULL</code>.</p></dd>
 <code>type</code> is one of the following values.</p><dl><dt><code>"triads"</code></dt>
 <dd><p>(default) Network diagrams of node triples
 arranged in a grid. A census result without named nodes falls back to
-<code>"patterns"</code>. Each diagram shows a canonical representative of the
-MAN class, so the node labels identify the participating nodes and
-their positions do not encode observed source or sink roles. Panel
+<code>"patterns"</code>. For a <code><a href="subgraphs.html">subgraphs()</a></code> result each diagram draws
+the row's labelled pattern, so the arrows show which node sends to
+which. With <code>strict = FALSE</code> it is the row's most frequent
+pattern, and the caption says how many units match it when the row
+pools other patterns. <code><a href="extract_motifs.html">extract_motifs()</a></code> results carry no
+labelled pattern, so their diagrams show a canonical representative of
+the MAN class, and node positions there do not encode roles. Panel
 titles read <code>"&lt;MAN code&gt;: &lt;description&gt;"</code>, and the caption gives
 the count and, when significance was tested, the z-score and
 p-value.</p></dd>

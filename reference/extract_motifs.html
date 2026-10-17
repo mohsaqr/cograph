@@ -13,7 +13,7 @@ and grouped data, and aggregate for matrices and networks."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@ and grouped data, and aggregate for matrices and networks.</p>
 <span>  include_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  by_type <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  min_transitions <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  min_transitions <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  significance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_perm <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -145,7 +145,7 @@ Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.</p></dd>
 003, 012 and 021C. Stars and triangles are kept.</p></dd>
 
 <dt>"closed"</dt>
-<dd><p>Excludes 003, 012, 021C and 120C.</p></dd>
+<dd><p>The 7 closed types, the same set as <code>"triangle"</code>.</p></dd>
 
 <dt>"all"</dt>
 <dd><p>All 16 MAN types.</p></dd>
@@ -179,7 +179,8 @@ observed count. Default FALSE.</p></dd>
 <dt id="arg-min-transitions">min_transitions<a class="anchor" aria-label="anchor" href="#arg-min-transitions"></a></dt>
 <dd><p>At individual level: minimum total transitions for a
 person to be included in the analysis. At aggregate level: minimum triad
-weight to count as present. Default 5.</p></dd>
+weight to count as present. Default 3, the fewest transitions that can
+form a closed triad.</p></dd>
 
 
 <dt id="arg-significance">significance<a class="anchor" aria-label="anchor" href="#arg-significance"></a></dt>

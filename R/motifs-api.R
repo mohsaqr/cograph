@@ -111,8 +111,9 @@
 #'   \code{"percent"}, values at or below 1 are proportions and values above 1
 #'   are percentages. Default 1.5.
 #' @param min_transitions Minimum total edge weight for a unit to be included,
-#'   counted after self-loops are removed. Default 3, the fewest transitions
-#'   that can form a closed triad (030C and 030T have three edges). At
+#'   counted after self-loops are removed. Default 3 in instance mode, the
+#'   fewest transitions that can form a closed triad (030C and 030T have three
+#'   edges), and 5 in census mode. At
 #'   aggregate level the network is the only unit, so a network
 #'   whose weights sum to less than this value gives NULL.
 #' @param top Integer or NULL. Only the first \code{top} rows of the results
@@ -229,7 +230,7 @@ motifs <- function(x,
                    min_count = if (named_nodes) 2L else NULL,
                    edge_method = c("any", "expected", "percent"),
                    edge_threshold = 1.5,
-                   min_transitions = 3,
+                   min_transitions = if (named_nodes) 3 else 5,
                    top = NULL,
                    seed = NULL,
                    family = c("observed", "all"),

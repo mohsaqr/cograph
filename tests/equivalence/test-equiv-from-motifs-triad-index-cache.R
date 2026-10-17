@@ -30,8 +30,8 @@ test_that("seeded census results match the pre-refactor values exactly", {
   # Comparing a run to itself cannot catch a change that moves every number;
   # these literals can.
   model <- tna::tna(tna::group_regulation)
-  # Pinned under the former default min_transitions = 5.
-  got <- motifs(model, n_perm = 9L, seed = 4, min_transitions = 5)$results
+  # Census mode keeps min_transitions = 5 by default, so these must still hold.
+  got <- motifs(model, n_perm = 9L, seed = 4)$results
 
   expect_identical(got$type,
                    c("120C", "030T", "120U", "210", "120D", "030C", "300"))

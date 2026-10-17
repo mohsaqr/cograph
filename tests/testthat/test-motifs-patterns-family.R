@@ -243,3 +243,13 @@ test_that("extract_motifs() keeps units with three transitions by default", {
   res <- extract_motifs(data = el, id = "actor", level = "individual")
   expect_identical(as.integer(sum(res$results$observed)), 3L)
 })
+
+test_that("census mode keeps min_transitions = 5 by default", {
+  # Three 3-transition cycles: instance mode analyses them, census mode
+  # drops them under its unchanged threshold.
+  el <- cycle_units(3, 0)
+  expect_identical(subgraphs(el, significance = FALSE)$n_units, 3L)
+  expect_null(suppressMessages(motifs(el, significance = FALSE)))
+  expect_identical(motifs(el, significance = FALSE,
+                          min_transitions = 3)$params$min_transitions, 3)
+})

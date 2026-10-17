@@ -1154,6 +1154,10 @@ extract_triads <- function(x, type = NULL, involving = NULL,
   e_kj <- e_kj[keep]
 
   triad_types <- .classify_triads_vectorized(e_ij, e_ji, e_ik, e_ki, e_jk, e_kj)
+  # The labelled edge set of each triple, kept alongside its isomorphism class
+  # so instance results can report which node sends to which.
+  code <- as.integer(e_ij + 2L * e_ji + 4L * e_ik + 8L * e_ki +
+                       16L * e_jk + 32L * e_kj)
 
   if (!is.null(include) && length(include) > 0) {
     keep_include <- triad_types %in% include
@@ -1162,6 +1166,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     j <- j[keep_include]
     k <- k[keep_include]
     weight <- weight[keep_include]
+    code <- code[keep_include]
     triad_types <- triad_types[keep_include]
   }
 
@@ -1172,6 +1177,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     j <- j[keep_exclude]
     k <- k[keep_exclude]
     weight <- weight[keep_exclude]
+    code <- code[keep_exclude]
     triad_types <- triad_types[keep_exclude]
   }
 
@@ -1183,6 +1189,7 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     k = k,
     type = triad_types,
     weight = as.numeric(weight),
+    code = code,
     stringsAsFactors = FALSE
   )
 }

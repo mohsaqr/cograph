@@ -1308,6 +1308,11 @@ compare_communities <- function(comm1, comm2,
 #' @param spacing Spacing multiplier for triad diagrams. Values above 1 pull
 #'   the three nodes of each panel inward and values below 1 push them
 #'   apart.
+#' @param significant Logical. When \code{TRUE}, \code{type = "triads"} on a
+#'   \code{cograph_motif_result} draws only the triads whose \code{sig} flag
+#'   is \code{TRUE}, still ordered as in the results and capped at \code{n}.
+#'   It needs a result computed with \code{significance = TRUE}; otherwise a
+#'   \code{cograph_no_significance} error is raised. Default \code{FALSE}.
 #' @param base_size Base font size of the ggplot2 theme used by
 #'   \code{type = "types"} and \code{type = "significance"}.
 #' @param res Unused. It is kept for backward compatibility.
@@ -1410,9 +1415,13 @@ compare_communities <- function(comm1, comm2,
 #' \describe{
 #'   \item{\code{"triads"}}{(default) Network diagrams of node triples
 #'     arranged in a grid. A census result without named nodes falls back to
-#'     \code{"patterns"}. Each diagram shows a canonical representative of the
-#'     MAN class, so the node labels identify the participating nodes and
-#'     their positions do not encode observed source or sink roles. Panel
+#'     \code{"patterns"}. For a \code{subgraphs()} result each diagram draws
+#'     the row's labelled pattern, so the arrows show which node sends to
+#'     which. With \code{strict = FALSE} it is the row's most frequent
+#'     pattern, and the caption says how many units match it when the row
+#'     pools other patterns. \code{extract_motifs()} results carry no
+#'     labelled pattern, so their diagrams show a canonical representative of
+#'     the MAN class, and node positions there do not encode roles. Panel
 #'     titles read \code{"<MAN code>: <description>"}, and the caption gives
 #'     the count and, when significance was tested, the z-score and
 #'     p-value.}

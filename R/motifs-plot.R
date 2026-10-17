@@ -246,7 +246,14 @@
     if (length(nodes) != 3) nodes <- c("A", "B", "C")
     nodes_short <- vapply(nodes, function(nm) substr(toupper(nm), 1, 3), character(1))
 
-    mat <- triad_patterns[[triad_type]]
+    # Draw the edges the units actually showed when the row carries its modal
+    # labelled pattern; fall back to the canonical class shape otherwise.
+    code <- if ("pattern_code" %in% names(df)) df$pattern_code[i] else NA
+    mat <- if (!is.na(code)) {
+      .motif_code_matrix(code)
+    } else {
+      triad_patterns[[triad_type]]
+    }
     if (is.null(mat)) mat <- matrix(0L, 3, 3)
 
     grid::pushViewport(grid::viewport(layout.pos.row = row, layout.pos.col = col, clip = "on"))
@@ -268,12 +275,22 @@
     } else {
       sprintf("n=%.2f", count)
     }
+    # Say how many units match the drawn arrows when the class pooled others.
+    if (x$level == "individual" && !is.na(code) &&
+        "pattern_n" %in% names(df) && df$pattern_n[i] < count) {
+      count_str <- sprintf("%s (%d as drawn)", count_str, df$pattern_n[i])
+    }
     if (x$params$significance && "z" %in% names(df)) {
-      p_val <- df$p[i]
-      p_str <- if (p_val < 0.001) "p<.001" else sprintf("p=%.2f", p_val)
+      adjust <- x$params$p_adjust %||% "none"
+      p_shown <- if (adjust != "none" && "p_adj" %in% names(df)) {
+        df$p_adj[i]
+      } else {
+        df$p[i]
+      }
       grid::grid.text(title_text, x = 0.5, y = 0.94,
                      gp = grid::gpar(fontsize = title_size, fontface = "bold", col = motif_color))
-      grid::grid.text(sprintf("%s z=%.1f %s", count_str, df$z[i], p_str),
+      grid::grid.text(.motif_stats_caption(count_str, df$z[i], p_shown,
+                                           adjusted = adjust != "none"),
                      x = 0.5, y = 0.08,
                      gp = grid::gpar(fontsize = stats_size, col = "#64748b"))
     } else {
@@ -525,4 +542,31 @@
   }
 
   invisible(NULL)
+}
+
+
+# 3x3 adjacency of a six-bit triad code read in node1, node2, node3 order
+# (bits: 1->2, 2->1, 1->3, 3->1, 2->3, 3->2).
+#' @noRd
+.motif_code_matrix <- function(code) {
+  b <- as.integer(bitwAnd(code, c(1L, 2L, 4L, 8L, 16L, 32L)) > 0L)
+  mat <- matrix(0L, 3, 3)
+  mat[cbind(c(1L, 2L, 1L, 3L, 2L, 3L), c(2L, 1L, 3L, 1L, 3L, 2L))] <- b
+  mat
+}
+
+
+# Caption under a triad panel. When a multiplicity correction was requested the
+# panel reports the adjusted p-value, since that is what `sig` is based on.
+#' @noRd
+.motif_stats_caption <- function(count_str, z, p, adjusted = FALSE) {
+  p_name <- if (adjusted) "p_adj" else "p"
+  p_str <- if (is.na(p)) {
+    sprintf("%s=NA", p_name)
+  } else if (p < 0.001) {
+    sprintf("%s<.001", p_name)
+  } else {
+    sprintf("%s=%.3f", p_name, p)
+  }
+  sprintf("%s z=%.1f %s", count_str, z, p_str)
 }

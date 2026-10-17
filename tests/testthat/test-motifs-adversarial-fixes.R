@@ -98,12 +98,28 @@ test_that("instance significance null converges to the type-specific rate", {
   }))
   sg <- subgraphs(el, pattern = "triangle", min_transitions = 3,
                   min_count = NULL, significance = TRUE,
-                  n_perm = 2000, seed = 1)
+                  n_perm = 2000, seed = 1, strict = FALSE)
   row <- sg$results[sg$results$type == "030C", ]
   # exact configuration permutations of A->B->C->A stubs yield a directed
   # 3-cycle (either orientation) with probability 2/6, so expected ~= 3.33;
   # the old "any edge" null converged to 10 * 5/6 = 8.33
   expect_lt(abs(row$expected - 10 * 2 / 6), 0.5)
+  expect_true(row$sig)
+})
+
+test_that("strict instance null converges to the pattern-specific rate", {
+  el <- do.call(rbind, lapply(1:10, function(id) {
+    data.frame(actor = paste0("s", id),
+               from = c("A", "B", "C"), to = c("B", "C", "A"))
+  }))
+  sg <- subgraphs(el, pattern = "triangle", min_transitions = 3,
+                  min_count = NULL, n_perm = 2000, seed = 1)
+  row <- as.data.frame(sg)
+  # Strict rows need the same orientation: of the 6 target permutations only
+  # the identity gives A->B->C->A, so expected ~= 10/6.
+  expect_identical(nrow(row), 1L)
+  expect_identical(row$pattern_code, 25L)
+  expect_lt(abs(row$expected - 10 / 6), 0.3)
   expect_true(row$sig)
 })
 

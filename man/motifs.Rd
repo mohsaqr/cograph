@@ -17,12 +17,15 @@ motifs(
   significance = TRUE,
   n_perm = 1000L,
   cores = 1L,
-  min_count = if (named_nodes) 5L else NULL,
+  min_count = if (named_nodes) 2L else NULL,
   edge_method = c("any", "expected", "percent"),
   edge_threshold = 1.5,
-  min_transitions = 5,
+  min_transitions = 3,
   top = NULL,
-  seed = NULL
+  seed = NULL,
+  family = c("observed", "all"),
+  p_adjust = "none",
+  strict = TRUE
 )
 
 \method{as.data.frame}{cograph_motif_result}(
@@ -30,7 +33,8 @@ motifs(
   row.names = NULL,
   optional = FALSE,
   ...,
-  what = c("results", "types")
+  what = c("results", "types"),
+  significant = FALSE
 )
 }
 \arguments{
@@ -62,7 +66,8 @@ no windowing.}
 030T, 120C, 120D, 120U, 210 and 300.}
 \item{\code{"network"}}{All types except 003 (empty), 012 (single edge)
 and 021C (chain).}
-\item{\code{"closed"}}{All types except 003, 012, 021C and 120C.}
+\item{\code{"closed"}}{The same 7 closed types as \code{"triangle"}:
+every pair of the three nodes is linked.}
 \item{\code{"all"}}{All 16 MAN types.}
 }}
 
@@ -96,8 +101,8 @@ mode it filters the \code{count} column, the number of triads of each MAN
 type. In instance mode it filters the \code{observed} column. At
 individual level this is the number of units showing the triad, and at
 aggregate level it is the weighted edge mass of the triad (the sum of its
-6 directed edge weights). Default 5 in instance mode and NULL (no filter)
-in census mode.}
+6 directed edge weights). Default 2 in instance mode, since a pattern
+seen in a single unit cannot recur, and NULL (no filter) in census mode.}
 
 \item{edge_method}{Method for determining edge presence: \code{"any"}
 (default; any positive edge), \code{"expected"} (ratio of the observed
@@ -109,8 +114,10 @@ methods. For \code{"expected"}, 1.5 means 50 percent above expected. For
 \code{"percent"}, values at or below 1 are proportions and values above 1
 are percentages. Default 1.5.}
 
-\item{min_transitions}{Minimum total edge weight for a unit to be included.
-Default 5. At aggregate level the network is the only unit, so a network
+\item{min_transitions}{Minimum total edge weight for a unit to be included,
+counted after self-loops are removed. Default 3, the fewest transitions
+that can form a closed triad (030C and 030T have three edges). At
+aggregate level the network is the only unit, so a network
 whose weights sum to less than this value gives NULL.}
 
 \item{top}{Integer or NULL. Only the first \code{top} rows of the results
@@ -118,6 +125,34 @@ are kept. NULL (default) keeps all rows.}
 
 \item{seed}{Random seed. Default NULL. When supplied, the caller's RNG state
 is restored on exit.}
+
+\item{family}{Which rows the instance-mode significance test covers.
+\code{"observed"} (default) tests the triple-type rows observed in at
+least \code{min_count} units. \code{"all"} tests every node triple
+crossed with every retained MAN type, including combinations no unit
+shows, and \code{min_count} then filters only the rows returned. Testing
+only observed rows selects on the outcome: a rare configuration enters
+the test only when it happens to occur, which inflates the false-positive
+rate well above the nominal level. \code{"all"} keeps it at or below the
+nominal level. The full family has \code{choose(n_states, 3)} rows per
+retained type, so the permutation null grows accordingly. Ignored in
+census mode and without individual-level significance.}
+
+\item{p_adjust}{Multiplicity correction applied to the p-values of every
+tested row, one of \code{\link[stats]{p.adjust.methods}}. Default
+\code{"none"}. The adjusted values are returned in \code{p_adj} and
+\code{sig} is \code{p_adj < 0.05}. With \code{family = "all"} the
+adjustment covers the full family before \code{min_count} is applied.}
+
+\item{strict}{Logical. In instance mode, whether a row is one labelled
+pattern of a triple (\code{TRUE}, default) or one MAN type of a triple
+(\code{FALSE}). A MAN type fixes the shape of a triad but not which node
+plays which role: the cycles A to B to C to A and A to C to B to A are
+both 030C. With \code{strict = TRUE} the two are separate rows, a unit
+counts toward a row only when the triple shows exactly that set of
+arrows, and the null counts the same exact pattern. With
+\code{strict = FALSE} rows pool every labelled pattern of the type and
+\code{pattern} reports the most frequent one. Ignored in census mode.}
 
 \item{row.names, optional}{Standard \code{\link[base]{as.data.frame}}
 arguments. \code{row.names} replaces the default row names;
@@ -128,6 +163,12 @@ arguments. \code{row.names} replaces the default row names;
 \item{what}{Which table \code{as.data.frame()} returns, either
 \code{"results"} (default) or \code{"types"}. The Value section lists the
 columns of each.}
+
+\item{significant}{Logical. When \code{TRUE}, \code{as.data.frame()} keeps
+only the rows whose \code{sig} flag is \code{TRUE}. It applies to
+\code{what = "results"} and needs a result computed with
+\code{significance = TRUE}; otherwise a \code{cograph_no_significance}
+error is raised. Default \code{FALSE}.}
 }
 \value{
 A \code{cograph_motif_result} object, or NULL with a message when no
@@ -135,26 +176,48 @@ motif passes the filters. The object is a list with the elements below.
 \describe{
 \item{results}{Data frame of results. In census mode it has one row per
 retained, observed MAN type and the columns \code{type} and
-\code{count}. In instance mode it has one row per node triple and MAN
-type and the columns \code{triad}, \code{node1}, \code{node2},
-\code{node3}, \code{type} and \code{observed}. At individual level,
-\code{observed} is the number of units in which the triple has that
-type, so one triple can occupy several rows. With
-\code{significance = TRUE}, the columns \code{expected}, \code{z},
-\code{p} and \code{sig} are added and the rows are sorted by
-decreasing absolute z-score. Otherwise the rows are sorted by
-decreasing count.}
+\code{count}. In instance mode it has one row per node triple and
+labelled pattern (\code{strict = TRUE}) or per node triple and MAN
+type (\code{strict = FALSE}), with the columns \code{triad},
+\code{node1}, \code{node2}, \code{node3}, \code{type},
+\code{observed}, \code{pattern}, \code{pattern_n} and
+\code{pattern_code}. At individual level, \code{observed} is the
+number of units in which the triple shows that pattern (or type), so
+one triple can occupy several rows. \code{pattern} is the labelled
+edge set of the row (for example \code{"A -> B, B <-> C"}). With
+\code{strict = FALSE} a row pools patterns that differ in direction,
+so \code{pattern} is the most frequent of them and \code{pattern_n}
+the number of units showing it; with \code{strict = TRUE}
+\code{pattern_n} equals \code{observed}. \code{pattern_code} is
+the same edge set as a six-bit code in
+\code{node1}, \code{node2}, \code{node3} order (1: node1 to node2,
+2: node2 to node1, 4: node1 to node3, 8: node3 to node1, 16: node2 to
+node3, 32: node3 to node2). Modal ties go to the smallest code. Rows
+that no unit shows (\code{family = "all"}) have \code{observed = 0}
+and \code{pattern_n = 0}; their pattern is the row's own pattern
+when \code{strict = TRUE} and missing otherwise. At aggregate level
+\code{pattern_n} is 1. With \code{significance = TRUE}, the columns
+\code{expected} (null mean), \code{z}, \code{p}, \code{p_adj} and
+\code{sig} are added, unrounded, and the rows are sorted by decreasing
+absolute z-score. Otherwise the rows are sorted by decreasing count.
+Census results carry \code{expected}, \code{z}, \code{p},
+\code{p_adj} and \code{sig} in the same way.}
 \item{type_summary}{Named \code{table} of counts per MAN type, sorted in
 decreasing order. In census mode it holds the \code{count} column. In
 instance mode it holds the number of node triples of each type.}
 \item{level}{\code{"individual"} when the input carried per-unit data,
 otherwise \code{"aggregate"}.}
 \item{named_nodes}{The value of the \code{named_nodes} argument.}
-\item{n_units}{Number of units analyzed. 1 at aggregate level.}
+\item{n_units}{Number of units analyzed: the units whose loop-free
+transition total reaches \code{min_transitions}. 1 at aggregate
+level.}
+\item{n_units_total}{Number of units supplied, before the
+\code{min_transitions} filter.}
 \item{params}{List of the analysis settings: \code{labels},
 \code{n_states}, \code{pattern}, \code{edge_method},
 \code{edge_threshold}, \code{significance}, \code{n_perm},
-\code{min_count}, \code{window}, \code{window_type} and
+\code{min_count}, \code{min_transitions}, \code{family},
+\code{p_adjust}, \code{strict}, \code{window}, \code{window_type} and
 \code{actor}.}
 }
 

@@ -1,3 +1,51 @@
+# cograph 2.7.9
+
+## Breaking changes
+
+* `subgraphs()` and `motifs(named_nodes = TRUE)` now match labelled patterns
+  by default (`strict = TRUE`). A row is one node triple with one exact set
+  of arrows, so a cycle and its reverse are separate rows, `observed` counts
+  the units in which the triple shows exactly that pattern, and the
+  permutation null counts the same exact pattern. `strict = FALSE` restores
+  one row per triple and MAN type.
+* `motifs()`, `subgraphs()` and `extract_motifs()` default to
+  `min_transitions = 3`, the fewest transitions that can form a closed triad
+  (previously 5). In instance mode `min_count` defaults to 2, since a pattern
+  seen in a single unit cannot recur (previously 5).
+* `pattern = "closed"` now selects the seven closed types, the same as
+  `"triangle"`.
+* `expected` and `z` are stored unrounded.
+
+## New features
+
+* `plot()` and `as.data.frame()` on a motif result gain a `significant`
+  argument. With `significant = TRUE`, `plot(type = "triads")` draws only the
+  triads flagged significant and `as.data.frame()` returns only those rows.
+  A result computed without significance raises a `cograph_no_significance`
+  error.
+* `motifs()` and `subgraphs()` gain `p_adjust`, any of
+  `stats::p.adjust.methods`, defaulting to `"none"` as in HYPA. The adjusted
+  values are returned in a new `p_adj` column and `sig` is `p_adj < 0.05`.
+* `motifs()` and `subgraphs()` gain `family`. `family = "all"` tests every
+  node triple and pattern, including those no unit shows, which keeps the
+  false-positive rate at the nominal level; the default `"observed"` tests
+  only the observed rows.
+* Instance results carry `pattern` (the labelled edge set, for example
+  `"A -> B, B <-> C"`), `pattern_n` and `pattern_code`.
+* The result records `n_units` (units analysed) and `n_units_total` (units
+  supplied), and `print()` reports both.
+
+## Bug fixes
+
+* `plot(type = "triads")` on a `subgraphs()` result draws the arrows the
+  units actually showed, with `node1` at the top, `node2` bottom left and
+  `node3` bottom right. It previously drew the canonical MAN representative,
+  whose arrows did not correspond to the named nodes.
+* `n_units` counted every unit supplied, including those removed by
+  `min_transitions`.
+* Triad captions show p to three decimals, and the adjusted p when an
+  adjustment was requested.
+
 # cograph 2.7.8
 
 ## Bug fixes

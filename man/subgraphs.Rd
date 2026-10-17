@@ -11,33 +11,41 @@ subgraphs(...)
 them (\code{x}, \code{actor}, \code{window}, \code{window_type},
 \code{pattern}, \code{include}, \code{exclude}, \code{significance},
 \code{n_perm}, \code{cores}, \code{min_count}, \code{edge_method},
-\code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed}).
+\code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed},
+\code{family}, \code{p_adjust}, \code{strict}).
 \code{named_nodes} is fixed to \code{TRUE} and must not be supplied.}
 }
 \value{
 A \code{cograph_motif_result} object with \code{named_nodes = TRUE},
 described in \code{\link{motifs}()}, or NULL with a message when no triple
 passes the filters. Its results table has the columns \code{triad},
-\code{node1}, \code{node2}, \code{node3}, \code{type} and
-\code{observed}, and with \code{significance = TRUE} also
-\code{expected}, \code{z}, \code{p} and \code{sig}. Its
+\code{node1}, \code{node2}, \code{node3}, \code{type},
+\code{observed}, \code{pattern}, \code{pattern_n} and
+\code{pattern_code}, and with \code{significance = TRUE} also
+\code{expected}, \code{z}, \code{p}, \code{p_adj} and \code{sig}. Its
 \code{type_summary} counts the node triples of each MAN type.
 }
 \description{
-Calls \code{motifs(x, named_nodes = TRUE, ...)}. The result has one row per
-node triple and MAN type. At individual level, \code{observed} counts the
-units in which the triple has that type, so one triple can occupy several
-rows. One MAN type can also appear in many rows, each with its own
+Calls \code{motifs(x, named_nodes = TRUE, ...)}. By default
+(\code{strict = TRUE}) the result has one row per node triple and labelled
+pattern: the shape and the direction of every arrow are fixed, so a cycle
+and its reverse are different rows. At individual level, \code{observed}
+counts the units in which the triple shows exactly that pattern, so one
+triple can occupy several rows. \code{strict = FALSE} pools the patterns of
+each MAN type into one row. One MAN type can also appear in many rows,
+each with its own
 \code{z} and \code{p}. Per-triple significance is plotted by
 \code{plot(., type = "significance")} and \code{plot(., type = "triads")}.
 The per-type plots (\code{"types"}, \code{"patterns"}) omit significance
 for instance results.
 }
 \details{
-The \code{"triads"} diagram shows a canonical representative of the MAN
-isomorphism class of each row. The labels name the participating nodes.
-Their positions in the diagram do not encode the observed source and sink
-roles of the nodes.
+The \code{"triads"} diagram draws the labelled pattern of each row (its
+\code{pattern} column) with \code{node1} at the top, \code{node2} bottom
+left and \code{node3} bottom right, so the arrows show who sends to whom.
+With \code{strict = FALSE} it draws the most frequent pattern of the row,
+and when the row pools other patterns the caption gives how many units
+match the drawing, for example \code{"n=21 (13 as drawn)"}.
 }
 \examples{
 subgraphs(regulation_net, significance = FALSE, min_count = 1)

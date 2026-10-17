@@ -71,7 +71,8 @@
 #'       030T, 120C, 120D, 120U, 210 and 300.}
 #'     \item{\code{"network"}}{All types except 003 (empty), 012 (single edge)
 #'       and 021C (chain).}
-#'     \item{\code{"closed"}}{All types except 003, 012, 021C and 120C.}
+#'     \item{\code{"closed"}}{The same 7 closed types as \code{"triangle"}:
+#'       every pair of the three nodes is linked.}
 #'     \item{\code{"all"}}{All 16 MAN types.}
 #'   }
 #' @param include Character vector of MAN types to keep. When supplied,
@@ -99,8 +100,8 @@
 #'   type. In instance mode it filters the \code{observed} column. At
 #'   individual level this is the number of units showing the triad, and at
 #'   aggregate level it is the weighted edge mass of the triad (the sum of its
-#'   6 directed edge weights). Default 5 in instance mode and NULL (no filter)
-#'   in census mode.
+#'   6 directed edge weights). Default 2 in instance mode, since a pattern
+#'   seen in a single unit cannot recur, and NULL (no filter) in census mode.
 #' @param edge_method Method for determining edge presence: \code{"any"}
 #'   (default; any positive edge), \code{"expected"} (ratio of the observed
 #'   weight to the weight expected from the row and column totals), or
@@ -109,39 +110,88 @@
 #'   methods. For \code{"expected"}, 1.5 means 50 percent above expected. For
 #'   \code{"percent"}, values at or below 1 are proportions and values above 1
 #'   are percentages. Default 1.5.
-#' @param min_transitions Minimum total edge weight for a unit to be included.
-#'   Default 5. At aggregate level the network is the only unit, so a network
+#' @param min_transitions Minimum total edge weight for a unit to be included,
+#'   counted after self-loops are removed. Default 3, the fewest transitions
+#'   that can form a closed triad (030C and 030T have three edges). At
+#'   aggregate level the network is the only unit, so a network
 #'   whose weights sum to less than this value gives NULL.
 #' @param top Integer or NULL. Only the first \code{top} rows of the results
 #'   are kept. NULL (default) keeps all rows.
 #' @param seed Random seed. Default NULL. When supplied, the caller's RNG state
 #'   is restored on exit.
+#' @param family Which rows the instance-mode significance test covers.
+#'   \code{"observed"} (default) tests the triple-type rows observed in at
+#'   least \code{min_count} units. \code{"all"} tests every node triple
+#'   crossed with every retained MAN type, including combinations no unit
+#'   shows, and \code{min_count} then filters only the rows returned. Testing
+#'   only observed rows selects on the outcome: a rare configuration enters
+#'   the test only when it happens to occur, which inflates the false-positive
+#'   rate well above the nominal level. \code{"all"} keeps it at or below the
+#'   nominal level. The full family has \code{choose(n_states, 3)} rows per
+#'   retained type, so the permutation null grows accordingly. Ignored in
+#'   census mode and without individual-level significance.
+#' @param p_adjust Multiplicity correction applied to the p-values of every
+#'   tested row, one of \code{\link[stats]{p.adjust.methods}}. Default
+#'   \code{"none"}. The adjusted values are returned in \code{p_adj} and
+#'   \code{sig} is \code{p_adj < 0.05}. With \code{family = "all"} the
+#'   adjustment covers the full family before \code{min_count} is applied.
+#' @param strict Logical. In instance mode, whether a row is one labelled
+#'   pattern of a triple (\code{TRUE}, default) or one MAN type of a triple
+#'   (\code{FALSE}). A MAN type fixes the shape of a triad but not which node
+#'   plays which role: the cycles A to B to C to A and A to C to B to A are
+#'   both 030C. With \code{strict = TRUE} the two are separate rows, a unit
+#'   counts toward a row only when the triple shows exactly that set of
+#'   arrows, and the null counts the same exact pattern. With
+#'   \code{strict = FALSE} rows pool every labelled pattern of the type and
+#'   \code{pattern} reports the most frequent one. Ignored in census mode.
 #'
 #' @return A \code{cograph_motif_result} object, or NULL with a message when no
 #'   motif passes the filters. The object is a list with the elements below.
 #'   \describe{
 #'     \item{results}{Data frame of results. In census mode it has one row per
 #'       retained, observed MAN type and the columns \code{type} and
-#'       \code{count}. In instance mode it has one row per node triple and MAN
-#'       type and the columns \code{triad}, \code{node1}, \code{node2},
-#'       \code{node3}, \code{type} and \code{observed}. At individual level,
-#'       \code{observed} is the number of units in which the triple has that
-#'       type, so one triple can occupy several rows. With
-#'       \code{significance = TRUE}, the columns \code{expected}, \code{z},
-#'       \code{p} and \code{sig} are added and the rows are sorted by
-#'       decreasing absolute z-score. Otherwise the rows are sorted by
-#'       decreasing count.}
+#'       \code{count}. In instance mode it has one row per node triple and
+#'       labelled pattern (\code{strict = TRUE}) or per node triple and MAN
+#'       type (\code{strict = FALSE}), with the columns \code{triad},
+#'       \code{node1}, \code{node2}, \code{node3}, \code{type},
+#'       \code{observed}, \code{pattern}, \code{pattern_n} and
+#'       \code{pattern_code}. At individual level, \code{observed} is the
+#'       number of units in which the triple shows that pattern (or type), so
+#'       one triple can occupy several rows. \code{pattern} is the labelled
+#'       edge set of the row (for example \code{"A -> B, B <-> C"}). With
+#'       \code{strict = FALSE} a row pools patterns that differ in direction,
+#'       so \code{pattern} is the most frequent of them and \code{pattern_n}
+#'       the number of units showing it; with \code{strict = TRUE}
+#'       \code{pattern_n} equals \code{observed}. \code{pattern_code} is
+#'       the same edge set as a six-bit code in
+#'       \code{node1}, \code{node2}, \code{node3} order (1: node1 to node2,
+#'       2: node2 to node1, 4: node1 to node3, 8: node3 to node1, 16: node2 to
+#'       node3, 32: node3 to node2). Modal ties go to the smallest code. Rows
+#'       that no unit shows (\code{family = "all"}) have \code{observed = 0}
+#'       and \code{pattern_n = 0}; their pattern is the row's own pattern
+#'       when \code{strict = TRUE} and missing otherwise. At aggregate level
+#'       \code{pattern_n} is 1. With \code{significance = TRUE}, the columns
+#'       \code{expected} (null mean), \code{z}, \code{p}, \code{p_adj} and
+#'       \code{sig} are added, unrounded, and the rows are sorted by decreasing
+#'       absolute z-score. Otherwise the rows are sorted by decreasing count.
+#'       Census results carry \code{expected}, \code{z}, \code{p},
+#'       \code{p_adj} and \code{sig} in the same way.}
 #'     \item{type_summary}{Named \code{table} of counts per MAN type, sorted in
 #'       decreasing order. In census mode it holds the \code{count} column. In
 #'       instance mode it holds the number of node triples of each type.}
 #'     \item{level}{\code{"individual"} when the input carried per-unit data,
 #'       otherwise \code{"aggregate"}.}
 #'     \item{named_nodes}{The value of the \code{named_nodes} argument.}
-#'     \item{n_units}{Number of units analyzed. 1 at aggregate level.}
+#'     \item{n_units}{Number of units analyzed: the units whose loop-free
+#'       transition total reaches \code{min_transitions}. 1 at aggregate
+#'       level.}
+#'     \item{n_units_total}{Number of units supplied, before the
+#'       \code{min_transitions} filter.}
 #'     \item{params}{List of the analysis settings: \code{labels},
 #'       \code{n_states}, \code{pattern}, \code{edge_method},
 #'       \code{edge_threshold}, \code{significance}, \code{n_perm},
-#'       \code{min_count}, \code{window}, \code{window_type} and
+#'       \code{min_count}, \code{min_transitions}, \code{family},
+#'       \code{p_adjust}, \code{strict}, \code{window}, \code{window_type} and
 #'       \code{actor}.}
 #'   }
 #'
@@ -176,18 +226,28 @@ motifs <- function(x,
                    significance = TRUE,
                    n_perm = 1000L,
                    cores = 1L,
-                   min_count = if (named_nodes) 5L else NULL,
+                   min_count = if (named_nodes) 2L else NULL,
                    edge_method = c("any", "expected", "percent"),
                    edge_threshold = 1.5,
-                   min_transitions = 5,
+                   min_transitions = 3,
                    top = NULL,
-                   seed = NULL) {
+                   seed = NULL,
+                   family = c("observed", "all"),
+                   p_adjust = "none",
+                   strict = TRUE) {
 
   .user_set_pattern <- !missing(pattern)
 
   window_type <- match.arg(window_type)
   pattern <- match.arg(pattern)
   edge_method <- match.arg(edge_method)
+  family <- match.arg(family)
+  stopifnot(
+    "`strict` must be TRUE or FALSE" = isTRUE(strict) || isFALSE(strict),
+    "`p_adjust` must be one of stats::p.adjust.methods" =
+      is.character(p_adjust) && length(p_adjust) == 1L &&
+      p_adjust %in% stats::p.adjust.methods
+  )
   if (significance) {
     n_perm <- .validate_motif_repetitions(n_perm, "n_perm")
     cores <- .motif_validate_cores(cores)
@@ -345,6 +405,13 @@ motifs <- function(x,
   # a loop can never be shuffled into an ordinary motif edge.
   trans <- .motif_strip_loops(trans)
 
+  # The activity gate below drops units, so the number analysed can be far
+  # smaller than the number supplied. Report both.
+  n_units_total <- n_units
+  n_units <- sum(vapply(seq_len(dim(trans)[1]), function(ind) {
+    sum(.motif_unit_matrix(trans, ind)) >= min_transitions
+  }, logical(1)))
+
   if (!named_nodes) {
     # ---- CENSUS MODE: count MAN type frequencies per unit ----
     type_counts_per_unit <- lapply(seq_len(dim(trans)[1]), function(ind) {
@@ -412,19 +479,19 @@ motifs <- function(x,
         results$expected <- NA_real_
         results$z <- NA_real_
         results$p <- NA_real_
-        results$sig <- NA
 
         mc_idx <- stats::setNames(seq_len(nrow(mc)), mc$motif)
         for (ri in seq_len(nrow(results))) {
           tp <- results$type[ri]
           mc_row <- mc_idx[tp]
           if (!is.na(mc_row)) {
-            results$expected[ri] <- round(mc$null_mean[mc_row], 1)
-            results$z[ri] <- round(mc$z_score[mc_row], 2)
+            results$expected[ri] <- mc$null_mean[mc_row]
+            results$z[ri] <- mc$z_score[mc_row]
             results$p[ri] <- mc$p_value[mc_row]
-            results$sig[ri] <- mc$significant[mc_row]
           }
         }
+        results$p_adj <- stats::p.adjust(results$p, method = p_adjust)
+        results$sig <- results$p_adj < 0.05
         results <- results[order(.motif_z_rank(results$z, results$p),
                                  decreasing = TRUE), ]
         rownames(results) <- NULL
@@ -484,10 +551,11 @@ motifs <- function(x,
         }
 
         ns <- .motif_null_stats(results$count, t(null_matrix))
-        results$expected <- round(ns$mean, 1)
-        results$z <- round(ns$z, 2)
+        results$expected <- ns$mean
+        results$z <- ns$z
         results$p <- ns$p
-        results$sig <- ns$significant
+        results$p_adj <- stats::p.adjust(ns$p, method = p_adjust)
+        results$sig <- results$p_adj < 0.05
 
         results <- results[order(.motif_z_rank(results$z, results$p),
                                  decreasing = TRUE), ]
@@ -528,7 +596,7 @@ motifs <- function(x,
                  triad = triads,
                  node1 = labels[counted$i], node2 = labels[counted$j],
                  node3 = labels[counted$k], type = counted$type,
-                 weight = counted$weight,
+                 weight = counted$weight, code = counted$code,
                  stringsAsFactors = FALSE)
     })
 
@@ -545,15 +613,27 @@ motifs <- function(x,
       # different types in different units, and collapsing to a dominant type
       # would attribute every unit's observation to it — making the per-type
       # totals disagree with census mode on identical data.
-      obs <- stats::aggregate(
-        unit ~ .triad_key + triad + node1 + node2 + node3 + type,
-                              data = combined,
-        FUN = length
-      )
-      names(obs)[7] <- "observed"
-      results <- obs[order(obs$observed, decreasing = TRUE),
-                     c(".triad_key", "triad", "node1", "node2", "node3",
-                       "observed", "type")]
+      if (strict) {
+        # Strict: a row is one labelled pattern, so a unit counts only when
+        # the triple shows exactly these arrows, not merely the same shape.
+        results <- stats::aggregate(
+          unit ~ .triad_key + triad + node1 + node2 + node3 + type + code,
+          data = combined, FUN = length
+        )
+        results$observed <- as.integer(results$unit)
+        results$pattern_n <- results$observed
+        results$pattern_code <- as.integer(results$code)
+      } else {
+        obs <- stats::aggregate(
+          unit ~ .triad_key + triad + node1 + node2 + node3 + type,
+          data = combined, FUN = length
+        )
+        names(obs)[7] <- "observed"
+        results <- merge(obs, .motif_modal_patterns(combined),
+                         by = c(".triad_key", "type"), sort = FALSE)
+      }
+      results <- results[order(-results$observed, results$.triad_key,
+                               results$pattern_code), ]
     } else {
       # Aggregate level: a single matrix contains each triad at most once, so a
       # frequency-style "observed" is structurally always 1. Use the weighted
@@ -568,10 +648,18 @@ motifs <- function(x,
         node3 = combined$node3[first_idx],
         type = combined$type[first_idx],
         observed = combined$weight[first_idx],
+        pattern_n = 1L,
+        pattern_code = combined$code[first_idx],
         stringsAsFactors = FALSE
       )
       results <- results[order(results$observed, decreasing = TRUE), ]
     }
+    results$pattern <- .motif_pattern_label(results$pattern_code,
+                                            results$node1, results$node2,
+                                            results$node3)
+    results <- results[c(".triad_key", "triad", "node1", "node2", "node3",
+                         "type", "observed", "pattern", "pattern_n",
+                         "pattern_code")]
     rownames(results) <- NULL
 
     # ---- INSTANCE SIGNIFICANCE (directed weighted stub-matching model) ----
@@ -582,7 +670,13 @@ motifs <- function(x,
       significance <- FALSE
     }
     if (significance && level == "individual") {
-      if (!is.null(min_count)) {
+      if (family == "all") {
+        # Test every triple x retained type, including those no unit shows.
+        # Selecting only observed rows conditions on the outcome and inflates
+        # the false-positive rate; min_count then only filters what is shown.
+        candidates <- .motif_full_family(results, labels, final_include,
+                                         final_exclude, strict)
+      } else if (!is.null(min_count)) {
         candidates <- results[results$observed >= min_count, ]
       } else {
         candidates <- results
@@ -682,16 +776,30 @@ motifs <- function(x,
             16L * b_jk + 32L * b_kj
           lookup <- .get_triad_lookup()
           perm_type <- matrix(lookup[code + 1L], nrow = length(wm))
-          same_type <- perm_type == candidates$type[wm]
+          same <- if (strict) {
+            code == candidates$pattern_code[wm]
+          } else {
+            perm_type == candidates$type[wm]
+          }
 
-          null_matrix[wm, ] <- null_matrix[wm, ] + same_type
+          null_matrix[wm, ] <- null_matrix[wm, ] + same
         }
 
         ns <- .motif_null_stats(candidates$observed, t(null_matrix))
-        candidates$expected <- round(ns$mean, 1)
-        candidates$z <- round(ns$z, 2)
+        candidates$expected <- ns$mean
+        candidates$z <- ns$z
         candidates$p <- ns$p
-        candidates$sig <- ns$significant
+        # The adjustment runs over every tested row, before any display
+        # filter, so the family is the one the p-values were computed for.
+        candidates$p_adj <- stats::p.adjust(ns$p, method = p_adjust)
+        candidates$sig <- candidates$p_adj < 0.05
+        if (family == "all" && !is.null(min_count)) {
+          candidates <- candidates[candidates$observed >= min_count, ]
+          if (nrow(candidates) == 0) {
+            message("No motifs with count >= ", min_count, ".")
+            return(NULL)
+          }
+        }
         candidates <- candidates[order(.motif_z_rank(candidates$z,
                                                      candidates$p),
                                        decreasing = TRUE), ]
@@ -761,6 +869,7 @@ motifs <- function(x,
       level = level,
       named_nodes = named_nodes,
       n_units = n_units,
+      n_units_total = n_units_total,
       params = list(
         labels = labels,
         n_states = s,
@@ -770,6 +879,10 @@ motifs <- function(x,
         significance = significance,
         n_perm = n_perm,
         min_count = min_count,
+        min_transitions = min_transitions,
+        family = family,
+        p_adjust = p_adjust,
+        strict = strict,
         window = window,
         window_type = window_type,
         actor = actor
@@ -782,32 +895,40 @@ motifs <- function(x,
 
 #' Extract Specific Motif Instances (Subgraphs)
 #'
-#' Calls \code{motifs(x, named_nodes = TRUE, ...)}. The result has one row per
-#' node triple and MAN type. At individual level, \code{observed} counts the
-#' units in which the triple has that type, so one triple can occupy several
-#' rows. One MAN type can also appear in many rows, each with its own
+#' Calls \code{motifs(x, named_nodes = TRUE, ...)}. By default
+#' (\code{strict = TRUE}) the result has one row per node triple and labelled
+#' pattern: the shape and the direction of every arrow are fixed, so a cycle
+#' and its reverse are different rows. At individual level, \code{observed}
+#' counts the units in which the triple shows exactly that pattern, so one
+#' triple can occupy several rows. \code{strict = FALSE} pools the patterns of
+#' each MAN type into one row. One MAN type can also appear in many rows,
+#' each with its own
 #' \code{z} and \code{p}. Per-triple significance is plotted by
 #' \code{plot(., type = "significance")} and \code{plot(., type = "triads")}.
 #' The per-type plots (\code{"types"}, \code{"patterns"}) omit significance
 #' for instance results.
 #'
-#' The \code{"triads"} diagram shows a canonical representative of the MAN
-#' isomorphism class of each row. The labels name the participating nodes.
-#' Their positions in the diagram do not encode the observed source and sink
-#' roles of the nodes.
+#' The \code{"triads"} diagram draws the labelled pattern of each row (its
+#' \code{pattern} column) with \code{node1} at the top, \code{node2} bottom
+#' left and \code{node3} bottom right, so the arrows show who sends to whom.
+#' With \code{strict = FALSE} it draws the most frequent pattern of the row,
+#' and when the row pools other patterns the caption gives how many units
+#' match the drawing, for example \code{"n=21 (13 as drawn)"}.
 #'
 #' @param ... Arguments forwarded to \code{\link{motifs}()}, which documents
 #'   them (\code{x}, \code{actor}, \code{window}, \code{window_type},
 #'   \code{pattern}, \code{include}, \code{exclude}, \code{significance},
 #'   \code{n_perm}, \code{cores}, \code{min_count}, \code{edge_method},
-#'   \code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed}).
+#'   \code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed},
+#'   \code{family}, \code{p_adjust}, \code{strict}).
 #'   \code{named_nodes} is fixed to \code{TRUE} and must not be supplied.
 #' @return A \code{cograph_motif_result} object with \code{named_nodes = TRUE},
 #'   described in \code{\link{motifs}()}, or NULL with a message when no triple
 #'   passes the filters. Its results table has the columns \code{triad},
-#'   \code{node1}, \code{node2}, \code{node3}, \code{type} and
-#'   \code{observed}, and with \code{significance = TRUE} also
-#'   \code{expected}, \code{z}, \code{p} and \code{sig}. Its
+#'   \code{node1}, \code{node2}, \code{node3}, \code{type},
+#'   \code{observed}, \code{pattern}, \code{pattern_n} and
+#'   \code{pattern_code}, and with \code{significance = TRUE} also
+#'   \code{expected}, \code{z}, \code{p}, \code{p_adj} and \code{sig}. Its
 #'   \code{type_summary} counts the node triples of each MAN type.
 #' @examples
 #' subgraphs(regulation_net, significance = FALSE, min_count = 1)
@@ -825,7 +946,12 @@ print.cograph_motif_result <- function(x, ...) {
   cat(mode_label, "\n")
   cat("Level:", x$level)
   if (x$level == "individual") {
-    cat(" |", x$n_units, "units")
+    n_total <- x$n_units_total %||% x$n_units
+    cat(" |", x$n_units, "of", n_total, "units analysed")
+    if (n_total > x$n_units) {
+      cat(" (", n_total - x$n_units, " below min_transitions = ",
+          x$params$min_transitions, ")", sep = "")
+    }
   }
   cat(" | States:", x$params$n_states)
   cat(" | Pattern:", x$params$pattern, "\n")
@@ -847,7 +973,11 @@ print.cograph_motif_result <- function(x, ...) {
 
   n_show <- min(20, nrow(x$results))
   cat("\nTop", n_show, "results:\n")
-  print(x$results[seq_len(n_show), ], row.names = FALSE)
+  shown <- x$results[seq_len(n_show), setdiff(names(x$results),
+                                              "pattern_code"), drop = FALSE]
+  rounded <- intersect(c("expected", "z"), names(shown))
+  shown[rounded] <- lapply(shown[rounded], round, digits = 2)
+  print(shown, row.names = FALSE)
 
   invisible(x)
 }
@@ -861,12 +991,24 @@ print.cograph_motif_result <- function(x, ...) {
 #' @param what Which table \code{as.data.frame()} returns, either
 #'   \code{"results"} (default) or \code{"types"}. The Value section lists the
 #'   columns of each.
+#' @param significant Logical. When \code{TRUE}, \code{as.data.frame()} keeps
+#'   only the rows whose \code{sig} flag is \code{TRUE}. It applies to
+#'   \code{what = "results"} and needs a result computed with
+#'   \code{significance = TRUE}; otherwise a \code{cograph_no_significance}
+#'   error is raised. Default \code{FALSE}.
 #' @method as.data.frame cograph_motif_result
 #' @export
 as.data.frame.cograph_motif_result <- function(x, row.names = NULL,
                                                optional = FALSE, ...,
-                                               what = c("results", "types")) {
+                                               what = c("results", "types"),
+                                               significant = FALSE) {
   what <- match.arg(what)
+  stopifnot("`significant` must be TRUE or FALSE" =
+              is.logical(significant) && length(significant) == 1L &&
+              !is.na(significant))
+  if (significant && what == "results") {
+    x <- .motif_significant_rows(x)
+  }
   df <- if (what == "types") {
     tab <- x$type_summary
     data.frame(type = names(tab), count = as.integer(tab),
@@ -900,8 +1042,15 @@ plot.cograph_motif_result <- function(x, type = c("triads", "types",
                                        spacing = 1,
                                        base_size = 12,
                                        combined = TRUE,
+                                       significant = FALSE,
                                        ...) {
   type <- match.arg(type)
+  stopifnot("`significant` must be TRUE or FALSE" =
+              is.logical(significant) && length(significant) == 1L &&
+              !is.na(significant))
+  if (significant && type == "triads") {
+    x <- .motif_significant_rows(x)
+  }
 
   if (type == "significance" && !x$params$significance) {
     stop("Significance data not available. Run motifs() with significance = TRUE.",
@@ -1073,4 +1222,110 @@ plot_motifs <- function(x, type = c("triads", "types",
        legend_size = legend_size, legend = legend,
        motif_color = motif_color, spacing = spacing,
        base_size = base_size, ...)
+}
+
+
+# Keep only the rows flagged significant. The plot method and the tidy
+# accessor share it so `significant = TRUE` selects the same rows in both.
+#' @noRd
+.motif_significant_rows <- function(x) {
+  if (!isTRUE(x$params$significance) || !"sig" %in% names(x$results)) {
+    stop(errorCondition(
+      "`significant = TRUE` needs a result computed with `significance = TRUE`.",
+      class = "cograph_no_significance", call = NULL))
+  }
+  x$results <- x$results[x$results$sig %in% TRUE, , drop = FALSE]
+  rownames(x$results) <- NULL
+  x
+}
+
+
+# Modal labelled edge set of every (triple, type) across units. One MAN class
+# pools labelled patterns that differ in who sends to whom, including a cycle
+# and its reverse, so the class alone cannot say what the units did. Ties go
+# to the smallest edge code so the result is deterministic.
+#' @noRd
+.motif_modal_patterns <- function(combined) {
+  pc <- stats::aggregate(unit ~ .triad_key + type + code, data = combined,
+                         FUN = length)
+  pc <- pc[order(pc$.triad_key, pc$type, -pc$unit, pc$code), ]
+  pc <- pc[!duplicated(pc[c(".triad_key", "type")]), ]
+  data.frame(.triad_key = pc$.triad_key, type = pc$type,
+             pattern_n = as.integer(pc$unit),
+             pattern_code = as.integer(pc$code),
+             stringsAsFactors = FALSE)
+}
+
+# Readable labelled edge set for a six-bit triad code read in node1, node2,
+# node3 order (bits: 1->2, 2->1, 1->3, 3->1, 2->3, 3->2).
+#' @noRd
+.motif_pattern_label <- function(code, node1, node2, node3) {
+  vapply(seq_along(code), function(r) {
+    if (is.na(code[r])) return(NA_character_)
+    b <- bitwAnd(code[r], c(1L, 2L, 4L, 8L, 16L, 32L)) > 0L
+    nodes <- c(node1[r], node2[r], node3[r])
+    pairs <- list(c(1L, 2L, 1L, 2L), c(1L, 3L, 3L, 4L), c(2L, 3L, 5L, 6L))
+    parts <- vapply(pairs, function(pr) {
+      a <- nodes[pr[1]]
+      z <- nodes[pr[2]]
+      fwd <- b[pr[3]]
+      back <- b[pr[4]]
+      if (fwd && back) paste(a, "<->", z)
+      else if (fwd) paste(a, "->", z)
+      else if (back) paste(z, "->", a)
+      else NA_character_
+    }, character(1))
+    parts <- parts[!is.na(parts)]
+    if (length(parts) == 0L) "none" else paste(parts, collapse = ", ")
+  }, character(1))
+}
+
+# Every node triple crossed with every retained MAN type, joined to the
+# observed rows. Unobserved combinations get observed = 0 and no pattern.
+#' @noRd
+.motif_full_family <- function(results, labels, include, exclude,
+                               strict = FALSE) {
+  types <- .triad_type_names()
+  if (!is.null(include) && length(include) > 0) {
+    types <- types[types %in% include]
+  }
+  types <- setdiff(types, exclude)
+  idx <- .triad_indices(length(labels))
+  # Strict rows are labelled patterns: every six-bit code whose MAN type is
+  # retained. Otherwise rows are the types themselves.
+  lookup <- .get_triad_lookup()
+  codes <- if (strict) which(lookup %in% types) - 1L else NA_integer_
+  cells <- if (strict) data.frame(type = lookup[codes + 1L], code = codes,
+                                  stringsAsFactors = FALSE)
+           else data.frame(type = types, code = NA_integer_,
+                           stringsAsFactors = FALSE)
+  n_cells <- nrow(cells)
+  grid <- data.frame(
+    .triad_key = rep(paste(idx$i, idx$j, idx$k, sep = "\r"), times = n_cells),
+    triad = rep(paste(labels[idx$i], labels[idx$j], labels[idx$k],
+                      sep = " - "), times = n_cells),
+    node1 = rep(labels[idx$i], times = n_cells),
+    node2 = rep(labels[idx$j], times = n_cells),
+    node3 = rep(labels[idx$k], times = n_cells),
+    type = rep(cells$type, each = idx$n),
+    stringsAsFactors = FALSE
+  )
+  keys <- c(".triad_key", "type")
+  if (strict) {
+    grid$pattern_code <- rep(cells$code, each = idx$n)
+    keys <- c(keys, "pattern_code")
+  }
+  obs_cols <- unique(c(keys, "observed", "pattern", "pattern_n",
+                       "pattern_code"))
+  full <- merge(grid, results[obs_cols], by = keys, all.x = TRUE,
+                sort = FALSE)
+  full$observed[is.na(full$observed)] <- 0L
+  full$pattern_n[is.na(full$pattern_n)] <- 0L
+  if (strict) {
+    full$pattern <- .motif_pattern_label(full$pattern_code, full$node1,
+                                         full$node2, full$node3)
+  }
+  stopifnot("full family must have one row per triple and cell" =
+              nrow(full) == idx$n * n_cells && !anyDuplicated(full[keys]))
+  full[names(results)]
 }

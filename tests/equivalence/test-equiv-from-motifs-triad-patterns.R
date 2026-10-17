@@ -30,3 +30,18 @@ test_that("the 64-entry classifier lookup matches igraph exhaustively", {
 
   expect_identical(unname(lookup), unname(reference))
 })
+
+test_that("drawn labelled patterns land in their own MAN class (igraph)", {
+  skip_if_not_installed("igraph")
+  # The triads plot draws each row's pattern_code. Guard that path the way the
+  # glyph sets are guarded: every code must draw a triad of the class the
+  # counter assigns to it, so the panel title and the arrows cannot disagree.
+  man <- c("003", "012", "102", "021D", "021U", "021C", "111D", "111U",
+           "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
+  drawn <- vapply(0:63, function(code) {
+    g <- igraph::graph_from_adjacency_matrix(
+      cograph:::.motif_code_matrix(code), mode = "directed")
+    man[igraph::triad_census(g) == 1L]
+  }, character(1))
+  expect_identical(drawn, unname(cograph:::.get_triad_lookup()))
+})

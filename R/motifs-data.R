@@ -87,7 +87,7 @@
     all_types = all_types,
     triangle_types = triangle_types,
     network_exclude = c("003", "012", "021C"),
-    closed_exclude = c("003", "012", "021C", "120C")
+    closed_exclude = setdiff(all_types, triangle_types)
   )
 }
 

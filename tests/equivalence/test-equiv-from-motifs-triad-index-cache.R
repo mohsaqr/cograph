@@ -30,12 +30,14 @@ test_that("seeded census results match the pre-refactor values exactly", {
   # Comparing a run to itself cannot catch a change that moves every number;
   # these literals can.
   model <- tna::tna(tna::group_regulation)
-  got <- motifs(model, n_perm = 9L, seed = 4)$results
+  # Pinned under the former default min_transitions = 5.
+  got <- motifs(model, n_perm = 9L, seed = 4, min_transitions = 5)$results
 
   expect_identical(got$type,
                    c("120C", "030T", "120U", "210", "120D", "030C", "300"))
   expect_identical(got$count, c(1481L, 620L, 190L, 581L, 178L, 1044L, 79L))
-  expect_equal(got$expected,
+  # expected is stored unrounded; the literals were pinned to one decimal.
+  expect_equal(round(got$expected, 1),
                c(1010.9, 412.4, 138.1, 471.8, 128.2, 1081.6, 82),
                tolerance = 1e-8)
   expect_equal(got$p, c(0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.8), tolerance = 1e-8)

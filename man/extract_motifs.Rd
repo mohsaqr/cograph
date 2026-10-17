@@ -16,7 +16,7 @@ extract_motifs(
   include_types = NULL,
   top = NULL,
   by_type = FALSE,
-  min_transitions = 5,
+  min_transitions = 3,
   significance = FALSE,
   n_perm = 100,
   seed = NULL
@@ -67,7 +67,7 @@ should be set explicitly. Ignored when edge_method = "any". Default 1.5.}
 Types: 030C, 030T, 120C, 120D, 120U, 210, 300. Default.}
 \item{"network"}{Excludes the empty triad and the sequential patterns
 003, 012 and 021C. Stars and triangles are kept.}
-\item{"closed"}{Excludes 003, 012, 021C and 120C.}
+\item{"closed"}{The 7 closed types, the same set as \code{"triangle"}.}
 \item{"all"}{All 16 MAN types.}
 }}
 
@@ -87,7 +87,8 @@ observed count. Default FALSE.}
 
 \item{min_transitions}{At individual level: minimum total transitions for a
 person to be included in the analysis. At aggregate level: minimum triad
-weight to count as present. Default 5.}
+weight to count as present. Default 3, the fewest transitions that can
+form a closed triad.}
 
 \item{significance}{Logical. Run permutation significance test? Default FALSE.}
 

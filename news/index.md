@@ -1,5 +1,15 @@
 # Changelog
 
+## cograph 2.7.10
+
+### Bug fixes
+
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) in
+  census mode (`named_nodes = FALSE`) defaults to `min_transitions = 5`
+  again, so census results are as before 2.7.9. Instance mode
+  ([`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
+  `motifs(named_nodes = TRUE)`) keeps the 2.7.9 default of 3.
+
 ## cograph 2.7.9
 
 ### Breaking changes

@@ -10,12 +10,15 @@ triad_census(x)
 \item{x}{A matrix, igraph object, or cograph_network.}
 }
 \value{
-A named numeric vector of length 16 giving the count of each MAN
-triad type, in the order listed under Details.
+A data frame with one row per MAN triad type (16 rows), in the
+order listed under Details, and the columns \code{type} (the MAN code)
+and \code{count} (the number of triads of that type). The counts sum to
+\code{choose(n, 3)} for \code{n} nodes.
 }
 \description{
 Counts the 16 types of triads in a directed network using MAN notation.
-Edge weights are ignored.
+An edge is a cell with a positive weight; the weight values are otherwise
+ignored, so a zero or negative weight is no edge.
 }
 \details{
 The triad census is defined only for directed networks. Matrix input is

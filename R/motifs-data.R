@@ -53,6 +53,12 @@
 }
 
 #' Get MAN type descriptions
+#'
+#' Each name describes the structure of its class (igraph's
+#' `triad_census()` definitions), not the D/U letter: in 111D and 120D the
+#' lone asymmetric tie(s) point *into* the mutual pair, so 111D holds an
+#' in-star and 120D an out-star onto the pair. test-motifs-triad-patterns.R
+#' checks every name against its pattern matrix.
 #' @noRd
 .get_man_descriptions <- function() {
   c(
@@ -62,15 +68,15 @@
     "021D" = "Out-star",
     "021U" = "In-star",
     "021C" = "Chain",
-    "111D" = "Out-star + mutual",
-    "111U" = "In-star + mutual",
+    "111D" = "In-star + mutual",
+    "111U" = "Out-star + mutual",
     "030T" = "Feed-forward",
     "030C" = "Cycle",
-    "201" = "Mutual + in-star",
-    "120D" = "Two out-stars",
-    "120U" = "Two in-stars",
-    "120C" = "Mixed regulated",
-    "210" = "Mutual + feed-forward",
+    "201" = "Two mutuals",
+    "120D" = "Out-star onto mutual",
+    "120U" = "In-star from mutual",
+    "120C" = "Cycle + mutual",
+    "210" = "Near-clique",
     "300" = "Clique"
   )
 }
@@ -140,6 +146,36 @@
   all(vals %in% as.character(labels))
 }
 
+# A window cuts one actor's transitions into units. Without an actor column
+# there is no unit to cut, and pooling the windows into one "aggregate"
+# network would mix counts from many windows with a null built from the
+# first one.
+# @noRd
+.motif_check_window_actor <- function(window, actor_col) {
+  if (!is.null(window) && is.null(actor_col)) {
+    stop(errorCondition(
+      paste0("`window` needs an actor or session column to split. Pass ",
+             "`actor`, or add a column such as `session`, `actor` or `id`."),
+      class = "cograph_window_needs_actor", call = NULL))
+  }
+  invisible(TRUE)
+}
+
+# The p-value that decides significance: adjusted when the result carries a
+# p_adj column (motifs(p_adjust = ...)), raw otherwise. Plot colours and
+# stars use it, so they always agree with the `sig` column.
+# @noRd
+.motif_decision_p <- function(results) {
+  if ("p_adj" %in% names(results)) results$p_adj else results$p
+}
+
+# Legend wording for the decision p-value.
+# @noRd
+.motif_p_label <- function(x) {
+  adj <- x$params$p_adjust %||% "none"
+  if (identical(adj, "none")) "p" else "adjusted p"
+}
+
 #' Shared base ggplot2 theme for motif plots
 #' @param base_size Base font size. Default 12.
 #' @noRd
@@ -190,13 +226,25 @@
                                       order_col = NULL,
                                       window = NULL,
                                       window_type = "rolling") {
-  # Detect weight column
+  # Columns are matched case-insensitively: `from` and `to` are required; the
+  # weight is `weight`, or `count` (the column get_edge_list() returns), or 1.
+  nms <- tolower(names(el))
+  from_col <- names(el)[match("from", nms)]
+  to_col <- names(el)[match("to", nms)]
+  if (is.na(from_col) || is.na(to_col)) {
+    stop(errorCondition(
+      "An edge list needs a `from` and a `to` column.",
+      class = "cograph_bad_edgelist", call = NULL))
+  }
+  el_from <- as.character(el[[from_col]])
+  el_to <- as.character(el[[to_col]])
   weight_col <- NULL
-  wt_idx <- match("weight", tolower(names(el)))
+  wt_idx <- match("weight", nms)
+  if (is.na(wt_idx)) wt_idx <- match("count", nms)
   if (!is.na(wt_idx)) weight_col <- names(el)[wt_idx]
 
   # Get all unique states
-  labels <- sort(unique(c(as.character(el$from), as.character(el$to))))
+  labels <- sort(unique(c(el_from, el_to)))
   s <- length(labels)
   state_idx <- setNames(seq_along(labels), labels)
 
@@ -211,6 +259,8 @@
   if (!is.null(order_col)) {
     sort_order <- order(group_ids, el[[order_col]])
     el <- el[sort_order, ]
+    el_from <- el_from[sort_order]
+    el_to <- el_to[sort_order]
     group_ids <- group_ids[sort_order]
   }
 
@@ -242,6 +292,8 @@
 
     row_indices <- unlist(new_rows)
     el <- el[row_indices, ]
+    el_from <- el_from[row_indices]
+    el_to <- el_to[row_indices]
     group_ids <- rep(new_group_ids, lengths(new_rows))
   }
 
@@ -252,8 +304,8 @@
 
   trans <- array(0, dim = c(n_groups, s, s))
 
-  from_idx <- state_idx[as.character(el$from)]
-  to_idx <- state_idx[as.character(el$to)]
+  from_idx <- state_idx[el_from]
+  to_idx <- state_idx[el_to]
   wt <- if (!is.null(weight_col)) as.numeric(el[[weight_col]]) else rep(1, nrow(el))
 
   # Vectorized fill using aggregate

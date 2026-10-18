@@ -1,8 +1,10 @@
 #' Network Motif Analysis
 #'
 #' Counts the subgraph classes (motifs) of size 3 or 4 in a network and tests
-#' their frequencies against random networks from a null model. Edge weights
-#' are ignored, and self-loops and multiple edges are removed before counting.
+#' their frequencies against random networks from a null model. An edge is a
+#' cell with a positive weight; the weight values are otherwise ignored, so a
+#' zero or negative weight is no edge. Self-loops and multiple edges are
+#' removed before counting.
 #'
 #' @param x A matrix, igraph object, or cograph_network.
 #' @param size Motif size: 3 (triads) or 4 (tetrads). Default 3.
@@ -27,7 +29,10 @@
 #'       \code{wedge} and \code{triangle}, and size 4 the igraph isomorphism
 #'       class labels \code{M1} to \code{M218} (directed) or \code{M1} to
 #'       \code{M11} (undirected).}
-#'     \item{count}{Observed number of that motif in the network.}
+#'     \item{count}{Observed number of that motif in the network. For size 4,
+#'       igraph counts only the connected classes, so the disconnected
+#'       classes have \code{NA} in \code{count} and in every statistic
+#'       column.}
 #'     \item{null_mean, null_sd}{Mean and standard deviation of the count
 #'       across the \code{n_random} null graphs.}
 #'     \item{z_score}{\code{(count - null_mean) / null_sd}. When
@@ -35,7 +40,8 @@
 #'       \code{NA} otherwise.}
 #'     \item{p_value}{Two-sided empirical permutation p-value with add-one
 #'       correction, based on the absolute deviation from the null mean.}
-#'     \item{significant}{Logical, \code{p_value < 0.05}.}
+#'     \item{significant}{Logical, \code{p_value < 0.05}; \code{NA} for the
+#'       disconnected size-4 classes.}
 #'   }
 #'   The motif size (\code{"size"}), directed flag (\code{"directed"}),
 #'   null-model method (\code{"method"}), and number of random networks
@@ -62,15 +68,18 @@ motif_census <- function(x, size = 3, n_random = 100,
 
   # Convert to igraph
   if (inherits(x, "igraph")) {
-    g <- x
+    g <- .motif_positive_edges(x)
   } else if (inherits(x, "cograph_network")) {
-    g <- to_igraph(x)
+    g <- .motif_positive_edges(to_igraph(x))
   } else if (is.matrix(x)) {
+    adj <- .motif_positive_adjacency(x)
+    # Directedness comes from the weights: unequal weights in the two
+    # directions make a directed network even when both ties exist.
     if (is.null(directed)) {
       directed <- !isSymmetric(unname(x))
     }
     mode <- if (directed) "directed" else "undirected"
-    g <- igraph::graph_from_adjacency_matrix(x, mode = mode, weighted = TRUE)
+    g <- igraph::graph_from_adjacency_matrix(adj, mode = mode)
   } else {
     stop("x must be a matrix, igraph object, or cograph_network")
   }
@@ -114,13 +123,13 @@ motif_census <- function(x, size = 3, n_random = 100,
   count_fun <- if (size == 3) {
     function(gr) as.numeric(igraph::triad_census(gr))
   } else {
-    function(gr) {
-      counts <- igraph::motifs(gr, size = size)
-      counts[is.na(counts)] <- 0
-      counts
-    }
+    function(gr) as.numeric(igraph::motifs(gr, size = size))
   }
   observed <- count_fun(g)
+  # igraph::motifs() returns NA for the disconnected size-4 classes, which it
+  # does not count. Those rows stay NA rather than a false 0; the statistics
+  # are computed for the counted classes only.
+  uncounted <- is.na(observed)
 
   # Generate null distribution (vectorized)
   null_list <- lapply(seq_len(n_random), function(i) {
@@ -128,11 +137,14 @@ motif_census <- function(x, size = 3, n_random = 100,
   })
   null_counts <- do.call(rbind, null_list)
 
-  ns <- .motif_null_stats(observed, null_counts)
-  null_mean <- ns$mean
-  null_sd <- ns$sd
-  z_scores <- ns$z
-  p_values <- ns$p
+  null_counts <- matrix(null_counts, ncol = length(observed))
+  ns <- .motif_null_stats(ifelse(uncounted, 0, observed),
+                          ifelse(is.na(null_counts), 0, null_counts))
+  null_mean <- ifelse(uncounted, NA_real_, ns$mean)
+  null_sd <- ifelse(uncounted, NA_real_, ns$sd)
+  z_scores <- ifelse(uncounted, NA_real_, ns$z)
+  p_values <- ifelse(uncounted, NA_real_, ns$p)
+  significant <- ifelse(uncounted, NA, ns$significant)
 
   motif_names <- .get_motif_names(size, directed)
   n_obs <- length(observed)
@@ -152,7 +164,7 @@ motif_census <- function(x, size = 3, n_random = 100,
     null_sd = null_sd,
     z_score = z_scores,
     p_value = p_values,
-    significant = ns$significant,
+    significant = significant,
     row.names = NULL,
     stringsAsFactors = FALSE
   )
@@ -163,6 +175,25 @@ motif_census <- function(x, size = 3, n_random = 100,
   attr(df, "method") <- method
   class(df) <- c("cograph_motifs", "data.frame")
   df
+}
+
+# Motif and triad censuses count an edge wherever the weight is positive, the
+# same rule as motifs()/subgraphs() (edge_method = "any"). A zero or negative
+# cell -- for example a negative correlation -- is no edge.
+# @noRd
+.motif_positive_adjacency <- function(mat) {
+  adj <- (!is.na(mat) & mat > 0) * 1
+  dimnames(adj) <- dimnames(mat)
+  adj
+}
+
+# @noRd
+.motif_positive_edges <- function(g) {
+  if (!"weight" %in% igraph::edge_attr_names(g)) return(g)
+  w <- igraph::E(g)$weight
+  drop <- which(is.na(w) | w <= 0)
+  if (length(drop) == 0) return(g)
+  igraph::delete_edges(g, drop)
 }
 
 #' @noRd
@@ -281,15 +312,18 @@ motif_census <- function(x, size = 3, n_random = 100,
 # multiplicities are rounded cell-by-cell, with every positive observed edge
 # retaining at least one stub. Deriving both margins from that single integer
 # matrix preserves the observed support (including dense probability matrices)
-# and guarantees equal row/column totals.
+# and guarantees equal row/column totals. `keep_loops = TRUE` keeps the
+# diagonal in the stub pool (motifs(count_repeats = TRUE)): repeats are then
+# shuffled with every other transition, so a null replicate can turn A -> A
+# into A -> B. Shuffled loops never form triad edges.
 # @noRd
-.motif_configuration_stubs <- function(mat) {
+.motif_configuration_stubs <- function(mat, keep_loops = FALSE) {
   if (!is.numeric(mat) || anyNA(mat) || any(!is.finite(mat)) || any(mat < 0)) {
     stop("Motif permutation weights must be finite and non-negative.",
          call. = FALSE)
   }
 
-  diag(mat) <- 0
+  if (!keep_loops) diag(mat) <- 0
 
   integer_mat <- round(mat)
   integer_mat[mat > 0 & integer_mat == 0] <- 1
@@ -307,6 +341,22 @@ motif_census <- function(x, size = 3, n_random = 100,
     row_degrees = row_degrees,
     col_degrees = col_degrees
   )
+}
+
+# Expected weight of every cell from the row and column totals, for
+# edge_method = "expected" (an edge is present when observed / expected
+# exceeds the threshold). Zero expectations become 0.001 so the ratio stays
+# finite. A unit with no transitions has no edges: every cell gets 0.001, so
+# every ratio is 0 and the observed and null sides classify it alike.
+# @noRd
+.motif_expected_matrix <- function(mat) {
+  total <- sum(mat)
+  if (total <= 0) {
+    return(matrix(0.001, nrow(mat), ncol(mat)))
+  }
+  expected <- outer(rowSums(mat), colSums(mat)) / total
+  expected[expected == 0] <- 0.001
+  expected
 }
 
 # Extract one unit from a 3D transition array without R dropping a 1x1 slice
@@ -367,7 +417,7 @@ motif_census <- function(x, size = 3, n_random = 100,
   df[!na_rows, , drop = FALSE]
 }
 
-#' @noRd
+#' @rdname print-motifs
 #' @method print cograph_motifs
 #' @export
 print.cograph_motifs <- function(x, ...) {
@@ -413,19 +463,27 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
     stringsAsFactors = FALSE
   )
 
-  df <- df[df$count > 0 | df$significant, ]
+  # Classes igraph does not count (size-4 disconnected) have no data to draw.
+  df <- df[!is.na(df$count), , drop = FALSE]
+  df <- df[df$count > 0 | df$significant, , drop = FALSE]
 
   if (!show_nonsig) {
-    df <- df[df$significant, ]
+    df <- df[df$significant, , drop = FALSE]
+  }
+
+  if (type != "network") {
+    df <- .motif_drop_na_z_rows(df)
   }
 
   if (nrow(df) == 0) {
-    message("No motifs to plot. Try show_nonsig = TRUE")
+    message(if (show_nonsig) "No motifs with a non-zero count to plot."
+            else "No motifs to plot. Try show_nonsig = TRUE")
     return(invisible(NULL))
   }
 
   if (!is.null(top_n) && nrow(df) > top_n) {
-    df <- df[order(-abs(df$z)), ][seq_len(top_n), ]
+    df <- df[order(.motif_z_rank(df$z, df$p), decreasing = TRUE), ]
+    df <- df[seq_len(top_n), , drop = FALSE]
   }
 
   df$motif <- factor(df$motif, levels = df$motif[order(df$z)])
@@ -442,12 +500,15 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' Triad Census
 #'
 #' Counts the 16 types of triads in a directed network using MAN notation.
-#' Edge weights are ignored.
+#' An edge is a cell with a positive weight; the weight values are otherwise
+#' ignored, so a zero or negative weight is no edge.
 #'
 #' @param x A matrix, igraph object, or cograph_network.
 #'
-#' @return A named numeric vector of length 16 giving the count of each MAN
-#'   triad type, in the order listed under Details.
+#' @return A data frame with one row per MAN triad type (16 rows), in the
+#'   order listed under Details, and the columns \code{type} (the MAN code)
+#'   and \code{count} (the number of triads of that type). The counts sum to
+#'   \code{choose(n, 3)} for \code{n} nodes.
 #'
 #' @details
 #' The triad census is defined only for directed networks. Matrix input is
@@ -467,13 +528,14 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' @family motifs
 #' @export
 triad_census <- function(x) {
+  .need_igraph("triad_census()")
   if (inherits(x, "igraph")) {
-    g <- x
+    g <- .motif_positive_edges(x)
   } else if (inherits(x, "cograph_network")) {
-    g <- to_igraph(x)
+    g <- .motif_positive_edges(to_igraph(x))
   } else if (is.matrix(x)) {
-    g <- igraph::graph_from_adjacency_matrix(x, mode = "directed",
-                                              weighted = TRUE)
+    g <- igraph::graph_from_adjacency_matrix(.motif_positive_adjacency(x),
+                                              mode = "directed")
   } else {
     stop("x must be a matrix, igraph object, or cograph_network")
   }
@@ -482,11 +544,11 @@ triad_census <- function(x) {
     stop("triad_census requires a directed network")
   }
 
-  counts <- igraph::triad_census(g)
-  names(counts) <- c("003", "012", "102", "021D", "021U", "021C",
-                     "111D", "111U", "030T", "030C", "201",
-                     "120D", "120U", "120C", "210", "300")
-  counts
+  data.frame(
+    type = .triad_type_names(),
+    count = as.numeric(igraph::triad_census(g)),
+    stringsAsFactors = FALSE
+  )
 }
 
 #' Extract Triads with Node Labels
@@ -503,7 +565,9 @@ triad_census <- function(x) {
 #' @param threshold Edge weight threshold. An edge counts as present for the
 #'   triad type when its weight is greater than \code{threshold}. Default 0.
 #' @param min_total Minimum total weight across all 6 edges. Excludes trivial
-#'   triads with low overall activity. Default 5.
+#'   triads with low overall activity. Default 5, which suits count weights;
+#'   with probability weights (a tna model, \code{regulation_net}) no triad
+#'   reaches it, so use \code{min_total = 0}.
 #' @param directed Logical or NULL. Whether the network is treated as
 #'   directed. NULL (default) detects it from the input.
 #'
@@ -698,13 +762,8 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     lin <- (cs_shuf - 1L) * s + rs
     perm_mat <- matrix(tabulate(lin, nbins = ss), s, s)
 
-    expected_mat <- NULL
-    if (edge_method == "expected") {
-      total_mat <- sum(perm_mat)
-      if (total_mat > 0) {
-        expected_mat <- outer(rowSums(perm_mat), colSums(perm_mat)) / total_mat
-        expected_mat[expected_mat == 0] <- 0.001
-      }
+    expected_mat <- if (edge_method == "expected") {
+      .motif_expected_matrix(perm_mat)
     }
 
     # Class counts only: the replicate needs per-type totals, never the
@@ -905,11 +964,8 @@ extract_triads <- function(x, type = NULL, involving = NULL,
     mat <- .motif_unit_matrix(trans_array, ind)
     w <- .triad_edge_weights(mat, idx)
 
-    expected_mat <- NULL
-    if (edge_method == "expected") {
-      total_mat <- sum(mat)
-      expected_mat <- outer(rowSums(mat), colSums(mat)) / total_mat
-      expected_mat[expected_mat == 0] <- 0.001
+    expected_mat <- if (edge_method == "expected") {
+      .motif_expected_matrix(mat)
     }
     e <- .triad_edge_indicators(w, idx, edge_method, edge_threshold,
                                 expected_mat)
@@ -1213,6 +1269,9 @@ extract_triads <- function(x, type = NULL, involving = NULL,
 #'     \item{count}{Number of transitions.}
 #'   }
 #'   With `by_individual = FALSE`, the rows are sorted by decreasing count.
+#'   The edge list can be passed to [motifs()], [subgraphs()] or
+#'   [extract_motifs()] (with `id = "id"`), which read `count` as the
+#'   transition weight.
 #'
 #' @examplesIf requireNamespace("tna", quietly = TRUE)
 #' get_edge_list(tna::tna(coding))

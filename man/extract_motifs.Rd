@@ -31,15 +31,17 @@ extract_motifs(
 \item An \code{igraph} object
 }}
 
-\item{data}{Optional data.frame containing transition data with an ID column
-for individual-level analysis. Required columns: \code{from}, \code{to}, and the
-column(s) specified in \code{id}. An optional \code{weight} column gives the
-transition weights (1 otherwise). \code{data} is used when \code{x} is not a tna
-object, and \code{x} is then ignored.}
+\item{data}{Optional data.frame of transitions for individual-level
+analysis, used together with \code{id}. Required columns: \code{from}, \code{to}
+and the column(s) named in \code{id}. A \code{weight} column, or a \code{count} column
+as returned by \code{\link[=get_edge_list]{get_edge_list()}}, gives the transition weights (1
+otherwise). When \code{x} is not a tna object, \code{data} is used and \code{x} is
+ignored. \code{data} without \code{id} raises an error of class
+\code{cograph_data_needs_id}.}
 
 \item{id}{Column name(s) identifying individuals/groups in \code{data}. Can be
-a single string or character vector for multiple grouping columns.
-Required for individual-level analysis with non-tna inputs.}
+a single string or a character vector; each distinct combination of the
+values is one individual.}
 
 \item{level}{Analysis level: "individual" counts how many individuals show
 each triad, and "aggregate" analyzes the network summed over individuals.
@@ -49,17 +51,19 @@ individual data raises a warning and the aggregate level is used.}
 
 \item{edge_method}{Method for determining edge presence:
 \describe{
-\item{"any"}{Edge exists if count > 0.}
-\item{"expected"}{Edge exists if observed/expected >= threshold.}
-\item{"percent"}{Edge exists if edge/total >= threshold.}
+\item{"any"}{Edge exists if the weight is positive.}
+\item{"expected"}{Edge exists if observed / expected is at least the
+threshold, with the expectation from the row and column totals.}
+\item{"percent"}{Edge exists if the edge weight divided by the
+six-edge triad total is at least the threshold.}
 }
 Default "any".}
 
-\item{edge_threshold}{Threshold value for "expected" or "percent" methods.
-For "expected", a ratio (1.5 means 50\\% stronger than expected).
-For "percent", a proportion of the total triad weight (for example 0.15).
-The default 1.5 is intended for "expected", so a value for "percent"
-should be set explicitly. Ignored when edge_method = "any". Default 1.5.}
+\item{edge_threshold}{Threshold for "expected" or "percent". For
+"expected", a ratio (1.5 means 50\\% above expected). For "percent",
+values at or below 1 are proportions and values above 1 are percentages,
+so the default 1.5 means 1.5 percent; set it explicitly for "percent".
+Ignored when edge_method = "any". Default 1.5.}
 
 \item{pattern}{Pattern filter for which triads to include:
 \describe{
@@ -78,19 +82,21 @@ Applied after pattern filter. E.g., c("300") to exclude cliques.}
 supplied, only these types are returned, and \code{pattern} and
 \code{exclude_types} are ignored.}
 
-\item{top}{Number of rows to return, taken after sorting by observed count
-(by z-score when \code{significance = TRUE}). NULL returns all rows.
-Default NULL.}
+\item{top}{Number of rows to return, taken after sorting (and after the
+\code{by_type} grouping when \code{by_type = TRUE}). NULL or 0 returns all
+rows. Default NULL.}
 
-\item{by_type}{If TRUE, the rows are sorted by MAN type and then by
-observed count. Default FALSE.}
+\item{by_type}{If TRUE, the rows are grouped by MAN type in MAN order
+(003 to 300), keeping the sort order within each type. Default FALSE.}
 
-\item{min_transitions}{At individual level: minimum total transitions for a
-person to be included in the analysis. At aggregate level: minimum triad
-weight to count as present. Default 3, the fewest transitions that can
-form a closed triad.}
+\item{min_transitions}{At individual level: minimum total transitions,
+repeats excluded, for an individual to be analysed. At aggregate level:
+minimum six-edge weight for a triad to be listed. Default 3, the fewest
+transitions that can form a closed triad. With probability or relative
+weights at aggregate level, use 0.}
 
-\item{significance}{Logical. Run permutation significance test? Default FALSE.}
+\item{significance}{Logical. Run the permutation test? Needs
+individual-level data. Default FALSE.}
 
 \item{n_perm}{Number of permutations for the significance test. When
 \code{significance = TRUE}, must be a whole number of at least 2.
@@ -100,44 +106,42 @@ Default 100.}
 restored on exit.}
 }
 \value{
-A \code{cograph_motif_analysis} object (list) containing the elements
-below, or \code{NULL} with a warning when no triad passes the filters.
+A \code{cograph_motif_analysis} object, or \code{NULL} with a warning
+when no triad passes the filters. \code{as.data.frame()} returns its
+tables:
 \describe{
-\item{results}{Data frame with one row per node-triple and MAN type,
-the display label \code{triad}, unambiguous \code{node1}/\code{node2}/
-\code{node3} columns, its observed count, and (if
-\code{significance = TRUE}) expected
-count, z-score, empirical p-value, and significance marker. A node
-triple that has different types across individuals therefore appears
-in more than one row.}
-\item{type_summary}{A \code{table} of triad counts by MAN type,
-summed over individuals and sorted in decreasing order.}
-\item{params}{List of the settings used, with the number of
-individuals, the number of states and the node labels.}
+\item{\code{what = "results"}}{One row per node triple and MAN type,
+with columns \code{triad} (display label), \code{node1},
+\code{node2}, \code{node3}, \code{type}, \code{observed} (units
+showing that type, or the six-edge weight at aggregate level) and,
+with \code{significance = TRUE}, \code{expected}, \code{z},
+\code{p} (empirical permutation p-value) and \code{sig} (logical,
+\code{p < 0.05}). Rows are sorted by decreasing \code{|z|}, or by
+decreasing \code{observed} without significance. A triple that has
+different types in different individuals appears in more than one
+row.}
+\item{\code{what = "types"}}{One row per MAN type with the total of
+\code{observed} over all rows of that type, before \code{top}.}
 }
 }
 \description{
 Extracts the triads of a network, classifies each one into the 16 MAN
 types of a directed network, and optionally tests each triad against a
 permutation null model. The analysis is individual-level for tna objects
-and grouped data, and aggregate for matrices and networks.
+and for \code{data} with \code{id}, and aggregate for matrices, networks
+and igraph objects.
 }
 \details{
-Self-loops are removed before the activity filter, the counting
-and the null model. Significance is assessed against a directed weighted
-stub-matching null model. Each weight is rounded to an integer number of
-stubs, and a positive weight that rounds to zero keeps one stub. The target
-stubs are shuffled, which preserves the in- and out-strengths of every
-unit. Loops and multiple edges created by the shuffle are collapsed to a
-simple graph before the triads are classified. The aggregate mode of
-\code{\link[=motifs]{motifs()}} uses the simple-graph rewiring null of \code{\link[=motif_census]{motif_census()}}
-instead.
+\code{extract_motifs()} is \code{\link[=subgraphs]{subgraphs()}} with
+\code{strict = FALSE}: a row is one node triple and MAN type, and its
+\code{observed} value is the number of units in which the triple shows that
+type. Counting, the activity filter and the permutation null are those of
+\code{\link[=subgraphs]{subgraphs()}}, described in \code{\link[=motifs]{motifs()}}. Self-loops are removed before
+counting.
 
-The selected \code{edge_method} is reapplied to each null replicate. Since
-small positive weights are rounded up to one stub, the total weight of a
-replicate can differ from the observed total under \code{"percent"} and
-\code{"expected"}. Results without significance testing and results with
-\code{edge_method = "any"} do not depend on this rounding.
+Significance needs individual-level data. For aggregate input a warning of
+class \code{cograph_no_units} is raised and the result has no significance
+columns.
 }
 \section{MAN Notation}{
 
@@ -147,19 +151,22 @@ The 16 triad types use MAN (Mutual-Asymmetric-Null) notation where:
 \item Second digit: number of asymmetric (one-way) pairs.
 \item Third digit: number of null (no edge) pairs.
 \item Letter suffix: subtype (C = cycle, T = transitive, D = down,
-U = up).
+U = up). D and U describe how the type is drawn, not whether it
+contains an out-star or an in-star.
 }
 }
 
 \section{Pattern Types}{
 
+The names are those used in the plot titles.
 \describe{
 \item{Triangle patterns (all pairs connected):}{
-030C (cycle), 030T (feed-forward), 120C (regulated cycle),
-120D (two out-stars), 120U (two in-stars), 210 (mutual+asymmetric), 300 (clique)}
+030C (cycle), 030T (feed-forward), 120C (cycle + mutual),
+120D (out-star onto mutual), 120U (in-star from mutual),
+210 (near-clique), 300 (clique)}
 \item{Network patterns:}{
 021D (out-star), 021U (in-star), 102 (mutual pair),
-111D (out-star+mutual), 111U (in-star+mutual), 201 (two mutual pairs),
+111D (in-star + mutual), 111U (out-star + mutual), 201 (two mutuals),
 plus all triangle patterns}
 \item{Sequential patterns (chains):}{
 012 (single edge), 021C (A->B->C chain)}
@@ -169,13 +176,15 @@ plus all triangle patterns}
 
 \section{Printing and plotting}{
 
-Printing the result shows the analysis settings, the MAN type distribution
-and the first 20 triads. \code{plot()} on the result is documented in
-\code{\link{plot-results}}.
+Printing the result shows the analysis settings, the number of units
+analysed, the MAN type distribution and the first 20 triads.
+\code{plot()} on the result is documented in \code{\link{plot-results}}.
 }
 
 \examples{
-extract_motifs(regulation_net, min_transitions = 0)
+m <- extract_motifs(regulation_net, min_transitions = 0)
+m
+as.data.frame(m)
 
 }
 \seealso{

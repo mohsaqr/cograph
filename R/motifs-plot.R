@@ -385,7 +385,7 @@
 #' Plot abstract MAN pattern diagrams
 #' @noRd
 .plot_motif_patterns <- function(x, n = 12, colors = c("#2166AC", "#B2182B"),
-                                 combined = TRUE, ...) {
+                                 ncol = 4L, combined = TRUE, ...) {
   type_counts <- x$type_summary
   type_counts <- type_counts[type_counts > 0]
   type_counts <- sort(type_counts, decreasing = TRUE)
@@ -401,23 +401,21 @@
   # one row per MAN type — i.e. census mode. In instance mode (named_nodes =
   # TRUE) the same type spans many node-triple rows with potentially
   # conflicting z/p; there is no single type-level statistic without an
-  # aggregation rule, so per-panel decoration stays count-only. Treat NULL
-  # named_nodes as "not instance mode" (covers extract_motifs() output,
-  # which is a census-style summary without that slot).
+  # aggregation rule, so per-panel decoration stays count-only. Only a
+  # census-mode motifs() result qualifies: extract_motifs() output is
+  # instance-level even when each type happens to occur in one triple.
   z_lookup <- NULL
   p_lookup <- NULL
-  if (!isTRUE(x$named_nodes) &&
+  if (inherits(x, "cograph_motif_result") &&
+      !isTRUE(x$named_nodes) &&
       isTRUE(x$params$significance) &&
       is.data.frame(x$results) &&
       "z" %in% names(x$results) &&
       "p" %in% names(x$results) &&
       "type" %in% names(x$results) &&
       !anyDuplicated(x$results$type)) {
-    # The duplicate guard matters for legacy extract_motifs() output: it has
-    # no named_nodes slot but one row per node-triple, so a per-type lookup
-    # would silently decorate each panel with whichever triple came first.
     z_lookup <- stats::setNames(x$results$z, x$results$type)
-    p_lookup <- stats::setNames(x$results$p, x$results$type)
+    p_lookup <- stats::setNames(.motif_decision_p(x$results), x$results$type)
   }
 
   motifs_to_plot <- names(type_counts)
@@ -429,7 +427,7 @@
   }
 
   if (combined) {
-    n_cols <- min(4, n_plots)
+    n_cols <- min(ncol, n_plots)
     n_rows <- ceiling(n_plots / n_cols)
 
     old_par <- graphics::par(no.readonly = TRUE)

@@ -1284,13 +1284,18 @@ compare_communities <- function(comm1, comm2,
 #'   \code{cograph_motif_analysis} with \code{type = "significance"}, the
 #'   \code{n} lowest and \code{n} highest z-scores are plotted.
 #' @param ncol,nrow Number of columns and rows of the panel grid. A
-#'   \code{NULL} value is computed from the number of panels.
+#'   \code{NULL} value is computed from the number of panels. For the
+#'   pattern diagrams of a \code{cograph_motif_result} (\code{type =
+#'   "patterns"}, or \code{"triads"} on a census) the grid has four columns
+#'   unless \code{ncol} is given.
 #' @param colors Colors of the significance scale in motif plots. For
 #'   \code{cograph_motif_result} and \code{cograph_motif_analysis}, a vector
 #'   of two colors. The first fills items that are significantly
 #'   under-represented (\code{p < .05} and \code{z < 0}) and the second fills
 #'   items that are significantly over-represented (\code{p < .05} and
-#'   \code{z > 0}). All other items are filled neutral grey
+#'   \code{z > 0}); \code{p} is the adjusted \code{p_adj} when the result
+#'   was computed with a \code{p_adjust} method, so the colours match the
+#'   \code{sig} column. All other items are filled neutral grey
 #'   (\code{"#9E9E9E"}). When no per-type significance is available, the
 #'   first color is used as a single fill. For \code{cograph_motifs}, a vector of three
 #'   colors for under-represented, neutral and over-represented motifs.
@@ -1309,8 +1314,10 @@ compare_communities <- function(comm1, comm2,
 #'   the three nodes of each panel inward and values below 1 push them
 #'   apart.
 #' @param significant Logical. When \code{TRUE}, \code{type = "triads"} on a
-#'   \code{cograph_motif_result} draws only the triads whose \code{sig} flag
-#'   is \code{TRUE}, still ordered as in the results and capped at \code{n}.
+#'   \code{cograph_motif_result} draws only the rows whose \code{sig} flag
+#'   is \code{TRUE}, still ordered as in the results and capped at \code{n}:
+#'   the significant triples of an instance result, or the significant MAN
+#'   types of a census.
 #'   It needs a result computed with \code{significance = TRUE}; otherwise a
 #'   \code{cograph_no_significance} error is raised. Default \code{FALSE}.
 #' @param base_size Base font size of the ggplot2 theme used by
@@ -1326,8 +1333,11 @@ compare_communities <- function(comm1, comm2,
 #'   \code{tna_disparity}, to \code{plot_group_permutation()} when \code{i} is
 #'   \code{NULL}, and to the group and multilevel panel functions.
 #' @param show_nonsig Logical. Whether non-significant items are shown. For
-#'   \code{cograph_motifs} these are motifs; for \code{plot_permutation()}
-#'   they are edges, plotted dashed and grey. Default \code{FALSE}.
+#'   \code{cograph_motifs} these are motifs; motifs with a count of zero and
+#'   classes igraph does not count (\code{NA}) are never drawn, and rows with
+#'   \code{z = NA} are left out of the bar and heatmap views with a message.
+#'   For \code{plot_permutation()} they are edges, plotted dashed and grey.
+#'   Default \code{FALSE}.
 #' @param top_n Number of motifs with the largest absolute z-scores to plot.
 #'   \code{NULL} (default) plots all.
 #' @param k Prominence threshold whose club members are highlighted with
@@ -1431,13 +1441,15 @@ compare_communities <- function(comm1, comm2,
 #'     single fill, because per-type significance would require aggregating
 #'     several node-triple rows of the same type.}
 #'   \item{\code{"significance"}}{Z-score bars, one per MAN type for a census
-#'     and one per node triple for instance results. It requires the analysis
+#'     and one per results row for instance results (node triple and labelled
+#'     pattern by default). It requires the analysis
 #'     to have been run with \code{significance = TRUE}.}
 #'   \item{\code{"patterns"}}{Abstract MAN pattern diagrams of each triad
 #'     type. For a census tested for significance the nodes are filled by
 #'     significance direction, and the panel titles add the z-score and a
 #'     significance star (\code{*} p<.05, \code{**} p<.01, \code{***}
-#'     p<.001). Instance results use a single fill.}
+#'     p<.001), using the adjusted p-value when one was requested. Instance
+#'     results and \code{cograph_motif_analysis} use a single fill.}
 #' }
 #' For \code{cograph_motifs}, \code{type} is \code{"bar"} (default; motif
 #' z-scores colored by over- or under-representation), \code{"heatmap"}

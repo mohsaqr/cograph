@@ -230,7 +230,7 @@ check_motif_mc_dataset <- function(ds) {
     }
 
     ct <- triad_census(mat)
-    if (!identical(as.integer(ct), ref)) add("triad_census mismatch")
+    if (!identical(as.integer(ct$count), ref)) add("triad_census mismatch")
 
     mc <- motif_census(mat, directed = TRUE, n_random = 2,
                        seed = ds$seed)

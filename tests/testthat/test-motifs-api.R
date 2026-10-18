@@ -955,20 +955,28 @@ test_that("individual non-any null boundaries remain explicit", {
   expect_equal(instances$results$expected, 0)
 })
 
-test_that("legacy aggregate extraction retains support-preserving stubs", {
+test_that("aggregate extraction warns that significance needs units", {
+  # A single pooled network has no units to shuffle, so extract_motifs()
+  # (a wrapper of subgraphs()) returns the census without significance.
   fractional <- matrix(0.1, 4, 4,
                        dimnames = list(LETTERS[1:4], LETTERS[1:4]))
   diag(fractional) <- 0
   binary <- (fractional > 0) * 1
 
-  fractional_result <- extract_motifs(
-    fractional, level = "aggregate", pattern = "all", min_transitions = 0,
-    significance = TRUE, n_perm = 20, seed = 1
+  expect_warning(
+    fractional_result <- extract_motifs(
+      fractional, level = "aggregate", pattern = "all", min_transitions = 0,
+      significance = TRUE, n_perm = 20, seed = 1
+    ),
+    class = "cograph_no_units"
   )
   binary_result <- extract_motifs(
-    binary, level = "aggregate", pattern = "all", min_transitions = 0,
-    significance = TRUE, n_perm = 20, seed = 1
+    binary, level = "aggregate", pattern = "all", min_transitions = 0
   )
-
-  expect_identical(fractional_result$results, binary_result$results)
+  frac <- as.data.frame(fractional_result)
+  bin <- as.data.frame(binary_result)
+  expect_false(any(c("expected", "z", "p", "sig") %in% names(frac)))
+  # Same edges, so the same triads; observed is the six-edge weight.
+  expect_identical(sort(frac$triad), sort(bin$triad))
+  expect_equal(sum(frac$observed) * 10, sum(bin$observed))
 })

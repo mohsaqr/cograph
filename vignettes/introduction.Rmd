@@ -417,9 +417,9 @@ mot
 | `motifs()` | MAN type census with significance testing |
 | `subgraphs()` | Named node triples forming each pattern |
 | `motif_census()` | Low-level triad census |
-| `extract_motifs()` | Per-individual motif extraction |
+| `extract_motifs()` | Per-individual triads (`subgraphs(strict = FALSE)` with the older interface) |
 | `extract_triads()` | Extract specific triad types |
-| `triad_census()` | Raw 16-type triad count |
+| `triad_census()` | Count of the 16 triad types, one row per type |
 | `get_edge_list()` | Edge list from tna for motif input |
 
 ## Robustness

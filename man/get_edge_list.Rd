@@ -24,6 +24,9 @@ A data frame with columns:
 \item{count}{Number of transitions.}
 }
 With \code{by_individual = FALSE}, the rows are sorted by decreasing count.
+The edge list can be passed to \code{\link[=motifs]{motifs()}}, \code{\link[=subgraphs]{subgraphs()}} or
+\code{\link[=extract_motifs]{extract_motifs()}} (with \code{id = "id"}), which read \code{count} as the
+transition weight.
 }
 \description{
 Extracts the individual-level transition counts of a tna object as an edge

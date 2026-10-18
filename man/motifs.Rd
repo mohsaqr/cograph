@@ -25,7 +25,8 @@ motifs(
   seed = NULL,
   family = c("observed", "all"),
   p_adjust = "none",
-  strict = TRUE
+  strict = TRUE,
+  count_repeats = FALSE
 )
 
 \method{as.data.frame}{cograph_motif_result}(
@@ -39,7 +40,14 @@ motifs(
 }
 \arguments{
 \item{x}{Input data: a tna object, cograph_network, matrix, igraph object or
-edge-list data frame. For \code{as.data.frame()}, a
+edge-list data frame. An edge list has the columns \code{from} and
+\code{to} (any case), an optional weight column \code{weight} or
+\code{count} (1 per row otherwise), the optional actor column described
+under \code{actor}, and an optional order column (\code{timestamp},
+\code{time}, \code{seq}, \code{step} or \code{order}) that sorts the
+transitions within each actor before windowing. An edge list without
+\code{from} or \code{to} raises an error of class
+\code{cograph_bad_edgelist}. For \code{as.data.frame()}, a
 \code{cograph_motif_result} object returned by \code{motifs()} or
 \code{subgraphs()}.}
 
@@ -54,11 +62,14 @@ units. If NULL (default), the first column named \code{session_id},
 Without such a column the analysis is aggregate.}
 
 \item{window}{Numeric. Window size for edge-list input. Each actor's
-transitions are split into windows of this size. NULL (default) applies
-no windowing.}
+transitions are cut into windows of this many transitions, and every
+window is analysed as one unit (individual level). \code{window} needs
+an actor column; without one it raises an error of class
+\code{cograph_window_needs_actor}. NULL (default) applies no windowing.}
 
-\item{window_type}{Character. \code{"rolling"} (default) or
-\code{"tumbling"}. Used only when \code{window} is set.}
+\item{window_type}{Character. \code{"rolling"} (default) windows start at
+every transition and overlap; \code{"tumbling"} windows are consecutive
+and do not overlap. Used only when \code{window} is set.}
 
 \item{pattern}{Which MAN triad types to include in the analysis:
 \describe{
@@ -72,7 +83,8 @@ every pair of the three nodes is linked.}
 }}
 
 \item{include}{Character vector of MAN types to keep. When supplied,
-\code{pattern} and \code{exclude} are ignored.}
+\code{pattern} and \code{exclude} are ignored, and the result records
+the pattern as \code{"custom"}.}
 
 \item{exclude}{Character vector of MAN types to drop in addition to those
 removed by \code{pattern}.}
@@ -101,8 +113,11 @@ mode it filters the \code{count} column, the number of triads of each MAN
 type. In instance mode it filters the \code{observed} column. At
 individual level this is the number of units showing the triad, and at
 aggregate level it is the weighted edge mass of the triad (the sum of its
-6 directed edge weights). Default 2 in instance mode, since a pattern
-seen in a single unit cannot recur, and NULL (no filter) in census mode.}
+6 directed edge weights). Default 2 in instance mode, since at individual
+level a pattern seen in a single unit cannot recur, and NULL (no filter)
+in census mode. At aggregate level the threshold applies to the edge
+weight mass, so for probability matrices lower it (for example
+\code{min_count = 1} or \code{NULL}).}
 
 \item{edge_method}{Method for determining edge presence: \code{"any"}
 (default; any positive edge), \code{"expected"} (ratio of the observed
@@ -115,11 +130,12 @@ methods. For \code{"expected"}, 1.5 means 50 percent above expected. For
 are percentages. Default 1.5.}
 
 \item{min_transitions}{Minimum total edge weight for a unit to be included,
-counted after self-loops are removed. Default 3 in instance mode, the
+counted after self-loops are removed unless \code{count_repeats = TRUE}.
+Default 3 in instance mode, the
 fewest transitions that can form a closed triad (030C and 030T have three
-edges), and 5 in census mode. At
-aggregate level the network is the only unit, so a network
-whose weights sum to less than this value gives NULL.}
+edges), and 5 in census mode. At aggregate level the network is the only
+unit, so a network whose weights sum to less than this value gives NULL;
+for a probability matrix set \code{min_transitions = 0}.}
 
 \item{top}{Integer or NULL. Only the first \code{top} rows of the results
 are kept. NULL (default) keeps all rows.}
@@ -136,14 +152,17 @@ only observed rows selects on the outcome: a rare configuration enters
 the test only when it happens to occur, which inflates the false-positive
 rate well above the nominal level. \code{"all"} keeps it at or below the
 nominal level. The full family has \code{choose(n_states, 3)} rows per
-retained type, so the permutation null grows accordingly. Ignored in
+retained labelled pattern with \code{strict = TRUE} (for example six
+for 030T, two for 030C and one for 300), or per retained MAN type with
+\code{strict = FALSE}, so the permutation null grows accordingly. Ignored in
 census mode and without individual-level significance.}
 
 \item{p_adjust}{Multiplicity correction applied to the p-values of every
 tested row, one of \code{\link[stats]{p.adjust.methods}}. Default
 \code{"none"}. The adjusted values are returned in \code{p_adj} and
 \code{sig} is \code{p_adj < 0.05}. With \code{family = "all"} the
-adjustment covers the full family before \code{min_count} is applied.}
+adjustment covers the full family before \code{min_count} is applied.
+Plot colours and stars follow \code{p_adj}, so they match \code{sig}.}
 
 \item{strict}{Logical. In instance mode, whether a row is one labelled
 pattern of a triple (\code{TRUE}, default) or one MAN type of a triple
@@ -154,6 +173,20 @@ counts toward a row only when the triple shows exactly that set of
 arrows, and the null counts the same exact pattern. With
 \code{strict = FALSE} rows pool every labelled pattern of the type and
 \code{pattern} reports the most frequent one. Ignored in census mode.}
+
+\item{count_repeats}{Logical. Whether repeated codes (self-transitions such
+as A to A) count as transitions. Default \code{FALSE}: repeats are
+removed before anything else, so only transitions between different codes
+decide which units are analysed and enter the permutation null. With
+\code{TRUE}, repeats count toward \code{min_transitions} (a unit coded
+A, A, A, B, C has four transitions instead of two) and are shuffled with
+the other transitions in the null, which treats repeated codes as
+distinct events whose order is random. The null then also reflects how
+often units repeat: units that repeat a lot have fewer ties between
+different codes than their shuffles, which raises the number of dense
+triads the null expects. Observed triads never contain a
+repeat in either case, because a triad is made of ties between three
+different nodes.}
 
 \item{row.names, optional}{Standard \code{\link[base]{as.data.frame}}
 arguments. \code{row.names} replaces the default row names;
@@ -188,8 +221,8 @@ one triple can occupy several rows. \code{pattern} is the labelled
 edge set of the row (for example \code{"A -> B, B <-> C"}). With
 \code{strict = FALSE} a row pools patterns that differ in direction,
 so \code{pattern} is the most frequent of them and \code{pattern_n}
-the number of units showing it; with \code{strict = TRUE}
-\code{pattern_n} equals \code{observed}. \code{pattern_code} is
+the number of units showing it; at individual level with
+\code{strict = TRUE} \code{pattern_n} equals \code{observed}. \code{pattern_code} is
 the same edge set as a six-bit code in
 \code{node1}, \code{node2}, \code{node3} order (1: node1 to node2,
 2: node2 to node1, 4: node1 to node3, 8: node3 to node1, 16: node2 to
@@ -205,29 +238,34 @@ Census results carry \code{expected}, \code{z}, \code{p},
 \code{p_adj} and \code{sig} in the same way.}
 \item{type_summary}{Named \code{table} of counts per MAN type, sorted in
 decreasing order. In census mode it holds the \code{count} column. In
-instance mode it holds the number of node triples of each type.}
+instance mode it holds the number of result rows of each type: node
+triple and labelled pattern with \code{strict = TRUE}, node triple
+and type with \code{strict = FALSE}.}
 \item{level}{\code{"individual"} when the input carried per-unit data,
 otherwise \code{"aggregate"}.}
 \item{named_nodes}{The value of the \code{named_nodes} argument.}
-\item{n_units}{Number of units analyzed: the units whose loop-free
-transition total reaches \code{min_transitions}. 1 at aggregate
+\item{n_units}{Number of units analyzed: the units whose transition
+total (loop-free unless \code{count_repeats = TRUE}) reaches
+\code{min_transitions}. 1 at aggregate
 level.}
 \item{n_units_total}{Number of units supplied, before the
 \code{min_transitions} filter.}
 \item{params}{List of the analysis settings: \code{labels},
-\code{n_states}, \code{pattern}, \code{edge_method},
+\code{n_states}, \code{pattern} (\code{"custom"} when
+\code{include} is used), \code{include}, \code{edge_method},
 \code{edge_threshold}, \code{significance}, \code{n_perm},
-\code{min_count}, \code{min_transitions}, \code{family},
+\code{min_count}, \code{min_transitions}, \code{count_repeats},
+\code{family},
 \code{p_adjust}, \code{strict}, \code{window}, \code{window_type} and
-\code{actor}.}
+\code{actor} (the actor column used, or NULL at aggregate level).}
 }
 
 \code{as.data.frame()} returns one of these tables as a plain data frame.
 With \code{what = "results"} (default) it returns the \code{results}
 table described above. With \code{what = "types"} it returns one row per
 MAN type with columns \code{type} and \code{count}, where \code{count} is
-the number of triads of that type in a census or the number of node
-triples of that type in instance mode.
+the number of triads of that type in a census or the number of result
+rows of that type in instance mode (see \code{type_summary}).
 }
 \description{
 Classifies the node triples of a network into the 16 directed MAN triad
@@ -243,9 +281,10 @@ the result lists the node triples that form each type.
 \details{
 The input type and the analysis level are detected automatically. Inputs
 that carry per-unit data are analyzed per unit. These are tna objects,
-networks that store tna sequence data, and edge lists (or networks built
-from edge lists) with an actor column. Matrices, igraph objects and other
-networks are analyzed as one aggregate network. The adjacency is always
+networks that store sequence data (such as \code{as_cograph()} of a tna or
+a network from \code{Nestimate::build_network()}), and edge lists (or
+networks built from edge lists) with an actor column. Matrices, igraph
+objects and other networks are analyzed as one aggregate network. The adjacency is always
 classified as directed. The four-class undirected census is computed by
 \code{motif_census(..., directed = FALSE)}.
 
@@ -256,7 +295,9 @@ edge weight is converted to at least one integer stub, and target stubs are
 shuffled within each unit so that its integer in- and out-margins are
 preserved. The resulting multigraph, which may contain loops or parallel
 edges, is classified through its simple loop-free triad projection.
-Self-loops are removed before counting and before the null is constructed.
+Self-loops are removed before counting. They are also removed before the
+null is constructed, unless \code{count_repeats = TRUE}, in which case they
+are shuffled with the other transitions.
 
 With \code{edge_method = "percent"}, edge presence is computed within each
 node triple. The weight of an edge is divided by the sum of the six possible

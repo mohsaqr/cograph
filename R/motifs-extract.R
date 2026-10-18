@@ -6,23 +6,19 @@
 #' Extracts the triads of a network, classifies each one into the 16 MAN
 #' types of a directed network, and optionally tests each triad against a
 #' permutation null model. The analysis is individual-level for tna objects
-#' and grouped data, and aggregate for matrices and networks.
+#' and for \code{data} with \code{id}, and aggregate for matrices, networks
+#' and igraph objects.
 #'
-#' @details Self-loops are removed before the activity filter, the counting
-#' and the null model. Significance is assessed against a directed weighted
-#' stub-matching null model. Each weight is rounded to an integer number of
-#' stubs, and a positive weight that rounds to zero keeps one stub. The target
-#' stubs are shuffled, which preserves the in- and out-strengths of every
-#' unit. Loops and multiple edges created by the shuffle are collapsed to a
-#' simple graph before the triads are classified. The aggregate mode of
-#' [motifs()] uses the simple-graph rewiring null of [motif_census()]
-#' instead.
+#' @details \code{extract_motifs()} is [subgraphs()] with
+#' \code{strict = FALSE}: a row is one node triple and MAN type, and its
+#' \code{observed} value is the number of units in which the triple shows that
+#' type. Counting, the activity filter and the permutation null are those of
+#' [subgraphs()], described in [motifs()]. Self-loops are removed before
+#' counting.
 #'
-#' The selected \code{edge_method} is reapplied to each null replicate. Since
-#' small positive weights are rounded up to one stub, the total weight of a
-#' replicate can differ from the observed total under \code{"percent"} and
-#' \code{"expected"}. Results without significance testing and results with
-#' \code{edge_method = "any"} do not depend on this rounding.
+#' Significance needs individual-level data. For aggregate input a warning of
+#' class \code{cograph_no_units} is raised and the result has no significance
+#' columns.
 #'
 #' @param x Input data. Can be:
 #'   \itemize{
@@ -31,14 +27,16 @@
 #'     \item A `cograph_network` object
 #'     \item An `igraph` object
 #'   }
-#' @param data Optional data.frame containing transition data with an ID column
-#'   for individual-level analysis. Required columns: `from`, `to`, and the
-#'   column(s) specified in `id`. An optional `weight` column gives the
-#'   transition weights (1 otherwise). `data` is used when `x` is not a tna
-#'   object, and `x` is then ignored.
+#' @param data Optional data.frame of transitions for individual-level
+#'   analysis, used together with \code{id}. Required columns: `from`, `to`
+#'   and the column(s) named in `id`. A `weight` column, or a `count` column
+#'   as returned by [get_edge_list()], gives the transition weights (1
+#'   otherwise). When `x` is not a tna object, `data` is used and `x` is
+#'   ignored. `data` without `id` raises an error of class
+#'   \code{cograph_data_needs_id}.
 #' @param id Column name(s) identifying individuals/groups in `data`. Can be
-#'   a single string or character vector for multiple grouping columns.
-#'   Required for individual-level analysis with non-tna inputs.
+#'   a single string or a character vector; each distinct combination of the
+#'   values is one individual.
 #' @param level Analysis level: "individual" counts how many individuals show
 #'   each triad, and "aggregate" analyzes the network summed over individuals.
 #'   The default is "individual" for a tna object or when `data` and `id` are
@@ -46,16 +44,18 @@
 #'   individual data raises a warning and the aggregate level is used.
 #' @param edge_method Method for determining edge presence:
 #'   \describe{
-#'     \item{"any"}{Edge exists if count > 0.}
-#'     \item{"expected"}{Edge exists if observed/expected >= threshold.}
-#'     \item{"percent"}{Edge exists if edge/total >= threshold.}
+#'     \item{"any"}{Edge exists if the weight is positive.}
+#'     \item{"expected"}{Edge exists if observed / expected is at least the
+#'       threshold, with the expectation from the row and column totals.}
+#'     \item{"percent"}{Edge exists if the edge weight divided by the
+#'       six-edge triad total is at least the threshold.}
 #'   }
 #'   Default "any".
-#' @param edge_threshold Threshold value for "expected" or "percent" methods.
-#'   For "expected", a ratio (1.5 means 50\% stronger than expected).
-#'   For "percent", a proportion of the total triad weight (for example 0.15).
-#'   The default 1.5 is intended for "expected", so a value for "percent"
-#'   should be set explicitly. Ignored when edge_method = "any". Default 1.5.
+#' @param edge_threshold Threshold for "expected" or "percent". For
+#'   "expected", a ratio (1.5 means 50\% above expected). For "percent",
+#'   values at or below 1 are proportions and values above 1 are percentages,
+#'   so the default 1.5 means 1.5 percent; set it explicitly for "percent".
+#'   Ignored when edge_method = "any". Default 1.5.
 #' @param pattern Pattern filter for which triads to include:
 #'   \describe{
 #'     \item{"triangle"}{All 3 node pairs must be connected (any direction).
@@ -70,36 +70,40 @@
 #' @param include_types Character vector of MAN types to include. When
 #'   supplied, only these types are returned, and `pattern` and
 #'   `exclude_types` are ignored.
-#' @param top Number of rows to return, taken after sorting by observed count
-#'   (by z-score when `significance = TRUE`). NULL returns all rows.
-#'   Default NULL.
-#' @param by_type If TRUE, the rows are sorted by MAN type and then by
-#'   observed count. Default FALSE.
-#' @param min_transitions At individual level: minimum total transitions for a
-#'   person to be included in the analysis. At aggregate level: minimum triad
-#'   weight to count as present. Default 3, the fewest transitions that can
-#'   form a closed triad.
-#' @param significance Logical. Run permutation significance test? Default FALSE.
+#' @param top Number of rows to return, taken after sorting (and after the
+#'   \code{by_type} grouping when \code{by_type = TRUE}). NULL or 0 returns all
+#'   rows. Default NULL.
+#' @param by_type If TRUE, the rows are grouped by MAN type in MAN order
+#'   (003 to 300), keeping the sort order within each type. Default FALSE.
+#' @param min_transitions At individual level: minimum total transitions,
+#'   repeats excluded, for an individual to be analysed. At aggregate level:
+#'   minimum six-edge weight for a triad to be listed. Default 3, the fewest
+#'   transitions that can form a closed triad. With probability or relative
+#'   weights at aggregate level, use 0.
+#' @param significance Logical. Run the permutation test? Needs
+#'   individual-level data. Default FALSE.
 #' @param n_perm Number of permutations for the significance test. When
 #'   \code{significance = TRUE}, must be a whole number of at least 2.
 #'   Default 100.
 #' @param seed Optional random seed. The caller's random number state is
 #'   restored on exit.
 #'
-#' @return A `cograph_motif_analysis` object (list) containing the elements
-#'   below, or \code{NULL} with a warning when no triad passes the filters.
+#' @return A `cograph_motif_analysis` object, or \code{NULL} with a warning
+#'   when no triad passes the filters. \code{as.data.frame()} returns its
+#'   tables:
 #'   \describe{
-#'     \item{results}{Data frame with one row per node-triple and MAN type,
-#'       the display label \code{triad}, unambiguous \code{node1}/\code{node2}/
-#'       \code{node3} columns, its observed count, and (if
-#'       \code{significance = TRUE}) expected
-#'       count, z-score, empirical p-value, and significance marker. A node
-#'       triple that has different types across individuals therefore appears
-#'       in more than one row.}
-#'     \item{type_summary}{A \code{table} of triad counts by MAN type,
-#'       summed over individuals and sorted in decreasing order.}
-#'     \item{params}{List of the settings used, with the number of
-#'       individuals, the number of states and the node labels.}
+#'     \item{\code{what = "results"}}{One row per node triple and MAN type,
+#'       with columns \code{triad} (display label), \code{node1},
+#'       \code{node2}, \code{node3}, \code{type}, \code{observed} (units
+#'       showing that type, or the six-edge weight at aggregate level) and,
+#'       with \code{significance = TRUE}, \code{expected}, \code{z},
+#'       \code{p} (empirical permutation p-value) and \code{sig} (logical,
+#'       \code{p < 0.05}). Rows are sorted by decreasing \code{|z|}, or by
+#'       decreasing \code{observed} without significance. A triple that has
+#'       different types in different individuals appears in more than one
+#'       row.}
+#'     \item{\code{what = "types"}}{One row per MAN type with the total of
+#'       \code{observed} over all rows of that type, before \code{top}.}
 #'   }
 #'
 #' @section MAN Notation:
@@ -109,17 +113,20 @@
 #'   \item Second digit: number of asymmetric (one-way) pairs.
 #'   \item Third digit: number of null (no edge) pairs.
 #'   \item Letter suffix: subtype (C = cycle, T = transitive, D = down,
-#'     U = up).
+#'     U = up). D and U describe how the type is drawn, not whether it
+#'     contains an out-star or an in-star.
 #' }
 #'
 #' @section Pattern Types:
+#' The names are those used in the plot titles.
 #' \describe{
 #'   \item{Triangle patterns (all pairs connected):}{
-#'     030C (cycle), 030T (feed-forward), 120C (regulated cycle),
-#'     120D (two out-stars), 120U (two in-stars), 210 (mutual+asymmetric), 300 (clique)}
+#'     030C (cycle), 030T (feed-forward), 120C (cycle + mutual),
+#'     120D (out-star onto mutual), 120U (in-star from mutual),
+#'     210 (near-clique), 300 (clique)}
 #'   \item{Network patterns:}{
 #'     021D (out-star), 021U (in-star), 102 (mutual pair),
-#'     111D (out-star+mutual), 111U (in-star+mutual), 201 (two mutual pairs),
+#'     111D (in-star + mutual), 111U (out-star + mutual), 201 (two mutuals),
 #'     plus all triangle patterns}
 #'   \item{Sequential patterns (chains):}{
 #'     012 (single edge), 021C (A->B->C chain)}
@@ -127,12 +134,14 @@
 #' }
 #'
 #' @section Printing and plotting:
-#' Printing the result shows the analysis settings, the MAN type distribution
-#' and the first 20 triads. \code{plot()} on the result is documented in
-#' \code{\link{plot-results}}.
+#' Printing the result shows the analysis settings, the number of units
+#' analysed, the MAN type distribution and the first 20 triads.
+#' \code{plot()} on the result is documented in \code{\link{plot-results}}.
 #'
 #' @examples
-#' extract_motifs(regulation_net, min_transitions = 0)
+#' m <- extract_motifs(regulation_net, min_transitions = 0)
+#' m
+#' as.data.frame(m)
 #'
 #' @seealso [motifs()], [subgraphs()], [extract_triads()], [motif_census()]
 #' @family motifs
@@ -155,366 +164,220 @@ extract_motifs <- function(x = NULL,
 
   edge_method <- match.arg(edge_method)
   pattern <- match.arg(pattern)
-  if (significance) {
+  if (isTRUE(significance)) {
     n_perm <- .validate_motif_repetitions(n_perm, "n_perm")
   }
+  stopifnot(
+    "`by_type` must be TRUE or FALSE" = isTRUE(by_type) || isFALSE(by_type),
+    "`significance` must be TRUE or FALSE" =
+      isTRUE(significance) || isFALSE(significance),
+    "`min_transitions` must be one non-negative number" =
+      is.numeric(min_transitions) && length(min_transitions) == 1L &&
+      !is.na(min_transitions) && min_transitions >= 0
+  )
 
-  # Use shared pattern filter definitions
-  pf <- .get_pattern_filters()
+  # extract_motifs() is subgraphs(strict = FALSE): one row per node triple and
+  # MAN type, counting the units that show it. This function only maps its
+  # historical arguments and output shape onto that single implementation.
+  input <- .extract_motifs_input(x, data, id, level)
 
-  # Determine which types to exclude based on pattern
-  if (!is.null(include_types)) {
-    pattern_exclude <- character(0)
-  } else if (pattern == "triangle") {
-    pattern_exclude <- setdiff(pf$all_types, pf$triangle_types)
-  } else if (pattern == "network") {
-    pattern_exclude <- pf$network_exclude
-  } else if (pattern == "closed") {
-    pattern_exclude <- pf$closed_exclude
-  } else {
-    pattern_exclude <- character(0)
+  # At individual level `min_transitions` gates each unit's activity, as in
+  # subgraphs(). At aggregate level it has always been a per-triad weight
+  # filter, which is subgraphs()' `min_count` on aggregate input.
+  aggregate <- input$level == "aggregate"
+  res <- motifs(
+    input$x,
+    named_nodes = TRUE,
+    actor = input$actor,
+    pattern = pattern,
+    include = include_types,
+    exclude = exclude_types,
+    significance = significance && !aggregate,
+    n_perm = n_perm,
+    min_count = if (aggregate) min_transitions else 1L,
+    edge_method = edge_method,
+    edge_threshold = edge_threshold,
+    min_transitions = if (aggregate) 0 else min_transitions,
+    seed = seed,
+    strict = FALSE
+  )
+  if (significance && aggregate) {
+    warning(warningCondition(
+      paste0("Significance needs individual-level data (several units); ",
+             "the aggregate analysis is returned without it."),
+      class = "cograph_no_units", call = NULL))
+    significance <- FALSE
+  }
+  if (is.null(res)) {
+    warning("No triads found with current settings")
+    return(NULL)
   }
 
-  final_exclude <- if (!is.null(include_types)) {
-    character(0)
-  } else {
-    unique(c(pattern_exclude, exclude_types))
+  keep <- c("triad", "node1", "node2", "node3", "type", "observed",
+            if (significance) c("expected", "z", "p", "sig"))
+  results <- as.data.frame(res)[keep]
+  man_order <- .triad_type_names()
+  type_summary <- tapply(results$observed, factor(results$type, man_order),
+                         sum)
+  type_summary <- as.table(type_summary[!is.na(type_summary)])
+  type_summary <- sort(type_summary, decreasing = TRUE)
+  n_triads <- nrow(results)
+
+  # Rows arrive sorted by |z| (significance) or by observed count. by_type
+  # groups them in MAN order, keeping that order within each type.
+  if (by_type) {
+    results <- results[order(match(results$type, man_order),
+                             seq_len(nrow(results))), , drop = FALSE]
   }
-
-  if (!is.null(seed)) {
-    saved_rng <- .save_rng()
-    on.exit(.restore_rng(saved_rng), add = TRUE)
-    set.seed(seed)
+  if (!is.null(top) && top > 0 && nrow(results) > top) {
+    results <- utils::head(results, top)
   }
+  rownames(results) <- NULL
 
-  # ==========================================================================
-  # INPUT HANDLING - Support multiple input types
-  # ==========================================================================
+  structure(
+    list(
+      results = results,
+      type_summary = type_summary,
+      params = list(
+        level = input$level,
+        edge_method = edge_method,
+        edge_threshold = edge_threshold,
+        pattern = pattern,
+        exclude_types = exclude_types,
+        include_types = include_types,
+        top = top,
+        by_type = by_type,
+        min_transitions = min_transitions,
+        significance = significance,
+        n_perm = if (significance) res$params$n_perm else NA,
+        n_individuals = res$n_units_total %||% res$n_units,
+        n_units = res$n_units,
+        n_triads = n_triads,
+        n_states = res$params$n_states,
+        labels = res$params$labels
+      )
+    ),
+    class = "cograph_motif_analysis"
+  )
+}
 
-  trans <- NULL
-  labels <- NULL
-  has_individuals <- FALSE
-
-  # Case 1: TNA object (has individual-level data)
-  if (!is.null(x) && inherits(x, "tna")) {
-    d <- x$data
-    type_attr <- attr(x, "type")
-    scaling <- attr(x, "scaling")
-    params <- attr(x, "params")
-    init_fn <- .get_tna_initialize_model()
-    model <- init_fn(d, type_attr, scaling, params, transitions = TRUE)
-    trans <- model$trans
-    labels <- x$labels
-    has_individuals <- TRUE
-
-  # Case 2: Data.frame with id column(s)
-  } else if (!is.null(data) && !is.null(id)) {
-    if (!is.data.frame(data)) {
-      stop("'data' must be a data.frame")
+# Map extract_motifs() inputs to one motifs() input. Individual-level data
+# (a tna, or `data` with `id`) keeps one unit per individual; aggregate
+# analysis pools them into a single weighted network, as it always has.
+# @noRd
+.extract_motifs_input <- function(x, data, id, level) {
+  if (!is.null(data) && !inherits(x, "tna")) {
+    if (is.null(id)) {
+      stop(errorCondition(
+        "`data` needs `id`, the column(s) that identify the individuals.",
+        class = "cograph_data_needs_id", call = NULL))
     }
+    if (!is.data.frame(data)) stop("'data' must be a data.frame")
     if (!all(id %in% names(data))) {
-      stop("id column(s) not found in data: ", paste(setdiff(id, names(data)), collapse = ", "))
+      stop("id column(s) not found in data: ",
+           paste(setdiff(id, names(data)), collapse = ", "))
     }
-    if (!all(c("from", "to") %in% names(data))) {
+    if (!all(c("from", "to") %in% tolower(names(data)))) {
       stop("data must contain 'from' and 'to' columns")
     }
-
-    # Create composite ID if multiple columns
-    if (length(id) == 1) {
-      data$.id <- data[[id]]
-    } else {
-      data$.id <- do.call(paste, c(data[id], sep = "_"))
-    }
-
-    unique_ids <- unique(data$.id)
-    all_states <- unique(c(data$from, data$to))
-    labels <- sort(all_states)
-    s <- length(labels)
-    n_ind <- length(unique_ids)
-
-    # Build 3D transition array (vectorized)
-    trans <- array(0, dim = c(n_ind, s, s))
-    state_idx <- setNames(seq_along(labels), labels)
-
-    data$from_idx <- state_idx[as.character(data$from)]
-    data$to_idx <- state_idx[as.character(data$to)]
-    data$ind_idx <- match(data$.id, unique_ids)
-    data$wt <- if ("weight" %in% names(data)) data$weight else rep(1, nrow(data))
-
-    valid <- !is.na(data$from_idx) & !is.na(data$to_idx)
-    d_valid <- data[valid, ]
-
-    if (nrow(d_valid) > 0) {
-      agg <- stats::aggregate(wt ~ ind_idx + from_idx + to_idx,
-                               data = d_valid, FUN = sum)
-      trans[cbind(agg$ind_idx, agg$from_idx, agg$to_idx)] <- agg$wt
-    }
-    has_individuals <- TRUE
-
-  # Case 3: Matrix (aggregate only)
-  } else if (!is.null(x) && is.matrix(x)) {
-    mat <- x
-    if (is.null(rownames(mat))) {
-      labels <- paste0("V", seq_len(nrow(mat)))
-    } else {
-      labels <- rownames(mat)
-    }
-    s <- nrow(mat)
-    trans <- array(mat, dim = c(1, s, s))
-    has_individuals <- FALSE
-
-  # Case 4: cograph_network
-  } else if (!is.null(x) && inherits(x, "cograph_network")) {
-    mat <- to_matrix(x)
-    labels <- get_labels(x)
-    s <- nrow(mat)
-    trans <- array(mat, dim = c(1, s, s))
-    has_individuals <- FALSE
-
-  # Case 5: igraph
-  } else if (!is.null(x) && inherits(x, "igraph")) {
-    if (!requireNamespace("igraph", quietly = TRUE)) {
-      stop("igraph package required") # nocov
-    }
-    if ("weight" %in% igraph::edge_attr_names(x)) {
-      mat <- as.matrix(igraph::as_adjacency_matrix(x, attr = "weight", sparse = FALSE))
-    } else {
-      mat <- as.matrix(igraph::as_adjacency_matrix(x, sparse = FALSE))
-    }
-    labels <- igraph::V(x)$name
-    if (is.null(labels)) labels <- paste0("V", seq_len(nrow(mat)))
-    s <- nrow(mat)
-    trans <- array(mat, dim = c(1, s, s))
-    has_individuals <- FALSE
-
+    # One integer code per distinct id combination: pasting the raw values
+    # would merge ("a_b", "c") with ("a", "b_c").
+    codes <- lapply(data[id], \(v) match(v, unique(v)))
+    unit <- do.call(paste, c(codes, sep = "-"))
+    nms <- tolower(names(data))
+    edge_cols <- names(data)[nms %in% c("from", "to", "weight", "count")]
+    el <- data[edge_cols]
+    el$.unit <- unit
+    has_units <- TRUE
+  } else if (inherits(x, "tna")) {
+    has_units <- TRUE
+  } else if (is.matrix(x) || inherits(x, "cograph_network") ||
+             inherits(x, "igraph")) {
+    has_units <- FALSE
   } else {
     stop("Invalid input. Provide a tna object, matrix, cograph_network, igraph, ",
          "or data.frame with 'data' and 'id' arguments.")
   }
 
-  # Determine level
   if (is.null(level)) {
-    level <- if (has_individuals) "individual" else "aggregate"
+    level <- if (has_units) "individual" else "aggregate"
   } else {
     level <- match.arg(level, c("individual", "aggregate"))
-    if (level == "individual" && !has_individuals) {
+    if (level == "individual" && !has_units) {
       warning("Individual level requested but no individual data available. Using aggregate.")
       level <- "aggregate"
     }
   }
 
-  # Aggregate level means one pooled network: sum the per-individual
-  # transition matrices before counting. Without this, "aggregate" ran the
-  # same per-individual loop and only the metadata changed.
-  if (level == "aggregate" && dim(trans)[1] > 1L) {
-    pooled <- apply(trans, c(2, 3), sum)
-    trans <- array(pooled, dim = c(1L, dim(trans)[2], dim(trans)[3]))
+  if (!has_units) {
+    # Matrices, networks and igraph objects are one aggregate network.
+    net <- as_cograph(x)
+    mat <- to_matrix(net)
+    dimnames(mat) <- list(get_labels(net), get_labels(net))
+    return(list(x = mat, actor = NULL, level = "aggregate"))
   }
-
-  n_ind <- dim(trans)[1]
-  s <- dim(trans)[2]
-  trans <- .motif_strip_loops(trans)
-  eligible_individuals <- if (level == "individual") {
-    vapply(seq_len(n_ind), function(ind) {
-      sum(.motif_unit_matrix(trans, ind)) >= min_transitions
-    }, logical(1))
-  } else {
-    rep(TRUE, n_ind)
+  if (!is.null(data) && !inherits(x, "tna")) {
+    if (level == "individual") {
+      return(list(x = el, actor = ".unit", level = level))
+    }
+    el$.unit <- NULL
+    return(list(x = el, actor = NULL, level = level))
   }
-
-  # Main counting function (vectorized)
-  count_triads_internal <- function(trans_array, edge_method, edge_threshold,
-                                    min_trans, exclude, include = NULL,
-                                    eligible = NULL) {
-    all_results <- lapply(seq_len(dim(trans_array)[1]), function(ind) {
-      mat <- .motif_unit_matrix(trans_array, ind)
-      # Documented semantics: at individual level min_transitions gates the
-      # person's total activity; at aggregate level it is a per-triad weight
-      # filter (applied below), not a whole-network gate.
-      if (level == "individual") {
-        is_eligible <- if (is.null(eligible)) {
-          sum(mat) >= min_trans
-        } else {
-          eligible[ind]
-        }
-        if (!is_eligible) return(NULL)
-      }
-
-      expected_mat <- NULL
-      if (edge_method == "expected") {
-        total_mat <- sum(mat)
-        row_sums <- rowSums(mat)
-        col_sums <- colSums(mat)
-        expected_mat <- outer(row_sums, col_sums) / total_mat
-        expected_mat[expected_mat == 0] <- 0.001
-      }
-
-      triads_df <- .count_triads_matrix_vectorized(
-        mat = mat,
-        edge_method = edge_method,
-        edge_threshold = edge_threshold,
-        expected_mat = expected_mat,
-        exclude = exclude,
-        include = include
-      )
-
-      if (level == "aggregate" && !is.null(triads_df)) {
-        triads_df <- triads_df[triads_df$weight >= min_trans, , drop = FALSE]
-      }
-
-      if (!is.null(triads_df) && nrow(triads_df) > 0) {
-        data.frame(
-          person = ind,
-          .triad_key = paste(triads_df$i, triads_df$j, triads_df$k,
-                             sep = "\r"),
-          triad = paste(labels[triads_df$i], labels[triads_df$j],
-                        labels[triads_df$k], sep = " - "),
-          node1 = labels[triads_df$i], node2 = labels[triads_df$j],
-          node3 = labels[triads_df$k],
-          type = triads_df$type,
-          stringsAsFactors = FALSE
-        )
-      } else {
-        NULL
-      }
-    })
-
-    all_results <- all_results[!vapply(all_results, is.null, logical(1))]
-    if (length(all_results) == 0) return(NULL)
-    do.call(rbind, all_results)
+  if (level == "individual") {
+    return(list(x = x, actor = NULL, level = level))
   }
-
-  # Count observed
-  observed_raw <- count_triads_internal(trans, edge_method, edge_threshold,
-                                        min_transitions, final_exclude,
-                                        include_types, eligible_individuals)
-
-  if (is.null(observed_raw) || nrow(observed_raw) == 0) {
-    warning("No triads found with current settings")
-    return(NULL)
-  }
-
-  # Aggregate by (triad, MAN type), not just by node triple. The same nodes can
-  # instantiate different types in different people; collapsing those rows to
-  # a dominant type makes the reported type and observed count disagree.
-  obs_freq <- stats::aggregate(
-    person ~ .triad_key + triad + node1 + node2 + node3 + type,
-    data = observed_raw, FUN = length
-  )
-  names(obs_freq)[7] <- "observed"
-  obs_freq <- obs_freq[, c(".triad_key", "triad", "node1", "node2", "node3",
-                           "observed", "type")]
-
-  # Significance testing
-  if (significance) {
-    null_matrix <- matrix(0, nrow = nrow(obs_freq), ncol = n_perm)
-    rownames(null_matrix) <- paste(obs_freq$.triad_key, obs_freq$type,
-                                   sep = "\r")
-
-    # Pre-compute balanced row/column stubs. Shuffling the column stubs gives
-    # the directed weighted stub-matching null used by individual motifs().
-    # Stub validation and construction cover only null-eligible units: a
-    # malformed cell in a unit the null never touches must not abort the run.
-    ind_stubs <- vector("list", n_ind)
-    ind_stubs[eligible_individuals] <- lapply(
-      which(eligible_individuals),
-      function(ind) .motif_configuration_stubs(.motif_unit_matrix(trans, ind))
-    )
-
-    ss <- as.integer(s * s)
-
-    # The null scores each observed (triple, class) row by how many units
-    # exhibit that pair in a replicate. Counting the pairs directly is the
-    # same statistic as aggregating a labeled row per triple per unit and
-    # matching on a pasted key, without building the labels the null discards.
-    perm_idx <- .triad_indices(s)
-    perm_units <- which(eligible_individuals)
-    perm_min_weight <- if (level == "aggregate") min_transitions else NULL
-    obs_bins <- .motif_triad_pair_bins(obs_freq$.triad_key, obs_freq$type,
-                                       perm_idx)
-
-    lapply(seq_len(n_perm), function(p) {
-      trans_perm <- array(0, dim = dim(trans))
-
-      # Shuffle each individual's target stubs while keeping both marginals.
-      vapply(seq_len(n_ind), function(ind) {
-        stubs <- ind_stubs[[ind]]
-        if (is.null(stubs) || stubs$total == 0L) return(0L)
-        shuffled_cols <- stubs$cols[sample.int(stubs$total)]
-        lin <- (shuffled_cols - 1L) * s + stubs$rows
-        trans_perm[ind, , ] <<- matrix(tabulate(lin, ss), s, s)
-        0L
-      }, integer(1))
-
-      bins <- .motif_triad_pair_counts(
-        trans_perm, perm_units, perm_idx, edge_method, edge_threshold,
-        final_exclude, include_types, min_weight = perm_min_weight
-      )
-      null_matrix[, p] <<- bins[obs_bins]
-      NULL
-    })
-
-    ns <- .motif_null_stats(obs_freq$observed, t(null_matrix))
-    obs_freq$expected <- round(ns$mean, 1)
-    obs_freq$z <- round(ns$z, 2)
-    obs_freq$p <- ns$p
-    obs_freq$sig <- get_significance_stars(obs_freq$p)
-  }
-
-  obs_freq$.triad_key <- NULL
-
-  # Sort by observed (or z if significance). Degenerate-null rows (z = NA
-  # with the smallest possible empirical p) rank as the most extreme in
-  # their direction so a `top` cut below never silently drops them.
-  if (significance) {
-    z_rank <- .motif_z_rank(obs_freq$z, obs_freq$p,
-                            effect = obs_freq$observed - obs_freq$expected)
-    obs_freq <- obs_freq[order(z_rank, decreasing = TRUE), ]
-  } else {
-    obs_freq <- obs_freq[order(obs_freq$observed, decreasing = TRUE), ]
-  }
-  rownames(obs_freq) <- NULL
-
-  # Apply by_type grouping
-  if (by_type) {
-    obs_freq <- obs_freq[order(obs_freq$type, -obs_freq$observed), ]
-    rownames(obs_freq) <- NULL
-  }
-
-  # Apply top N filter
-  if (!is.null(top) && top > 0 && nrow(obs_freq) > top) {
-    obs_freq <- utils::head(obs_freq, top)
-  }
-
-  # Type summary
-  type_summary <- sort(table(observed_raw$type), decreasing = TRUE)
-
-  result <- list(
-    results = obs_freq,
-    type_summary = type_summary,
-    params = list(
-      level = level,
-      edge_method = edge_method,
-      edge_threshold = edge_threshold,
-      pattern = pattern,
-      exclude_types = exclude_types,
-      include_types = include_types,
-      top = top,
-      by_type = by_type,
-      min_transitions = min_transitions,
-      significance = significance,
-      n_perm = if (significance) n_perm else NA,
-      n_individuals = n_ind,
-      n_states = s,
-      labels = labels
-    )
-  )
-
-  class(result) <- "cograph_motif_analysis"
-  result
+  init_fn <- .get_tna_initialize_model()
+  trans <- init_fn(x$data, attr(x, "type"), attr(x, "scaling"),
+                   attr(x, "params"), transitions = TRUE)$trans
+  pooled <- apply(trans, c(2, 3), sum)
+  dimnames(pooled) <- list(x$labels, x$labels)
+  list(x = pooled, actor = NULL, level = "aggregate")
 }
 
-#' @noRd
+#' Tidy table of a motif extraction
+#'
+#' @param x A \code{cograph_motif_analysis} object from [extract_motifs()].
+#' @param row.names,optional Ignored; present for the generic.
+#' @param what \code{"results"} (default) for the triad table, or
+#'   \code{"types"} for one row per MAN type with columns \code{type} and
+#'   \code{count} (the number of unit-level occurrences of that type).
+#' @param ... Ignored.
+#' @return A data frame: the \code{results} table described in
+#'   [extract_motifs()], or the per-type counts.
+#' @examples
+#' m <- extract_motifs(regulation_net, min_transitions = 0)
+#' as.data.frame(m, what = "types")
+#' @export
+as.data.frame.cograph_motif_analysis <- function(x, row.names = NULL,
+                                                 optional = FALSE,
+                                                 what = c("results", "types"),
+                                                 ...) {
+  what <- match.arg(what)
+  if (what == "types") {
+    return(data.frame(type = names(x$type_summary),
+                      count = as.numeric(x$type_summary),
+                      stringsAsFactors = FALSE))
+  }
+  x$results
+}
+
+#' Print motif results
+#'
+#' Print methods for the results of [motifs()] and [subgraphs()]
+#' (\code{cograph_motif_result}), [extract_motifs()]
+#' (\code{cograph_motif_analysis}) and [motif_census()]
+#' (\code{cograph_motifs}). Each shows the analysis settings, the number of
+#' units analysed where there are several, and the leading rows of the
+#' results table. \code{as.data.frame()} returns the full table.
+#'
+#' @param x A motif result.
+#' @param n Number of triad rows to show. Default 20.
+#' @param ... Passed to \code{print.data.frame()} for \code{cograph_motifs};
+#'   ignored otherwise.
+#' @return \code{x}, invisibly.
+#' @examples
+#' print(extract_motifs(regulation_net, min_transitions = 0), n = 5)
+#' @name print-motifs
 #' @method print cograph_motif_analysis
 #' @export
 print.cograph_motif_analysis <- function(x, n = 20, ...) {
@@ -525,8 +388,16 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
     cat(sprintf(" (threshold: %s)", x$params$edge_threshold))
   }
   cat("\n")
-  cat(sprintf("Individuals: %d | States: %d | Total triads: %d\n\n",
-              x$params$n_individuals, x$params$n_states, nrow(x$results)))
+  n_triads <- x$params$n_triads %||% nrow(x$results)
+  if (identical(x$params$level, "individual")) {
+    cat(sprintf("Units: %d analysed of %d | ",
+                x$params$n_units %||% x$params$n_individuals,
+                x$params$n_individuals))
+  } else {
+    cat("Aggregate network | ")
+  }
+  cat(sprintf("States: %d | Triads: %d shown of %d\n\n",
+              x$params$n_states, nrow(x$results), n_triads))
 
   cat("Type distribution:\n")
   print(x$type_summary)
@@ -534,11 +405,9 @@ print.cograph_motif_analysis <- function(x, n = 20, ...) {
   show_n <- min(n, nrow(x$results))
   cat(sprintf("\nTop %d triads:\n", show_n))
 
-  if (x$params$significance) {
-    print(utils::head(x$results[, c("triad", "type", "observed", "expected", "z", "sig")], n))
-  } else {
-    print(utils::head(x$results[, c("triad", "type", "observed")], n))
-  }
+  cols <- c("triad", "type", "observed",
+            if (isTRUE(x$params$significance)) c("expected", "z", "p", "sig"))
+  print(utils::head(x$results[cols], n))
 
   invisible(x)
 }

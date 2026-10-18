@@ -43,7 +43,10 @@ undirected triads the classes \code{empty}, \code{edge},
 \code{wedge} and \code{triangle}, and size 4 the igraph isomorphism
 class labels \code{M1} to \code{M218} (directed) or \code{M1} to
 \code{M11} (undirected).}
-\item{count}{Observed number of that motif in the network.}
+\item{count}{Observed number of that motif in the network. For size 4,
+igraph counts only the connected classes, so the disconnected
+classes have \code{NA} in \code{count} and in every statistic
+column.}
 \item{null_mean, null_sd}{Mean and standard deviation of the count
 across the \code{n_random} null graphs.}
 \item{z_score}{\code{(count - null_mean) / null_sd}. When
@@ -51,7 +54,8 @@ across the \code{n_random} null graphs.}
 \code{NA} otherwise.}
 \item{p_value}{Two-sided empirical permutation p-value with add-one
 correction, based on the absolute deviation from the null mean.}
-\item{significant}{Logical, \code{p_value < 0.05}.}
+\item{significant}{Logical, \code{p_value < 0.05}; \code{NA} for the
+disconnected size-4 classes.}
 }
 The motif size (\code{"size"}), directed flag (\code{"directed"}),
 null-model method (\code{"method"}), and number of random networks
@@ -59,8 +63,10 @@ null-model method (\code{"method"}), and number of random networks
 }
 \description{
 Counts the subgraph classes (motifs) of size 3 or 4 in a network and tests
-their frequencies against random networks from a null model. Edge weights
-are ignored, and self-loops and multiple edges are removed before counting.
+their frequencies against random networks from a null model. An edge is a
+cell with a positive weight; the weight values are otherwise ignored, so a
+zero or negative weight is no edge. Self-loops and multiple edges are
+removed before counting.
 }
 \details{
 Printing the result shows the motif table with the null-model

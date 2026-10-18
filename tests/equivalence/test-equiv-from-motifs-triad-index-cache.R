@@ -43,12 +43,16 @@ test_that("seeded census results match the pre-refactor values exactly", {
   expect_equal(got$p, c(0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.8), tolerance = 1e-8)
 })
 
-test_that("seeded instance results match the pre-refactor values exactly", {
+test_that("seeded extract_motifs() equals subgraphs(strict = FALSE)", {
+  # Since 2.7.11 extract_motifs() is a wrapper of subgraphs(); the old
+  # pre-refactor values belonged to its separate null and are retired.
   skip_if_not_installed("tna")
   model <- tna::tna(tna::group_regulation)
-  got <- extract_motifs(model, n_perm = 6L, seed = 8,
-                        significance = TRUE)$results
+  got <- as.data.frame(extract_motifs(model, n_perm = 6L, seed = 8,
+                                      significance = TRUE))
+  ref <- as.data.frame(subgraphs(model, strict = FALSE, min_count = 1L,
+                                 pattern = "triangle", n_perm = 6L,
+                                 seed = 8))
   expect_identical(nrow(got), 302L)
-  expect_identical(got$observed[1], 1L)
-  expect_equal(got$expected[1], 0, tolerance = 1e-8)
+  expect_equal(got, ref[names(got)], ignore_attr = TRUE)
 })

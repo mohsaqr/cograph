@@ -26,7 +26,9 @@ involving at least one of these nodes. Default NULL returns all triads.}
 triad type when its weight is greater than \code{threshold}. Default 0.}
 
 \item{min_total}{Minimum total weight across all 6 edges. Excludes trivial
-triads with low overall activity. Default 5.}
+triads with low overall activity. Default 5, which suits count weights;
+with probability weights (a tna model, \code{regulation_net}) no triad
+reaches it, so use \code{min_total = 0}.}
 
 \item{directed}{Logical or NULL. Whether the network is treated as
 directed. NULL (default) detects it from the input.}

@@ -56,6 +56,22 @@ diag(mat4_complete) <- 0
 rownames(mat4_complete) <- colnames(mat4_complete) <- LETTERS[1:4]
 
 # =============================================================================
+# triad_census() returns data.frame(type, count); these comparisons work on
+# the counts as a named vector in MAN order.
+.tc_vec <- function(x) {
+  tc <- triad_census(x)
+  stats::setNames(tc$count, tc$type)
+}
+
+test_that("triad_census returns one row per MAN type", {
+  tc <- triad_census(mat4)
+  expect_s3_class(tc, "data.frame")
+  expect_identical(names(tc), c("type", "count"))
+  expect_identical(tc$type, c("003", "012", "102", "021D", "021U", "021C",
+                              "111D", "111U", "030T", "030C", "201",
+                              "120D", "120U", "120C", "210", "300"))
+})
+
 # 1. triad_census() vs igraph::triad_census()
 # =============================================================================
 
@@ -65,7 +81,7 @@ test_that("triad_census matches igraph exactly — mat4", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(mat4)
+  cograph_tc <- .tc_vec(mat4)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 
@@ -75,7 +91,7 @@ test_that("triad_census matches igraph exactly — mat5", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(mat5)
+  cograph_tc <- .tc_vec(mat5)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 
@@ -85,7 +101,7 @@ test_that("triad_census matches igraph exactly — mat8 (random dense)", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(mat8)
+  cograph_tc <- .tc_vec(mat8)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 
@@ -95,7 +111,7 @@ test_that("triad_census matches igraph — complete graph", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(mat4_complete)
+  cograph_tc <- .tc_vec(mat4_complete)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
   # All triads in complete directed graph must be type 300 (clique)
   expect_equal(cograph_tc[["300"]], choose(4, 3))
@@ -110,15 +126,15 @@ test_that("triad_census matches igraph — weighted TNA matrix", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(bin)
+  cograph_tc <- .tc_vec(bin)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 
 test_that("triad_census total equals choose(n, 3)", {
   # Sum of all triad types must equal C(n, 3)
-  expect_equal(sum(triad_census(mat4)), choose(4, 3))
-  expect_equal(sum(triad_census(mat5)), choose(5, 3))
-  expect_equal(sum(triad_census(mat8)), choose(8, 3))
+  expect_equal(sum(.tc_vec(mat4)), choose(4, 3))
+  expect_equal(sum(.tc_vec(mat5)), choose(5, 3))
+  expect_equal(sum(.tc_vec(mat8)), choose(8, 3))
 })
 
 # =============================================================================
@@ -206,11 +222,11 @@ test_that("motif_census undirected triangle count — star graph (no triangles)"
 })
 
 # =============================================================================
-# 4. extract_triads() classification consistency with triad_census()
+# 4. extract_triads() classification consistency with .tc_vec()
 # =============================================================================
 
 test_that("extract_triads type counts match triad_census — mat4", {
-  tc <- triad_census(mat4)
+  tc <- .tc_vec(mat4)
   triads <- extract_triads(mat4, min_total = 0, threshold = 0)
 
   # Count triads per type from extract_triads
@@ -230,7 +246,7 @@ test_that("extract_triads type counts match triad_census — mat4", {
 })
 
 test_that("extract_triads type counts match triad_census — mat5", {
-  tc <- triad_census(mat5)
+  tc <- .tc_vec(mat5)
   triads <- extract_triads(mat5, min_total = 0, threshold = 0)
 
   et_counts <- table(triads$type)
@@ -244,7 +260,7 @@ test_that("extract_triads type counts match triad_census — mat5", {
 })
 
 test_that("extract_triads type counts match triad_census — mat8", {
-  tc <- triad_census(mat8)
+  tc <- .tc_vec(mat8)
   triads <- extract_triads(mat8, min_total = 0, threshold = 0)
 
   et_counts <- table(triads$type)
@@ -258,7 +274,7 @@ test_that("extract_triads type counts match triad_census — mat8", {
 })
 
 test_that("extract_triads type counts match triad_census — complete graph", {
-  tc <- triad_census(mat4_complete)
+  tc <- .tc_vec(mat4_complete)
   triads <- extract_triads(mat4_complete, min_total = 0, threshold = 0)
 
   # All triads should be type 300
@@ -376,10 +392,10 @@ test_that("motif_census does not alter global RNG state", {
 # 8. igraph object input equivalence
 # =============================================================================
 
-test_that("triad_census(igraph) matches triad_census(matrix)", {
+test_that(".tc_vec(igraph) matches .tc_vec(matrix)", {
   g <- igraph::graph_from_adjacency_matrix(mat8, mode = "directed")
-  tc_mat <- triad_census(mat8)
-  tc_ig <- triad_census(g)
+  tc_mat <- .tc_vec(mat8)
+  tc_ig <- .tc_vec(g)
   expect_identical(as.integer(tc_mat), as.integer(tc_ig))
 })
 
@@ -402,8 +418,9 @@ test_that("motif_census size-4 counts match igraph for both graph modes", {
                     list(mat = undirected, directed = FALSE))) {
     mode <- if (case$directed) "directed" else "undirected"
     g <- igraph::graph_from_adjacency_matrix(case$mat, mode = mode)
+    # igraph leaves the disconnected classes uncounted (NA); so does
+    # motif_census() rather than reporting a false 0.
     reference <- igraph::motifs(g, size = 4)
-    reference[is.na(reference)] <- 0
     got <- motif_census(case$mat, size = 4, directed = case$directed,
                         n_random = 2, seed = 1)
     expect_identical(as.numeric(got$count), as.numeric(reference),
@@ -427,7 +444,7 @@ test_that("triad_census on group_regulation matches igraph", {
   names(igraph_tc) <- c("003", "012", "102", "021D", "021U", "021C",
                          "111D", "111U", "030T", "030C", "201",
                          "120D", "120U", "120C", "210", "300")
-  cograph_tc <- triad_census(w)
+  cograph_tc <- .tc_vec(w)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 
@@ -453,7 +470,7 @@ test_that("extract_triads on group_regulation consistent with triad_census", {
   Mod <- tna::tna(tna::group_regulation)
   w <- Mod$weights
 
-  tc <- triad_census(w)
+  tc <- .tc_vec(w)
   # Use threshold=0 but note: weighted matrix — all edges are > 0
   triads <- extract_triads(w, min_total = 0, threshold = 0)
 
@@ -477,7 +494,7 @@ test_that("triad_census on empty graph is all 003", {
   rownames(empty) <- colnames(empty) <- LETTERS[1:4]
   g <- igraph::graph_from_adjacency_matrix(empty, mode = "directed")
   igraph_tc <- igraph::triad_census(g)
-  cograph_tc <- triad_census(empty)
+  cograph_tc <- .tc_vec(empty)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
   expect_equal(cograph_tc[["003"]], choose(4, 3))
 })
@@ -488,7 +505,7 @@ test_that("triad_census on single-edge graph", {
   rownames(one_edge) <- colnames(one_edge) <- LETTERS[1:4]
   g <- igraph::graph_from_adjacency_matrix(one_edge, mode = "directed")
   igraph_tc <- igraph::triad_census(g)
-  cograph_tc <- triad_census(one_edge)
+  cograph_tc <- .tc_vec(one_edge)
   expect_identical(as.integer(cograph_tc), as.integer(igraph_tc))
 })
 

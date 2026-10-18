@@ -12,7 +12,7 @@ them (\code{x}, \code{actor}, \code{window}, \code{window_type},
 \code{pattern}, \code{include}, \code{exclude}, \code{significance},
 \code{n_perm}, \code{cores}, \code{min_count}, \code{edge_method},
 \code{edge_threshold}, \code{min_transitions}, \code{top}, \code{seed},
-\code{family}, \code{p_adjust}, \code{strict}).
+\code{family}, \code{p_adjust}, \code{strict}, \code{count_repeats}).
 \code{named_nodes} is fixed to \code{TRUE} and must not be supplied.}
 }
 \value{

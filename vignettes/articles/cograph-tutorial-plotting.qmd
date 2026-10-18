@@ -677,7 +677,7 @@ Motif analysis identifies recurring local connectivity patterns — the building
 
 ## Census
 
-`motifs()` counts how often each MAN type appears and tests significance against a configuration-model null. The null depends on the analysis level: aggregate matrices use loop-free simple-graph degree-preserving rewiring, whereas individual transition data use target-stub shuffling with integerized in/out margins followed by a loopless simple projection. These are intentionally different reference models.
+`motifs()` counts how often each MAN type appears and tests significance against a configuration-model null. The null depends on the analysis level: aggregate matrices use loop-free simple-graph degree-preserving rewiring, whereas individual transition data use target-stub shuffling with integerized in/out margins followed by a loopless simple projection. These are intentionally different reference models. Repeated states (A → A) are removed before counting and before the null; `count_repeats = TRUE` counts them toward `min_transitions` and shuffles them with the other transitions, which suits coded data where one code covers distinct events. With `p_adjust`, the `sig` column and the plot colours use the adjusted p-values.
 
 ```{r}
 #| label: motifs-census
@@ -710,7 +710,7 @@ plot(mot, type = "patterns")
 
 ## Named subgraphs
 
-`subgraphs()` identifies the specific node triples forming each pattern — which states participate in which motifs. At individual level, each row represents a `(node triple, MAN type)` combination and `observed` counts the sessions exhibiting that combination. A triple can therefore appear in more than one row when its MAN type differs across sessions.
+`subgraphs()` identifies the specific node triples forming each pattern — which states participate in which motifs. By default (`strict = TRUE`) each row is one node triple with one exact set of arrows, so a cycle and its reverse are separate rows, and at individual level `observed` counts the sessions in which the triple shows exactly those arrows. A triple can therefore appear in several rows. `strict = FALSE` pools the arrow patterns of each MAN type into one row per `(node triple, MAN type)`.
 
 ```{r}
 #| label: subgraphs
@@ -729,7 +729,7 @@ plot(sg, n = 10, ncol = 5)
 
 ```
 
-The network panel uses a canonical representative of each MAN isomorphism class. Its concrete labels identify the participating states; their positions do not encode those states' observed source/sink roles.
+Each panel draws the arrows of its row, with `node1` at the top, `node2` bottom left and `node3` bottom right, so the diagram shows which state leads to which. With `strict = FALSE` it draws the most frequent pattern of the row, and the caption says how many sessions match the drawing when the row pools other patterns.
 
 
 # Higher-Order Networks

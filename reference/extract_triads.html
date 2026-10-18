@@ -11,7 +11,7 @@ pattern can be identified."><meta property="og:image" content="https://sonsoles.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,9 @@ triad type when its weight is greater than <code>threshold</code>. Default 0.</p
 
 <dt id="arg-min-total">min_total<a class="anchor" aria-label="anchor" href="#arg-min-total"></a></dt>
 <dd><p>Minimum total weight across all 6 edges. Excludes trivial
-triads with low overall activity. Default 5.</p></dd>
+triads with low overall activity. Default 5, which suits count weights;
+with probability weights (a tna model, <code>regulation_net</code>) no triad
+reaches it, so use <code>min_total = 0</code>.</p></dd>
 
 
 <dt id="arg-directed">directed<a class="anchor" aria-label="anchor" href="#arg-directed"></a></dt>

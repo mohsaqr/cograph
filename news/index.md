@@ -1,5 +1,88 @@
 # Changelog
 
+## cograph 2.7.11
+
+### Breaking changes
+
+- [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  returns a data frame with one row per MAN type (`type`, `count`)
+  instead of a named vector, like
+  [`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md).
+- [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  and
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+  count an edge only where the weight is positive, the rule
+  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) already
+  used. A negative weight (for example a negative correlation) is no
+  longer a tie.
+- `motif_census(size = 4)` reports `NA` for the disconnected classes
+  that igraph does not count, instead of a false 0.
+- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  is now a wrapper of `subgraphs(strict = FALSE)` instead of a separate
+  implementation, so the two always agree. Its `sig` column is logical,
+  `expected` and `z` are no longer rounded, rows are sorted by
+  decreasing \|z\| (the strongest deficits are no longer cut by `top`),
+  `by_type` groups in MAN order, and at aggregate level significance is
+  not available (a `cograph_no_units` warning is raised).
+
+### New features
+
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  gain `count_repeats` (default `FALSE`, so results are unchanged). With
+  `count_repeats = TRUE`, repeated codes such as A -\> A count toward
+  `min_transitions` and are shuffled with the other transitions in the
+  permutation null, so repeated codes are treated as distinct events, as
+  when several different utterances share one code. Observed triads
+  never contain a repeat. This reproduces the counts, expected values
+  and z-scores of census results computed before 2.4.6.
+
+### Bug fixes
+
+- Motif plot colours and significance stars follow the adjusted p-value
+  when `p_adjust` is set, so they match the `sig` column.
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) with
+  `window` but no actor column raises a `cograph_window_needs_actor`
+  error; it used to pool the windows and test them against a null built
+  from the first one.
+- An empty individual-level
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  result is `NULL` with a message, as documented.
+- `motifs(as_cograph(<tna>))` is analysed per sequence, like the tna
+  itself.
+- Edge lists are read case-insensitively (`From`/`To`) and a `count`
+  column is used as the weight, so
+  [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md)
+  output keeps its weights. An edge list without `from` or `to` raises
+  `cograph_bad_edgelist`.
+- `edge_method = "expected"` no longer fails on a unit with no
+  transitions.
+- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  no longer merges distinct id combinations such as (“a_b”, “c”) and
+  (“a”, “b_c”), and `data` without `id` raises `cograph_data_needs_id`.
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a census
+  with `significant = TRUE` draws only the significant types and returns
+  the input; `ncol` reaches the pattern grid.
+- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  help page uses the corrected triad names; the print methods are
+  documented (`?print-motifs`), and
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  results gain
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html).
+- Motif help pages corrected: the edge-list columns, rolling versus
+  tumbling windows, the size of the full test family, instance-mode type
+  counts, `min_count` and `min_transitions` on probability matrices, and
+  `count_repeats` in the details.
+- Motif plots name every triad type by its structure. Seven names were
+  wrong or vague: 111D is now “In-star + mutual” and 111U “Out-star +
+  mutual” (they were swapped), 201 is “Two mutuals” (was “Mutual +
+  in-star”), 120D is “Out-star onto mutual” (was “Two out-stars”), 120U
+  is “In-star from mutual” (was “Two in-stars”), 120C is “Cycle +
+  mutual” (was “Mixed regulated”) and 210 is “Near-clique” (was
+  “Mutual + feed-forward”). Only titles changed: counts, significance
+  and the drawn triads were already correct. A new test checks every
+  name against the structure of its triad.
+
 ## cograph 2.7.10
 
 ### Bug fixes
@@ -2518,9 +2601,12 @@ blocks, 6 PASS).
   [`mcml()`](https://sonsoles.me/cograph/reference/mcml.md) remains
   hidden; it is a deprecated alias of
   [`csum()`](https://sonsoles.me/cograph/reference/csum.md). The `n` and
-  `...` arguments of `print.cograph_motif_analysis()` and
-  `print.cograph_motifs()` are now documented (previously exempt from
-  checking by the `internal` keyword).
+  `...` arguments of
+  [`print.cograph_motif_analysis()`](https://sonsoles.me/cograph/reference/print-motifs.md)
+  and
+  [`print.cograph_motifs()`](https://sonsoles.me/cograph/reference/print-motifs.md)
+  are now documented (previously exempt from checking by the `internal`
+  keyword).
 
 - [`plot_difference()`](https://sonsoles.me/cograph/reference/plot_difference.md)’s
   new `difference` argument moved to the end of the signature, after

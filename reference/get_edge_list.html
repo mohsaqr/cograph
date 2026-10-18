@@ -9,7 +9,7 @@ list."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png">
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,10 @@ individual IDs. If FALSE, aggregates across all individuals.</p></dd>
 <dd><p>Number of transitions.</p></dd>
 
 
-</dl><p>With <code>by_individual = FALSE</code>, the rows are sorted by decreasing count.</p>
+</dl><p>With <code>by_individual = FALSE</code>, the rows are sorted by decreasing count.
+The edge list can be passed to <code><a href="motifs.html">motifs()</a></code>, <code><a href="subgraphs.html">subgraphs()</a></code> or
+<code><a href="extract_motifs.html">extract_motifs()</a></code> (with <code>id = "id"</code>), which read <code>count</code> as the
+transition weight.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

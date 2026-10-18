@@ -665,9 +665,9 @@ mot
 | [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) | MAN type census with significance testing |
 | [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) | Named node triples forming each pattern |
 | [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md) | Low-level triad census |
-| [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md) | Per-individual motif extraction |
+| [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md) | Per-individual triads (`subgraphs(strict = FALSE)` with the older interface) |
 | [`extract_triads()`](https://sonsoles.me/cograph/reference/extract_triads.md) | Extract specific triad types |
-| [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md) | Raw 16-type triad count |
+| [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md) | Count of the 16 triad types, one row per type |
 | [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md) | Edge list from tna for motif input |
 
 ## Robustness

@@ -1,7 +1,8 @@
 # Triad Census
 
 Counts the 16 types of triads in a directed network using MAN notation.
-Edge weights are ignored.
+An edge is a cell with a positive weight; the weight values are
+otherwise ignored, so a zero or negative weight is no edge.
 
 ## Usage
 
@@ -17,8 +18,10 @@ triad_census(x)
 
 ## Value
 
-A named numeric vector of length 16 giving the count of each MAN triad
-type, in the order listed under Details.
+A data frame with one row per MAN triad type (16 rows), in the order
+listed under Details, and the columns `type` (the MAN code) and `count`
+(the number of triads of that type). The counts sum to `choose(n, 3)`
+for `n` nodes.
 
 ## Details
 
@@ -50,6 +53,21 @@ Other motifs:
 
 ``` r
 cograph::triad_census(regulation_net)
-#>  003  012  102 021D 021U 021C 111D 111U 030T 030C  201 120D 120U 120C  210  300 
-#>    7   27    2    9   11   29    9    7   11    2    0    2    1    3    0    0 
+#>    type count
+#> 1   003     7
+#> 2   012    27
+#> 3   102     2
+#> 4  021D     9
+#> 5  021U    11
+#> 6  021C    29
+#> 7  111D     9
+#> 8  111U     7
+#> 9  030T    11
+#> 10 030C     2
+#> 11  201     0
+#> 12 120D     2
+#> 13 120U     1
+#> 14 120C     3
+#> 15  210     0
+#> 16  300     0
 ```

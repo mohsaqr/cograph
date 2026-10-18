@@ -34,7 +34,8 @@ motifs(
   seed = NULL,
   family = c("observed", "all"),
   p_adjust = "none",
-  strict = TRUE
+  strict = TRUE,
+  count_repeats = FALSE
 )
 
 # S3 method for class 'cograph_motif_result'
@@ -53,7 +54,13 @@ as.data.frame(
 - x:
 
   Input data: a tna object, cograph_network, matrix, igraph object or
-  edge-list data frame. For
+  edge-list data frame. An edge list has the columns `from` and `to`
+  (any case), an optional weight column `weight` or `count` (1 per row
+  otherwise), the optional actor column described under `actor`, and an
+  optional order column (`timestamp`, `time`, `seq`, `step` or `order`)
+  that sorts the transitions within each actor before windowing. An edge
+  list without `from` or `to` raises an error of class
+  `cograph_bad_edgelist`. For
   [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html), a
   `cograph_motif_result` object returned by `motifs()` or
   [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md).
@@ -76,12 +83,16 @@ as.data.frame(
 - window:
 
   Numeric. Window size for edge-list input. Each actor's transitions are
-  split into windows of this size. NULL (default) applies no windowing.
+  cut into windows of this many transitions, and every window is
+  analysed as one unit (individual level). `window` needs an actor
+  column; without one it raises an error of class
+  `cograph_window_needs_actor`. NULL (default) applies no windowing.
 
 - window_type:
 
-  Character. `"rolling"` (default) or `"tumbling"`. Used only when
-  `window` is set.
+  Character. `"rolling"` (default) windows start at every transition and
+  overlap; `"tumbling"` windows are consecutive and do not overlap. Used
+  only when `window` is set.
 
 - pattern:
 
@@ -108,7 +119,8 @@ as.data.frame(
 - include:
 
   Character vector of MAN types to keep. When supplied, `pattern` and
-  `exclude` are ignored.
+  `exclude` are ignored, and the result records the pattern as
+  `"custom"`.
 
 - exclude:
 
@@ -146,8 +158,11 @@ as.data.frame(
   instance mode it filters the `observed` column. At individual level
   this is the number of units showing the triad, and at aggregate level
   it is the weighted edge mass of the triad (the sum of its 6 directed
-  edge weights). Default 2 in instance mode, since a pattern seen in a
-  single unit cannot recur, and NULL (no filter) in census mode.
+  edge weights). Default 2 in instance mode, since at individual level a
+  pattern seen in a single unit cannot recur, and NULL (no filter) in
+  census mode. At aggregate level the threshold applies to the edge
+  weight mass, so for probability matrices lower it (for example
+  `min_count = 1` or `NULL`).
 
 - edge_method:
 
@@ -166,11 +181,12 @@ as.data.frame(
 - min_transitions:
 
   Minimum total edge weight for a unit to be included, counted after
-  self-loops are removed. Default 3 in instance mode, the fewest
-  transitions that can form a closed triad (030C and 030T have three
-  edges), and 5 in census mode. At aggregate level the network is the
-  only unit, so a network whose weights sum to less than this value
-  gives NULL.
+  self-loops are removed unless `count_repeats = TRUE`. Default 3 in
+  instance mode, the fewest transitions that can form a closed triad
+  (030C and 030T have three edges), and 5 in census mode. At aggregate
+  level the network is the only unit, so a network whose weights sum to
+  less than this value gives NULL; for a probability matrix set
+  `min_transitions = 0`.
 
 - top:
 
@@ -192,9 +208,11 @@ as.data.frame(
   the outcome: a rare configuration enters the test only when it happens
   to occur, which inflates the false-positive rate well above the
   nominal level. `"all"` keeps it at or below the nominal level. The
-  full family has `choose(n_states, 3)` rows per retained type, so the
-  permutation null grows accordingly. Ignored in census mode and without
-  individual-level significance.
+  full family has `choose(n_states, 3)` rows per retained labelled
+  pattern with `strict = TRUE` (for example six for 030T, two for 030C
+  and one for 300), or per retained MAN type with `strict = FALSE`, so
+  the permutation null grows accordingly. Ignored in census mode and
+  without individual-level significance.
 
 - p_adjust:
 
@@ -202,7 +220,8 @@ as.data.frame(
   one of [`p.adjust.methods`](https://rdrr.io/r/stats/p.adjust.html).
   Default `"none"`. The adjusted values are returned in `p_adj` and
   `sig` is `p_adj < 0.05`. With `family = "all"` the adjustment covers
-  the full family before `min_count` is applied.
+  the full family before `min_count` is applied. Plot colours and stars
+  follow `p_adj`, so they match `sig`.
 
 - strict:
 
@@ -215,6 +234,22 @@ as.data.frame(
   counts the same exact pattern. With `strict = FALSE` rows pool every
   labelled pattern of the type and `pattern` reports the most frequent
   one. Ignored in census mode.
+
+- count_repeats:
+
+  Logical. Whether repeated codes (self-transitions such as A to A)
+  count as transitions. Default `FALSE`: repeats are removed before
+  anything else, so only transitions between different codes decide
+  which units are analysed and enter the permutation null. With `TRUE`,
+  repeats count toward `min_transitions` (a unit coded A, A, A, B, C has
+  four transitions instead of two) and are shuffled with the other
+  transitions in the null, which treats repeated codes as distinct
+  events whose order is random. The null then also reflects how often
+  units repeat: units that repeat a lot have fewer ties between
+  different codes than their shuffles, which raises the number of dense
+  triads the null expects. Observed triads never contain a repeat in
+  either case, because a triad is made of ties between three different
+  nodes.
 
 - row.names, optional:
 
@@ -259,25 +294,27 @@ passes the filters. The object is a list with the elements below.
   one triple can occupy several rows. `pattern` is the labelled edge set
   of the row (for example `"A -> B, B <-> C"`). With `strict = FALSE` a
   row pools patterns that differ in direction, so `pattern` is the most
-  frequent of them and `pattern_n` the number of units showing it; with
-  `strict = TRUE` `pattern_n` equals `observed`. `pattern_code` is the
-  same edge set as a six-bit code in `node1`, `node2`, `node3` order (1:
-  node1 to node2, 2: node2 to node1, 4: node1 to node3, 8: node3 to
-  node1, 16: node2 to node3, 32: node3 to node2). Modal ties go to the
-  smallest code. Rows that no unit shows (`family = "all"`) have
-  `observed = 0` and `pattern_n = 0`; their pattern is the row's own
-  pattern when `strict = TRUE` and missing otherwise. At aggregate level
-  `pattern_n` is 1. With `significance = TRUE`, the columns `expected`
-  (null mean), `z`, `p`, `p_adj` and `sig` are added, unrounded, and the
-  rows are sorted by decreasing absolute z-score. Otherwise the rows are
-  sorted by decreasing count. Census results carry `expected`, `z`, `p`,
-  `p_adj` and `sig` in the same way.
+  frequent of them and `pattern_n` the number of units showing it; at
+  individual level with `strict = TRUE` `pattern_n` equals `observed`.
+  `pattern_code` is the same edge set as a six-bit code in `node1`,
+  `node2`, `node3` order (1: node1 to node2, 2: node2 to node1, 4: node1
+  to node3, 8: node3 to node1, 16: node2 to node3, 32: node3 to node2).
+  Modal ties go to the smallest code. Rows that no unit shows
+  (`family = "all"`) have `observed = 0` and `pattern_n = 0`; their
+  pattern is the row's own pattern when `strict = TRUE` and missing
+  otherwise. At aggregate level `pattern_n` is 1. With
+  `significance = TRUE`, the columns `expected` (null mean), `z`, `p`,
+  `p_adj` and `sig` are added, unrounded, and the rows are sorted by
+  decreasing absolute z-score. Otherwise the rows are sorted by
+  decreasing count. Census results carry `expected`, `z`, `p`, `p_adj`
+  and `sig` in the same way.
 
 - type_summary:
 
   Named `table` of counts per MAN type, sorted in decreasing order. In
   census mode it holds the `count` column. In instance mode it holds the
-  number of node triples of each type.
+  number of result rows of each type: node triple and labelled pattern
+  with `strict = TRUE`, node triple and type with `strict = FALSE`.
 
 - level:
 
@@ -290,8 +327,9 @@ passes the filters. The object is a list with the elements below.
 
 - n_units:
 
-  Number of units analyzed: the units whose loop-free transition total
-  reaches `min_transitions`. 1 at aggregate level.
+  Number of units analyzed: the units whose transition total (loop-free
+  unless `count_repeats = TRUE`) reaches `min_transitions`. 1 at
+  aggregate level.
 
 - n_units_total:
 
@@ -299,27 +337,34 @@ passes the filters. The object is a list with the elements below.
 
 - params:
 
-  List of the analysis settings: `labels`, `n_states`, `pattern`,
-  `edge_method`, `edge_threshold`, `significance`, `n_perm`,
-  `min_count`, `min_transitions`, `family`, `p_adjust`, `strict`,
-  `window`, `window_type` and `actor`.
+  List of the analysis settings: `labels`, `n_states`, `pattern`
+  (`"custom"` when `include` is used), `include`, `edge_method`,
+  `edge_threshold`, `significance`, `n_perm`, `min_count`,
+  `min_transitions`, `count_repeats`, `family`, `p_adjust`, `strict`,
+  `window`, `window_type` and `actor` (the actor column used, or NULL at
+  aggregate level).
 
 [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
 one of these tables as a plain data frame. With `what = "results"`
 (default) it returns the `results` table described above. With
 `what = "types"` it returns one row per MAN type with columns `type` and
 `count`, where `count` is the number of triads of that type in a census
-or the number of node triples of that type in instance mode.
+or the number of result rows of that type in instance mode (see
+`type_summary`).
 
 ## Details
 
 The input type and the analysis level are detected automatically. Inputs
 that carry per-unit data are analyzed per unit. These are tna objects,
-networks that store tna sequence data, and edge lists (or networks built
-from edge lists) with an actor column. Matrices, igraph objects and
-other networks are analyzed as one aggregate network. The adjacency is
-always classified as directed. The four-class undirected census is
-computed by `motif_census(..., directed = FALSE)`.
+networks that store sequence data (such as
+[`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md) of
+a tna or a network from
+[`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html)),
+and edge lists (or networks built from edge lists) with an actor column.
+Matrices, igraph objects and other networks are analyzed as one
+aggregate network. The adjacency is always classified as directed. The
+four-class undirected census is computed by
+`motif_census(..., directed = FALSE)`.
 
 For aggregate inputs, significance is computed by
 [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
@@ -329,8 +374,9 @@ positive edge weight is converted to at least one integer stub, and
 target stubs are shuffled within each unit so that its integer in- and
 out-margins are preserved. The resulting multigraph, which may contain
 loops or parallel edges, is classified through its simple loop-free
-triad projection. Self-loops are removed before counting and before the
-null is constructed.
+triad projection. Self-loops are removed before counting. They are also
+removed before the null is constructed, unless `count_repeats = TRUE`,
+in which case they are shuffled with the other transitions.
 
 With `edge_method = "percent"`, edge presence is computed within each
 node triple. The weight of an edge is divided by the sum of the six

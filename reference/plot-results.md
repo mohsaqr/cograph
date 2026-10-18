@@ -416,7 +416,9 @@ plot(x, top = NULL, col = "steelblue", ...)
 - ncol, nrow:
 
   Number of columns and rows of the panel grid. A `NULL` value is
-  computed from the number of panels.
+  computed from the number of panels. For the pattern diagrams of a
+  `cograph_motif_result` (`type = "patterns"`, or `"triads"` on a
+  census) the grid has four columns unless `ncol` is given.
 
 - colors:
 
@@ -424,10 +426,12 @@ plot(x, top = NULL, col = "steelblue", ...)
   `cograph_motif_result` and `cograph_motif_analysis`, a vector of two
   colors. The first fills items that are significantly under-represented
   (`p < .05` and `z < 0`) and the second fills items that are
-  significantly over-represented (`p < .05` and `z > 0`). All other
-  items are filled neutral grey (`"#9E9E9E"`). When no per-type
-  significance is available, the first color is used as a single fill.
-  For `cograph_motifs`, a vector of three colors for under-represented,
+  significantly over-represented (`p < .05` and `z > 0`); `p` is the
+  adjusted `p_adj` when the result was computed with a `p_adjust`
+  method, so the colours match the `sig` column. All other items are
+  filled neutral grey (`"#9E9E9E"`). When no per-type significance is
+  available, the first color is used as a single fill. For
+  `cograph_motifs`, a vector of three colors for under-represented,
   neutral and over-represented motifs.
 
 - node_size:
@@ -475,10 +479,11 @@ plot(x, top = NULL, col = "steelblue", ...)
 - significant:
 
   Logical. When `TRUE`, `type = "triads"` on a `cograph_motif_result`
-  draws only the triads whose `sig` flag is `TRUE`, still ordered as in
-  the results and capped at `n`. It needs a result computed with
-  `significance = TRUE`; otherwise a `cograph_no_significance` error is
-  raised. Default `FALSE`.
+  draws only the rows whose `sig` flag is `TRUE`, still ordered as in
+  the results and capped at `n`: the significant triples of an instance
+  result, or the significant MAN types of a census. It needs a result
+  computed with `significance = TRUE`; otherwise a
+  `cograph_no_significance` error is raised. Default `FALSE`.
 
 - res:
 
@@ -487,8 +492,10 @@ plot(x, top = NULL, col = "steelblue", ...)
 - show_nonsig:
 
   Logical. Whether non-significant items are shown. For `cograph_motifs`
-  these are motifs; for `plot_permutation()` they are edges, plotted
-  dashed and grey. Default `FALSE`.
+  these are motifs; motifs with a count of zero and classes igraph does
+  not count (`NA`) are never drawn, and rows with `z = NA` are left out
+  of the bar and heatmap views with a message. For `plot_permutation()`
+  they are edges, plotted dashed and grey. Default `FALSE`.
 
 - top_n:
 
@@ -658,16 +665,18 @@ of the following values.
 
 - `"significance"`:
 
-  Z-score bars, one per MAN type for a census and one per node triple
-  for instance results. It requires the analysis to have been run with
-  `significance = TRUE`.
+  Z-score bars, one per MAN type for a census and one per results row
+  for instance results (node triple and labelled pattern by default). It
+  requires the analysis to have been run with `significance = TRUE`.
 
 - `"patterns"`:
 
   Abstract MAN pattern diagrams of each triad type. For a census tested
   for significance the nodes are filled by significance direction, and
   the panel titles add the z-score and a significance star (`*` p\<.05,
-  `**` p\<.01, `***` p\<.001). Instance results use a single fill.
+  `**` p\<.01, `***` p\<.001), using the adjusted p-value when one was
+  requested. Instance results and `cograph_motif_analysis` use a single
+  fill.
 
 For `cograph_motifs`, `type` is `"bar"` (default; motif z-scores colored
 by over- or under-representation), `"heatmap"` (z-scores across motif

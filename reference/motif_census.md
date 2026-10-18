@@ -1,9 +1,10 @@
 # Network Motif Analysis
 
 Counts the subgraph classes (motifs) of size 3 or 4 in a network and
-tests their frequencies against random networks from a null model. Edge
-weights are ignored, and self-loops and multiple edges are removed
-before counting.
+tests their frequencies against random networks from a null model. An
+edge is a cell with a positive weight; the weight values are otherwise
+ignored, so a zero or negative weight is no edge. Self-loops and
+multiple edges are removed before counting.
 
 ## Usage
 
@@ -65,7 +66,9 @@ A `cograph_motifs` data frame with one row per motif class and columns:
 
 - count:
 
-  Observed number of that motif in the network.
+  Observed number of that motif in the network. For size 4, igraph
+  counts only the connected classes, so the disconnected classes have
+  `NA` in `count` and in every statistic column.
 
 - null_mean, null_sd:
 
@@ -84,7 +87,7 @@ A `cograph_motifs` data frame with one row per motif class and columns:
 
 - significant:
 
-  Logical, `p_value < 0.05`.
+  Logical, `p_value < 0.05`; `NA` for the disconnected size-4 classes.
 
 The motif size (`"size"`), directed flag (`"directed"`), null-model
 method (`"method"`), and number of random networks (`"n_random"`) are

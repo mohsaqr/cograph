@@ -924,6 +924,8 @@ Every verb takes any supported input and returns a cograph_network.
   Add Edges to a Network
 - [`add_nodes()`](https://sonsoles.me/cograph/reference/add_nodes.md) :
   Add Nodes to a Network
+- [`as.data.frame(`*`<cograph_motif_analysis>`*`)`](https://sonsoles.me/cograph/reference/as.data.frame.cograph_motif_analysis.md)
+  : Tidy table of a motif extraction
 - [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) :
   Convert to mcml
 - [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) :
@@ -1031,6 +1033,10 @@ Every verb takes any supported input and returns a cograph_network.
   : Color Palettes
 - [`panel_layout()`](https://sonsoles.me/cograph/reference/panel_layout.md)
   : Configure a custom multi-panel layout
+- [`print(`*`<cograph_motif_result>`*`)`](https://sonsoles.me/cograph/reference/print-motifs.md)
+  [`print(`*`<cograph_motif_analysis>`*`)`](https://sonsoles.me/cograph/reference/print-motifs.md)
+  [`print(`*`<cograph_motifs>`*`)`](https://sonsoles.me/cograph/reference/print-motifs.md)
+  : Print motif results
 - [`project_bipartite()`](https://sonsoles.me/cograph/reference/project_bipartite.md)
   : Project Bipartite Network to One-Mode
 - [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)

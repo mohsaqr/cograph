@@ -786,7 +786,7 @@ sessionInfo()
     [1] stats     graphics  grDevices utils     datasets  methods   base
 
     other attached packages:
-    [1] cograph_2.7.10   Nestimate_0.9.24
+    [1] cograph_2.7.11   Nestimate_0.9.24
 
     loaded via a namespace (and not attached):
      [1] gtable_0.3.6        jsonlite_2.0.0      dplyr_1.2.1

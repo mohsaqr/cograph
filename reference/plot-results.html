@@ -185,7 +185,7 @@ cases dropped.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -595,7 +595,10 @@ remove non-positive fitted curve values.</p></dd>
 
 <dt id="arg-ncol-nrow">ncol, nrow<a class="anchor" aria-label="anchor" href="#arg-ncol-nrow"></a></dt>
 <dd><p>Number of columns and rows of the panel grid. A
-<code>NULL</code> value is computed from the number of panels.</p></dd>
+<code>NULL</code> value is computed from the number of panels. For the
+pattern diagrams of a <code>cograph_motif_result</code> (<code>type =
+  "patterns"</code>, or <code>"triads"</code> on a census) the grid has four columns
+unless <code>ncol</code> is given.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
@@ -604,7 +607,9 @@ remove non-positive fitted curve values.</p></dd>
 of two colors. The first fills items that are significantly
 under-represented (<code>p &lt; .05</code> and <code>z &lt; 0</code>) and the second fills
 items that are significantly over-represented (<code>p &lt; .05</code> and
-<code>z &gt; 0</code>). All other items are filled neutral grey
+<code>z &gt; 0</code>); <code>p</code> is the adjusted <code>p_adj</code> when the result
+was computed with a <code>p_adjust</code> method, so the colours match the
+<code>sig</code> column. All other items are filled neutral grey
 (<code>"#9E9E9E"</code>). When no per-type significance is available, the
 first color is used as a single fill. For <code>cograph_motifs</code>, a vector of three
 colors for under-represented, neutral and over-represented motifs.</p></dd>
@@ -655,8 +660,10 @@ apart.</p></dd>
 
 <dt id="arg-significant">significant<a class="anchor" aria-label="anchor" href="#arg-significant"></a></dt>
 <dd><p>Logical. When <code>TRUE</code>, <code>type = "triads"</code> on a
-<code>cograph_motif_result</code> draws only the triads whose <code>sig</code> flag
-is <code>TRUE</code>, still ordered as in the results and capped at <code>n</code>.
+<code>cograph_motif_result</code> draws only the rows whose <code>sig</code> flag
+is <code>TRUE</code>, still ordered as in the results and capped at <code>n</code>:
+the significant triples of an instance result, or the significant MAN
+types of a census.
 It needs a result computed with <code>significance = TRUE</code>; otherwise a
 <code>cograph_no_significance</code> error is raised. Default <code>FALSE</code>.</p></dd>
 
@@ -667,8 +674,11 @@ It needs a result computed with <code>significance = TRUE</code>; otherwise a
 
 <dt id="arg-show-nonsig">show_nonsig<a class="anchor" aria-label="anchor" href="#arg-show-nonsig"></a></dt>
 <dd><p>Logical. Whether non-significant items are shown. For
-<code>cograph_motifs</code> these are motifs; for <code>plot_permutation()</code>
-they are edges, plotted dashed and grey. Default <code>FALSE</code>.</p></dd>
+<code>cograph_motifs</code> these are motifs; motifs with a count of zero and
+classes igraph does not count (<code>NA</code>) are never drawn, and rows with
+<code>z = NA</code> are left out of the bar and heatmap views with a message.
+For <code>plot_permutation()</code> they are edges, plotted dashed and grey.
+Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-top-n">top_n<a class="anchor" aria-label="anchor" href="#arg-top-n"></a></dt>
@@ -838,7 +848,8 @@ several node-triple rows of the same type.</p></dd>
 
 <dt><code>"significance"</code></dt>
 <dd><p>Z-score bars, one per MAN type for a census
-and one per node triple for instance results. It requires the analysis
+and one per results row for instance results (node triple and labelled
+pattern by default). It requires the analysis
 to have been run with <code>significance = TRUE</code>.</p></dd>
 
 <dt><code>"patterns"</code></dt>
@@ -846,7 +857,8 @@ to have been run with <code>significance = TRUE</code>.</p></dd>
 type. For a census tested for significance the nodes are filled by
 significance direction, and the panel titles add the z-score and a
 significance star (<code>*</code> p&lt;.05, <code>**</code> p&lt;.01, <code>***</code>
-p&lt;.001). Instance results use a single fill.</p></dd>
+p&lt;.001), using the adjusted p-value when one was requested. Instance
+results and <code>cograph_motif_analysis</code> use a single fill.</p></dd>
 
 
 </dl><p>For <code>cograph_motifs</code>, <code>type</code> is <code>"bar"</code> (default; motif

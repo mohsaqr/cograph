@@ -23,7 +23,7 @@ the result lists the node triples that form each type.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,8 @@ the result lists the node triples that form each type.</p></li>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"observed"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  p_adjust <span class="op">=</span> <span class="st">"none"</span>,</span>
-<span>  strict <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  strict <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  count_repeats <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'cograph_motif_result'</span></span>
@@ -112,7 +113,14 @@ the result lists the node triples that form each type.</p></li>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Input data: a tna object, cograph_network, matrix, igraph object or
-edge-list data frame. For <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>, a
+edge-list data frame. An edge list has the columns <code>from</code> and
+<code>to</code> (any case), an optional weight column <code>weight</code> or
+<code>count</code> (1 per row otherwise), the optional actor column described
+under <code>actor</code>, and an optional order column (<code>timestamp</code>,
+<code>time</code>, <code>seq</code>, <code>step</code> or <code>order</code>) that sorts the
+transitions within each actor before windowing. An edge list without
+<code>from</code> or <code>to</code> raises an error of class
+<code>cograph_bad_edgelist</code>. For <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>, a
 <code>cograph_motif_result</code> object returned by <code>motifs()</code> or
 <code><a href="subgraphs.html">subgraphs()</a></code>.</p></dd>
 
@@ -133,13 +141,16 @@ Without such a column the analysis is aggregate.</p></dd>
 
 <dt id="arg-window">window<a class="anchor" aria-label="anchor" href="#arg-window"></a></dt>
 <dd><p>Numeric. Window size for edge-list input. Each actor's
-transitions are split into windows of this size. NULL (default) applies
-no windowing.</p></dd>
+transitions are cut into windows of this many transitions, and every
+window is analysed as one unit (individual level). <code>window</code> needs
+an actor column; without one it raises an error of class
+<code>cograph_window_needs_actor</code>. NULL (default) applies no windowing.</p></dd>
 
 
 <dt id="arg-window-type">window_type<a class="anchor" aria-label="anchor" href="#arg-window-type"></a></dt>
-<dd><p>Character. <code>"rolling"</code> (default) or
-<code>"tumbling"</code>. Used only when <code>window</code> is set.</p></dd>
+<dd><p>Character. <code>"rolling"</code> (default) windows start at
+every transition and overlap; <code>"tumbling"</code> windows are consecutive
+and do not overlap. Used only when <code>window</code> is set.</p></dd>
 
 
 <dt id="arg-pattern">pattern<a class="anchor" aria-label="anchor" href="#arg-pattern"></a></dt>
@@ -164,7 +175,8 @@ every pair of the three nodes is linked.</p></dd>
 
 <dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
 <dd><p>Character vector of MAN types to keep. When supplied,
-<code>pattern</code> and <code>exclude</code> are ignored.</p></dd>
+<code>pattern</code> and <code>exclude</code> are ignored, and the result records
+the pattern as <code>"custom"</code>.</p></dd>
 
 
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
@@ -203,8 +215,11 @@ mode it filters the <code>count</code> column, the number of triads of each MAN
 type. In instance mode it filters the <code>observed</code> column. At
 individual level this is the number of units showing the triad, and at
 aggregate level it is the weighted edge mass of the triad (the sum of its
-6 directed edge weights). Default 2 in instance mode, since a pattern
-seen in a single unit cannot recur, and NULL (no filter) in census mode.</p></dd>
+6 directed edge weights). Default 2 in instance mode, since at individual
+level a pattern seen in a single unit cannot recur, and NULL (no filter)
+in census mode. At aggregate level the threshold applies to the edge
+weight mass, so for probability matrices lower it (for example
+<code>min_count = 1</code> or <code>NULL</code>).</p></dd>
 
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>
@@ -223,11 +238,12 @@ are percentages. Default 1.5.</p></dd>
 
 <dt id="arg-min-transitions">min_transitions<a class="anchor" aria-label="anchor" href="#arg-min-transitions"></a></dt>
 <dd><p>Minimum total edge weight for a unit to be included,
-counted after self-loops are removed. Default 3 in instance mode, the
+counted after self-loops are removed unless <code>count_repeats = TRUE</code>.
+Default 3 in instance mode, the
 fewest transitions that can form a closed triad (030C and 030T have three
-edges), and 5 in census mode. At
-aggregate level the network is the only unit, so a network
-whose weights sum to less than this value gives NULL.</p></dd>
+edges), and 5 in census mode. At aggregate level the network is the only
+unit, so a network whose weights sum to less than this value gives NULL;
+for a probability matrix set <code>min_transitions = 0</code>.</p></dd>
 
 
 <dt id="arg-top">top<a class="anchor" aria-label="anchor" href="#arg-top"></a></dt>
@@ -250,7 +266,9 @@ only observed rows selects on the outcome: a rare configuration enters
 the test only when it happens to occur, which inflates the false-positive
 rate well above the nominal level. <code>"all"</code> keeps it at or below the
 nominal level. The full family has <code>choose(n_states, 3)</code> rows per
-retained type, so the permutation null grows accordingly. Ignored in
+retained labelled pattern with <code>strict = TRUE</code> (for example six
+for 030T, two for 030C and one for 300), or per retained MAN type with
+<code>strict = FALSE</code>, so the permutation null grows accordingly. Ignored in
 census mode and without individual-level significance.</p></dd>
 
 
@@ -259,7 +277,8 @@ census mode and without individual-level significance.</p></dd>
 tested row, one of <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust.methods</a></code>. Default
 <code>"none"</code>. The adjusted values are returned in <code>p_adj</code> and
 <code>sig</code> is <code>p_adj &lt; 0.05</code>. With <code>family = "all"</code> the
-adjustment covers the full family before <code>min_count</code> is applied.</p></dd>
+adjustment covers the full family before <code>min_count</code> is applied.
+Plot colours and stars follow <code>p_adj</code>, so they match <code>sig</code>.</p></dd>
 
 
 <dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
@@ -272,6 +291,22 @@ counts toward a row only when the triple shows exactly that set of
 arrows, and the null counts the same exact pattern. With
 <code>strict = FALSE</code> rows pool every labelled pattern of the type and
 <code>pattern</code> reports the most frequent one. Ignored in census mode.</p></dd>
+
+
+<dt id="arg-count-repeats">count_repeats<a class="anchor" aria-label="anchor" href="#arg-count-repeats"></a></dt>
+<dd><p>Logical. Whether repeated codes (self-transitions such
+as A to A) count as transitions. Default <code>FALSE</code>: repeats are
+removed before anything else, so only transitions between different codes
+decide which units are analysed and enter the permutation null. With
+<code>TRUE</code>, repeats count toward <code>min_transitions</code> (a unit coded
+A, A, A, B, C has four transitions instead of two) and are shuffled with
+the other transitions in the null, which treats repeated codes as
+distinct events whose order is random. The null then also reflects how
+often units repeat: units that repeat a lot have fewer ties between
+different codes than their shuffles, which raises the number of dense
+triads the null expects. Observed triads never contain a
+repeat in either case, because a triad is made of ties between three
+different nodes.</p></dd>
 
 
 <dt id="arg-row-names-optional">row.names, optional<a class="anchor" aria-label="anchor" href="#arg-row-names-optional"></a></dt>
@@ -315,8 +350,8 @@ one triple can occupy several rows. <code>pattern</code> is the labelled
 edge set of the row (for example <code>"A -&gt; B, B &lt;-&gt; C"</code>). With
 <code>strict = FALSE</code> a row pools patterns that differ in direction,
 so <code>pattern</code> is the most frequent of them and <code>pattern_n</code>
-the number of units showing it; with <code>strict = TRUE</code>
-<code>pattern_n</code> equals <code>observed</code>. <code>pattern_code</code> is
+the number of units showing it; at individual level with
+<code>strict = TRUE</code> <code>pattern_n</code> equals <code>observed</code>. <code>pattern_code</code> is
 the same edge set as a six-bit code in
 <code>node1</code>, <code>node2</code>, <code>node3</code> order (1: node1 to node2,
 2: node2 to node1, 4: node1 to node3, 8: node3 to node1, 16: node2 to
@@ -334,7 +369,9 @@ Census results carry <code>expected</code>, <code>z</code>, <code>p</code>,
 <dt>type_summary</dt>
 <dd><p>Named <code>table</code> of counts per MAN type, sorted in
 decreasing order. In census mode it holds the <code>count</code> column. In
-instance mode it holds the number of node triples of each type.</p></dd>
+instance mode it holds the number of result rows of each type: node
+triple and labelled pattern with <code>strict = TRUE</code>, node triple
+and type with <code>strict = FALSE</code>.</p></dd>
 
 <dt>level</dt>
 <dd><p><code>"individual"</code> when the input carried per-unit data,
@@ -344,8 +381,9 @@ otherwise <code>"aggregate"</code>.</p></dd>
 <dd><p>The value of the <code>named_nodes</code> argument.</p></dd>
 
 <dt>n_units</dt>
-<dd><p>Number of units analyzed: the units whose loop-free
-transition total reaches <code>min_transitions</code>. 1 at aggregate
+<dd><p>Number of units analyzed: the units whose transition
+total (loop-free unless <code>count_repeats = TRUE</code>) reaches
+<code>min_transitions</code>. 1 at aggregate
 level.</p></dd>
 
 <dt>n_units_total</dt>
@@ -354,27 +392,30 @@ level.</p></dd>
 
 <dt>params</dt>
 <dd><p>List of the analysis settings: <code>labels</code>,
-<code>n_states</code>, <code>pattern</code>, <code>edge_method</code>,
+<code>n_states</code>, <code>pattern</code> (<code>"custom"</code> when
+<code>include</code> is used), <code>include</code>, <code>edge_method</code>,
 <code>edge_threshold</code>, <code>significance</code>, <code>n_perm</code>,
-<code>min_count</code>, <code>min_transitions</code>, <code>family</code>,
+<code>min_count</code>, <code>min_transitions</code>, <code>count_repeats</code>,
+<code>family</code>,
 <code>p_adjust</code>, <code>strict</code>, <code>window</code>, <code>window_type</code> and
-<code>actor</code>.</p></dd>
+<code>actor</code> (the actor column used, or NULL at aggregate level).</p></dd>
 
 
 </dl><p><code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> returns one of these tables as a plain data frame.
 With <code>what = "results"</code> (default) it returns the <code>results</code>
 table described above. With <code>what = "types"</code> it returns one row per
 MAN type with columns <code>type</code> and <code>count</code>, where <code>count</code> is
-the number of triads of that type in a census or the number of node
-triples of that type in instance mode.</p>
+the number of triads of that type in a census or the number of result
+rows of that type in instance mode (see <code>type_summary</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The input type and the analysis level are detected automatically. Inputs
 that carry per-unit data are analyzed per unit. These are tna objects,
-networks that store tna sequence data, and edge lists (or networks built
-from edge lists) with an actor column. Matrices, igraph objects and other
-networks are analyzed as one aggregate network. The adjacency is always
+networks that store sequence data (such as <code><a href="as_cograph.html">as_cograph()</a></code> of a tna or
+a network from <code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>), and edge lists (or
+networks built from edge lists) with an actor column. Matrices, igraph
+objects and other networks are analyzed as one aggregate network. The adjacency is always
 classified as directed. The four-class undirected census is computed by
 <code>motif_census(..., directed = FALSE)</code>.</p>
 <p>For aggregate inputs, significance is computed by <code><a href="motif_census.html">motif_census()</a></code>
@@ -384,7 +425,9 @@ edge weight is converted to at least one integer stub, and target stubs are
 shuffled within each unit so that its integer in- and out-margins are
 preserved. The resulting multigraph, which may contain loops or parallel
 edges, is classified through its simple loop-free triad projection.
-Self-loops are removed before counting and before the null is constructed.</p>
+Self-loops are removed before counting. They are also removed before the
+null is constructed, unless <code>count_repeats = TRUE</code>, in which case they
+are shuffled with the other transitions.</p>
 <p>With <code>edge_method = "percent"</code>, edge presence is computed within each
 node triple. The weight of an edge is divided by the sum of the six possible
 directed edge weights of that triple. A threshold above 1 is read as a

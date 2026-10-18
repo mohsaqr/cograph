@@ -27,8 +27,8 @@ subgraphs(...)
   documents them (`x`, `actor`, `window`, `window_type`, `pattern`,
   `include`, `exclude`, `significance`, `n_perm`, `cores`, `min_count`,
   `edge_method`, `edge_threshold`, `min_transitions`, `top`, `seed`,
-  `family`, `p_adjust`, `strict`). `named_nodes` is fixed to `TRUE` and
-  must not be supplied.
+  `family`, `p_adjust`, `strict`, `count_repeats`). `named_nodes` is
+  fixed to `TRUE` and must not be supplied.
 
 ## Value
 

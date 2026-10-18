@@ -31,6 +31,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/add_nodes.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/aggregate_layers.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/aggregate_weights.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/as.data.frame.cograph_motif_analysis.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/as_cograph.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/as_mcml.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/as_tna.html</loc></url>
@@ -305,6 +306,7 @@
 <url><loc>https://sonsoles.me/cograph/reference/plot_tna.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_trajectories.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/plot_transitions.html</loc></url>
+<url><loc>https://sonsoles.me/cograph/reference/print-motifs.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/project_bipartite.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/reaching_global.html</loc></url>
 <url><loc>https://sonsoles.me/cograph/reference/regulation_net.html</loc></url>

@@ -48,6 +48,11 @@ A data frame with columns:
   Number of transitions.
 
 With `by_individual = FALSE`, the rows are sorted by decreasing count.
+The edge list can be passed to
+[`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+[`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md) or
+[`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+(with `id = "id"`), which read `count` as the transition weight.
 
 ## See also
 

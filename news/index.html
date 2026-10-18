@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,45 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.11" id="cograph-2711">cograph 2.7.11<a class="anchor" aria-label="anchor" href="#cograph-2711"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-2-7-11">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-7-11"></a></h3>
+<ul><li>
+<code><a href="../reference/triad_census.html">triad_census()</a></code> returns a data frame with one row per MAN type (<code>type</code>, <code>count</code>) instead of a named vector, like <code><a href="../reference/dyad_census.html">dyad_census()</a></code>.</li>
+<li>
+<code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/motif_census.html">motif_census()</a></code> count an edge only where the weight is positive, the rule <code><a href="../reference/motifs.html">motifs()</a></code> already used. A negative weight (for example a negative correlation) is no longer a tie.</li>
+<li>
+<code>motif_census(size = 4)</code> reports <code>NA</code> for the disconnected classes that igraph does not count, instead of a false 0.</li>
+<li>
+<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> is now a wrapper of <code>subgraphs(strict = FALSE)</code> instead of a separate implementation, so the two always agree. Its <code>sig</code> column is logical, <code>expected</code> and <code>z</code> are no longer rounded, rows are sorted by decreasing |z| (the strongest deficits are no longer cut by <code>top</code>), <code>by_type</code> groups in MAN order, and at aggregate level significance is not available (a <code>cograph_no_units</code> warning is raised).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-2-7-11">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-11"></a></h3>
+<ul><li>
+<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>count_repeats</code> (default <code>FALSE</code>, so results are unchanged). With <code>count_repeats = TRUE</code>, repeated codes such as A -&gt; A count toward <code>min_transitions</code> and are shuffled with the other transitions in the permutation null, so repeated codes are treated as distinct events, as when several different utterances share one code. Observed triads never contain a repeat. This reproduces the counts, expected values and z-scores of census results computed before 2.4.6.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-11">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-11"></a></h3>
+<ul><li>Motif plot colours and significance stars follow the adjusted p-value when <code>p_adjust</code> is set, so they match the <code>sig</code> column.</li>
+<li>
+<code><a href="../reference/motifs.html">motifs()</a></code> with <code>window</code> but no actor column raises a <code>cograph_window_needs_actor</code> error; it used to pool the windows and test them against a null built from the first one.</li>
+<li>An empty individual-level <code><a href="../reference/subgraphs.html">subgraphs()</a></code> result is <code>NULL</code> with a message, as documented.</li>
+<li>
+<code>motifs(as_cograph(&lt;tna&gt;))</code> is analysed per sequence, like the tna itself.</li>
+<li>Edge lists are read case-insensitively (<code>From</code>/<code>To</code>) and a <code>count</code> column is used as the weight, so <code><a href="../reference/get_edge_list.html">get_edge_list()</a></code> output keeps its weights. An edge list without <code>from</code> or <code>to</code> raises <code>cograph_bad_edgelist</code>.</li>
+<li>
+<code>edge_method = "expected"</code> no longer fails on a unit with no transitions.</li>
+<li>
+<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> no longer merges distinct id combinations such as (“a_b”, “c”) and (“a”, “b_c”), and <code>data</code> without <code>id</code> raises <code>cograph_data_needs_id</code>.</li>
+<li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a census with <code>significant = TRUE</code> draws only the significant types and returns the input; <code>ncol</code> reaches the pattern grid.</li>
+<li>
+<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> help page uses the corrected triad names; the print methods are documented (<code>?print-motifs</code>), and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> results gain <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>.</li>
+<li>Motif help pages corrected: the edge-list columns, rolling versus tumbling windows, the size of the full test family, instance-mode type counts, <code>min_count</code> and <code>min_transitions</code> on probability matrices, and <code>count_repeats</code> in the details.</li>
+<li>Motif plots name every triad type by its structure. Seven names were wrong or vague: 111D is now “In-star + mutual” and 111U “Out-star + mutual” (they were swapped), 201 is “Two mutuals” (was “Mutual + in-star”), 120D is “Out-star onto mutual” (was “Two out-stars”), 120U is “In-star from mutual” (was “Two in-stars”), 120C is “Cycle + mutual” (was “Mixed regulated”) and 210 is “Near-clique” (was “Mutual + feed-forward”). Only titles changed: counts, significance and the drawn triads were already correct. A new test checks every name against the structure of its triad.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.10" id="cograph-2710">cograph 2.7.10<a class="anchor" aria-label="anchor" href="#cograph-2710"></a></h2>
 <div class="section level3">
@@ -895,7 +934,7 @@
 </ul></li>
 <li><p><code><a href="../reference/plot_transitions.html">plot_transitions()</a></code> with a multi-column data frame (the consecutive multi-step branch) no longer silently drops styling arguments: <code>value_min</code>, <code>label_color</code>, <code>label_fontface</code>, <code>label_nudge</code>, <code>title_color</code>, <code>title_fontface</code>, <code>value_halo</code>, <code>value_fontface</code>, <code>value_nudge</code>, and <code>total_fontface</code> are now forwarded, so both multi-step input forms (list of matrices, data frame) respond to the same arguments identically.</p></li>
 <li><p>Motif pattern plots (<code>plot(motifs(x), type = "network")</code>, triad glyph panels) drew the wrong structure for five of the sixteen MAN triad classes: the <code>021D</code> and <code>021U</code> glyphs were swapped (transposed matrices), the <code>120D</code> and <code>120U</code> glyphs both drew a <code>120C</code>-isomorphic triad, and the <code>210</code> glyph drew a <code>120</code>-class triad — so the <code>120U</code> and <code>210</code> structures were never drawn at all. Only the drawn glyphs were wrong: motif <em>counts</em>, significance tests, and <code><a href="../reference/triad_census.html">triad_census()</a></code> were always computed from a separate, correct canonical pattern set (verified against <code><a href="https://r.igraph.org/reference/triad_census.html" class="external-link">igraph::triad_census()</a></code>). All sixteen visual patterns are now verified against igraph by a regression test that also pins the visual and canonical sets to each other. Thanks to Mengli Zhang for reporting (reconstructing the structures from the package source and spotting that three “distinct” glyphs were isomorphic).</p></li>
-<li><p><code><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest()</a></code>, <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code>, <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/extract_triads.html">extract_triads()</a></code> are now listed in the package index and the reference site. All five are exported and user-facing, but carried <code>@keywords internal</code>, which hid them from <code><a href="https://sonsoles.me/cograph/reference">help(package = "cograph")</a></code> — you could only find them if you already knew the name. <code><a href="../reference/mcml.html">mcml()</a></code> remains hidden; it is a deprecated alias of <code><a href="../reference/csum.html">csum()</a></code>. The <code>n</code> and <code>...</code> arguments of <code>print.cograph_motif_analysis()</code> and <code>print.cograph_motifs()</code> are now documented (previously exempt from checking by the <code>internal</code> keyword).</p></li>
+<li><p><code><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest()</a></code>, <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code>, <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/extract_triads.html">extract_triads()</a></code> are now listed in the package index and the reference site. All five are exported and user-facing, but carried <code>@keywords internal</code>, which hid them from <code><a href="https://sonsoles.me/cograph/reference">help(package = "cograph")</a></code> — you could only find them if you already knew the name. <code><a href="../reference/mcml.html">mcml()</a></code> remains hidden; it is a deprecated alias of <code><a href="../reference/csum.html">csum()</a></code>. The <code>n</code> and <code>...</code> arguments of <code><a href="../reference/print-motifs.html">print.cograph_motif_analysis()</a></code> and <code><a href="../reference/print-motifs.html">print.cograph_motifs()</a></code> are now documented (previously exempt from checking by the <code>internal</code> keyword).</p></li>
 <li><p><code><a href="../reference/plot_difference.html">plot_difference()</a></code>’s new <code>difference</code> argument moved to the end of the signature, after <code>combined</code>. It had been inserted <em>before</em> <code>combined</code>, which shifted the positional argument order relative to the released 2.3.6 signature. Because <code><a href="../reference/plot_compare.html">plot_compare()</a></code> is <code>function(x, ...)</code> and forwards to <code><a href="../reference/plot_difference.html">plot_difference()</a></code>, a caller passing 14 positional arguments had their 14th silently rebound from <code>combined</code> to <code>difference</code> — making the function treat <code>x</code> as an already-subtracted matrix, discard <code>y</code>, and draw the wrong network with no error. <code>difference</code> was introduced after the last CRAN release, so no released behaviour changes. Named calls were never affected.</p></li>
 <li><p><code><a href="../reference/plot_bootstrap_forest.html">plot_bootstrap_forest()</a></code> and <code><a href="../reference/plot_edge_diff_forest.html">plot_edge_diff_forest()</a></code> no longer emit a <code>geom_errorbarh()</code> deprecation warning under ggplot2 4.0.0. The four horizontal error-bar layers now use <code>geom_errorbar(orientation = "y")</code>; the rendered output is unchanged. <code>DESCRIPTION</code> now declares the <code>ggplot2 (&gt;= 3.4.0)</code> requirement the package already had (it uses the <code>linewidth</code> aesthetic throughout).</p></li>
 <li><p><code>plot_edge_diff_forest(layout = "chord")</code> no longer emits a spurious “row names were found from a short variable and have been discarded” warning for every node arc it draws.</p></li>

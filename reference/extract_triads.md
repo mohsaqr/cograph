@@ -41,7 +41,9 @@ extract_triads(
 - min_total:
 
   Minimum total weight across all 6 edges. Excludes trivial triads with
-  low overall activity. Default 5.
+  low overall activity. Default 5, which suits count weights; with
+  probability weights (a tna model, `regulation_net`) no triad reaches
+  it, so use `min_total = 0`.
 
 - directed:
 

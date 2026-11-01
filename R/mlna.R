@@ -595,6 +595,5 @@ plot_mlna <- function(
 }
 
 #' @rdname plot_mlna
-#' @return See \code{\link{plot_mlna}}.
 #' @export
 mlna <- plot_mlna

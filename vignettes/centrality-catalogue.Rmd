@@ -57,14 +57,20 @@ and `sort_by =` to order the result.
 
 ## How to read this catalogue
 
-Every measure below is documented with four fields:
+Every measure below is documented with up to five fields:
 
 - **Concept** — what the measure captures, in words.
 - **Definition** — the formula as `cograph` computes it. Where its
   normalisation differs from a textbook statement, the formula shown is the one
   `cograph` uses.
 - **Meaning** — how to read a high (or low) value.
-- **Example** — a runnable call.
+- **Arguments** — the `centrality()` arguments that change the measure, when
+  it has any.
+- **Example** — a runnable call on `student_interactions`. Five of them
+  warn on this graph, because the measure is undefined or does not converge
+  there: Katz at the default `katz_alpha`, Hubbell, random-walk and Markov
+  centrality, and IEC. The warning names the cause and, for Katz, the
+  largest `katz_alpha` that converges.
 
 ### Notation
 
@@ -1510,6 +1516,9 @@ emit_measure <- function(r) {
   cat(r$concept, "\n\n", sep = "")
   if (nzchar(r$math)) cat("$$\n", r$math, "\n$$\n\n", sep = "")
   cat("**Meaning.** ", r$meaning, "\n\n", sep = "")
+  if (nzchar(r$args) && !identical(r$args, "\u2014") && !startsWith(r$args, "via ")) {
+    cat("**Arguments.** ", r$args, "\n\n", sep = "")
+  }
   cat("```r\n", r$example, "\n```\n\n", sep = "")
 }
 
@@ -1537,13 +1546,13 @@ cat("</div>\n\n")
 for (fam in family_order[1:6]) emit_family(fam)
 ```
 
-The measures below need a **community membership vector**. Build one with
-`detect_communities()` (`walktrap` works on the directed `student_interactions`
-graph), then pass it as `membership =`:
+The measures below need a **community membership vector**, one community per
+node. `communities()` detects the partition (`walktrap` works on the directed
+`student_interactions` graph), `membership()` returns it as a named vector,
+and that vector is passed as `membership =`:
 
 ```{r groups}
-comm   <- detect_communities(student_interactions, method = "walktrap")
-groups <- setNames(comm$community, comm$node)
+groups <- membership(communities(student_interactions, method = "walktrap"))
 centrality_participation(student_interactions, membership = groups)
 ```
 

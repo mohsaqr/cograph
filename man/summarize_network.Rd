@@ -45,8 +45,6 @@ cluster name. The edge weights are the aggregated between-cluster
 weights, and the diagonal holds the aggregated within-cluster weights.
 The node table has a \code{size} column with the number of original
 nodes in each cluster.
-
-See \code{\link{summarize_network}}.
 }
 \description{
 Creates a summary network where each cluster becomes a single node.

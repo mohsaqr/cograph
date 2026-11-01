@@ -1,5 +1,4 @@
-# cograph 2.7.11
-
+# cograph 2.7.12
 ## Breaking changes
 
 * `triad_census()` returns a data frame with one row per MAN type (`type`,
@@ -60,6 +59,24 @@
   210 is "Near-clique" (was "Mutual + feed-forward"). Only titles changed:
   counts, significance and the drawn triads were already correct. A new test
   checks every name against the structure of its triad.
+
+## Documentation
+
+* The package help page (`?"cograph-package"`) describes the analysis
+  functions and every layout family, not only the plotting functions.
+* `motifs()`, `motif_census()`, `triad_census()`, `network_small_world()`,
+  `network_global_efficiency()`, `network_local_efficiency()`,
+  `compare_communities()`, `cluster_quality()` and `supra_adjacency()` cite
+  the methods they implement.
+* `?supra_adjacency` shows the matrix dimension correctly, and `?soplot` no
+  longer repeats its return value.
+* The introduction vignette describes `cluster_quality()` and
+  `cluster_significance()` correctly, uses the argument names of
+  `select_edges_between()`, and links the function reference on the pkgdown
+  site.
+* The centrality catalogue shows each measure's arguments, builds the
+  membership vector with `communities()` and `membership()`, and names the
+  five examples that warn on `student_interactions`.
 
 # cograph 2.7.10
 

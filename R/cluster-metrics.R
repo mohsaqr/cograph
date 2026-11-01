@@ -1569,6 +1569,10 @@ as_mcml.default <- function(x, ...) {
 #'   \item{global}{List with \code{modularity} (Newman-Girvan, computed on the
 #'     weighted or binarized matrix), \code{coverage} (share of total weight
 #'     that is internal to some cluster) and \code{n_clusters}.}
+#' @references
+#' Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
+#' structure in networks. \emph{Physical Review E}, 69(2), 026113.
+#' \doi{10.1103/PhysRevE.69.026113}
 #' @export
 #' @examples
 #' clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
@@ -1698,7 +1702,6 @@ cluster_quality <- function(x,
 }
 
 #' @rdname cluster_quality
-#' @return See \code{\link{cluster_quality}}.
 #' @export
 cqual <- cluster_quality
 
@@ -2185,13 +2188,17 @@ ldegcor <- layer_degree_correlation
 #'   A pair with no matching entry receives the diagonal coupling
 #'   \code{omega[a,b] * I} with a warning. A \code{NULL} value with
 #'   \code{coupling = "custom"} is an error.
-#' @return A supra-adjacency matrix of dimension (N*L) x (N*L) with class
+#' @return A supra-adjacency matrix of dimension `N * L` by `N * L` with class
 #'   \code{c("supra_adjacency", "matrix")}. Diagonal N x N blocks hold the
 #'   intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
 #'   The attributes \code{"n_nodes"}, \code{"n_layers"}, \code{"node_names"},
 #'   \code{"layer_names"}, \code{"omega"} and \code{"coupling"} record the
 #'   construction and are read back by \code{\link{supra_layer}()} and
 #'   \code{\link{supra_interlayer}()}.
+#' @references
+#' Kivela, M., Arenas, A., Barthelemy, M., Gleeson, J. P., Moreno, Y., &
+#' Porter, M. A. (2014). Multilayer networks. \emph{Journal of Complex
+#' Networks}, 2(3), 203--271. \doi{10.1093/comnet/cnu016}
 #' @export
 #' @examples
 #' layers <- list(forward = regulation_net, backward = t(regulation_net))
@@ -2710,6 +2717,5 @@ summarize_network <- function(x,
 }
 
 #' @rdname summarize_network
-#' @return See \code{\link{summarize_network}}.
 #' @export
 cnet <- summarize_network

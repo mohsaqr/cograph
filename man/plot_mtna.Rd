@@ -171,8 +171,6 @@ passed to \code{\link{plot_tna}()}. In summary mode, only
 Invisibly returns a \code{cluster_summary} object when
 \code{summary_edges = TRUE}, and otherwise the
 \code{\link{plot_tna}()} result (a \code{cograph_network} object).
-
-See \code{\link{plot_mtna}}.
 }
 \description{
 Plots a network whose nodes are grouped into clusters. Each cluster is

@@ -48,7 +48,7 @@ A pair with no matching entry receives the diagonal coupling
 \code{coupling = "custom"} is an error.}
 }
 \value{
-A supra-adjacency matrix of dimension (N\emph{L) x (N}L) with class
+A supra-adjacency matrix of dimension \code{N * L} by \code{N * L} with class
 \code{c("supra_adjacency", "matrix")}. Diagonal N x N blocks hold the
 intra-layer adjacencies and off-diagonal blocks the inter-layer coupling.
 The attributes \code{"n_nodes"}, \code{"n_layers"}, \code{"node_names"},
@@ -64,4 +64,9 @@ inter-layer coupling.
 \examples{
 layers <- list(forward = regulation_net, backward = t(regulation_net))
 supra_adjacency(layers, omega = 0.5)
+}
+\references{
+Kivela, M., Arenas, A., Barthelemy, M., Gleeson, J. P., Moreno, Y., &
+Porter, M. A. (2014). Multilayer networks. \emph{Journal of Complex
+Networks}, 2(3), 203--271. \doi{10.1093/comnet/cnu016}
 }

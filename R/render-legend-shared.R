@@ -120,7 +120,7 @@ NULL
 #' inches, which need an open device but no plot: `strwidth(units = "inches")`
 #' and `par("cin")` are both valid before `plot.new()`. It is an estimate of
 #' `graphics::legend()`'s own geometry, deliberately a little generous;
-#' [.render_legend_in_band()] measures the real box afterwards and shrinks it
+#' `.render_legend_in_band()` measures the real box afterwards and shrinks it
 #' if the estimate fell short, so a wrong guess costs size, never an overlap.
 #'
 #' @param legend Character vector of legend entries.
@@ -169,7 +169,7 @@ NULL
 #' the centre of that band. The legend therefore never covers the plot and is
 #' never clipped by the device, whatever the device size.
 #'
-#' @param legend_args Named list of arguments for [.render_legend_base()],
+#' @param legend_args Named list of arguments for `.render_legend_base()`,
 #'   without `position` or `inset`. Must carry `cex`; `pt.cex` is scaled with
 #'   it when present.
 #' @param side One of `"bottom"`, `"top"`, `"left"`, `"right"`.

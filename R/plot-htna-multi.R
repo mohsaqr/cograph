@@ -920,6 +920,5 @@ plot_mtna <- function(
 }
 
 #' @rdname plot_mtna
-#' @return See \code{\link{plot_mtna}}.
 #' @export
 mtna <- plot_mtna

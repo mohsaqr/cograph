@@ -687,6 +687,10 @@ network_bridges <- function(x, count_only = FALSE, ...) {
 #'   it lies in \eqn{[0, 1]}. Weighted graphs can exceed 1 when edge distances
 #'   are below 1.
 #'
+#' @references
+#' Latora, V., & Marchiori, M. (2001). Efficient behavior of small-world
+#' networks. \emph{Physical Review Letters}, 87(19), 198701.
+#' \doi{10.1103/PhysRevLett.87.198701}
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' network_global_efficiency(regulation_net)
@@ -764,6 +768,10 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 #'   graph with fewer than two nodes. For unweighted simple graphs it lies in
 #'   \eqn{[0, 1]}. Weighted graphs can exceed 1 when edge distances are below 1.
 #'
+#' @references
+#' Latora, V., & Marchiori, M. (2001). Efficient behavior of small-world
+#' networks. \emph{Physical Review Letters}, 87(19), 198701.
+#' \doi{10.1103/PhysRevLett.87.198701}
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' network_local_efficiency(regulation_net)
@@ -833,6 +841,14 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
 #' \code{.Random.seed}. Call \code{set.seed()} beforehand for a reproducible
 #' result. A larger \code{n_random} gives a more stable estimate.
 #'
+#' @references
+#' Humphries, M. D., & Gurney, K. (2008). Network 'small-world-ness': A
+#' quantitative method for determining canonical network equivalence.
+#' \emph{PLoS ONE}, 3(4), e0002002. \doi{10.1371/journal.pone.0002002}
+#'
+#' Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of
+#' 'small-world' networks. \emph{Nature}, 393(6684), 440--442.
+#' \doi{10.1038/30918}
 #' @export
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' set.seed(1)

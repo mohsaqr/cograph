@@ -922,7 +922,5 @@ render_legend_grid <- function(network, position = "topright") {
 }
 
 #' @rdname soplot
-#' @return The updated \code{cograph_network} object, invisibly. The function
-#'   is called for the plot it produces.
 #' @export
 sn_render <- soplot

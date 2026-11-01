@@ -79,6 +79,16 @@ result is documented in \code{\link{plot-results}}.
 motif_census(regulation_net, n_random = 20, seed = 1)
 \dontshow{\}) # examplesIf}
 }
+\references{
+Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+networks. \emph{Sociological Methodology}, 7, 1--45.
+\doi{10.2307/270703}
+
+Milo, R., Shen-Orr, S., Itzkovitz, S., Kashtan, N., Chklovskii, D., &
+Alon, U. (2002). Network motifs: Simple building blocks of complex
+networks. \emph{Science}, 298(5594), 824--827.
+\doi{10.1126/science.298.5594.824}
+}
 \seealso{
 \code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=extract_motifs]{extract_motifs()}} for detailed
 triad extraction, \code{\link{plot-results}} for plotting

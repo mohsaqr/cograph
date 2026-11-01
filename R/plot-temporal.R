@@ -73,8 +73,8 @@
 #' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' set.seed(1)
 #' edges <- data.frame(
-#'   from = sample(LETTERS[1:5], 30, replace = TRUE),
-#'   to   = sample(LETTERS[1:5], 30, replace = TRUE),
+#'   from = sample(c("A", "B", "C", "D", "E"), 30, replace = TRUE),
+#'   to   = sample(c("A", "B", "C", "D", "E"), 30, replace = TRUE),
 #'   week = sample(1:3, 30, replace = TRUE))
 #' cograph::plot_temporal(edges, time = "week")
 plot_temporal <- function(x,

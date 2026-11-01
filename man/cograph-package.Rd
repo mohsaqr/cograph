@@ -3,18 +3,40 @@
 \docType{package}
 \name{cograph-package}
 \alias{cograph-package}
-\title{cograph: Modern Network Visualization for R}
+\title{cograph: Analysis and Visualization of Complex Networks}
 \description{
-A modern, extensible network visualization package that provides high-quality
-static network plots and ggplot2 conversions. cograph accepts adjacency
-matrices, edge lists, igraph, statnet network, qgraph and tna objects and
-offers customizable layouts, node shapes, edge styles, and themes.
+cograph analyses and plots social, transition and complex networks.
+It accepts adjacency matrices, edge lists, igraph, statnet network,
+qgraph and tna objects without conversion. It plots them with base R
+(\code{\link{splot}}) or grid graphics (\code{\link{soplot}}), reshapes
+them with a family of wrangling verbs (\code{\link{network_wrangling}}),
+and returns most of its analyses as tidy data frames.
 }
-\section{Main Functions}{
+\section{Analysis functions}{
+
+\itemize{
+\item \code{\link{centrality}}: node centrality measures, one column per
+measure (see \code{\link{list_centralities}})
+\item \code{\link{network_summary}}: network-level statistics, one row
+per network
+\item \code{\link{communities}}: community detection, one row per node
+\item \code{\link{motifs}} and \code{\link{subgraphs}}: triad census and
+motif instances with significance tests
+\item \code{\link{robustness}} and \code{\link{vulnerability}}: network
+robustness under node or edge removal
+\item \code{\link{disparity_filter}}: backbone extraction
+\item \code{\link{summarize_clusters}} and \code{\link{supra_adjacency}}:
+multi-cluster and multilayer networks
+}
+}
+
+\section{Plotting functions}{
 
 \itemize{
 \item \code{\link{splot}}: Plot a network with base R graphics
 \item \code{\link{soplot}}: Plot a network with grid graphics
+\item \code{\link{plot_tna}}, \code{\link{tplot}}: TNA-style plots with
+qgraph-compatible arguments
 \item \code{\link{cograph}}: Create a network object for the builder functions
 \item \code{\link{sn_layout}}: Apply layout algorithms
 \item \code{\link{sn_nodes}}: Customize node aesthetics
@@ -27,11 +49,17 @@ offers customizable layouts, node shapes, edge styles, and themes.
 
 \section{Layouts}{
 
-cograph provides several built-in layouts:
+Built-in layouts include the following; \code{\link{list_layouts}} lists
+every registered name:
 \itemize{
-\item \code{circle}: Nodes arranged in a circle
+\item \code{circle}, \code{oval}: Nodes arranged on a circle or ellipse
 \item \code{spring}: Fruchterman-Reingold force-directed layout
+\item \code{gephi_fr}: Gephi-style Fruchterman-Reingold layout
 \item \code{groups}: Group-based circular layout
+\item \code{target}: levels by graph distance from a focal node
+\item \code{saqr}: rows of a transition flow between Start and End
+nodes
+\item \code{grid}, \code{star}, \code{bipartite}, \code{random}
 \item \code{custom}: User-provided coordinates
 }
 }

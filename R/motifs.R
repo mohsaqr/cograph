@@ -58,6 +58,15 @@
 #' @seealso [motifs()] for the unified API, [extract_motifs()] for detailed
 #'   triad extraction, \code{\link{plot-results}} for plotting
 #' @family motifs
+#' @references
+#' Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+#' networks. \emph{Sociological Methodology}, 7, 1--45.
+#' \doi{10.2307/270703}
+#'
+#' Milo, R., Shen-Orr, S., Itzkovitz, S., Kashtan, N., Chklovskii, D., &
+#' Alon, U. (2002). Network motifs: Simple building blocks of complex
+#' networks. \emph{Science}, 298(5594), 824--827.
+#' \doi{10.1126/science.298.5594.824}
 #' @export
 motif_census <- function(x, size = 3, n_random = 100,
                          method = c("configuration", "gnm"),
@@ -526,6 +535,10 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #'
 #' @seealso [motifs()] for the unified API, [motif_census()]
 #' @family motifs
+#' @references
+#' Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+#' networks. \emph{Sociological Methodology}, 7, 1--45.
+#' \doi{10.2307/270703}
 #' @export
 triad_census <- function(x) {
   .need_igraph("triad_census()")

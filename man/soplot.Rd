@@ -384,9 +384,6 @@ disable rounding.}
 \value{
 The updated \code{cograph_network} object, invisibly. The function
 is called for the plot it produces.
-
-The updated \code{cograph_network} object, invisibly. The function
-is called for the plot it produces.
 }
 \description{
 Plots a network with grid graphics. Node and edge aesthetics can be passed

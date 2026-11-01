@@ -36,6 +36,11 @@ in the order of the result, are 003, 012, 102, 021D, 021U, 021C, 111D,
 cograph::triad_census(regulation_net)
 \dontshow{\}) # examplesIf}
 }
+\references{
+Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+networks. \emph{Sociological Methodology}, 7, 1--45.
+\doi{10.2307/270703}
+}
 \seealso{
 \code{\link[=motifs]{motifs()}} for the unified API, \code{\link[=motif_census]{motif_census()}}
 

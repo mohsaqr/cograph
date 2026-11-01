@@ -44,3 +44,12 @@ set.seed(1)
 network_small_world(regulation_net, n_random = 5)
 \dontshow{\}) # examplesIf}
 }
+\references{
+Humphries, M. D., & Gurney, K. (2008). Network 'small-world-ness': A
+quantitative method for determining canonical network equivalence.
+\emph{PLoS ONE}, 3(4), e0002002. \doi{10.1371/journal.pone.0002002}
+
+Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of
+'small-world' networks. \emph{Nature}, 393(6684), 440--442.
+\doi{10.1038/30918}
+}

@@ -151,8 +151,6 @@ or "auto" (adaptive based on node count).}
 }
 \value{
 Invisibly returns NULL.
-
-See \code{\link{plot_mlna}}.
 }
 \description{
 Plots a multilevel network as a stack of layers in a pseudo-3D perspective

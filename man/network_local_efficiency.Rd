@@ -49,3 +49,8 @@ outside their induced subgraph.
 network_local_efficiency(regulation_net)
 \dontshow{\}) # examplesIf}
 }
+\references{
+Latora, V., & Marchiori, M. (2001). Efficient behavior of small-world
+networks. \emph{Physical Review Letters}, 87(19), 198701.
+\doi{10.1103/PhysRevLett.87.198701}
+}

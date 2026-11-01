@@ -35,6 +35,12 @@ followed by a letter that separates types with the same counts. The 16
 triad types, in the order of the result, are 003, 012, 102, 021D, 021U,
 021C, 111D, 111U, 030T, 030C, 201, 120D, 120U, 120C, 210 and 300.
 
+## References
+
+Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+networks. *Sociological Methodology*, 7, 1–45.
+[doi:10.2307/270703](https://doi.org/10.2307/270703)
+
 ## See also
 
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) for the

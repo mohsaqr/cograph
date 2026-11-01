@@ -58,6 +58,12 @@ Numeric scalar: the global efficiency. For unweighted simple graphs it
 lies in \\\[0, 1\]\\. Weighted graphs can exceed 1 when edge distances
 are below 1.
 
+## References
+
+Latora, V., & Marchiori, M. (2001). Efficient behavior of small-world
+networks. *Physical Review Letters*, 87(19), 198701.
+[doi:10.1103/PhysRevLett.87.198701](https://doi.org/10.1103/PhysRevLett.87.198701)
+
 ## Examples
 
 ``` r

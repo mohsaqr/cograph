@@ -61,8 +61,6 @@ name. The edge weights are the aggregated between-cluster weights, and
 the diagonal holds the aggregated within-cluster weights. The node table
 has a `size` column with the number of original nodes in each cluster.
 
-See `summarize_network`.
-
 ## See also
 
 [`csum`](https://sonsoles.me/cograph/reference/csum.md),

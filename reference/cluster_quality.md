@@ -48,7 +48,11 @@ A `cluster_quality` object (a list) with:
   binarized matrix), `coverage` (share of total weight that is internal
   to some cluster) and `n_clusters`.
 
-See `cluster_quality`.
+## References
+
+Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
+structure in networks. *Physical Review E*, 69(2), 026113.
+[doi:10.1103/PhysRevE.69.026113](https://doi.org/10.1103/PhysRevE.69.026113)
 
 ## Examples
 

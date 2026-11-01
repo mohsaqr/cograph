@@ -33,6 +33,21 @@ A single numeric value. `"vi"` and `"split.join"` are distances (0 for
 identical partitions); `"nmi"`, `"rand"` and `"adjusted.rand"` are
 similarities (1 for identical partitions).
 
+## References
+
+Meila, M. (2007). Comparing clusterings: An information based distance.
+*Journal of Multivariate Analysis*, 98(5), 873–895.
+[doi:10.1016/j.jmva.2006.11.013](https://doi.org/10.1016/j.jmva.2006.11.013)
+
+Danon, L., Diaz-Guilera, A., Duch, J., & Arenas, A. (2005). Comparing
+community structure identification. *Journal of Statistical Mechanics:
+Theory and Experiment*, 2005(09), P09008.
+[doi:10.1088/1742-5468/2005/09/P09008](https://doi.org/10.1088/1742-5468/2005/09/P09008)
+
+Hubert, L., & Arabie, P. (1985). Comparing partitions. *Journal of
+Classification*, 2(1), 193–218.
+[doi:10.1007/BF01908075](https://doi.org/10.1007/BF01908075)
+
 ## Examples
 
 ``` r

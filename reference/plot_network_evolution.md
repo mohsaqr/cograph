@@ -102,8 +102,8 @@ included when `cumulative = TRUE`). For list input it is the input list.
 ``` r
 set.seed(1)
 edges <- data.frame(
-  from = sample(LETTERS[1:5], 30, replace = TRUE),
-  to   = sample(LETTERS[1:5], 30, replace = TRUE),
+  from = sample(c("A", "B", "C", "D", "E"), 30, replace = TRUE),
+  to   = sample(c("A", "B", "C", "D", "E"), 30, replace = TRUE),
   week = sample(1:4, 30, replace = TRUE))
 cograph::plot_network_evolution(edges, time = "week")
 ```

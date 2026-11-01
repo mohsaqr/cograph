@@ -47,6 +47,17 @@ function takes no `seed` argument and does not save or restore
 beforehand for a reproducible result. A larger `n_random` gives a more
 stable estimate.
 
+## References
+
+Humphries, M. D., & Gurney, K. (2008). Network 'small-world-ness': A
+quantitative method for determining canonical network equivalence. *PLoS
+ONE*, 3(4), e0002002.
+[doi:10.1371/journal.pone.0002002](https://doi.org/10.1371/journal.pone.0002002)
+
+Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of
+'small-world' networks. *Nature*, 393(6684), 440–442.
+[doi:10.1038/30918](https://doi.org/10.1038/30918)
+
 ## Examples
 
 ``` r

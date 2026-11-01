@@ -253,7 +253,7 @@ sets of nodes.
 | `select_bridges(x)` | Bridge edges only |
 | `select_top_edges(x, n)` | Top-N edges by weight |
 | `select_edges_involving(x, nodes)` | Edges touching specific nodes |
-| `select_edges_between(x, s1, s2)` | Edges between two node sets |
+| `select_edges_between(x, set1, set2)` | Edges between two node sets |
 | `subset_nodes(x, ...)` / `subset_edges(x, ...)` | Aliases of the filters |
 
 ### Weights
@@ -622,8 +622,8 @@ community_sizes(comms)
 | [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md) | Compare partitions (NMI, VI, Rand, adjusted Rand) |
 | [`community_sizes()`](https://sonsoles.me/cograph/reference/community_sizes.md) | Size of each community |
 | [`color_communities()`](https://sonsoles.me/cograph/reference/color_communities.md) | Color vector from community membership |
-| [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md) | Quality metrics (silhouette, Dunn index) |
-| [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md) | Permutation-based significance testing |
+| [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md) | Modularity, coverage, and per-cluster density, cut ratio and conductance |
+| [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md) | Modularity tested against configuration-model or G(n, m) random networks |
 | [`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md) | Alternative interface (returns data frame) |
 
 ## Motifs
@@ -867,8 +867,8 @@ function returns `n` colours.
 
 **Package resources:**
 
-- [cograph function reference](https://saqr.me/cograph/), complete list
-  of all functions with examples
+- [cograph function reference](https://sonsoles.me/cograph/reference/),
+  complete list of all functions with examples
 - [cograph pkgdown site](https://sonsoles.me/cograph/), full
   documentation and articles
 

@@ -1016,7 +1016,7 @@ Every verb takes any supported input and returns a cograph_network.
 - [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md)
   : Build MCML from Raw Transition Data
 - [`cograph-package`](https://sonsoles.me/cograph/reference/cograph-package.md)
-  : cograph: Modern Network Visualization for R
+  : cograph: Analysis and Visualization of Complex Networks
 - [`color_communities()`](https://sonsoles.me/cograph/reference/color_communities.md)
   : Color Nodes by Community
 - [`communities()`](https://sonsoles.me/cograph/reference/communities.md)

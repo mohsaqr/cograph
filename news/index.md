@@ -1,6 +1,6 @@
 # Changelog
 
-## cograph 2.7.11
+## cograph 2.7.12
 
 ### Breaking changes
 
@@ -82,6 +82,41 @@
   “Mutual + feed-forward”). Only titles changed: counts, significance
   and the drawn triads were already correct. A new test checks every
   name against the structure of its triad.
+
+### Documentation
+
+- The package help page
+  ([`?"cograph-package"`](https://sonsoles.me/cograph/reference/cograph-package.md))
+  describes the analysis functions and every layout family, not only the
+  plotting functions.
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md),
+  [`network_small_world()`](https://sonsoles.me/cograph/reference/network_small_world.md),
+  [`network_global_efficiency()`](https://sonsoles.me/cograph/reference/network_global_efficiency.md),
+  [`network_local_efficiency()`](https://sonsoles.me/cograph/reference/network_local_efficiency.md),
+  [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md),
+  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
+  and
+  [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md)
+  cite the methods they implement.
+- [`?supra_adjacency`](https://sonsoles.me/cograph/reference/supra_adjacency.md)
+  shows the matrix dimension correctly, and
+  [`?soplot`](https://sonsoles.me/cograph/reference/soplot.md) no longer
+  repeats its return value.
+- The introduction vignette describes
+  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
+  and
+  [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
+  correctly, uses the argument names of
+  [`select_edges_between()`](https://sonsoles.me/cograph/reference/select_edges_between.md),
+  and links the function reference on the pkgdown site.
+- The centrality catalogue shows each measure’s arguments, builds the
+  membership vector with
+  [`communities()`](https://sonsoles.me/cograph/reference/communities.md)
+  and
+  [`membership()`](https://sonsoles.me/cograph/reference/membership.md),
+  and names the five examples that warn on `student_interactions`.
 
 ## cograph 2.7.10
 

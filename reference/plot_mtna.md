@@ -233,8 +233,6 @@ Invisibly returns a `cluster_summary` object when
 [`plot_tna()`](https://sonsoles.me/cograph/reference/plot_tna.md) result
 (a `cograph_network` object).
 
-See `plot_mtna`.
-
 ## See also
 
 [`csum`](https://sonsoles.me/cograph/reference/csum.md),

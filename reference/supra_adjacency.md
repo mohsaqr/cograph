@@ -63,7 +63,7 @@ supra(
 
 ## Value
 
-A supra-adjacency matrix of dimension (N*L) x (N*L) with class
+A supra-adjacency matrix of dimension `N * L` by `N * L` with class
 `c("supra_adjacency", "matrix")`. Diagonal N x N blocks hold the
 intra-layer adjacencies and off-diagonal blocks the inter-layer
 coupling. The attributes `"n_nodes"`, `"n_layers"`, `"node_names"`,
@@ -72,6 +72,13 @@ are read back by
 [`supra_layer()`](https://sonsoles.me/cograph/reference/supra_layer.md)
 and
 [`supra_interlayer()`](https://sonsoles.me/cograph/reference/supra_interlayer.md).
+
+## References
+
+Kivela, M., Arenas, A., Barthelemy, M., Gleeson, J. P., Moreno, Y., &
+Porter, M. A. (2014). Multilayer networks. *Journal of Complex
+Networks*, 2(3), 203–271.
+[doi:10.1093/comnet/cnu016](https://doi.org/10.1093/comnet/cnu016)
 
 ## Examples
 

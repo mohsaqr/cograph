@@ -563,9 +563,6 @@ sn_render(
 The updated `cograph_network` object, invisibly. The function is called
 for the plot it produces.
 
-The updated `cograph_network` object, invisibly. The function is called
-for the plot it produces.
-
 ## Details
 
 ### soplot and splot

@@ -104,14 +104,21 @@ round, and `sort_by =` to order the result.
 
 ## How to read this catalogue
 
-Every measure below is documented with four fields:
+Every measure below is documented with up to five fields:
 
 - **Concept** — what the measure captures, in words.
 - **Definition** — the formula as `cograph` computes it. Where its
   normalisation differs from a textbook statement, the formula shown is
   the one `cograph` uses.
 - **Meaning** — how to read a high (or low) value.
-- **Example** — a runnable call.
+- **Arguments** — the
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  arguments that change the measure, when it has any.
+- **Example** — a runnable call on `student_interactions`. Five of them
+  warn on this graph, because the measure is undefined or does not
+  converge there: Katz at the default `katz_alpha`, Hubbell, random-walk
+  and Markov centrality, and IEC. The warning names the cause and, for
+  Katz, the largest `katz_alpha` that converges.
 
 ### Notation
 
@@ -325,6 +332,8 @@ non-backtracking four-step walks, a sign that its neighbours connect it
 to the wider network. Isolates, leaves and every node of a star score
 zero.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_x_degree(student_interactions)
@@ -343,6 +352,8 @@ PC_i=CD_i+\sum_j\frac{w_{ij}}{w_{\max}}CD_j,\quad CD_i=\frac{\alpha d_i+(1-\alph
 clustered, with neighbours that are too. `cda_alpha` (default 0.5)
 balances degree against strength. Because weights enter directly, their
 units matter.
+
+**Arguments.** `cda_alpha`, `weighted`, `simplify`
 
 ``` r
 
@@ -401,6 +412,8 @@ Radius 0 gives degree, default 2 uses two hops, and infinite radius
 gives twice the component’s edge count. Uses the simple undirected
 skeleton.
 
+**Arguments.** `volume_radius`
+
 ``` r
 
 centrality_volume(student_interactions)
@@ -417,6 +430,8 @@ C_D(v) = \sum_{u \in V} a_{vu} = k_v
 
 **Meaning.** A high degree value indicates many direct observed
 connections. It is a local measure of connectivity.
+
+**Arguments.** `mode`, `loops`
 
 ``` r
 
@@ -469,6 +484,8 @@ s(v) = \sum_{u \in V} w_{vu}
 weight. This should be interpreted according to how weights were
 defined.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_strength(student_interactions)
@@ -516,6 +533,8 @@ C_{\mathrm{exp}}(v) = \sum_{u \in N(v)} k_u
 
 **Meaning.** A high value indicates adjacency to well-connected nodes.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_expected(student_interactions)
@@ -533,6 +552,8 @@ neighbours.
 **Meaning.** A positive high value indicates that the node is more
 connected than its neighbours under this degree comparison.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_leverage(student_interactions)
@@ -549,6 +570,8 @@ h(v) = \max\bigl\{ h : |\{ u \in \{v\} \cup N(v) : k_u \ge h \}| \ge h \bigr\}
 **Meaning.** A high value indicates many neighbours that themselves have
 reasonably high degree.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_lobby(student_interactions)
@@ -564,6 +587,8 @@ h_s(v) = \max\bigl\{ h : |\{ u \in \{v\} \cup N(v) : s(u) \ge h \}| \ge h \bigr\
 
 **Meaning.** A high value indicates strong ties to neighbours meeting a
 weighted connectivity threshold.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -599,6 +624,8 @@ C_{SL}(v) = \sum_{u \in N(v)} \sum_{w \in N(u)} \bigl| \{\, x : d(w, x) \le 2 \,
 **Meaning.** A high value indicates proximity to a locally
 well-connected neighbourhood.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_semilocal(student_interactions)
@@ -614,6 +641,8 @@ C_{CR}(v) = c(v) \sum_{u \in N(v)} \bigl( k_u + 1 \bigr), \quad c(v) = \text{loc
 
 **Meaning.** A high value indicates local connectedness adjusted for
 clustering-related redundancy.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -649,6 +678,8 @@ connected component in a node’s neighbourhood.
 **Meaning.** A high value indicates that many neighbours belong to one
 connected local component.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_mnc(student_interactions)
@@ -667,6 +698,8 @@ centrality.
 component under the chosen density exponent. Here $`E_c`$ and $`N_c`$
 are the edges and nodes of the largest component of $`G[N(v)]`$.
 
+**Arguments.** `mode`, `dmnc_epsilon`
+
 ``` r
 
 centrality_dmnc(student_interactions)
@@ -683,6 +716,8 @@ neighbourhood.
 
 **Meaning.** A high value indicates that the node’s neighbours form a
 relatively connected local structure.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -704,6 +739,8 @@ contribute; `gravity_mass = "degree", gravity_radius = NULL` gives the
 degree-based gravity model over all reachable nodes, and
 `gravity_radius = "auto"` sets the radius from the network.
 
+**Arguments.** `mode`, `gravity_mass`, `gravity_radius`
+
 ``` r
 
 centrality_gravity(student_interactions)
@@ -720,6 +757,8 @@ C_{NC}(v) = \frac{1}{k_v} \sum_{u \in N(v)} k_u
 
 **Meaning.** A high value indicates attachment to hubs. Isolates score
 0. Direction is respected under `mode`.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -738,6 +777,8 @@ EnV_k(i) = I_k(G) - I_k(G - i), \quad I_k(G) = -\sum_j \frac{k_j}{\sum_l k_l} \l
 **Meaning.** A high value indicates a node whose removal makes the
 remaining degree distribution more concentrated. Signed; negative values
 occur.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -772,6 +813,8 @@ LE(v) = -\sum_{u \in N(v)} k_u \ln k_u
 **Meaning.** Always non-positive; a lower (more negative) value
 indicates a larger, denser neighbourhood. Isolates score 0.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_local_entropy(student_interactions)
@@ -788,6 +831,8 @@ h^w_v = H\big(\{k_v k_u \text{ repeated } k_u \text{ times} : u \in N(v)\}\big)
 
 **Meaning.** A high value indicates a node with many well-connected
 neighbours. Input edge weights are ignored.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -827,6 +872,8 @@ other high-degree nodes. The distance penalty is set from the network’s
 mean degree, so it is steeper in denser networks. Only reachable nodes
 contribute.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_improved_global_structure(student_interactions)
@@ -844,6 +891,8 @@ GSM_i=e^{k_s(i)/N}\sum_{j\ne i}\frac{k_s(j)}{d_{ij}}
 **Meaning.** A high value indicates a node in the network’s core that
 lies close to many other core nodes. Every reachable node contributes,
 discounted by distance. Isolates score zero.
+
+**Arguments.** `normalized`
 
 ``` r
 
@@ -863,6 +912,8 @@ s_i=e^{k_s(i)k_i/N},\quad a=\lceil\log_2\overline{s}\rceil,\quad H\!GSM_i=s_i\su
 coreness and lies close to other such nodes. The distance penalty is set
 from the network’s average of these combined masses. Only reachable
 nodes contribute.
+
+**Arguments.** `normalized`
 
 ``` r
 
@@ -884,6 +935,8 @@ measure is set with `exogenous_base` (reverse closeness by default, or
 degree or betweenness). With betweenness, removing a node can raise
 other scores, so values can be negative.
 
+**Arguments.** `exogenous_base`, `mode`, `normalized`
+
 ``` r
 
 centrality_exogenous(student_interactions)
@@ -904,6 +957,8 @@ how much multiple shortest paths shorten the effective distance; at 0
 the measure is ordinary closeness. Disconnected graphs score zero at
 every node.
 
+**Arguments.** `icc_alpha`, `normalized`
+
 ``` r
 
 centrality_improved_closeness(student_interactions)
@@ -923,6 +978,8 @@ gravity centrality. Because the radius (`gravity_radius`, default 3) is
 measured from each neighbour, contributions can come from one step
 beyond it.
 
+**Arguments.** `gravity_radius`
+
 ``` r
 
 centrality_extended_gravity(student_interactions)
@@ -940,6 +997,8 @@ C_C(v) = \frac{1}{\sum_{u \ne v} d(v, u)}
 **Meaning.** A high value indicates short graph distances to other
 nodes. In disconnected graphs, harmonic centrality may be easier to
 interpret.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -990,6 +1049,8 @@ C_H(v) = \sum_{u \ne v} \frac{1}{d(v, u)}
 **Meaning.** A high value indicates broad reach through short paths
 while handling disconnected components more gracefully than classical
 closeness.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1042,6 +1103,8 @@ C_R(v) = \sum_{u \in V} 2^{-d(v, u)}
 **Meaning.** A high value indicates many close reachable nodes with
 rapid distance decay.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_residual_closeness(student_interactions)
@@ -1057,6 +1120,8 @@ C_D(v) = \sum_{u \in V} 2^{-d(v, u)}
 
 **Meaning.** A high value indicates short-distance reach with distant
 nodes down-weighted.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1075,6 +1140,8 @@ C_G(v) = \sum_{u \in V} \alpha^{\,d(v, u)}, \quad \alpha = 0.5
 **Meaning.** A high value indicates reach under the chosen
 distance-decay parameter.
 
+**Arguments.** `mode`, `decay_parameter`
+
 ``` r
 
 centrality_generalized_closeness(student_interactions)
@@ -1090,6 +1157,8 @@ C_{\mathrm{Har}}(v) = \sum_{u \ne v} \frac{1}{d(v, u)^2}
 
 **Meaning.** A high value indicates many nearby reachable nodes, with
 distant nodes strongly down-weighted.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1110,6 +1179,8 @@ convention divides by $`n + 1`$).
 direction of interpretation should be checked because it is a distance
 quantity.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_average_distance(student_interactions)
@@ -1126,6 +1197,8 @@ C_{\mathrm{Bary}}(v) = \frac{1}{\sum_{u \ne v} d(v, u)}
 
 **Meaning.** A high value indicates a small total distance to other
 reachable nodes.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1144,6 +1217,8 @@ W(v) = \sum_{u \ne v} d(v, u)
 **Meaning.** Lower values indicate shorter total distance. It is better
 read as distance burden than influence.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_wiener(student_interactions)
@@ -1160,6 +1235,8 @@ C_{\mathrm{Lin}}(v) = \frac{|R(v)|^2}{\sum_{u \in R(v)} d(v, u)}, \quad R(v) = \
 
 **Meaning.** A high value indicates many reachable nodes through
 relatively short paths.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1178,6 +1255,8 @@ C_{\delta}(v) = \sum_{u \in V} \delta^{\,d(v, u)}, \quad \delta = 0.5
 **Meaning.** A high value indicates access to many nodes, especially
 nearby nodes. The value depends on the decay parameter.
 
+**Arguments.** `mode`, `decay_parameter`
+
 ``` r
 
 centrality_decay(student_interactions)
@@ -1193,6 +1272,8 @@ Radiality compares node distances to the graph diameter.
 
 **Meaning.** A high value indicates short distances to others relative
 to overall graph diameter.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1211,6 +1292,8 @@ C_{GS}(v) = \frac{1}{n - 1} \sum_{u \ne v} \frac{1}{d(v, u)}
 **Meaning.** A high value indicates broad reciprocal-distance access to
 the network.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_gilschmidt(student_interactions)
@@ -1228,6 +1311,8 @@ node is within the graph.
 **Meaning.** A high value indicates broad distance-based access to the
 network.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_integration(student_interactions)
@@ -1244,6 +1329,8 @@ reachable node.
 
 **Meaning.** Lower eccentricity generally indicates smaller worst-case
 distance. A high value means at least one reachable node is far away.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1295,6 +1382,8 @@ t)\$.
 **Meaning.** A high value indicates that removing the node substantially
 changes shortest-path structure.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_closeness_vitality(student_interactions)
@@ -1313,6 +1402,8 @@ H(v) = -\sum_{w} Y_w \log_2 Y_w, \quad Y_w = \frac{|\{ x : d(w, x) < \infty \}|}
 **Meaning.** A high value indicates strong contribution under the graph
 entropy definition being used.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_entropy(student_interactions)
@@ -1328,6 +1419,8 @@ f(v, u) = \gamma(v, u) - \gamma(u, v), \quad \gamma(v, u) = |\{ w : d(v, w) < d(
 
 **Meaning.** A high value indicates a favourable position in pairwise
 distance comparisons.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1348,6 +1441,8 @@ h(v) = -\frac{1}{\log(M_v - m_v + 1)} \sum_{k = m_v}^{M_v} p_k \log p_k, \quad p
 many network layers; 0 means every reachable node sits at the same
 distance. Hop counts only; weights are ignored.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_distance_entropy(student_interactions)
@@ -1365,6 +1460,8 @@ D_v = \frac{d \ln B_v(r)}{d \ln r}, \quad B_v(r) = 1 + |\{u : d(v, u) \le r\}|, 
 **Meaning.** A low value indicates a node that reaches most of the
 network within a few hops, so lower is more influential. With a single
 radius the discretised derivative $`r\, n_v(r) / B_v(r)`$ is reported.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1384,6 +1481,8 @@ D^I_v = -\frac{d I_v(l)}{d \ln l}, \quad I_v(l) = -p_v(l) \ln p_v(l), \; p_v(l) 
 **Meaning.** A high value indicates a more influential node. With a
 single box size the discretised derivative
 $`l (1 + \ln p_v(l))\, n_v(l) / n`$ is reported.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1438,6 +1537,8 @@ D_v(r) = \frac{r\, n_v(r)}{B_v(r)}
 neighbourhood is still growing fast at that radius. Nodes with
 eccentricity below the radius score 0.
 
+**Arguments.** `mode`, `ld_radius`
+
 ``` r
 
 centrality_local_dimension_fixed(student_interactions)
@@ -1454,6 +1555,8 @@ N_v(r) = \frac{\sum_{d_{vu} \le r} e^{-d_{vu}^2 / r^2}}{|\{u : d_{vu} \le r\}|},
 
 **Meaning.** A high value indicates a more influential node (the
 opposite orientation to the rest of the dimension family).
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1473,6 +1576,8 @@ V_v(l) = \sum_{d_{vu} \le l} k_u, \quad LVD(v) = \frac{d \ln V_v(l)}{d \ln l}
 article is closed access; the definition follows the authors’ later
 preprint.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_local_volume_dimension(student_interactions)
@@ -1489,6 +1594,8 @@ C_{HM}(v) = f(v) - \frac{1}{k_v} \sum_{u \in N(v)} f(u)
 
 **Meaning.** A low (more negative) value indicates a more central node.
 Isolates are undefined.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1509,6 +1616,8 @@ node. Counting nodes instead of paths gives m-reach, which is what
 [`centiserve::geokpath`](https://rdrr.io/pkg/centiserve/man/geokpath.html)
 computes.
 
+**Arguments.** `mode`, `kpath_k`
+
 ``` r
 
 centrality_geodesic_kpath(student_interactions)
@@ -1527,6 +1636,8 @@ C_{kP}(v) = |\{\, P : |P| \le k,\; v \in P \,\}|
 Length 1 alone reproduces degree. Enumeration is exhaustive, so cost
 grows with the branching factor to the power $`k`$.
 
+**Arguments.** `mode`, `kpath_len`
+
 ``` r
 
 centrality_kpath(student_interactions)
@@ -1544,6 +1655,8 @@ F_d(v) = 1 - \frac{\sum_{i \ne j \ne v} 1 / d_{ij}^{\,G - v}}{(n-1)(n-2)}
 **Meaning.** A high value indicates a node whose removal fragments the
 network or stretches its distances. A node inside a clique scores near
 0.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1564,6 +1677,8 @@ exponent spans the family: $`\delta = 1`$ is harmonic centrality over
 $`n-1`$, $`\delta = 2`$ is the inverse-square sum, a large $`\delta`$
 approaches degree, and $`\delta = 0`$ counts the reachable set.
 Unreachable nodes contribute nothing but stay in the denominator.
+
+**Arguments.** `mode`, `closeness_delta`
 
 ``` r
 
@@ -1587,6 +1702,8 @@ a random walk (small values; the default 0.01 lies near this end) and
 shortest-path betweenness (large values). `rsp_cost` sets whether a
 weight is read as an affinity or as a distance.
 
+**Arguments.** `rsp_beta`, `rsp_cost`, `normalized`
+
 ``` r
 
 centrality_rsp_betweenness(student_interactions)
@@ -1605,6 +1722,8 @@ u_{ji}=C_j(i)/\textstyle\sum_k C_j(k)\ \text{or}\ (1-C_j(i)/\sum_k C_j(k))/\sum_
 centrality indexes at once. The score is the normalised geometric mean
 of the indexes chosen with `re_indexes`, and it sums to one over the
 nodes. A node that scores zero on any one index scores zero overall.
+
+**Arguments.** `re_indexes`, `re_negative`, `normalized`
 
 ``` r
 
@@ -1626,6 +1745,8 @@ late in the peeling the node was removed. Only nodes within
 `dkgm_radius` steps (default 2) contribute. The score depends on the
 whole graph, so adding a component can change it.
 
+**Arguments.** `dkgm_radius`, `normalized`
+
 ``` r
 
 centrality_dkgm(student_interactions)
@@ -1646,6 +1767,8 @@ coreness and its partners’ mass is their degree. Only nodes within
 `gravity_radius` steps (default 3) contribute; a radius of 1 restricts
 the sum to neighbours.
 
+**Arguments.** `gravity_radius`, `normalized`
+
 ``` r
 
 centrality_mixed_gravity(student_interactions)
@@ -1663,6 +1786,8 @@ EMGC_i=\sum_{j\in N(i)}k_s(j)\sum_{l:0<d(j,l)\le r}k(l)/d(j,l)^2
 mixed gravitational centrality. Because the radius is measured from each
 neighbour, contributions can come from up to `gravity_radius` + 1 steps
 away (default 3).
+
+**Arguments.** `gravity_radius`, `normalized`
 
 ``` r
 
@@ -1682,6 +1807,8 @@ immediate neighbours and has few ties itself while its neighbours have
 many. The score is betweenness within the node’s one-step neighbourhood,
 multiplied by the bridging coefficient. Isolates and leaves score zero.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_localized_bridging(student_interactions)
@@ -1700,6 +1827,8 @@ two-step neighbourhood and has few ties itself while its neighbours have
 many. The score is betweenness within the subgraph of nodes up to two
 steps away, multiplied by the bridging coefficient.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_extended_local_bridging(student_interactions)
@@ -1717,6 +1846,8 @@ C_{ps}(v)=\sum_{s,t:(v,t)\in E}\sigma_{st}(v)/\sigma_{st}
 paths directly next to one of the endpoints. By default a node is
 counted as the last intermediary before the destination;
 `proximal_variant` selects the first after the origin, or both.
+
+**Arguments.** `proximal_variant`, `normalized`
 
 ``` r
 
@@ -1806,6 +1937,8 @@ C_\delta(v) = \sum_{s \ne v \ne t} (d(s,t) - 1)^{-\delta} \cdot \frac{\sigma_{st
 pairs. At $`\delta = 0`$ the measure is ordinary betweenness. Adjacent
 pairs have no intermediary, so the singularity at $`d = 1`$ is avoided.
 
+**Arguments.** `betweenness_delta`
+
 ``` r
 
 centrality_delta_betweenness(student_interactions)
@@ -1839,6 +1972,8 @@ shortest-path tree structures.
 
 **Meaning.** A high value indicates frequent bottleneck position in
 local shortest-path trees.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -1888,6 +2023,8 @@ a percolation process.
 
 **Meaning.** A high value indicates state-dependent path importance
 under the supplied state vector $`x`$.
+
+**Arguments.** `states`
 
 ``` r
 
@@ -1982,6 +2119,9 @@ balance between similarity and degree, and `tpr_alpha` is the damping
 factor. A component without triangles returns `NA` with a warning,
 because the similarity is undefined there.
 
+**Arguments.** `tpr_alpha`, `tpr_k`, `tpr_decay`, `tpr_tol`,
+`tpr_max_iter`, `normalized`
+
 ``` r
 
 centrality_trust_pagerank(student_interactions)
@@ -2003,6 +2143,9 @@ scores of a connected component sum to its number of nodes. On a
 bipartite component with unequal sides the iteration oscillates, and a
 warning is raised.
 
+**Arguments.** `ira_mass`, `ira_alpha`, `ira_tol`, `ira_max_iter`,
+`normalized`
+
 ``` r
 
 centrality_ira(student_interactions)
@@ -2022,6 +2165,8 @@ when resource is passed to neighbours in proportion to their centrality
 and to their chance of being reached by a spreading process at rate
 `iira_beta`. The resource decays over the `iira_steps` iterations, so
 only the ranking is meaningful, and only within a connected component.
+
+**Arguments.** `ira_mass`, `iira_beta`, `iira_steps`, `normalized`
 
 ``` r
 
@@ -2043,6 +2188,8 @@ eigenvector centrality, each scaled to its maximum. `mcgm_alpha` sets
 the weight of coreness, and only nodes within `mcgm_radius` steps
 (default 2) contribute.
 
+**Arguments.** `mcgm_radius`, `mcgm_alpha`, `normalized`
+
 ``` r
 
 centrality_mcgm(student_interactions)
@@ -2062,6 +2209,9 @@ with a ground node linked to every node. `sr_prior` adds optional prior
 information for each node; with the default of zero the score is plain
 SpectralRank. Transpose the input to measure incoming influence.
 
+**Arguments.** `sr_prior`, `directed`, `weighted`, `simplify`,
+`normalized`
+
 ``` r
 
 centrality_spectralrank(student_interactions)
@@ -2079,6 +2229,8 @@ CR_i=\lambda_{\min}(((L+L^T)/2)_{-i,-i}),\quad L=\operatorname{diag}(A\mathbf{1}
 rest of the network most tightly coupled, as measured by the smallest
 eigenvalue of the Laplacian with that node removed. Disconnected
 undirected graphs score zero at every node.
+
+**Arguments.** `directed`, `weighted`, `simplify`, `normalized`
 
 ``` r
 
@@ -2098,6 +2250,8 @@ nodes. Degrees are first summed within a radius and then propagated
 through `ninl_order` steps (default 3). With order 0 the score is the
 total degree of the node’s neighbourhood.
 
+**Arguments.** `ninl_order`, `ninl_radius`, `normalized`
+
 ``` r
 
 centrality_ninl(student_interactions)
@@ -2114,6 +2268,8 @@ ExF(i)=-\sum_{j=1}^{J}p_j\log p_j,\quad p_j=D_j/\sum_kD_k
 **Meaning.** A high value indicates a node from which an infection has
 many, and varied, ways to spread after its first two transmissions. The
 score is the entropy of these spreading opportunities.
+
+**Arguments.** `normalized`
 
 ``` r
 
@@ -2132,6 +2288,8 @@ ExF^M(i)=\log(\alpha d_i)ExF(i),\quad\alpha>1
 degree, so that among nodes with similar spreading opportunities the
 better-connected one scores higher. `exf_alpha` (default 2, and greater
 than 1) scales the degree inside the logarithm.
+
+**Arguments.** `exf_alpha`, `normalized`
 
 ``` r
 
@@ -2154,6 +2312,9 @@ when each tie is removed in turn. Walks of up to `bridging_steps` steps
 source-destination pairs. Edge weights are read as transmission
 probabilities.
 
+**Arguments.** `bridging_steps`, `bridging_values`, `weighted`, `loops`,
+`simplify`, `normalized`
+
 ``` r
 
 centrality_bridging_capital(student_interactions, weighted = FALSE)
@@ -2172,6 +2333,9 @@ by a random walk that moves from tie to tie. Tie probabilities are
 summed at their end nodes; `linerank_aggregation = "weight"` also
 multiplies them by the tie weights. `damping` is the usual random-walk
 damping factor.
+
+**Arguments.** `damping`, `linerank_aggregation`, `weighted`, `loops`,
+`simplify`, `normalized`
 
 ``` r
 
@@ -2193,6 +2357,9 @@ elsewhere reach early. Each first arrival is discounted by `rwd_decay`
 `rwd_node_weights`. A node’s own outgoing ties cannot change its own
 score.
 
+**Arguments.** `rwd_decay`, `rwd_node_weights`, `weighted`, `loops`,
+`simplify`, `normalized`
+
 ``` r
 
 centrality_random_walk_decay(student_interactions)
@@ -2213,6 +2380,8 @@ retained at the node. `grc_gamma` (default 1) sets the strength of
 smoothing. Scores range from 1 to the size of the node’s component, and
 isolates score 1.
 
+**Arguments.** `grc_gamma`, `weighted`, `normalized`
+
 ``` r
 
 centrality_graph_regularization(student_interactions)
@@ -2231,6 +2400,8 @@ h_g=1,\quad w_{ji}=a_{ji}h_i,\quad s_i=\sum_j\frac{w_{ji}}{\sum_k w_{jk}}s_j,\qu
 of a random resource flow in which each node sends more to neighbours
 with a high H-index. `alr_h_mode` sets how H-indices are computed on
 directed graphs.
+
+**Arguments.** `alr_h_mode`, `normalized`
 
 ``` r
 
@@ -2251,6 +2422,8 @@ of a random resource flow in which a ground node, linked to every node,
 sends more to nodes with high in-degree. `wlr_alpha` sets how strongly
 in-degree is favoured; at zero the measure is ordinary LeaderRank.
 
+**Arguments.** `wlr_alpha`, `normalized`
+
 ``` r
 
 centrality_weighted_leaderrank(student_interactions)
@@ -2269,6 +2442,8 @@ p_i=1-\frac{1}{2}\sum_{j\sim i}w_{ij}R_{ij}
 hold parts of the network together; higher values indicate nodes with
 redundant connections. Edge weights are read as conductances. The scores
 within each connected component sum to one.
+
+**Arguments.** `weighted`, `simplify`
 
 ``` r
 
@@ -2290,6 +2465,8 @@ are beta=0.1, mu=1, T=5. Recovery mu=1 recovers finite diffusion; mu=0
 selects the SI case. Isolates and horizon zero score zero; overflow
 raises an error.
 
+**Arguments.** `ds_beta`, `ds_mu`, `ds_steps`
+
 ``` r
 
 centrality_dynamics_sensitive(student_interactions)
@@ -2309,6 +2486,9 @@ source. Probability interpretation requires entries of qA in \[0,1\].
 Defaults q=1 and T=3 are cograph choices. Directed arcs carry
 information outwards. Overflow raises an error.
 
+**Arguments.** `diffusion_q`, `diffusion_steps`, `weighted`, `loops`,
+`simplify`
+
 ``` r
 
 centrality_diffusion_centrality(student_interactions)
@@ -2326,6 +2506,8 @@ I_i = \frac{\rho(A)-\rho(A_{-i})}{\rho(A)}
 **Meaning.** A high value indicates a node whose removal most reduces
 the network’s spectral radius, which governs how easily spreading
 processes take off. Each deletion is recomputed exactly.
+
+**Arguments.** `weighted`, `simplify`
 
 ``` r
 
@@ -2361,6 +2543,8 @@ random walker reaches them often.
 
 **Meaning.** A high value indicates random-walk prominence under the
 chosen damping, direction, and weight conventions.
+
+**Arguments.** `damping`, `personalized`
 
 ``` r
 
@@ -2448,6 +2632,8 @@ input.
 **Meaning.** A high value indicates recursive prominence under the
 chosen attenuation and exogenous assumptions.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_alpha(student_interactions)
@@ -2464,6 +2650,8 @@ neighbours and a parameter \$\\beta\$ controlling dependence.
 
 **Meaning.** A high value indicates a favourable recursive position
 under the selected Bonacich parameterization.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -2482,6 +2670,8 @@ longer walks.
 **Meaning.** A high value indicates that many short and longer walks
 reach the node. The attenuation parameter must be valid for the graph.
 
+**Arguments.** `katz_alpha`
+
 ``` r
 
 centrality_katz(student_interactions)
@@ -2498,6 +2688,8 @@ recursively reinforced through ties.
 
 **Meaning.** A high value indicates recursive prominence under the
 chosen weight factor. Some parameter settings make the system singular.
+
+**Arguments.** `hubbell_weight`
 
 ``` r
 
@@ -2620,6 +2812,8 @@ other nodes reaches quickly, through short chains of influence. The
 score is defined only when every node can reach every other; otherwise
 every node returns `NA` with a warning.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_iec(student_interactions)
@@ -2692,6 +2886,8 @@ for TNA inputs), the function instead returns row sums of W + W^2 + … +
 W^n. That variant fixes the horizon at n and ignores `lambda` and
 `mode`.
 
+**Arguments.** `mode`, `lambda`, `diffusion_method`
+
 ``` r
 
 centrality_diffusion(student_interactions)
@@ -2728,6 +2924,8 @@ ends up in when edges survive at random.
 large share of the network under random link failure. The value is a
 Monte Carlo estimate; set `epc_seed` to make it reproducible.
 
+**Arguments.** `epc_threshold`, `epc_runs`, `epc_seed`
+
 ``` r
 
 centrality_epc(student_interactions)
@@ -2758,6 +2956,8 @@ Expected influence 1-step sums signed edge weights adjacent to a node.
 **Meaning.** A high positive value indicates strong positive immediate
 signed connectivity. This is mainly meaningful for signed networks.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_expected_influence_1(student_interactions)
@@ -2775,6 +2975,8 @@ paths.
 **Meaning.** A high positive value indicates positive signed
 connectivity through direct and indirect paths. Interpretation requires
 a signed network.
+
+**Arguments.** `mode`
 
 ``` r
 
@@ -2828,6 +3030,8 @@ SV_2(v) = \min\!\left(1, \frac{k}{1 + k_v}\right) + \sum_{u \in N(v)} \max\!\lef
 neighbours over the $`k`$-neighbour threshold. With $`k = 1`$ this is
 game 1.
 
+**Arguments.** `shapley_k`
+
 ``` r
 
 centrality_shapley_game2(student_interactions)
@@ -2844,6 +3048,8 @@ SV_3(v) = \sum_{u \in \{v\} \cup N_d(v)} \frac{1}{1 + |N_d(u)|}, \quad N_d(u) = 
 
 **Meaning.** A high value indicates a node that reaches many otherwise
 hard-to-reach nodes within the cutoff. With cutoff 1 this is game 1.
+
+**Arguments.** `shapley_cutoff`
 
 ``` r
 
@@ -2880,6 +3086,8 @@ dd_v = d_v - 2 t_v - (d_v - t_v)\, t_v\, p
 **Meaning.** A high score indicates an early selection: the first node
 selected scores 1, the last $`1/n`$. Ties follow node order.
 
+**Arguments.** `discount_p`
+
 ``` r
 
 centrality_degree_discount(student_interactions)
@@ -2914,6 +3122,8 @@ s_u = \sum_{v \in N(u)} va_v \,[\theta + (1 - \theta)\, nc_v]
 
 **Meaning.** A high score indicates an early election. With
 $`\theta = 1`$ and two-hop weakening switched off, this is VoteRank.
+
+**Arguments.** `ncvote_theta`
 
 ``` r
 
@@ -2950,6 +3160,8 @@ E_v = \sum_{u \in N(v)} -p_{uv} \ln p_{uv}, \quad p_{uv} = \frac{k_u}{\sum_{l \i
 **Meaning.** A high score indicates an early election. Terms within the
 renewal radius are scaled by $`1 - 1/(2^{d-1} \ln\langle k \rangle)`$.
 
+**Arguments.** `enrenew_depth`
+
 ``` r
 
 centrality_enrenew(student_interactions)
@@ -2968,6 +3180,8 @@ s_v = \sqrt{k_v \sum_{u \in N(v)} va_u\, w_{u \to v}}, \quad va_v^{(0)} = \ln(1 
 **Meaning.** A high score indicates an early election. Abilities are
 multiplied by $`\lambda`$ one step away and $`\sqrt{\lambda}`$ two steps
 away.
+
+**Arguments.** `voterank_lambda`
 
 ``` r
 
@@ -3002,6 +3216,8 @@ IIMC(v) = \alpha\, IMC(v) + \beta \sum_{e \ni v} IMC_{L(G)}(e), \quad \alpha / \
 
 **Meaning.** A high value indicates a node that is important both itself
 and through its edges. Values can exceed 1.
+
+**Arguments.** `contraction_rho`
 
 ``` r
 
@@ -3042,6 +3258,8 @@ them important: ties whose endpoints reach far beyond them and that few
 triangles bypass. The score is at least the node’s degree, and equals it
 in complete graphs and stars.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_dil(student_interactions)
@@ -3063,6 +3281,8 @@ on many triangles. A node of modest degree can therefore outscore a
 busier one if its neighbours are well embedded. On a graph without
 triangles the index reduces to a distance-discounted sum of degrees.
 
+**Arguments.** `lhc_radius`, `normalized`
+
 ``` r
 
 centrality_lhc(student_interactions)
@@ -3082,6 +3302,8 @@ blended with its neighbours’ degrees, with a position deep in the
 network, reached late when low-degree nodes are repeatedly peeled away.
 `hcc_delta` (default 0.5) weights the node’s own degree against its
 neighbours’. Scores range from 0 to 2.
+
+**Arguments.** `hcc_delta`, `normalized`
 
 ``` r
 
@@ -3103,6 +3325,8 @@ rewards nodes with well-connected, deeply embedded neighbours, whatever
 the node’s own position. An isolate scores its own hybrid characteristic
 centrality.
 
+**Arguments.** `hcc_delta`, `normalized`
+
 ``` r
 
 centrality_ehcc(student_interactions)
@@ -3121,6 +3345,8 @@ KED(i)=k_i\bigl(1+H_i\bigr)\exp\!\Bigl(\frac{K_i}{N}\Bigr),\qquad H_i=\frac{\sum
 onward connections are numerous and evenly spread among them. Scores
 depend on the number of nodes in the whole graph, so only rankings are
 comparable across graphs of different size.
+
+**Arguments.** `normalized`
 
 ``` r
 
@@ -3142,6 +3368,8 @@ neighbour’s degree centrality. Scores depend on the number of nodes in
 the whole graph, so only rankings are comparable across graphs of
 different size.
 
+**Arguments.** `normalized`
+
 ``` r
 
 centrality_lnc(student_interactions)
@@ -3162,6 +3390,8 @@ distance is discounted by `nd_decay` (default 0.2), up to `nd_order`
 steps (default 2). With either set to zero, the score is the base
 centrality itself.
 
+**Arguments.** `nd_order`, `nd_decay`, `nd_mass`, `normalized`
+
 ``` r
 
 centrality_neighbor_distance(student_interactions)
@@ -3178,6 +3408,8 @@ H_i=\frac{\sum_{j\in N(i)}r_{ij}\log(r_{ij})}{d_i\log d_i},\quad r_{ij}=c_{ij}/\
 **Meaning.** A high value indicates that the constraint on a node is
 concentrated in a few of its contacts. Scores lie between 0 and 1; a
 node with one contact scores 1 and an isolate 0.
+
+**Arguments.** `weighted`, `simplify`, `normalized`
 
 ``` r
 
@@ -3231,6 +3463,8 @@ k_i^{m} = k_i^{r} + \lambda k_i^{e}
 **Meaning.** Higher means membership of a stronger mixed-degree shell.
 Lambda 0 gives coreness; lambda 1 gives degree. Default 0.7; scores can
 be fractional.
+
+**Arguments.** `mdd_lambda`
 
 ``` r
 
@@ -3299,6 +3533,8 @@ c(v) = \frac{2\, t_v}{k_v (k_v - 1)}, \quad t_v = \text{number of triangles thro
 
 **Meaning.** A high value indicates locally closed neighbourhoods. This
 can represent cohesion or redundancy, depending on the relation.
+
+**Arguments.** `transitivity_type`, `isolates`
 
 ``` r
 
@@ -3398,6 +3634,8 @@ C_{\mathrm{core}}(v) = \max \{\, k : v \in (k\text{-core of } G) \,\}
 
 **Meaning.** A high value indicates membership in a dense core.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_coreness(student_interactions)
@@ -3431,6 +3669,8 @@ C_{kR}(v) = |\{\, u : 0 < d(v, u) \le k \,\}|, \quad k = 3
 **Meaning.** A high value indicates broad reach within a fixed local
 radius. Results depend on the chosen $`k`$.
 
+**Arguments.** `mode`, `k`
+
 ``` r
 
 centrality_kreach(student_interactions)
@@ -3449,6 +3689,8 @@ w_{ij} = 1 + (k_i\, k^{out}_j)^a, \quad s_i = \sum_{j \in N(i)} w_{ij}
 strength-based core. With $`a = 0`$ the shells are the dense ranks of
 k-core.
 
+**Arguments.** `s_shell_a`
+
 ``` r
 
 centrality_s_shell(student_interactions)
@@ -3466,6 +3708,8 @@ k'_v = \big(k_v^{\alpha} s_v^{\beta}\big)^{1 / (\alpha + \beta)}
 **Meaning.** A high shell index indicates a node deep in the weighted
 core. Unit weights give the k-core number.
 
+**Arguments.** `wks_alpha`, `wks_beta`
+
 ``` r
 
 centrality_weighted_kshell(student_interactions)
@@ -3482,6 +3726,8 @@ D_{ij} = \frac{|N(j) \setminus N[i]| + |N(i) \setminus N[j]|}{2}, \quad \text{ke
 
 **Meaning.** A high value indicates a core node whose links reach beyond
 shared neighbourhoods. An isolated clique scores 0.
+
+**Arguments.** `renewed_threshold`
 
 ``` r
 
@@ -3520,6 +3766,8 @@ node whose neighbours are mutually unconnected scores 0. Note that
 measures those distances through the rest of the network instead, so it
 reports larger values.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_local_efficiency(student_interactions)
@@ -3540,6 +3788,8 @@ or one of few, of many others: each node divides one unit equally among
 the nodes that point to it. The default credits senders;
 `beta_direction = "negative"` credits receivers. The two coincide on
 undirected graphs.
+
+**Arguments.** `beta_direction`, `normalized`
 
 ``` r
 
@@ -3590,6 +3840,8 @@ from a node through directed paths.
 
 **Meaning.** A high value indicates broad directed reach from the node.
 
+**Arguments.** `mode`
+
 ``` r
 
 centrality_reaching_local(student_interactions)
@@ -3629,16 +3881,18 @@ directed hierarchy. This is appropriate only for flow-like relations.
 centrality(student_interactions, measures = "trophic_level")
 ```
 
-The measures below need a **community membership vector**. Build one
-with
-[`detect_communities()`](https://sonsoles.me/cograph/reference/detect_communities.md)
-(`walktrap` works on the directed `student_interactions` graph), then
-pass it as `membership =`:
+The measures below need a **community membership vector**, one community
+per node.
+[`communities()`](https://sonsoles.me/cograph/reference/communities.md)
+detects the partition (`walktrap` works on the directed
+`student_interactions` graph),
+[`membership()`](https://sonsoles.me/cograph/reference/membership.md)
+returns it as a named vector, and that vector is passed as
+`membership =`:
 
 ``` r
 
-comm   <- detect_communities(student_interactions, method = "walktrap")
-groups <- setNames(comm$community, comm$node)
+groups <- membership(communities(student_interactions, method = "walktrap"))
 centrality_participation(student_interactions, membership = groups)
 #>        Ac        Ad        Fi        Ik        Vx        Rt        Km        Gj 
 #> 0.6078972 0.5450000 0.4965278 0.5612245 0.6213018 0.5150000 0.4628099 0.5540166 
@@ -3669,6 +3923,9 @@ codebook. The partition is supplied through `membership` (one module
 when `NULL`) and held fixed. `map_convention` sets whether module-exit
 flow is included, and the conventions can rank nodes differently.
 
+**Arguments.** `membership`, `map_flow`, `map_convention`, `damping`,
+`weighted`, `simplify`, `normalized`
+
 ``` r
 
 centrality_map_equation(student_interactions)
@@ -3685,6 +3942,8 @@ P(v) = 1 - \sum_{m} \left( \frac{k_v^{(m)}}{k_v} \right)^2, \quad k_v^{(m)} = \t
 
 **Meaning.** A high value indicates ties spread across multiple
 communities. It requires a meaningful membership vector.
+
+**Arguments.** `membership`, `mode`
 
 ``` r
 
@@ -3703,6 +3962,8 @@ z(v) = \frac{k_v^{(m_v)} - \mu_{m_v}}{\sigma_{m_v}}, \quad m_v = \text{community
 **Meaning.** A high value indicates unusually high within-module
 connectivity.
 
+**Arguments.** `membership`, `mode`
+
 ``` r
 
 centrality_within_module_z(student_interactions, membership = groups)
@@ -3719,6 +3980,8 @@ g(v) = 1 - \frac{1}{k_v^2} \sum_{s} k_{vs}^2\, \gamma_{vs}^2, \quad k_{vs} = \te
 
 **Meaning.** A high value indicates a structurally prominent position
 between communities.
+
+**Arguments.** `membership`, `mode`
 
 ``` r
 
@@ -3738,6 +4001,8 @@ its own group. It counts open directed two-paths \$a \\to v \\to c\$
 **Meaning.** A high value indicates within-group mediation under the
 supplied membership vector.
 
+**Arguments.** `membership`
+
 ``` r
 
 centrality_brokerage_coordinator(student_interactions, membership = groups)
@@ -3754,6 +4019,8 @@ another group.
 
 **Meaning.** A high value indicates brokerage among members outside the
 node’s own group.
+
+**Arguments.** `membership`
 
 ``` r
 
@@ -3772,6 +4039,8 @@ to another group.
 **Meaning.** A high value indicates outward brokerage from the node’s
 group.
 
+**Arguments.** `membership`
+
 ``` r
 
 centrality_brokerage_representative(student_interactions, membership = groups)
@@ -3789,6 +4058,8 @@ its own group.
 **Meaning.** A high value indicates inward brokerage into the node’s
 group.
 
+**Arguments.** `membership`
+
 ``` r
 
 centrality_brokerage_gatekeeper(student_interactions, membership = groups)
@@ -3805,6 +4076,8 @@ different from its own.
 
 **Meaning.** A high value indicates between-group brokerage outside the
 node’s own group.
+
+**Arguments.** `membership`
 
 ``` r
 
@@ -3824,6 +4097,8 @@ V_Q(v) = Q(G, C) - Q(G - v,\; C \setminus \{v\})
 value indicates a bridge whose removal sharpens the partition. Weighted
 and directed graphs use the corresponding modularity.
 
+**Arguments.** `membership`
+
 ``` r
 
 centrality_modularity_vitality(student_interactions, membership = groups)
@@ -3841,6 +4116,8 @@ CHB(v) = |C_v|\, k^{intra}_v + NNC_v\, k^{inter}_v
 **Meaning.** A high value indicates a node with many intra-community
 links in a large community and links into several other communities.
 
+**Arguments.** `membership`, `mode`
+
 ``` r
 
 centrality_community_hub_bridge(student_interactions, membership = groups)
@@ -3856,6 +4133,8 @@ CbC(v) = \frac{1}{N} \sum_w d_{vw} S_w
 ```
 
 **Meaning.** A high value indicates many links into large communities.
+
+**Arguments.** `membership`, `mode`
 
 ``` r
 
@@ -3876,6 +4155,8 @@ CC(v) = (1 + \mu_C)\,\frac{k^{in}_v}{\max_{u \in C} k^{in}_u} R + (1 - \mu_C)\le
 community and well linked outside it. $`R`$ defaults to the community’s
 maximum intra-degree.
 
+**Arguments.** `membership`, `mode`, `comm_r`
+
 ``` r
 
 centrality_comm_centrality(student_interactions, membership = groups)
@@ -3893,6 +4174,8 @@ CbM(v) = H_v \frac{d_v}{\sum_u d_u}, \quad H_v = -\sum_k p_{vk} \log_2 p_{vk}
 **Meaning.** A high value indicates a well-connected node whose links
 are spread over several communities; nodes linked to one community score
 0.
+
+**Arguments.** `membership`, `mode`
 
 ``` r
 

@@ -102,6 +102,17 @@ data frame and serves as the tidy table directly.
 is documented in
 [`plot-results`](https://sonsoles.me/cograph/reference/plot-results.md).
 
+## References
+
+Holland, P. W., & Leinhardt, S. (1976). Local structure in social
+networks. *Sociological Methodology*, 7, 1–45.
+[doi:10.2307/270703](https://doi.org/10.2307/270703)
+
+Milo, R., Shen-Orr, S., Itzkovitz, S., Kashtan, N., Chklovskii, D., &
+Alon, U. (2002). Network motifs: Simple building blocks of complex
+networks. *Science*, 298(5594), 824–827.
+[doi:10.1126/science.298.5594.824](https://doi.org/10.1126/science.298.5594.824)
+
 ## See also
 
 [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) for the

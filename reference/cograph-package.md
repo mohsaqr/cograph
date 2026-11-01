@@ -1,18 +1,54 @@
-# cograph: Modern Network Visualization for R
+# cograph: Analysis and Visualization of Complex Networks
 
-A modern, extensible network visualization package that provides
-high-quality static network plots and ggplot2 conversions. cograph
+cograph analyses and plots social, transition and complex networks. It
 accepts adjacency matrices, edge lists, igraph, statnet network, qgraph
-and tna objects and offers customizable layouts, node shapes, edge
-styles, and themes.
+and tna objects without conversion. It plots them with base R
+([`splot`](https://sonsoles.me/cograph/reference/splot.md)) or grid
+graphics ([`soplot`](https://sonsoles.me/cograph/reference/soplot.md)),
+reshapes them with a family of wrangling verbs
+([`network_wrangling`](https://sonsoles.me/cograph/reference/network_wrangling.md)),
+and returns most of its analyses as tidy data frames.
 
-## Main Functions
+## Analysis functions
+
+- [`centrality`](https://sonsoles.me/cograph/reference/centrality.md):
+  node centrality measures, one column per measure (see
+  [`list_centralities`](https://sonsoles.me/cograph/reference/list_centralities.md))
+
+- [`network_summary`](https://sonsoles.me/cograph/reference/network_summary.md):
+  network-level statistics, one row per network
+
+- [`communities`](https://sonsoles.me/cograph/reference/communities.md):
+  community detection, one row per node
+
+- [`motifs`](https://sonsoles.me/cograph/reference/motifs.md) and
+  [`subgraphs`](https://sonsoles.me/cograph/reference/subgraphs.md):
+  triad census and motif instances with significance tests
+
+- [`robustness`](https://sonsoles.me/cograph/reference/robustness.md)
+  and
+  [`vulnerability`](https://sonsoles.me/cograph/reference/vulnerability.md):
+  network robustness under node or edge removal
+
+- [`disparity_filter`](https://sonsoles.me/cograph/reference/disparity_filter.md):
+  backbone extraction
+
+- [`summarize_clusters`](https://sonsoles.me/cograph/reference/summarize_clusters.md)
+  and
+  [`supra_adjacency`](https://sonsoles.me/cograph/reference/supra_adjacency.md):
+  multi-cluster and multilayer networks
+
+## Plotting functions
 
 - [`splot`](https://sonsoles.me/cograph/reference/splot.md): Plot a
   network with base R graphics
 
 - [`soplot`](https://sonsoles.me/cograph/reference/soplot.md): Plot a
   network with grid graphics
+
+- [`plot_tna`](https://sonsoles.me/cograph/reference/plot_tna.md),
+  [`tplot`](https://sonsoles.me/cograph/reference/plot_tna.md):
+  TNA-style plots with qgraph-compatible arguments
 
 - [`cograph`](https://sonsoles.me/cograph/reference/cograph.md): Create
   a network object for the builder functions
@@ -37,13 +73,23 @@ styles, and themes.
 
 ## Layouts
 
-cograph provides several built-in layouts:
+Built-in layouts include the following;
+[`list_layouts`](https://sonsoles.me/cograph/reference/layout_registry.md)
+lists every registered name:
 
-- `circle`: Nodes arranged in a circle
+- `circle`, `oval`: Nodes arranged on a circle or ellipse
 
 - `spring`: Fruchterman-Reingold force-directed layout
 
+- `gephi_fr`: Gephi-style Fruchterman-Reingold layout
+
 - `groups`: Group-based circular layout
+
+- `target`: levels by graph distance from a focal node
+
+- `saqr`: rows of a transition flow between Start and End nodes
+
+- `grid`, `star`, `bipartite`, `random`
 
 - `custom`: User-provided coordinates
 

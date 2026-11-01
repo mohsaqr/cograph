@@ -209,8 +209,6 @@ mlna(
 
 Invisibly returns NULL.
 
-See `plot_mlna`.
-
 ## Examples
 
 ``` r

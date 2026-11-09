@@ -108,6 +108,6 @@ set.seed(1)
 data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
 bg <- Nestimate::boot_glasso(data1, iter = 50, cs_iter = 25,
                              centrality = c("strength", "expected_influence"))
-plot_edge_diff_forest(bg)
+plot_edge_diff_forest(bg, show_nonsig = TRUE)
 \dontshow{\}) # examplesIf}
 }

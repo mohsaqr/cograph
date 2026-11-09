@@ -1,5 +1,12 @@
 # Changelog
 
+## cograph 2.7.13
+
+- The
+  [`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
+  example passes `show_nonsig = TRUE`, so it draws when no edge
+  difference is significant.
+
 ## cograph 2.7.12
 
 ### Breaking changes

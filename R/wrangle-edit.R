@@ -37,7 +37,7 @@ add_nodes <- function(x, labels, ..., keep_format = FALSE, directed = NULL) {
   }
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   nodes <- get_nodes(net)
 
   clash <- intersect(labels, nodes$label)
@@ -116,7 +116,7 @@ add_nodes <- function(x, labels, ..., keep_format = FALSE, directed = NULL) {
 #' remove_nodes(regulation_net, nodes = "Share")
 remove_nodes <- function(x, nodes, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   node_df <- get_nodes(net)
   drop <- .resolve_node_selection(node_df, nodes, "nodes")
   keep <- setdiff(seq_len(nrow(node_df)), drop)
@@ -175,7 +175,7 @@ add_edges <- function(x, from, to, weight = 1, ..., keep_format = FALSE,
   }
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   node_df <- get_nodes(net)
 
   from_idx <- .resolve_node_selection_ordered(node_df, from, "from")
@@ -269,7 +269,7 @@ remove_edges <- function(x, from, to, keep_isolates = TRUE,
   }
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   node_df <- get_nodes(net)
   edges <- get_edges(net)
 
@@ -329,7 +329,7 @@ remove_edges <- function(x, from, to, keep_isolates = TRUE,
 #' as.data.frame(mutate_nodes(regulation_net, deg = degree), what = "nodes")
 mutate_nodes <- function(x, ..., keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   nodes <- get_nodes(net)
 
   dots <- substitute(list(...))[-1]
@@ -377,7 +377,7 @@ mutate_nodes <- function(x, ..., keep_format = FALSE, directed = NULL) {
 mutate_edges <- function(x, ..., community = "louvain", keep_format = FALSE,
                          directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
   nodes <- get_nodes(net)
 
@@ -491,8 +491,8 @@ bind_networks <- function(x, y, method = c("union", "intersection", "difference"
   weight <- match.arg(weight)
 
   input_class <- .detect_input_class(x)
-  net_x <- as_cograph(x, directed = directed)
-  net_y <- as_cograph(y, directed = directed)
+  net_x <- .as_weighted_cograph(x, directed = directed)
+  net_y <- .as_weighted_cograph(y, directed = directed)
 
   labels_x <- get_labels(net_x)
   labels_y <- get_labels(net_y)

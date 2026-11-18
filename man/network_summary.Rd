@@ -14,6 +14,7 @@ network_summary(
   detailed = FALSE,
   extended = FALSE,
   digits = 3,
+  shared_nodes = FALSE,
   ...
 )
 }
@@ -47,11 +48,22 @@ efficiency). Default FALSE.}
 \item{digits}{Integer. Round numeric results to this many decimal places.
 Default 3. NULL skips rounding.}
 
+\item{shared_nodes}{Logical. Only used when \code{x} is a group network
+object (a Nestimate \code{netobject_group} or a tna group model), which
+carries every group on the node set of the whole data. FALSE (default)
+summarises each group on its own nodes: those that have a tie in the
+group (self-loops count) or occur in the group's data, so a member
+without ties stays as an isolate, so \code{node_count} and every
+measure that depends on it describe that group. TRUE keeps
+the common node set in every group.}
+
 \item{...}{Additional arguments (currently unused)}
 }
 \value{
-A data frame with one row. The basic measures are always
-computed:
+A data frame with one row. For a group network object, one row
+per group with a leading \code{group} column; a group with no node of its
+own keeps the common node set and raises a \code{cograph_empty_group} warning.
+The basic measures are always computed:
 \describe{
 \item{node_count}{Number of nodes in the network}
 \item{edge_count}{Number of edges in the network}

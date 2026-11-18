@@ -199,6 +199,7 @@ splot(
   psych_styling = NULL,
   predictability = NULL,
   i = NULL,
+  isolates = TRUE,
   filetype = "default",
   filename = file.path(tempdir(), "splot"),
   width = 7,
@@ -676,7 +677,20 @@ takes precedence.}
 
 \item{i}{Group index or name when x is a group_tna object. If NULL (default),
 plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
-plots only that group.}
+plots only that group. Also selects one group of a Nestimate
+\code{netobject_group}.}
+
+\item{isolates}{Logical. Whether nodes without any tie are drawn (a
+self-loop counts as a tie). Default TRUE draws every node. With FALSE the
+network is restricted to its connected nodes before the layout is
+computed, and per-node arguments given for the full node set
+(\code{labels}, \code{node_*}, \code{donut_*}, \code{pie_*},
+\code{groups}, a \code{layout} matrix) follow the nodes that stay. For
+a group object every panel leaves out its own isolates, which removes the
+nodes a group only carries because another group has them. Isolation is
+judged on all edges, before \code{threshold} and \code{minimum} hide
+weak ones. A network without ties is drawn whole with a
+\code{cograph_empty_network} warning.}
 
 \item{filetype}{Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".}
 

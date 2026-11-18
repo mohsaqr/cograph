@@ -449,6 +449,14 @@
 #'   positive and satisfy \eqn{w \cdot \rho(W) < 1}{w * rho(W) < 1} for solvability; otherwise
 #'   the measure warns and returns \code{NA}. Default 0.5. Only used when
 #'   \code{"hubbell"} is in \code{measures}.
+#' @param shared_nodes Logical. Only used when \code{x} is a group network
+#'   object (a Nestimate \code{netobject_group} or a tna group model), which
+#'   carries every group on the node set of the whole data. FALSE (default)
+#'   computes each group on its own nodes: those that have a tie in the
+#'   group (self-loops count) or occur in the group's data, so a member
+#'   without ties stays as an isolate. TRUE keeps
+#'   the common node set in every group. The result then has one row per node per group, with a
+#'   leading \code{group} column.
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return A base \code{data.frame} with one row per node, in the input's node
@@ -895,7 +903,15 @@ centrality <- function(x, type = c("basic", "extended", "all"),
                        re_negative = NULL,
                        tna_network = NULL,
                        psych_network = NULL,
+                       shared_nodes = FALSE,
                        ...) {
+
+  # A group object: one row per node per group
+  if (.is_network_group(x)) {
+    .stop_if_group_passed_on(if (sys.parent() > 0L) sys.function(sys.parent()))
+    return(.map_network_group(x, centrality, match.call(), parent.frame(),
+                              shared_nodes = shared_nodes))
+  }
 
   type <- match.arg(type)
 

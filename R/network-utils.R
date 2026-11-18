@@ -358,7 +358,7 @@ filter_edges <- function(x, ..., keep_isolates = TRUE, keep_format = FALSE,
   keep_isolates <- .resolve_deprecated_arg(keep_isolates, .keep_isolates,
                                            ".keep_isolates", "keep_isolates")
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
 
   if (nrow(edges) == 0) {
@@ -447,7 +447,7 @@ filter_nodes <- function(x, ..., keep_edges = c("internal", "none"),
   keep_edges <- match.arg(keep_edges, c("internal", "none"))
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   nodes <- get_nodes(net)
 
   # Only the measures the expressions actually name are computed; the whole
@@ -735,6 +735,29 @@ subset_edges <- filter_edges
     w[idx[, c(2L, 1L), drop = FALSE]] <- weight
   }
   w
+}
+
+#' Read any input as a network whose edges carry the model weights
+#'
+#' `as_cograph()` reads a tna model that has sequence data as a temporal
+#' multigraph: one edge of weight 1 per observed transition, with the
+#' transition probabilities kept in `$weights`. The motif code needs that
+#' form. The conversion and wrangling verbs act on the model's weights, so
+#' here the edge table is rebuilt from `$weights`: one edge per non-zero
+#' weight.
+#'
+#' @param x Any network input.
+#' @param directed Logical or NULL, as in `as_cograph()`.
+#' @return A `cograph_network` whose edge table agrees with `$weights`.
+#' @keywords internal
+#' @noRd
+.as_weighted_cograph <- function(x, directed = NULL) {
+  net <- as_cograph(x, directed = directed)
+  if (inherits(x, "tna") && is.matrix(net$weights) &&
+      "session" %in% names(net$edges)) {
+    net$edges <- .edges_from_weight_matrix(net$weights, isTRUE(net$directed))
+  }
+  net
 }
 
 #' Rebuild a cograph_network from a node selection and an edge table
@@ -1164,7 +1187,7 @@ subset_edges <- filter_edges
 #' @examples
 #' to_data_frame(regulation_net)
 to_data_frame <- function(x, directed = NULL) {
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
   labels <- get_labels(net)
 
@@ -1225,7 +1248,7 @@ to_matrix <- function(x, directed = NULL) {
   # Otherwise build it from the node and edge tables. Going through igraph
   # here used to lose trailing isolates and to fail outright on an edgeless
   # network ("No such edge attribute").
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   .network_weight_matrix(get_labels(net), get_edges(net), isTRUE(net$directed))
 }
 
@@ -1381,7 +1404,7 @@ select_nodes <- function(x, ...,
   keep_edges <- match.arg(keep_edges, c("internal", "none"))
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   n_total <- n_nodes(net)
 
   if (n_total == 0) {
@@ -1851,7 +1874,7 @@ select_edges <- function(x, ...,
   keep_isolates <- .resolve_deprecated_arg(keep_isolates, .keep_isolates,
                                            ".keep_isolates", "keep_isolates")
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
   n_total <- nrow(edges)
 

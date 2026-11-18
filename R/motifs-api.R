@@ -337,6 +337,12 @@ motifs <- function(x,
   n_units <- 1L
   actor_used <- NULL
 
+  # A tna model built from a weight matrix has no sequences: it is an
+  # aggregate network, read through its weights.
+  if (inherits(x, "tna") && is.null(x$data)) {
+    x <- x$weights
+  }
+
   # --- Case 1: tna object ---
   if (inherits(x, "tna")) {
     init_fn <- .get_tna_initialize_model()

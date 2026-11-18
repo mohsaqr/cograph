@@ -589,7 +589,12 @@ plot_comparison_heatmap <- function(x, y = NULL,
     return(x$weights)
   }
 
-  stop("x must be a matrix, cograph_network, tna, or igraph object")
+  # An edge-list data frame
+  if (is.data.frame(x)) {
+    return(to_matrix(x))
+  }
+
+  stop("x must be a matrix, edge-list data frame, cograph_network, tna, or igraph object")
 }
 
 

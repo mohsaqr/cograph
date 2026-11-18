@@ -1118,6 +1118,25 @@ membership <- function(x) {
 }
 
 
+#' Check that `x` holds a community assignment
+#'
+#' A network handed to `n_communities()` or `community_sizes()` has no
+#' `community` column and used to give 0 and an empty vector.
+#'
+#' @param x Any object.
+#' @return `x`, invisibly; raises `cograph_bad_input` otherwise.
+#' @keywords internal
+#' @noRd
+.check_communities <- function(x) {
+  if (!is.data.frame(x) || !"community" %in% names(x)) {
+    stop(errorCondition(paste0(
+      "`x` must be a community result (from detect_communities() or a ",
+      "community_*() function), not a ", class(x)[1L], "."),
+      class = "cograph_bad_input", call = NULL))
+  }
+  invisible(x)
+}
+
 #' Get Number of Communities
 #'
 #' @param x A \code{cograph_communities} object.
@@ -1127,6 +1146,7 @@ membership <- function(x) {
 #' comm <- community_walktrap(regulation_net)
 #' n_communities(comm)
 n_communities <- function(x) {
+  .check_communities(x)
   length(unique(x$community))
 }
 
@@ -1141,6 +1161,7 @@ n_communities <- function(x) {
 #' comm <- community_walktrap(regulation_net)
 #' community_sizes(comm)
 community_sizes <- function(x) {
+  .check_communities(x)
   as.integer(table(x$community))
 }
 

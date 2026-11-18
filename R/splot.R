@@ -278,7 +278,19 @@ NULL
 #'   takes precedence.
 #' @param i Group index or name when x is a group_tna object. If NULL (default),
 #'   plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
-#'   plots only that group.
+#'   plots only that group. Also selects one group of a Nestimate
+#'   \code{netobject_group}.
+#' @param isolates Logical. Whether nodes without any tie are drawn (a
+#'   self-loop counts as a tie). Default TRUE draws every node. With FALSE the
+#'   network is restricted to its connected nodes before the layout is
+#'   computed, and per-node arguments given for the full node set
+#'   (\code{labels}, \code{node_*}, \code{donut_*}, \code{pie_*},
+#'   \code{groups}, a \code{layout} matrix) follow the nodes that stay. For
+#'   a group object every panel leaves out its own isolates, which removes the
+#'   nodes a group only carries because another group has them. Isolation is
+#'   judged on all edges, before \code{threshold} and \code{minimum} hide
+#'   weak ones. A network without ties is drawn whole with a
+#'   \code{cograph_empty_network} warning.
 #'
 #' @param filetype Output format: "default" (screen), "png", "pdf", "svg", "jpeg", "tiff".
 #' @param filename Output filename (without extension).
@@ -620,6 +632,9 @@ splot <- function(
     # Group selection (for group_tna)
     i = NULL,
 
+    # FALSE draws the network without its unconnected nodes
+    isolates = TRUE,
+
     # Output
     filetype = "default",
     filename = file.path(tempdir(), "splot"),
@@ -649,6 +664,21 @@ splot <- function(
   # Exclude "..." — those are already captured in .dots
   .user_args <- mget(setdiff(names(.user_explicit), "..."), envir = environment())
   .model_default_args <- character(0)
+
+  # isolates = FALSE: restrict a single network to its connected nodes here,
+  # before any dispatch, so every renderer and the layout see the same nodes.
+  # A group object passes the flag on to each of its panels.
+  if (!isTRUE(isolates) && !isFALSE(isolates)) {
+    .cg_stop_bad_parameter("`isolates` must be TRUE or FALSE")
+  }
+  if (!isolates && .is_single_network(x)) {
+    .shown <- .splot_hide_isolates(x, .user_args, .dots)
+    x <- .shown$x
+    .dots <- .shown$dots
+    .user_args <- .shown$user_args[setdiff(names(.shown$user_args), "isolates")]
+    list2env(.user_args, envir = environment())
+    isolates <- TRUE
+  }
 
   # Producer packages can attach a small, optional rendering contract at
   # x$meta$splot. It is interpreted before legacy class dispatch so a producer

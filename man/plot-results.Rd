@@ -145,6 +145,7 @@ plot_netobject_group(
   common_scale = TRUE,
   title_prefix = NULL,
   combined = TRUE,
+  i = NULL,
   ...
 )
 
@@ -261,7 +262,7 @@ remove non-positive fitted curve values.}
 \item{ncol, nrow}{Number of columns and rows of the panel grid. A
 \code{NULL} value is computed from the number of panels. For the
 pattern diagrams of a \code{cograph_motif_result} (\code{type =
-  "patterns"}, or \code{"triads"} on a census) the grid has four columns
+"patterns"}, or \code{"triads"} on a census) the grid has four columns
 unless \code{ncol} is given.}
 
 \item{colors}{Colors of the significance scale in motif plots. For
@@ -352,6 +353,9 @@ edge weight. Default \code{TRUE}.}
 \item{title_prefix}{Optional text placed before each group name in the
 panel titles.}
 
+\item{i}{Index or name of a single comparison to plot. \code{NULL}
+(default) plots all comparisons.}
+
 \item{layout}{Layout algorithm of the multilevel panels. \code{NULL}
 (default) uses \code{"oval"}.}
 
@@ -366,9 +370,6 @@ type and transparency of non-significant edge differences.}
 
 \item{show_effect}{Logical. Whether the absolute effect size is added in
 parentheses to the labels of significant edges.}
-
-\item{i}{Index or name of a single comparison to plot. \code{NULL}
-(default) plots all comparisons.}
 
 \item{k}{Prominence threshold whose club members are highlighted with
 \code{type = "network"} for \code{cograph_rich_club}. \code{NULL} uses

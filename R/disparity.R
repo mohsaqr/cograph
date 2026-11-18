@@ -61,8 +61,12 @@ disparity_filter <- function(x, level = 0.05, ...) {
 #' @rdname disparity_filter
 #' @export
 disparity_filter.default <- function(x, level = 0.05, ...) {
+  # An edge-list data frame is read as a network
+  if (is.data.frame(x)) {
+    return(disparity_filter(as_cograph(x), level = level, ...))
+  }
   if (!is.matrix(x)) {
-    stop("x must be a matrix, tna object, or cograph_network", call. = FALSE)
+    stop("x must be a matrix, edge-list data frame, igraph, tna object, or cograph_network", call. = FALSE)
   }
   .disparity_filter_matrix(x, level = level)
 }

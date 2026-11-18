@@ -205,6 +205,7 @@ plot_netobject_group <- function(x,
                                  common_scale = TRUE,
                                  title_prefix = NULL,
                                  combined     = TRUE,
+                                 i            = NULL,
                                  ...) {
   n_groups    <- length(x)
   group_names <- names(x) %||% paste0("Group ", seq_len(n_groups))
@@ -212,6 +213,19 @@ plot_netobject_group <- function(x,
   if (n_groups == 0) {
     message("No groups to display")
     return(invisible(NULL))
+  }
+
+  # One group, by name or position. The edge scale still comes from all
+  # groups, so the single panel is comparable with the full grid.
+  shown <- seq_len(n_groups)
+  if (!is.null(i)) {
+    shown <- if (is.character(i)) match(i, group_names) else as.integer(i)
+    if (length(shown) != 1L || is.na(shown) || shown < 1L || shown > n_groups) {
+      stop(errorCondition(
+        sprintf("group `i` not found; available groups: %s",
+                paste(group_names, collapse = ", ")),
+        class = "cograph_bad_selection", call = NULL))
+    }
   }
 
   # Common scale: compute before early-return so single-group path honours it too
@@ -222,30 +236,20 @@ plot_netobject_group <- function(x,
     if (!is.finite(max_abs) || max_abs == 0) max_abs <- NULL # nocov
   }
 
-  if (n_groups == 1) {
-    args <- list(...)
-    if (is.null(args$title)) {
-      panel_title <- if (!is.null(title_prefix)) paste0(title_prefix, group_names[1]) else group_names[1]
-      args$title  <- panel_title
-    }
-    if (!is.null(max_abs)) args$maximum <- max_abs
-    return(do.call(splot, c(list(x = x[[1]]), args)))
-  }
-
-  if (combined) {
+  if (combined && length(shown) > 1L) {
     if (is.null(ncol)) ncol <- ceiling(sqrt(n_groups))
     if (is.null(nrow)) nrow <- ceiling(n_groups / ncol)
     old_par <- graphics::par(mfrow = c(nrow, ncol), mar = c(2, 2, 3, 1))
     on.exit(graphics::par(old_par), add = TRUE)
   }
 
-  for (k in seq_len(n_groups)) {
-    panel_title <- if (!is.null(title_prefix)) paste0(title_prefix, group_names[k]) else group_names[k]
-    args        <- list(...)
-    if (is.null(args$title))    args$title   <- panel_title
-    if (!is.null(max_abs))      args$maximum <- max_abs
+  # One splot() call per shown group
+  lapply(shown, function(k) {
+    args <- list(...)
+    if (is.null(args$title)) args$title <- paste0(title_prefix, group_names[k])
+    if (!is.null(max_abs)) args$maximum <- max_abs
     do.call(splot, c(list(x = x[[k]]), args))
-  }
+  })
 
   invisible(x)
 }

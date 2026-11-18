@@ -106,6 +106,7 @@ centrality(
   re_negative = NULL,
   tna_network = NULL,
   psych_network = NULL,
+  shared_nodes = FALSE,
   ...
 )
 }
@@ -654,6 +655,15 @@ signed weighted network is evaluated with expected-influence measures.
 When \code{TRUE}, normalized expected influence is divided by the maximum
 absolute expected-influence value, which keeps its sign and bounds it
 between -1 and 1. \code{FALSE} keeps the generic cograph normalization.}
+
+\item{shared_nodes}{Logical. Only used when \code{x} is a group network
+object (a Nestimate \code{netobject_group} or a tna group model), which
+carries every group on the node set of the whole data. FALSE (default)
+computes each group on its own nodes: those that have a tie in the
+group (self-loops count) or occur in the group's data, so a member
+without ties stays as an isolate. TRUE keeps
+the common node set in every group. The result then has one row per node per group, with a
+leading \code{group} column.}
 
 \item{...}{Additional arguments (currently unused)}
 }

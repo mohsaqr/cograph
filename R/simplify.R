@@ -114,6 +114,12 @@ simplify.tna <- function(x, remove_loops = TRUE, remove_multiple = TRUE,
 #' @export
 simplify.default <- function(x, remove_loops = TRUE, remove_multiple = TRUE,
                              edge_attr_comb = "mean", ...) {
+  # An edge-list data frame is read as a network
+  if (is.data.frame(x)) {
+    return(simplify(as_cograph(x), remove_loops = remove_loops,
+                    remove_multiple = remove_multiple,
+                    edge_attr_comb = edge_attr_comb, ...))
+  }
   stop("Cannot simplify object of class ", paste(class(x), collapse = "/"),
        call. = FALSE)
 }

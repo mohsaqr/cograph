@@ -75,6 +75,9 @@ motif_census <- function(x, size = 3, n_random = 100,
   method <- match.arg(method)
   .need_igraph("motif_census()")
 
+  # A tna model or an edge list is read through its weight matrix
+  if (inherits(x, "tna") || is.data.frame(x)) x <- to_matrix(x)
+
   # Convert to igraph
   if (inherits(x, "igraph")) {
     g <- .motif_positive_edges(x)
@@ -90,7 +93,7 @@ motif_census <- function(x, size = 3, n_random = 100,
     mode <- if (directed) "directed" else "undirected"
     g <- igraph::graph_from_adjacency_matrix(adj, mode = mode)
   } else {
-    stop("x must be a matrix, igraph object, or cograph_network")
+    stop("x must be a matrix, edge-list data frame, igraph object, tna model, or cograph_network")
   }
 
   if ((inherits(x, "igraph") || inherits(x, "cograph_network")) &&
@@ -542,6 +545,8 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' @export
 triad_census <- function(x) {
   .need_igraph("triad_census()")
+  # A tna model or an edge list is read through its weight matrix
+  if (inherits(x, "tna") || is.data.frame(x)) x <- to_matrix(x)
   if (inherits(x, "igraph")) {
     g <- .motif_positive_edges(x)
   } else if (inherits(x, "cograph_network")) {
@@ -550,7 +555,7 @@ triad_census <- function(x) {
     g <- igraph::graph_from_adjacency_matrix(.motif_positive_adjacency(x),
                                               mode = "directed")
   } else {
-    stop("x must be a matrix, igraph object, or cograph_network")
+    stop("x must be a matrix, edge-list data frame, igraph object, tna model, or cograph_network")
   }
 
   if (!igraph::is_directed(g)) {

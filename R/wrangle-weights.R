@@ -74,7 +74,7 @@ threshold_edges <- function(x, minimum = NULL, maximum = NULL,
   stopifnot("`absolute` must be TRUE or FALSE" = is.logical(absolute) && length(absolute) == 1L)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
 
   if (nrow(edges) == 0L) {
@@ -206,7 +206,7 @@ binarize <- function(x, threshold = 0, absolute = TRUE, signed = FALSE,
   )
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
 
   if (nrow(edges) == 0L) {
@@ -285,7 +285,7 @@ symmetrize <- function(x, method = c("max", "min", "mean", "sum", "mutual",
   method <- match.arg(method)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
 
   sym <- switch(method,
@@ -369,7 +369,7 @@ normalize_weights <- function(x, method = c("row", "column", "max", "sum", "minm
   method <- match.arg(method)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
 
   if (length(m) == 0L) {
@@ -491,7 +491,7 @@ invert_weights <- function(x, method = c("reciprocal", "max_minus", "reflect"),
   method <- match.arg(method)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   edges <- get_edges(net)
 
   if (nrow(edges) == 0L) {

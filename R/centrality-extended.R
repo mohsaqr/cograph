@@ -1588,6 +1588,13 @@ calculate_nonbacktracking <- function(cg) {
   # For undirected: each edge becomes 2 directed edges
   if (!cg$directed) el <- rbind(el, el[, 2:1, drop = FALSE])
   m <- nrow(el)
+  # No edge, no non-backtracking matrix: the measure has no value. Classed,
+  # so a tier request reports NA here instead of stopping with "0 x 0 matrix".
+  if (m == 0L) {
+    stop(errorCondition(
+      "nonbacktracking centrality is undefined on a network without edges",
+      class = "cograph_undefined_index", call = NULL))
+  }
 
   # Non-backtracking matrix B: B[(i->j), (k->l)] = 1 if j==k and i!=l
   # This is a 2m x 2m matrix for undirected graphs

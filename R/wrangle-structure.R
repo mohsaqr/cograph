@@ -34,7 +34,7 @@ NULL
 #' remove_isolates(threshold_edges(regulation_net, minimum = 0.3))
 remove_isolates <- function(x, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   connected <- .connected_nodes(get_edges(net))
 
   if (length(connected) == 0L) {
@@ -87,7 +87,7 @@ to_undirected <- function(x, method = c("max", "sum", "mean", "min", "mutual"),
   method <- match.arg(method)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
 
   combined <- if (method == "mutual") {
@@ -135,7 +135,7 @@ to_directed <- function(x, mode = c("mutual", "arbitrary"),
   mode <- match.arg(mode)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
 
   out <- if (mode == "mutual") {
@@ -176,7 +176,7 @@ to_directed <- function(x, mode = c("mutual", "arbitrary"),
 #' reverse_edges(regulation_net)
 reverse_edges <- function(x, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
 
   if (!isTRUE(net$directed)) {
     warning(warningCondition(
@@ -228,7 +228,7 @@ split_components <- function(x, min_size = 1L, keep_format = FALSE,
   .check_count(min_size, "min_size", min = 0)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
 
   if (n_nodes(net) == 0L) {
     warning("Network has no nodes", call. = FALSE)
@@ -282,7 +282,7 @@ select_k_core <- function(x, k, keep_format = FALSE, directed = NULL) {
   .check_count(k, "k", min = 0)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   cg <- .cg_graph(net)
   core <- .cg_coreness_loops(cg$b, cg$n, cg$directed, "all")
   keep <- which(core >= k)
@@ -337,7 +337,7 @@ spanning_tree <- function(x, weights = c("weight", "none"), maximum = FALSE,
   stopifnot("`maximum` must be TRUE or FALSE" = is.logical(maximum) && length(maximum) == 1L)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
   .check_finite_weights(m, "spanning_tree")
   m <- .combine_arcs(m, t(m), "max")
@@ -440,7 +440,7 @@ complement_network <- function(x, weight = 1, loops = FALSE,
   stopifnot("`loops` must be TRUE or FALSE" = is.logical(loops) && length(loops) == 1L)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   m <- to_matrix(net)
 
   comp <- (m == 0) * weight
@@ -496,7 +496,7 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
   stopifnot("`loops` must be TRUE or FALSE" = is.logical(loops) && length(loops) == 1L)
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   labels <- get_labels(net)
 
   if (length(labels) == 0L) {
@@ -647,7 +647,7 @@ contract_nodes <- function(x, groups, weight = c("sum", "mean", "max", "min"),
 #' reorder_nodes(regulation_net, order = "degree")
 reorder_nodes <- function(x, order, keep_format = FALSE, directed = NULL) {
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   nodes <- get_nodes(net)
   n <- nrow(nodes)
 
@@ -760,7 +760,7 @@ rename_nodes <- function(x, from, to = NULL, keep_format = FALSE,
   }
 
   input_class <- .detect_input_class(x)
-  net <- as_cograph(x, directed = directed)
+  net <- .as_weighted_cograph(x, directed = directed)
   nodes <- get_nodes(net)
 
   idx <- match(as.character(from), nodes$label)

@@ -310,9 +310,11 @@ list_centralities <- function(orientation = NULL, costly = NULL,
 #' measure warns and returns `NA`, exactly as the community-partition
 #' measures already do when `membership` is missing.
 #'
-#' Only `cograph_undefined_index` is caught, the condition a measure raises
-#' when its own definition has no value on the input. Every other error
-#' propagates.
+#' Caught are the conditions a measure raises when its own definition has no
+#' value on the input: `cograph_undefined_index`, `cograph_singular_system`
+#' (a linear system that cannot be solved on this graph) and
+#' `cograph_negative_weights` (a path measure on signed weights). Every other
+#' error propagates.
 #'
 #' @param measure Measure name, for the message.
 #' @param from_tier `TRUE` when a tier supplied the measure rather than the
@@ -332,13 +334,9 @@ list_centralities <- function(orientation = NULL, costly = NULL,
     ))
     rep(NA_real_, n)
   }
-  tryCatch(expr, cograph_needs_igraph = na_with_warning,
-           cograph_undefined_index = function(e) {
-    warning(warningCondition(
-      sprintf("`%s` has no value on this input, so its column is NA. %s",
-              measure, conditionMessage(e)),
-      class = "cograph_undefined_measure", call = NULL
-    ))
-    rep(NA_real_, n)
-  })
+  tryCatch(expr,
+           cograph_needs_igraph = na_with_warning,
+           cograph_undefined_index = na_with_warning,
+           cograph_singular_system = na_with_warning,
+           cograph_negative_weights = na_with_warning)
 }

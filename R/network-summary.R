@@ -24,10 +24,20 @@
 #'   efficiency). Default FALSE.
 #' @param digits Integer. Round numeric results to this many decimal places.
 #'   Default 3. NULL skips rounding.
+#' @param shared_nodes Logical. Only used when \code{x} is a group network
+#'   object (a Nestimate \code{netobject_group} or a tna group model), which
+#'   carries every group on the node set of the whole data. FALSE (default)
+#'   summarises each group on its own nodes: those that have a tie in the
+#'   group (self-loops count) or occur in the group's data, so a member
+#'   without ties stays as an isolate, so \code{node_count} and every
+#'   measure that depends on it describe that group. TRUE keeps
+#'   the common node set in every group.
 #' @param ... Additional arguments (currently unused)
 #'
-#' @return A data frame with one row. The basic measures are always
-#' computed:
+#' @return A data frame with one row. For a group network object, one row
+#' per group with a leading \code{group} column; a group with no node of its
+#' own keeps the common node set and raises a \code{cograph_empty_group} warning.
+#' The basic measures are always computed:
 #' \describe{
 #'   \item{node_count}{Number of nodes in the network}
 #'   \item{edge_count}{Number of edges in the network}
@@ -84,7 +94,15 @@ network_summary <- function(x,
                             detailed = FALSE,
                             extended = FALSE,
                             digits = 3,
+                            shared_nodes = FALSE,
                             ...) {
+
+  # A group object: one row per group
+  if (.is_network_group(x)) {
+    .stop_if_group_passed_on(if (sys.parent() > 0L) sys.function(sys.parent()))
+    return(.map_network_group(x, network_summary, match.call(), parent.frame(),
+                              shared_nodes = shared_nodes))
+  }
 
   # Validate mode
 
@@ -113,6 +131,12 @@ network_summary <- function(x,
   } else {
     NULL
   }
+
+  # Transitivity runs on the kernel behind centrality(), so both verbs report
+  # one formula. igraph::transitivity() on a directed graph with reciprocated
+  # arcs changes its answer once simplify() or any_multiple() has been called
+  # on the object (0.96 / 0.92 for a network whose value is 1).
+  cg <- .cg_graph(g)
 
   # Basic measures (always computed)
   results <- list(
@@ -146,7 +170,7 @@ network_summary <- function(x,
       igraph::centr_eigen(g, directed = is_directed)$centralization,
       error = function(e) NA_real_
     ),
-    transitivity = igraph::transitivity(g, type = "global"),
+    transitivity = calculate_transitivity(cg, type = "global"),
     reciprocity = if (is_directed) {
       igraph::reciprocity(g, mode = "ratio")
     } else {
@@ -182,7 +206,7 @@ network_summary <- function(x,
     )
     pr <- igraph::page_rank(g, directed = is_directed, weights = weights)$vector
     constr <- igraph::constraint(g, weights = weights)
-    local_trans <- igraph::transitivity(g, type = "local")
+    local_trans <- calculate_transitivity(cg, type = "local")
 
     detailed_results <- list(
       mean_degree = mean(deg, na.rm = TRUE),
@@ -1459,3 +1483,4 @@ dispersion <- function(x, u = NULL, v = NULL,
     stringsAsFactors = FALSE
   )
 }
+

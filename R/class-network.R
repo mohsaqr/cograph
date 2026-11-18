@@ -538,6 +538,7 @@ is_cograph_network <- function(x) {
 #' net <- as_cograph(regulation_net)
 #' get_edges(net)
 get_nodes <- function(x) {
+  x <- .accessor_network(x)
   if (inherits(x, "cograph_network")) {
     # Unified format: nodes stored as list element
     if (!is.null(x$nodes) && is.data.frame(x$nodes)) {
@@ -547,9 +548,28 @@ get_nodes <- function(x) {
   stop("Cannot extract nodes from this object", call. = FALSE)
 }
 
+#' Read an accessor's input as a network
+#'
+#' The accessors take whatever the analytic verbs take: a matrix, an edge-list
+#' data frame, an igraph or statnet object, a tna model or a qgraph object is
+#' read with the model weights as edges. Anything else is returned unchanged,
+#' and the accessor raises its own error.
+#'
+#' @param x Any object.
+#' @return A `cograph_network` for a supported single network, else `x`.
+#' @keywords internal
+#' @noRd
+.accessor_network <- function(x) {
+  single <- is.matrix(x) || is.data.frame(x) ||
+    (inherits(x, c("igraph", "network", "tna", "qgraph")) &&
+       !.is_network_group(x))
+  if (inherits(x, "cograph_network") || !single) x else .as_weighted_cograph(x)
+}
+
 #' @rdname get_nodes
 #' @export
 get_edges <- function(x) {
+  x <- .accessor_network(x)
   if (inherits(x, "cograph_network")) {
     # Edges stored as data frame
     if (!is.null(x$edges) && is.data.frame(x$edges)) {
@@ -564,7 +584,7 @@ get_edges <- function(x) {
 #' @rdname get_nodes
 #' @export
 get_labels <- function(x) {
-
+  x <- .accessor_network(x)
   if (inherits(x, "cograph_network")) {
     # Compute from nodes data frame (priority: labels > label)
     nodes <- x$nodes
@@ -1070,12 +1090,17 @@ is_directed <- function(x) {
     .need_igraph("is_directed()")
     return(igraph::is_directed(x))
   }
+  x <- .accessor_network(x)
+  if (inherits(x, "cograph_network") && !is.null(x$directed)) {
+    return(x$directed)
+  }
   stop("Cannot determine directedness for this object", call. = FALSE)
 }
 
 #' @rdname get_nodes
 #' @export
 n_nodes <- function(x) {
+  x <- .accessor_network(x)
   if (inherits(x, "cograph_network")) {
     # Compute from nodes data frame
     if (!is.null(x$nodes)) {
@@ -1089,6 +1114,7 @@ n_nodes <- function(x) {
 #' @rdname get_nodes
 #' @export
 n_edges <- function(x) {
+  x <- .accessor_network(x)
   if (inherits(x, "cograph_network")) {
     # Compute from edges data frame
     if (!is.null(x$edges)) {

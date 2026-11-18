@@ -53,8 +53,12 @@ calculate_mcgm <- function(cg, mcgm_radius = 2, mcgm_alpha = NULL,
   ev <- .cg_mcgm_eigenvector(a)
   if (is.null(mcgm_alpha)) {
     if (stats::median(core) == 0) {
-      stop("mcgm automatic alpha is undefined when median coreness is zero; ",
-           "supply an explicit mcgm_alpha", call. = FALSE)
+      # Classed, so that a tier request (`type = "all"`) reports NA for this
+      # measure instead of losing every other column.
+      stop(errorCondition(paste0(
+        "mcgm automatic alpha is undefined when median coreness is zero; ",
+        "supply an explicit mcgm_alpha"),
+        class = "cograph_undefined_index", call = NULL))
     }
     mcgm_alpha <- max(stats::median(degree), stats::median(ev)) /
       stats::median(core)

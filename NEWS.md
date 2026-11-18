@@ -1,3 +1,69 @@
+# cograph 2.7.14
+
+## Bug fixes
+
+* A tna model built from sequences kept its transition probabilities only in
+  `centrality()` and `network_summary()`. `to_matrix()`, `to_df()` /
+  `to_data_frame()` and the wrangling verbs (`threshold_edges()`,
+  `filter_edges()`, `filter_nodes()`, `select_*()`, `subset_*()`,
+  `remove_isolates()`, `reverse_edges()`, `invert_weights()`, ...) read one
+  edge of weight 1 per observed transition, so
+  `threshold_edges(model, minimum = 0.1)` kept every transition and returned
+  0/1 weights. They now read the model weights. `as_cograph()` on such a
+  model is unchanged (a temporal multigraph, as the motif functions need).
+* `network_summary()` computes `transitivity` and `mean_local_transitivity`
+  with the same code as `centrality()`, so both report one formula. It called
+  `igraph::transitivity()`, whose value on a directed network with
+  reciprocated ties changes after `igraph::simplify()` (0.96 or 0.92,
+  depending on node order, for a network whose value is 1). The reported
+  transitivity of such networks changes.
+* `centrality(type = "all")` (and `measures = "all"`) no longer stops when one
+  measure has no value on the network. On a network that is mostly isolates,
+  `mcgm` stopped the call ("automatic alpha is undefined when median coreness
+  is zero"), so no measure was returned; an unsolvable `alpha` system and
+  `nonbacktracking` on a network without edges ("0 x 0 matrix") did the same.
+  Those columns are now `NA` with a `cograph_undefined_measure` warning.
+  Naming such a measure in `measures =` still raises its error.
+* `n_communities()` and `community_sizes()` raise an error of class
+  `cograph_bad_input` for anything that is not a community result. A network
+  gave 0 and an empty vector.
+* `motifs()`, `subgraphs()` and `extract_motifs()` read a tna model built from
+  a weight matrix as an aggregate network instead of stopping with "argument
+  must be coercible to non-negative integer".
+
+## Inputs
+
+* `get_nodes()`, `get_edges()`, `get_labels()`, `n_nodes()`, `n_edges()` and
+  `is_directed()` accept every network input (matrix, edge-list data frame,
+  igraph, statnet network, tna model), not only a `cograph_network`.
+* `motif_census()` and `triad_census()` accept tna models and edge-list data
+  frames. `disparity_filter()`, `simplify()`, `plot_heatmap()` and
+  `plot_chord()` accept edge-list data frames.
+
+## Group network objects
+
+* `splot()` has a new argument `isolates` (default `TRUE`). With `FALSE`,
+  nodes without any tie are not drawn (a self-loop counts as a tie), and
+  per-node arguments given for the full node set follow the nodes that stay.
+  On a group object each panel hides its own isolates, which removes the
+  nodes a group only carries because another group has them.
+* `i` selects one group of a Nestimate `netobject_group` in `splot()`,
+  `plot()` and `plot_netobject_group()`, as it does for tna groups. It was
+  ignored, and a name that matched no group drew every group. An unknown
+  group raises an error of class `cograph_bad_selection`.
+* `centrality()` and `network_summary()` accept group network objects (a
+  Nestimate `netobject_group`, including `net_mlvar`, and tna group models).
+  They return one data frame for all groups with a leading `group` column,
+  instead of the error "x must be a matrix, ...".
+* New argument `shared_nodes` in both. A group object carries every group on
+  the node set of the whole data, so each group reported the same
+  `node_count` and the nodes of the other groups as isolates. The default
+  `shared_nodes = FALSE` analyses each group on its own nodes, those that
+  have a tie in the group or occur in the group's data, so a member without
+  ties stays as an isolate; `shared_nodes = TRUE` keeps the common node set.
+* The `centrality_*()` shortcuts, `reaching_global()` and `plot_centrality()`
+  raise an error of class `cograph_group_input` for a group object.
+
 # cograph 2.7.13
 
 * The `plot_edge_diff_forest()` example passes `show_nonsig = TRUE`, so it draws when no edge difference is significant.

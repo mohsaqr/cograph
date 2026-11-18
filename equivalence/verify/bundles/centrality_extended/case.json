@@ -1,0 +1,3645 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Less common centralities on the karate club",
+  "description": "Harmonic centrality, eccentricity, coreness, Burt's constraint, local transitivity, subgraph centrality, alpha centrality and Bonacich power centrality of Zachary's karate club (34 members, 78 ties).",
+  "covers": [
+    "centrality()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 337,
+          "sha256": "074eb3911af9d0df6b0805ae4ee1510b23cc54f5d923cc80a5a5cff498a8ad38",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/karate.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 607,
+          "sha256": "33bce01ab1a5aa8340bb39e392766f947ff9f164d19c4873382134be2405f9d5",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/karate.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 3939,
+          "sha256": "ceacaa3308cf9a13029c57031a2001d15123edfe87c02936baa98aca633c2666",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 4494,
+          "sha256": "a139b0209fb777f92dbd06d363b1b3e131adc5ab3da90b5f1f26ee857a815c79",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/karate.tsv",
+          "bytes": 2585,
+          "sha256": "459657fda2db0864fb5495df4be05fe7053a9de3272868e82a9cc7f8640cd3b7",
+          "label": "Karate club"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "harmonic: v01",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 23.1666666666667,
+        "igraph": 23.1666666666667
+      },
+      "difference": 1.53354547286353e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v02",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 19.1666666666667,
+        "igraph": 19.1666666666667
+      },
+      "difference": 7.41435898184452e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v03",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 21,
+        "igraph": 21
+      },
+      "difference": 1.69176841847643e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v04",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 17.6666666666667,
+        "igraph": 17.6666666666667
+      },
+      "difference": 4.02194001373642e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v05",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.6666666666667,
+        "igraph": 14.6666666666667
+      },
+      "difference": 1.21115239050017e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v06",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 15.1666666666667,
+        "igraph": 15.1666666666667
+      },
+      "difference": 1.17122428971445e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v07",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 15.1666666666667,
+        "igraph": 15.1666666666667
+      },
+      "difference": 1.17122428971445e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v08",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 16.4166666666667,
+        "igraph": 16.4166666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v09",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 18.5,
+        "igraph": 18.5
+      },
+      "difference": 1.9203857723246e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v10",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 15.5833333333333,
+        "igraph": 15.5833333333333
+      },
+      "difference": 3.41972439670636e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v11",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.6666666666667,
+        "igraph": 14.6666666666667
+      },
+      "difference": 1.21115239050017e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v12",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 13.5,
+        "igraph": 13.5
+      },
+      "difference": 1.31581988103722e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v13",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14,
+        "igraph": 14
+      },
+      "difference": 1.26882631385732e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v14",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 18.5,
+        "igraph": 18.5
+      },
+      "difference": 1.9203857723246e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v15",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.2,
+        "igraph": 14.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v16",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.2,
+        "igraph": 14.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v17",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 11.1,
+        "igraph": 11.1
+      },
+      "difference": 4.80096443081149e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v18",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.1666666666667,
+        "igraph": 14.1666666666667
+      },
+      "difference": 1.253898945459e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v19",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.2,
+        "igraph": 14.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v20",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 17.5,
+        "igraph": 17.5
+      },
+      "difference": 2.03012210217171e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v21",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.2,
+        "igraph": 14.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v22",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.1666666666667,
+        "igraph": 14.1666666666667
+      },
+      "difference": 1.253898945459e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v23",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 14.2,
+        "igraph": 14.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v24",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 16.0333333333333,
+        "igraph": 16.0333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v25",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 13.9166666666667,
+        "igraph": 13.9166666666667
+      },
+      "difference": 6.38212038107874e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v26",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 13.9166666666667,
+        "igraph": 13.9166666666667
+      },
+      "difference": 7.65854445729449e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v27",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 13.95,
+        "igraph": 13.95
+      },
+      "difference": 1.27337407842312e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v28",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 16.9166666666667,
+        "igraph": 16.9166666666667
+      },
+      "difference": 2.10012631259143e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v29",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 16.4166666666667,
+        "igraph": 16.4166666666667
+      },
+      "difference": 4.32817910107675e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v30",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 15.3666666666667,
+        "igraph": 15.3666666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v31",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 16.9166666666667,
+        "igraph": 16.9166666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v32",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 19.3333333333333,
+        "igraph": 19.3333333333333
+      },
+      "difference": 1.8376105235175e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v33",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 20.9166666666667,
+        "igraph": 20.9166666666667
+      },
+      "difference": 5.09552559509235e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "harmonic: v34",
+      "kind": "harmonic",
+      "values": {
+        "cograph": 23.25,
+        "igraph": 23.25
+      },
+      "difference": 4.58414668232323e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v01",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v02",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v03",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v04",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v05",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v06",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v07",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v08",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v09",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v10",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v11",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v12",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v13",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v14",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v15",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v16",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v17",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v18",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v19",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v20",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v21",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v22",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v23",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v24",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v25",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v26",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v27",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v28",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v29",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v30",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v31",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v32",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v33",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eccentricity: v34",
+      "kind": "eccentricity",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v01",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v02",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v03",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v04",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v05",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v06",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v07",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v08",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v09",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v10",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v11",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v12",
+      "kind": "coreness",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v13",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v14",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v15",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v16",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v17",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v18",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v19",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v20",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v21",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v22",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v23",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v24",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v25",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v26",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v27",
+      "kind": "coreness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v28",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v29",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v30",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v31",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v32",
+      "kind": "coreness",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v33",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "coreness: v34",
+      "kind": "coreness",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v01",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.155423297646605,
+        "igraph": 0.155423297646605
+      },
+      "difference": 1.78580534809771e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v02",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.279535108024691,
+        "igraph": 0.279535108024691
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v03",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.185176639660494,
+        "igraph": 0.185176639660494
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v04",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.396659647205075,
+        "igraph": 0.396659647205075
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v05",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.529417438271605,
+        "igraph": 0.529417438271605
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v06",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.477484809027778,
+        "igraph": 0.477484809027778
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v07",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.477484809027778,
+        "igraph": 0.477484809027778
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v08",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.442711588541667,
+        "igraph": 0.442711588541667
+      },
+      "difference": 1.25388972568161e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v09",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.30360071366782,
+        "igraph": 0.30360071366782
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v10",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.5,
+        "igraph": 0.5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v11",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.529417438271605,
+        "igraph": 0.529417438271605
+      },
+      "difference": 2.09706546170771e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v12",
+      "kind": "constraint",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v13",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.622504340277778,
+        "igraph": 0.622504340277778
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v14",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.323335416666667,
+        "igraph": 0.323335416666667
+      },
+      "difference": 1.71682866676141e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v15",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.573679594386774,
+        "igraph": 0.573679594386774
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v16",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.573679594386774,
+        "igraph": 0.573679594386774
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v17",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.78125,
+        "igraph": 0.78125
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v18",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.590868537808642,
+        "igraph": 0.590868537808642
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v19",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.573679594386774,
+        "igraph": 0.573679594386774
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v20",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.373719350137174,
+        "igraph": 0.373719350137174
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v21",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.573679594386774,
+        "igraph": 0.573679594386774
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v22",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.590868537808642,
+        "igraph": 0.590868537808642
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v23",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.573679594386774,
+        "igraph": 0.573679594386774
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v24",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.305823721645521,
+        "igraph": 0.305823721645521
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v25",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.459876543209876,
+        "igraph": 0.459876543209876
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v26",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.459876543209876,
+        "igraph": 0.459876543209876
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v27",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.670901816608997,
+        "igraph": 0.670901816608997
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v28",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.285069204152249,
+        "igraph": 0.285069204152249
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v29",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.386913153060788,
+        "igraph": 0.386913153060788
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v30",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.449409001345636,
+        "igraph": 0.449409001345636
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v31",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.346006463860054,
+        "igraph": 0.346006463860054
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v32",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.244575403690888,
+        "igraph": 0.244575403690888
+      },
+      "difference": 2.26969476053352e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v33",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.249223362275193,
+        "igraph": 0.249223362275193
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "constraint: v34",
+      "kind": "constraint",
+      "values": {
+        "cograph": 0.156418685121107,
+        "igraph": 0.156418685121107
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v01",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.15,
+        "igraph": 0.15
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v02",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v03",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.244444444444444,
+        "igraph": 0.244444444444444
+      },
+      "difference": 1.13545536609391e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v04",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.666666666666667,
+        "igraph": 0.666666666666667
+      },
+      "difference": 1.66533453693773e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v05",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.666666666666667,
+        "igraph": 0.666666666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v06",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.5,
+        "igraph": 0.5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v07",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.5,
+        "igraph": 0.5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v08",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v09",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.5,
+        "igraph": 0.5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v10",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v11",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.666666666666667,
+        "igraph": 0.666666666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v12",
+      "kind": "transitivity",
+      "values": {
+        "cograph": null,
+        "igraph": null
+      },
+      "difference": null,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "not_comparable",
+      "note": "No side has a value for this quantity."
+    },
+    {
+      "quantity": "transitivity: v13",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v14",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.6,
+        "igraph": 0.6
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v15",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v16",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v17",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v18",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v19",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v20",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v21",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v22",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v23",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v24",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.4,
+        "igraph": 0.4
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v25",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v26",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v27",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v28",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.166666666666667,
+        "igraph": 0.166666666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v29",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v30",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.666666666666667,
+        "igraph": 0.666666666666667
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v31",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.5,
+        "igraph": 0.5
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v32",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.2,
+        "igraph": 0.2
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v33",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.196969696969697,
+        "igraph": 0.196969696969697
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "transitivity: v34",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.110294117647059,
+        "igraph": 0.110294117647059
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v01",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 128.095013522887,
+        "igraph": 128.095013522887
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v02",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 71.4309973677718,
+        "igraph": 71.4309973677718
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v03",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 88.7045945479573,
+        "igraph": 88.7045945479573
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v04",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 48.1806382817349,
+        "igraph": 48.1806382817349
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v05",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 10.2467402232584,
+        "igraph": 10.2467402232584
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v06",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.3476062760189,
+        "igraph": 12.3476062760189
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v07",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.3476062760189,
+        "igraph": 12.3476062760189
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v08",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 32.0742959209968,
+        "igraph": 32.0742959209968
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v09",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 45.0675419605861,
+        "igraph": 45.0675419605861
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v10",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 10.5848883186798,
+        "igraph": 10.5848883186798
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v11",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 10.2467402232584,
+        "igraph": 10.2467402232584
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v12",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 4.42232248460108,
+        "igraph": 4.42232248460108
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v13",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 9.62124599048009,
+        "igraph": 9.62124599048009
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v14",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 46.7690999961587,
+        "igraph": 46.7690999961587
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v15",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.5093987539293,
+        "igraph": 12.5093987539293
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v16",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.5093987539293,
+        "igraph": 12.5093987539293
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v17",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 3.73240566453721,
+        "igraph": 3.73240566453721
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v18",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 10.8746642793316,
+        "igraph": 10.8746642793316
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v19",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.5093987539293,
+        "igraph": 12.5093987539293
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v20",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 20.1796106027165,
+        "igraph": 20.1796106027165
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v21",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.5093987539293,
+        "igraph": 12.5093987539293
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v22",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 10.8746642793316,
+        "igraph": 10.8746642793316
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v23",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 12.5093987539293,
+        "igraph": 12.5093987539293
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v24",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 27.4029013326024,
+        "igraph": 27.4029013326024
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v25",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 6.35764568531339,
+        "igraph": 6.35764568531339
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v26",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 6.81299633003424,
+        "igraph": 6.81299633003424
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v27",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 8.26617745050158,
+        "igraph": 8.26617745050158
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v28",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 18.5861719653526,
+        "igraph": 18.5861719653526
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v29",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 16.7273855942098,
+        "igraph": 16.7273855942098
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v30",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 22.9266263727085,
+        "igraph": 22.9266263727085
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v31",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 28.5530343074936,
+        "igraph": 28.5530343074936
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v32",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 34.8493594173543,
+        "igraph": 34.8493594173543
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v33",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 95.6947267943989,
+        "igraph": 95.6947267943989
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "subgraph: v34",
+      "kind": "subgraph",
+      "values": {
+        "cograph": 136.72233818359,
+        "igraph": 136.72233818359
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v01",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.911764705882353,
+        "igraph": -0.911764705882353
+      },
+      "difference": 2.43532792498421e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v02",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.0882352941176476,
+        "igraph": -0.088235294117647
+      },
+      "difference": 7.54951656745102e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v03",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.352941176470588,
+        "igraph": -0.352941176470588
+      },
+      "difference": 2.044660737018e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v04",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.794117647058824,
+        "igraph": 0.794117647058823
+      },
+      "difference": 6.99029311801024e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v05",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.911764705882352,
+        "igraph": -0.911764705882353
+      },
+      "difference": 1.0958975662429e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v06",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.0882352941176477,
+        "igraph": -0.0882352941176474
+      },
+      "difference": 4.08932147403596e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v07",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.0882352941176473,
+        "igraph": -0.0882352941176474
+      },
+      "difference": 1.41553435639707e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v08",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.441176470588235,
+        "igraph": 0.441176470588235
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v09",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.852941176470589,
+        "igraph": -0.852941176470588
+      },
+      "difference": 1.17147670874241e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v10",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.0294117647058833,
+        "igraph": 0.0294117647058821
+      },
+      "difference": 3.83373888190863e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v11",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.911764705882352,
+        "igraph": -0.911764705882353
+      },
+      "difference": 2.43532792498422e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v12",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.0882352941176471,
+        "igraph": 0.0882352941176474
+      },
+      "difference": 3.46019509341506e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v13",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.882352941176471,
+        "igraph": 0.882352941176471
+      },
+      "difference": 5.03301104496737e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v14",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.176470588235294,
+        "igraph": -0.176470588235295
+      },
+      "difference": 3.61747668857029e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v15",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.676470588235294,
+        "igraph": 0.676470588235294
+      },
+      "difference": 3.28239850758742e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v16",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.676470588235294,
+        "igraph": 0.676470588235294
+      },
+      "difference": 3.28239850758742e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v17",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.823529411764705,
+        "igraph": 0.823529411764705
+      },
+      "difference": 4.04438387542022e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v18",
+      "kind": "alpha",
+      "values": {
+        "cograph": -5.66163506222874e-16,
+        "igraph": 4.44089209850063e-16
+      },
+      "difference": 1.78438331854481,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "alpha: v19",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.676470588235294,
+        "igraph": 0.676470588235294
+      },
+      "difference": 3.28239850758742e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v20",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.61764705882353,
+        "igraph": -0.61764705882353
+      },
+      "difference": 0,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v21",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.676470588235294,
+        "igraph": 0.676470588235294
+      },
+      "difference": 3.28239850758742e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v22",
+      "kind": "alpha",
+      "values": {
+        "cograph": -3.61045121310253e-16,
+        "igraph": 4.44089209850063e-16
+      },
+      "difference": 1.8130013368984,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "alpha: v23",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.676470588235294,
+        "igraph": 0.676470588235294
+      },
+      "difference": 3.28239850758742e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v24",
+      "kind": "alpha",
+      "values": {
+        "cograph": -1.05882352941176,
+        "igraph": -1.05882352941176
+      },
+      "difference": 6.29126380620922e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v25",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.147058823529411,
+        "igraph": 0.147058823529411
+      },
+      "difference": 7.54951656745108e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v26",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.0588235294117644,
+        "igraph": 0.0588235294117648
+      },
+      "difference": 8.13932254928316e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v27",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.529411764705882,
+        "igraph": -0.529411764705882
+      },
+      "difference": 6.29126380620922e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v28",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.88235294117647,
+        "igraph": -0.882352941176471
+      },
+      "difference": 2.51650552248369e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v29",
+      "kind": "alpha",
+      "values": {
+        "cograph": 4.73555835068349e-16,
+        "igraph": 6.92605629184591e-17
+      },
+      "difference": 0.853743618408878,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "alpha: v30",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.911764705882353,
+        "igraph": -0.911764705882352
+      },
+      "difference": 2.43532792498422e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v31",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.264705882352942,
+        "igraph": -0.264705882352941
+      },
+      "difference": 3.1456319031046e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v32",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.0294117647058824,
+        "igraph": -0.0294117647058825
+      },
+      "difference": 2.00534033822918e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v33",
+      "kind": "alpha",
+      "values": {
+        "cograph": 0.294117647058823,
+        "igraph": 0.294117647058824
+      },
+      "difference": 9.43689570931383e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "alpha: v34",
+      "kind": "alpha",
+      "values": {
+        "cograph": -0.617647058823529,
+        "igraph": -0.61764705882353
+      },
+      "difference": 8.98751972315602e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v01",
+      "kind": "power",
+      "values": {
+        "cograph": -1.56645901874308,
+        "igraph": -1.56645901874308
+      },
+      "difference": 2.83498773052102e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v02",
+      "kind": "power",
+      "values": {
+        "cograph": -0.891676672207604,
+        "igraph": -0.891676672207594
+      },
+      "difference": 1.08323348757407e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v03",
+      "kind": "power",
+      "values": {
+        "cograph": -1.10857099787972,
+        "igraph": -1.10857099787971
+      },
+      "difference": 3.60536483120608e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v04",
+      "kind": "power",
+      "values": {
+        "cograph": -0.168695586633866,
+        "igraph": -0.168695586633874
+      },
+      "difference": 4.54104284692375e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v05",
+      "kind": "power",
+      "values": {
+        "cograph": -1.56645901874307,
+        "igraph": -1.56645901874308
+      },
+      "difference": 4.67772975535968e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v06",
+      "kind": "power",
+      "values": {
+        "cograph": -0.891676672207601,
+        "igraph": -0.891676672207596
+      },
+      "difference": 6.47449900618988e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v07",
+      "kind": "power",
+      "values": {
+        "cograph": -0.891676672207601,
+        "igraph": -0.891676672207596
+      },
+      "difference": 6.47449900618988e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v08",
+      "kind": "power",
+      "values": {
+        "cograph": -0.457888020863362,
+        "igraph": -0.457888020863362
+      },
+      "difference": 1.21233027949912e-16,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v09",
+      "kind": "power",
+      "values": {
+        "cograph": -1.51826027970483,
+        "igraph": -1.51826027970483
+      },
+      "difference": 2.339989872811e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v10",
+      "kind": "power",
+      "values": {
+        "cograph": -0.7952791941311,
+        "igraph": -0.795279194131101
+      },
+      "difference": 1.39601668548384e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v11",
+      "kind": "power",
+      "values": {
+        "cograph": -1.56645901874307,
+        "igraph": -1.56645901874308
+      },
+      "difference": 4.39423098230758e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v12",
+      "kind": "power",
+      "values": {
+        "cograph": -0.747080455092848,
+        "igraph": -0.747080455092855
+      },
+      "difference": 8.76788544076459e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v13",
+      "kind": "power",
+      "values": {
+        "cograph": -0.0963974780764892,
+        "igraph": -0.0963974780765033
+      },
+      "difference": 1.47131433545703e-13,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v14",
+      "kind": "power",
+      "values": {
+        "cograph": -0.963974780764969,
+        "igraph": -0.96397478076497
+      },
+      "difference": 1.03654238897175e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v15",
+      "kind": "power",
+      "values": {
+        "cograph": -0.265093064710366,
+        "igraph": -0.265093064710369
+      },
+      "difference": 1.00513201354836e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v16",
+      "kind": "power",
+      "values": {
+        "cograph": -0.265093064710366,
+        "igraph": -0.265093064710369
+      },
+      "difference": 1.00513201354836e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v17",
+      "kind": "power",
+      "values": {
+        "cograph": -0.144596217114754,
+        "igraph": -0.144596217114741
+      },
+      "difference": 9.00256260051339e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v18",
+      "kind": "power",
+      "values": {
+        "cograph": -0.819378563650227,
+        "igraph": -0.819378563650223
+      },
+      "difference": 4.87784653633763e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v19",
+      "kind": "power",
+      "values": {
+        "cograph": -0.265093064710366,
+        "igraph": -0.265093064710369
+      },
+      "difference": 1.00513201354836e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v20",
+      "kind": "power",
+      "values": {
+        "cograph": -1.32546532355183,
+        "igraph": -1.32546532355183
+      },
+      "difference": 1.34017601806448e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v21",
+      "kind": "power",
+      "values": {
+        "cograph": -0.265093064710366,
+        "igraph": -0.265093064710369
+      },
+      "difference": 1.00513201354836e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v22",
+      "kind": "power",
+      "values": {
+        "cograph": -0.819378563650227,
+        "igraph": -0.819378563650223
+      },
+      "difference": 4.87784653633763e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v23",
+      "kind": "power",
+      "values": {
+        "cograph": -0.265093064710366,
+        "igraph": -0.265093064710369
+      },
+      "difference": 1.00513201354836e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v24",
+      "kind": "power",
+      "values": {
+        "cograph": -1.6869558663387,
+        "igraph": -1.6869558663387
+      },
+      "difference": 1.31624430345619e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v25",
+      "kind": "power",
+      "values": {
+        "cograph": -0.698881716054606,
+        "igraph": -0.698881716054602
+      },
+      "difference": 5.08342627541699e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v26",
+      "kind": "power",
+      "values": {
+        "cograph": -0.771179824611979,
+        "igraph": -0.771179824611977
+      },
+      "difference": 3.02324863450093e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v27",
+      "kind": "power",
+      "values": {
+        "cograph": -1.25316721499446,
+        "igraph": -1.25316721499446
+      },
+      "difference": 4.25248159578153e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v28",
+      "kind": "power",
+      "values": {
+        "cograph": -1.54235964922396,
+        "igraph": -1.54235964922395
+      },
+      "difference": 4.8947835034777e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v29",
+      "kind": "power",
+      "values": {
+        "cograph": -0.819378563650222,
+        "igraph": -0.819378563650226
+      },
+      "difference": 4.60685506209666e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v30",
+      "kind": "power",
+      "values": {
+        "cograph": -1.56645901874307,
+        "igraph": -1.56645901874308
+      },
+      "difference": 2.83498773052102e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v31",
+      "kind": "power",
+      "values": {
+        "cograph": -1.03627288932235,
+        "igraph": -1.03627288932234
+      },
+      "difference": 1.09278887519501e-14,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v32",
+      "kind": "power",
+      "values": {
+        "cograph": -0.843477933169346,
+        "igraph": -0.843477933169352
+      },
+      "difference": 7.50259252970025e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v33",
+      "kind": "power",
+      "values": {
+        "cograph": -0.578384868458983,
+        "igraph": -0.578384868458985
+      },
+      "difference": 2.68733211955638e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "power: v34",
+      "kind": "power",
+      "values": {
+        "cograph": -1.32546532355183,
+        "igraph": -1.32546532355183
+      },
+      "difference": 1.34017601806448e-15,
+      "measure": "relative",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

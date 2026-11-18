@@ -1,0 +1,12 @@
+
+> library(qgraph)
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> png("plot.png", width = 900, height = 900, res = 150)
+
+> qgraph(network, layout = "circle", edge.labels = TRUE)
+
+> dev.off()
+null device 
+          1 

@@ -1,0 +1,17 @@
+
+> network <- as.matrix(utils::read.delim("../data/network.tsv", row.names = 1))
+
+> result <- centrality(network, measures = c("strength", "betweenness", "closeness"),
++                      invert_weights = TRUE)
+Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+
+> names(result) <- sub("_all$", "", names(result))
+
+> result
+  node strength betweenness closeness
+1    A        3           0 0.1237113
+2    B        5           4 0.1643836
+3    C        5           6 0.1846154
+4    D        4           6 0.1846154
+5    E        6           4 0.1558442
+6    F        5           0 0.1348315

@@ -1,0 +1,43 @@
+
+> network <- as.matrix(utils::read.delim("../data/transitions.tsv", row.names = 1))
+
+> model <- tna::tna(network)
+Registered S3 method overwritten by 'tna':
+  method             from   
+  plot.tna_bootstrap cograph
+
+> measures <- c("strength", "closeness")
+
+> incoming <- centrality(model, measures = c(measures, "diffusion"), mode = "in")
+Note: Weights inverted (1/w^1) for path-based measures (tna object detected). Higher weights = shorter paths.
+
+> outgoing <- centrality(model, measures = measures, mode = "out")
+Note: Weights inverted (1/w^1) for path-based measures (tna object detected). Higher weights = shorter paths.
+
+> both <- centrality(model, measures = c("closeness", "betweenness", "transitivity", "pagerank"),
++                    mode = "all")
+Note: Weights inverted (1/w^1) for path-based measures (tna object detected). Higher weights = shorter paths.
+
+> result <- merge(merge(incoming, outgoing, by = "node"), both, by = "node")
+
+> result
+        node strength_in closeness_in diffusion_in strength_out closeness_out
+1      adapt   0.3445778  0.008339570    1.0000000    1.0000000    0.01516858
+2   cohesion   0.8116478  0.013800359    0.8200563    0.9728614    0.01238681
+3  consensus   2.6672185  0.035123316    0.5585190    0.9179965    0.01253550
+4 coregulate   0.5665811  0.015546719    0.7911371    0.9766497    0.01500415
+5    discuss   1.1882315  0.019591857    0.5431999    0.8051126    0.01307165
+6    emotion   0.8941312  0.014102579    0.7539485    0.9231583    0.01205607
+7    monitor   0.3457150  0.007580598    0.7953769    0.9818562    0.01368405
+8       plan   1.1937843  0.027426129    0.0000000    0.6257918    0.01150949
+9  synthesis   0.1915394  0.009967581    0.9981944    1.0000000    0.01579020
+  closeness_all betweenness transitivity   pagerank
+1    0.02479256           1    0.3369839 0.03937291
+2    0.02654312           0    0.2996487 0.08419791
+3    0.03829481          30    0.1607773 0.25333610
+4    0.02104171           0    0.3057842 0.09489162
+5    0.02710425          16    0.2397108 0.13883765
+6    0.02311208           5    0.2904793 0.11676831
+7    0.01927766           0    0.2888819 0.06302458
+8    0.02742613           9    0.2874904 0.16706523
+9    0.02431531           7    0.3586136 0.04250567

@@ -1,0 +1,52 @@
+
+> library(tna)
+'tna' package version 1.3.1
+------------------------------------------------------
+  Tikka, S., López-Pernas, S., and Saqr, M. (2025). 
+  tna: An R Package for Transition Network Analysis.
+  Applied Psychological Measurement.
+  https://doi.org/10.1177/01466216251348840
+------------------------------------------------------
+Please type 'citation("tna")' for more citation information.
+See the package website at https://sonsoles.me/tna/
+
+
+> network <- as.matrix(utils::read.delim("../data/transitions.tsv", row.names = 1))
+
+> model <- tna(network)
+
+> measures <- c("InStrength", "OutStrength", "ClosenessIn", "ClosenessOut", "Closeness",
++               "Betweenness", "Clustering", "PageRank")
+
+> plain <- as.data.frame(centralities(model, measures = measures))
+
+> scaled <- as.data.frame(centralities(model, measures = "Diffusion", normalize = TRUE))
+
+> result <- data.frame(node = as.character(plain$state),
++                      strength_in = plain$InStrength, strength_out = plain$OutStrength,
++                      closeness_in = plain$ClosenessIn, closeness_out = plain$ClosenessOut,
++                      closeness_all = plain$Closeness, betweenness = plain$Betweenness,
++                      transitivity = plain$Clustering, pagerank = plain$PageRank,
++                      diffusion_in = scaled$Diffusion)
+
+> result
+        node strength_in strength_out closeness_in closeness_out closeness_all
+1      adapt   0.3445778    1.0000000  0.008339570    0.01516858    0.02479256
+2   cohesion   0.8116478    0.9728614  0.013800359    0.01238681    0.02654312
+3  consensus   2.6672185    0.9179965  0.035123316    0.01253550    0.03829481
+4 coregulate   0.5665811    0.9766497  0.015546719    0.01500415    0.02104171
+5    discuss   1.1882315    0.8051126  0.019591857    0.01307165    0.02710425
+6    emotion   0.8941312    0.9231583  0.014102579    0.01205607    0.02311208
+7    monitor   0.3457150    0.9818562  0.007580598    0.01368405    0.01927766
+8       plan   1.1937843    0.6257918  0.027426129    0.01150949    0.02742613
+9  synthesis   0.1915394    1.0000000  0.009967581    0.01579020    0.02431531
+  betweenness transitivity   pagerank diffusion_in
+1           1    0.3369839 0.03937291    1.0000000
+2           0    0.2996487 0.08419791    0.8200563
+3          30    0.1607773 0.25333610    0.5585190
+4           0    0.3057842 0.09489162    0.7911371
+5          16    0.2397108 0.13883765    0.5431999
+6           5    0.2904793 0.11676831    0.7539485
+7           0    0.2888819 0.06302458    0.7953769
+8           9    0.2874904 0.16706523    0.0000000
+9           7    0.3586136 0.04250567    0.9981944

@@ -1,0 +1,5 @@
+library(cograph)
+network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+png("plot.png", width = 900, height = 900, res = 150)
+splot(network, layout = "circle", edge_labels = TRUE)
+dev.off()

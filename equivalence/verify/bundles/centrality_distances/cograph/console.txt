@@ -1,0 +1,15 @@
+
+> network <- as.matrix(utils::read.delim("../data/network.tsv", row.names = 1))
+
+> result <- centrality(network, measures = c("degree", "strength", "betweenness", "closeness", "eigenvector"))
+
+> names(result) <- sub("_all$", "", names(result))
+
+> result
+  node degree strength betweenness  closeness eigenvector
+1    A      2        3           2 0.08333333   0.1640159
+2    B      2        5           0 0.05000000   0.2536397
+3    C      3        5           6 0.10000000   0.3140152
+4    D      3        4           7 0.10000000   0.6474674
+5    E      2        6           0 0.05555556   1.0000000
+6    F      2        5           0 0.07142857   0.9281183

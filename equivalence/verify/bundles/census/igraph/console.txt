@@ -1,0 +1,46 @@
+
+> library(igraph)
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> graph <- graph_from_adjacency_matrix(network, mode = "directed", weighted = TRUE)
+
+> dyads <- dyad_census(graph)
+
+> result <- data.frame(
++   type = c("003", "012", "102", "021D", "021U", "021C", "111D", "111U", "030T", "030C",
++            "201", "120D", "120U", "120C", "210", "300", "mutual", "asymmetric", "null"),
++   count = c(triad_census(graph), dyads$mut, dyads$asym, dyads$null))
+
+> result
+         type count
+1         003     7
+2         012    27
+3         102     2
+4        021D     9
+5        021U    11
+6        021C    29
+7        111D     9
+8        111U     7
+9        030T    11
+10       030C     2
+11        201     0
+12       120D     2
+13       120U     1
+14       120C     3
+15        210     0
+16        300     0
+17     mutual     3
+18 asymmetric    24
+19       null    18

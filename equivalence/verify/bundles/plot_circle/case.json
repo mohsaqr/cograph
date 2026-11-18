@@ -1,0 +1,129 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "A weighted network drawn on a circle",
+  "description": "The same six-node network drawn by splot() and by qgraph(), both on a circular layout. A case for the eye: nothing numeric is compared.",
+  "covers": [
+    "splot()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "qgraph",
+      "name": "qgraph",
+      "version": "1.10.1",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 193,
+          "sha256": "f922d6bc1ae9566100ba830e10f956f94f7c7ae516eb00c2a42d1545b2a05bc0",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "reads": [
+              "data/network.tsv"
+            ]
+          }
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/script.R",
+          "bytes": 193,
+          "sha256": "d879be931c34b642b0348df33de1275addd81b2c0087eae7313e06acf19d0f6a",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "reads": [
+              "data/network.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "plots",
+      "title": "Plots",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/plot.png",
+          "bytes": 66280,
+          "sha256": "c15a890b330ba3f6f828aa58640f2c0317f836cc547464f17269e28d694f9477",
+          "label": "Plot",
+          "type": "image",
+          "caption": "Drawn by cograph"
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/plot.png",
+          "bytes": 48634,
+          "sha256": "4a0db614f781ad93ba0df6551d7d20e095501388ea698469bca5554f9fe64364",
+          "label": "Plot",
+          "type": "image",
+          "caption": "Drawn by qgraph"
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 214,
+          "sha256": "ed1b9495934cd9872a5383369ed4a707aae3de1d707c7b6501ea19ddaa9cd302",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/console.txt",
+          "bytes": 234,
+          "sha256": "f1c535cca6665e496c15e034e262a1d3a51aeb58c13bf3616101a991ed59abc5",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/network.tsv",
+          "bytes": 97,
+          "sha256": "7b0df9e53ebb7370dc57c97f8ce1798af5c527ddc97e75a1b62038696afc4d38",
+          "label": "Network"
+        }
+      ]
+    }
+  ],
+  "comparisons": []
+}

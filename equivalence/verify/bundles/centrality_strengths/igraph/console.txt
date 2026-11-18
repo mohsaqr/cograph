@@ -1,0 +1,32 @@
+
+> library(igraph)
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+
+> network <- as.matrix(utils::read.delim("../data/network.tsv", row.names = 1))
+
+> graph <- graph_from_adjacency_matrix(network, mode = "undirected", weighted = TRUE)
+
+> lengths <- 1 / E(graph)$weight
+
+> result <- data.frame(node = V(graph)$name, strength = strength(graph),
++                      betweenness = betweenness(graph, weights = lengths),
++                      closeness = closeness(graph, weights = lengths))
+
+> result
+  node strength betweenness closeness
+A    A        3           0 0.1237113
+B    B        5           4 0.1643836
+C    C        5           6 0.1846154
+D    D        4           6 0.1846154
+E    E        6           4 0.1558442
+F    F        5           0 0.1348315

@@ -1,0 +1,173 @@
+
+> network <- as.matrix(utils::read.delim("../data/karate.tsv", row.names = 1))
+
+> describe <- function(method) {
++   found <- communities(network, method = method)
++   print(found)
++   data.frame(quantity = paste(method, c("communities", "modularity", paste("community of", found$node))),
++              kind = c("count", "modularity", rep("membership", nrow(found))),
++              value = c(n_communities(found), igraph::modularity(found), membership(found)))
++ }
+
+> result <- do.call(rbind, lapply(c("fast_greedy", "walktrap", "leading_eigenvector",
++                                   "edge_betweenness"), describe))
+Community structure (fast_greedy)
+  Nodes: 34  | Communities: 3  | Modularity: 0.3807 
+  Sizes: 8, 17, 9 
+
+ node community
+  v01         1
+  v02         3
+  v03         3
+  v04         3
+  v05         1
+  v06         1
+  v07         1
+  v08         3
+  v09         2
+  v10         3
+  v11         1
+  v12         1
+  v13         3
+  v14         3
+  v15         2
+  v16         2
+  v17         1
+  v18         3
+  v19         2
+  v20         1
+  v21         2
+  v22         3
+  v23         2
+  v24         2
+  v25         2
+  v26         2
+  v27         2
+  v28         2
+  v29         2
+  v30         2
+  v31         2
+  v32         2
+  v33         2
+  v34         2
+Community structure (walktrap)
+  Nodes: 34  | Communities: 5  | Modularity: 0.3532 
+  Sizes: 9, 7, 9, 4, 5 
+
+ node community
+  v01         1
+  v02         1
+  v03         2
+  v04         1
+  v05         5
+  v06         5
+  v07         5
+  v08         1
+  v09         2
+  v10         2
+  v11         5
+  v12         1
+  v13         1
+  v14         2
+  v15         3
+  v16         3
+  v17         5
+  v18         1
+  v19         3
+  v20         1
+  v21         3
+  v22         1
+  v23         3
+  v24         4
+  v25         4
+  v26         4
+  v27         3
+  v28         4
+  v29         2
+  v30         3
+  v31         2
+  v32         2
+  v33         3
+  v34         3
+Community structure (leading_eigenvector)
+  Nodes: 34  | Communities: 4  | Modularity: 0.3934 
+  Sizes: 7, 12, 9, 6 
+
+ node community
+  v01         1
+  v02         3
+  v03         3
+  v04         3
+  v05         1
+  v06         1
+  v07         1
+  v08         3
+  v09         2
+  v10         2
+  v11         1
+  v12         1
+  v13         3
+  v14         3
+  v15         2
+  v16         2
+  v17         1
+  v18         3
+  v19         2
+  v20         3
+  v21         2
+  v22         3
+  v23         2
+  v24         4
+  v25         4
+  v26         4
+  v27         2
+  v28         4
+  v29         4
+  v30         2
+  v31         2
+  v32         4
+  v33         2
+  v34         2
+Community structure (edge_betweenness)
+  Nodes: 34  | Communities: 5  | Modularity: 0.4013 
+  Sizes: 10, 6, 5, 12, 1 
+
+ node community
+  v01         1
+  v02         1
+  v03         2
+  v04         1
+  v05         3
+  v06         3
+  v07         3
+  v08         1
+  v09         4
+  v10         5
+  v11         3
+  v12         1
+  v13         1
+  v14         1
+  v15         4
+  v16         4
+  v17         3
+  v18         1
+  v19         4
+  v20         1
+  v21         4
+  v22         1
+  v23         4
+  v24         4
+  v25         2
+  v26         2
+  v27         4
+  v28         2
+  v29         2
+  v30         4
+  v31         4
+  v32         2
+  v33         4
+  v34         4
+Warning message:
+In igraph::cluster_edge_betweenness(g, weights = w, directed = directed,  :
+  Membership vector will be selected based on the highest modularity score.
+Source: community/edge_betweenness.c:504

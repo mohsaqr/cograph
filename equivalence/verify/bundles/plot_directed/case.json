@@ -1,0 +1,129 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "A directed weighted network drawn on a circle",
+  "description": "The bundled regulation network (ten states, thirty directed weighted edges) drawn by splot() and by qgraph(), both on a circular layout with the weights as edge labels. A case for the eye: nothing numeric is compared.",
+  "covers": [
+    "splot()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "qgraph",
+      "name": "qgraph",
+      "version": "1.10.1",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 216,
+          "sha256": "4595ec9f167ac7bfb85952f58064fe19ff267f89fd1051913dbc7c604c621398",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/script.R",
+          "bytes": 216,
+          "sha256": "8f31e2577f652652ddc7f344243b68047350b52c2e5ffc480fb2387d749273ca",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "plots",
+      "title": "Plots",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/plot.png",
+          "bytes": 217241,
+          "sha256": "3394acd710635b20cc335a01394d3482d224311b88fd199b69040add19d7baec",
+          "label": "Plot",
+          "type": "image",
+          "caption": "Drawn by cograph"
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/plot.png",
+          "bytes": 204961,
+          "sha256": "5cadb82a61dd4b54581dab0de5523f874e2ce8ad723bf5dac30b19a78780bff8",
+          "label": "Plot",
+          "type": "image",
+          "caption": "Drawn by qgraph"
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 237,
+          "sha256": "f9fd91da6501b4695e984ddd2e5931e92accaa4898adc3a12c744754375d6fd9",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "qgraph",
+          "path": "qgraph/console.txt",
+          "bytes": 257,
+          "sha256": "2304fc9cf21074e47229c89107ff66013981f117572deeb6744ce241081efa2a",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/regulation.tsv",
+          "bytes": 440,
+          "sha256": "3bf68da4a292afec37ec0228e0d76afb093d6cf3de2007ea3d1e53d372ae9934",
+          "label": "Regulation network"
+        }
+      ]
+    }
+  ],
+  "comparisons": []
+}

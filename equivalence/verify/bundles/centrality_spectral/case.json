@@ -1,0 +1,628 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Eigenvector-type centralities of a directed weighted network",
+  "description": "PageRank, hub and authority scores and eigenvector centrality of the bundled regulation network, each the leading eigenvector of a matrix built from the directed weighted network.",
+  "covers": [
+    "centrality()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 196,
+          "sha256": "7653fcfc000348a9c99a4bef8b7c1664e825a71ca0206853ebfc80d9a2792f78",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 441,
+          "sha256": "7aecba7d014b24fd54530a292fbd4b14cd02af4a65b342cd64fc5432b813d0b3",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 826,
+          "sha256": "f83ff461d3bf6a9a4f0b61ce09007c76373db14dc5cdd97690ceef073d92c8b1",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 1376,
+          "sha256": "96737267c911984dbfe5741044fbbfcfec196a67faab3ac6fab246dd0289a1c1",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/regulation.tsv",
+          "bytes": 440,
+          "sha256": "3bf68da4a292afec37ec0228e0d76afb093d6cf3de2007ea3d1e53d372ae9934",
+          "label": "Regulation network"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "pagerank: Explore",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.118461473937569,
+        "igraph": 0.118461473937569
+      },
+      "difference": 3.33066907387547e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Plan",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.0364095328865579,
+        "igraph": 0.0364095328865579
+      },
+      "difference": 1.38777878078145e-17,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Monitor",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.183767242635245,
+        "igraph": 0.183767242635245
+      },
+      "difference": 4.16333634234434e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Adapt",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.123560963117892,
+        "igraph": 0.123560963117892
+      },
+      "difference": 3.46944695195361e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Reflect",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.125131186252637,
+        "igraph": 0.125131186252636
+      },
+      "difference": 4.9960036108132e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Discuss",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.0680363783946651,
+        "igraph": 0.0680363783946654
+      },
+      "difference": 2.22044604925031e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Synthesize",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.0376007078108042,
+        "igraph": 0.0376007078108043
+      },
+      "difference": 1.04083408558608e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Evaluate",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.0738640004120933,
+        "igraph": 0.0738640004120936
+      },
+      "difference": 2.63677968348475e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Create",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.138212787463174,
+        "igraph": 0.138212787463174
+      },
+      "difference": 4.9960036108132e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "pagerank: Share",
+      "kind": "pagerank",
+      "values": {
+        "cograph": 0.0949557270893626,
+        "igraph": 0.0949557270893625
+      },
+      "difference": 1.38777878078145e-17,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Explore",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.288934418685636,
+        "igraph": 0.288934418685634
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Plan",
+      "kind": "hub",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Monitor",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.216611621033276,
+        "igraph": 0.216611621033276
+      },
+      "difference": 3.05311331771918e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Adapt",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.25880810703468,
+        "igraph": 0.258808107034681
+      },
+      "difference": 7.7715611723761e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Reflect",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.139483395060103,
+        "igraph": 0.139483395060103
+      },
+      "difference": 1.38777878078145e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Discuss",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.244807400382915,
+        "igraph": 0.244807400382914
+      },
+      "difference": 1.2490009027033e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Synthesize",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.222368173761417,
+        "igraph": 0.222368173761415
+      },
+      "difference": 2.16493489801906e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Evaluate",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.54867588403902,
+        "igraph": 0.548675884039019
+      },
+      "difference": 3.33066907387547e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Create",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.632311489296459,
+        "igraph": 0.632311489296459
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "hub: Share",
+      "kind": "hub",
+      "values": {
+        "cograph": 0.674207879368131,
+        "igraph": 0.674207879368131
+      },
+      "difference": 2.22044604925031e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Explore",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.307364886645442,
+        "igraph": 0.30736488664544
+      },
+      "difference": 1.88737914186277e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Plan",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.211411836387637,
+        "igraph": 0.211411836387637
+      },
+      "difference": 5.55111512312578e-17,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Monitor",
+      "kind": "authority",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Adapt",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.679304040505822,
+        "igraph": 0.679304040505822
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Reflect",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.405664746473518,
+        "igraph": 0.405664746473515
+      },
+      "difference": 2.22044604925031e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Discuss",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.621327913371512,
+        "igraph": 0.62132791337151
+      },
+      "difference": 1.88737914186277e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Synthesize",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.0560186330492575,
+        "igraph": 0.0560186330492564
+      },
+      "difference": 1.06165076729781e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Evaluate",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.937860612379819,
+        "igraph": 0.937860612379818
+      },
+      "difference": 9.99200722162641e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Create",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.400327067657555,
+        "igraph": 0.400327067657554
+      },
+      "difference": 8.88178419700125e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "authority: Share",
+      "kind": "authority",
+      "values": {
+        "cograph": 0.742856349001818,
+        "igraph": 0.742856349001817
+      },
+      "difference": 4.44089209850063e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Explore",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.720967366886371,
+        "igraph": 0.72096736688637
+      },
+      "difference": 1.11022302462516e-15,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Plan",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.20101629032921,
+        "igraph": 0.201016290329209
+      },
+      "difference": 1.38777878078145e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Monitor",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 1.11022302462516e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Adapt",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.838010250768466,
+        "igraph": 0.838010250768466
+      },
+      "difference": 8.88178419700125e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Reflect",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.761919800732003,
+        "igraph": 0.761919800732003
+      },
+      "difference": 7.7715611723761e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Discuss",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.50776943288874,
+        "igraph": 0.50776943288874
+      },
+      "difference": 2.22044604925031e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Synthesize",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.198006509150866,
+        "igraph": 0.198006509150866
+      },
+      "difference": 8.32667268468867e-17,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Evaluate",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.499507417418994,
+        "igraph": 0.499507417418994
+      },
+      "difference": 4.44089209850063e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Create",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.668942726745835,
+        "igraph": 0.668942726745834
+      },
+      "difference": 9.99200722162641e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: Share",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.58498335372159,
+        "igraph": 0.584983353721589
+      },
+      "difference": 2.22044604925031e-16,
+      "measure": "absolute",
+      "tolerance": 1e-08,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

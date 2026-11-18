@@ -1,0 +1,356 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Triad and dyad census of a directed network",
+  "description": "The sixteen triad types (Holland and Leinhardt's MAN classes) and the mutual, asymmetric and null dyads of the bundled regulation network.",
+  "covers": [
+    "triad_census()",
+    "dyad_census()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 252,
+          "sha256": "d1bff3e969b1d6452173ea2063800445cb6420b7d50ecf4cadf0ebe24716dd63",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "type",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 482,
+          "sha256": "5df7523e9b5d941e66e1e1b757345286ba1adcf2014b2100fef0ae57d6410d40",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "type",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 611,
+          "sha256": "82295e549ec930b1edf23f47c0e24202760c9123291baf2127dcb0c18b4592d0",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 1093,
+          "sha256": "4c7682d5181d5185b56d4376684113b7b7db6a71e1a452e8c3f884330c70eece",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/regulation.tsv",
+          "bytes": 440,
+          "sha256": "3bf68da4a292afec37ec0228e0d76afb093d6cf3de2007ea3d1e53d372ae9934",
+          "label": "Regulation network"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "count: 003",
+      "kind": "count",
+      "values": {
+        "cograph": 7,
+        "igraph": 7
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 012",
+      "kind": "count",
+      "values": {
+        "cograph": 27,
+        "igraph": 27
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 102",
+      "kind": "count",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 021D",
+      "kind": "count",
+      "values": {
+        "cograph": 9,
+        "igraph": 9
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 021U",
+      "kind": "count",
+      "values": {
+        "cograph": 11,
+        "igraph": 11
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 021C",
+      "kind": "count",
+      "values": {
+        "cograph": 29,
+        "igraph": 29
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 111D",
+      "kind": "count",
+      "values": {
+        "cograph": 9,
+        "igraph": 9
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 111U",
+      "kind": "count",
+      "values": {
+        "cograph": 7,
+        "igraph": 7
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 030T",
+      "kind": "count",
+      "values": {
+        "cograph": 11,
+        "igraph": 11
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 030C",
+      "kind": "count",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 201",
+      "kind": "count",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 120D",
+      "kind": "count",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 120U",
+      "kind": "count",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 120C",
+      "kind": "count",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 210",
+      "kind": "count",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: 300",
+      "kind": "count",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: mutual",
+      "kind": "count",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: asymmetric",
+      "kind": "count",
+      "values": {
+        "cograph": 24,
+        "igraph": 24
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "count: null",
+      "kind": "count",
+      "values": {
+        "cograph": 18,
+        "igraph": 18
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

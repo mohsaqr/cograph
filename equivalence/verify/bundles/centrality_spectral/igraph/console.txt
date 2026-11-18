@@ -1,0 +1,36 @@
+
+> library(igraph)
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> graph <- graph_from_adjacency_matrix(network, mode = "directed", weighted = TRUE)
+
+> hits <- hits_scores(graph)
+
+> result <- data.frame(node = V(graph)$name, pagerank = page_rank(graph)$vector,
++                      hub = hits$hub, authority = hits$authority,
++                      eigenvector = eigen_centrality(graph, directed = TRUE)$vector)
+
+> result
+                 node   pagerank       hub  authority eigenvector
+Explore       Explore 0.11846147 0.2889344 0.30736489   0.7209674
+Plan             Plan 0.03640953 1.0000000 0.21141184   0.2010163
+Monitor       Monitor 0.18376724 0.2166116 1.00000000   1.0000000
+Adapt           Adapt 0.12356096 0.2588081 0.67930404   0.8380103
+Reflect       Reflect 0.12513119 0.1394834 0.40566475   0.7619198
+Discuss       Discuss 0.06803638 0.2448074 0.62132791   0.5077694
+Synthesize Synthesize 0.03760071 0.2223682 0.05601863   0.1980065
+Evaluate     Evaluate 0.07386400 0.5486759 0.93786061   0.4995074
+Create         Create 0.13821279 0.6323115 0.40032707   0.6689427
+Share           Share 0.09495573 0.6742079 0.74285635   0.5849834

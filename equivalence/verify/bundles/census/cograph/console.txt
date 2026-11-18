@@ -1,0 +1,33 @@
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> triads <- triad_census(network)
+
+> dyads <- as.data.frame(dyad_census(network))
+
+> triads
+   type count
+1   003     7
+2   012    27
+3   102     2
+4  021D     9
+5  021U    11
+6  021C    29
+7  111D     9
+8  111U     7
+9  030T    11
+10 030C     2
+11  201     0
+12 120D     2
+13 120U     1
+14 120C     3
+15  210     0
+16  300     0
+
+> dyads
+        type count proportion
+1     mutual     3 0.06666667
+2 asymmetric    24 0.53333333
+3       null    18 0.40000000
+
+> result <- rbind(triads, subset(dyads, select = c(type, count)))

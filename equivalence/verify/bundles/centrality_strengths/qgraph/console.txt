@@ -1,0 +1,18 @@
+
+> library(qgraph)
+
+> network <- as.matrix(utils::read.delim("../data/network.tsv", row.names = 1))
+
+> result <- centrality_auto(network)$node.centrality
+
+> result <- data.frame(node = rownames(result), strength = result$Strength,
++                      betweenness = result$Betweenness, closeness = result$Closeness)
+
+> result
+  node strength betweenness closeness
+1    A        3           0 0.1237113
+2    B        5           4 0.1643836
+3    C        5           6 0.1846154
+4    D        4           6 0.1846154
+5    E        6           4 0.1558442
+6    F        5           0 0.1348315

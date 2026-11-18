@@ -1,0 +1,498 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Centralities, weights as distances",
+  "description": "Degree, strength, betweenness, closeness and eigenvector centrality of a six-node weighted network. A weight is the length of its edge, the convention of igraph.",
+  "covers": [
+    "centrality()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 260,
+          "sha256": "19ccad825762afb31c8b7f0ae51e002d0724d952e2e19d24672acbb47f37be8e",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/network.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 432,
+          "sha256": "030db5a5d063e4011943824daf5d0aa587ba3dc201f254e4edb4335f67261907",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "node",
+            "reads": [
+              "data/network.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 661,
+          "sha256": "5d87c4a0e01cf192fee380fcd3879662f8144c9529e6e71f69613e8137c8eeed",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 1044,
+          "sha256": "e5af868ca4a6156b871d7c65d34e441def9257a67b03df7c8b7ea070389db080",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/network.tsv",
+          "bytes": 97,
+          "sha256": "7b0df9e53ebb7370dc57c97f8ce1798af5c527ddc97e75a1b62038696afc4d38",
+          "label": "Network"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "degree: A",
+      "kind": "degree",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "degree: B",
+      "kind": "degree",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "degree: C",
+      "kind": "degree",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "degree: D",
+      "kind": "degree",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "degree: E",
+      "kind": "degree",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "degree: F",
+      "kind": "degree",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: A",
+      "kind": "strength",
+      "values": {
+        "cograph": 3,
+        "igraph": 3
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: B",
+      "kind": "strength",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: C",
+      "kind": "strength",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: D",
+      "kind": "strength",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: E",
+      "kind": "strength",
+      "values": {
+        "cograph": 6,
+        "igraph": 6
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "strength: F",
+      "kind": "strength",
+      "values": {
+        "cograph": 5,
+        "igraph": 5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: A",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 2,
+        "igraph": 2
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: B",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: C",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 6,
+        "igraph": 6
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: D",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 7,
+        "igraph": 7
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: E",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: F",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: A",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.0833333333333333,
+        "igraph": 0.0833333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: B",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.05,
+        "igraph": 0.05
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: C",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.1,
+        "igraph": 0.1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: D",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.1,
+        "igraph": 0.1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: E",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.0555555555555556,
+        "igraph": 0.0555555555555556
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "closeness: F",
+      "kind": "closeness",
+      "values": {
+        "cograph": 0.0714285714285714,
+        "igraph": 0.0714285714285714
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: A",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.164015911733254,
+        "igraph": 0.164015911733254
+      },
+      "difference": 3.33066907387547e-16,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: B",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.253639697339401,
+        "igraph": 0.2536396973394
+      },
+      "difference": 2.77555756156289e-16,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: C",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.314015224492194,
+        "igraph": 0.314015224492193
+      },
+      "difference": 2.77555756156289e-16,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: D",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.647467402136108,
+        "igraph": 0.647467402136108
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: E",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "eigenvector: F",
+      "kind": "eigenvector",
+      "values": {
+        "cograph": 0.928118345620412,
+        "igraph": 0.928118345620413
+      },
+      "difference": 3.33066907387547e-16,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

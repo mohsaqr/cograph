@@ -1,0 +1,55 @@
+
+> library(igraph)
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> graph <- graph_from_adjacency_matrix(network, mode = "directed", weighted = TRUE)
+
+> result <- data.frame(
++   network = "regulation", node_count = vcount(graph), edge_count = ecount(graph),
++   density = edge_density(graph), component_count = count_components(graph),
++   diameter = diameter(graph), mean_distance = mean_distance(graph),
++   min_cut = min_cut(graph),
++   centralization_degree = centr_degree(graph)$centralization,
++   centralization_in_degree = centr_degree(graph, mode = "in")$centralization,
++   centralization_out_degree = centr_degree(graph, mode = "out")$centralization,
++   centralization_betweenness = centr_betw(graph)$centralization,
++   centralization_closeness = centr_clo(graph, mode = "all")$centralization,
++   centralization_eigen = centr_eigen(graph)$centralization,
++   transitivity = transitivity(graph), reciprocity = reciprocity(graph),
++   assortativity_degree = assortativity_degree(graph),
++   girth = girth(graph)$girth, radius = radius(graph),
++   vertex_connectivity = vertex_connectivity(graph),
++   largest_clique_size = clique_num(graph),
++   cut_vertex_count = length(articulation_points(graph)), bridge_count = length(bridges(graph)),
++   global_efficiency = global_efficiency(graph),
++   local_efficiency = average_local_efficiency(graph))
+
+> result
+     network node_count edge_count   density component_count diameter
+1 regulation         10         30 0.3333333               1     0.97
+  mean_distance min_cut centralization_degree centralization_in_degree
+1     0.4352222       1             0.1234568                0.3333333
+  centralization_out_degree centralization_betweenness centralization_closeness
+1                 0.2222222                  0.1494342                 0.238293
+  centralization_eigen transitivity reciprocity assortativity_degree girth
+1            0.2972577    0.4672131         0.2           -0.1162313     3
+  radius vertex_connectivity largest_clique_size cut_vertex_count bridge_count
+1   0.33                   1                   4                0            0
+  global_efficiency local_efficiency
+1          3.304491         2.918765
+Warning message:
+In clique_number_impl(graph = graph) :
+  Edge directions are ignored for maximal clique calculations.
+Source: cliques/maximal_cliques_template.h:221

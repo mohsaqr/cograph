@@ -1,0 +1,420 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Network-level metrics of a directed weighted network",
+  "description": "Size, density, components, diameter, mean distance, centralizations, transitivity, reciprocity, degree assortativity, girth, radius, connectivity, clique size and efficiency of the bundled regulation network. The igraph side makes each call as a user would, with igraph's defaults. network_summary() obtains most of these from igraph (transitivity is cograph's own kernel), so for those the case checks the arguments cograph chooses.",
+  "covers": [
+    "network_summary()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 208,
+          "sha256": "44164dca36e3165adc7dcdad4321f81820c138e3c3f5e800bdadb4141d647e8f",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "network",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 1356,
+          "sha256": "2fb878155b1fb6f91413eeca0406ea42989392be56b7454d20206f48e753947a",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "network",
+            "reads": [
+              "data/regulation.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 1024,
+          "sha256": "3d2230739ae734249e9620c519d95de3cbfe9ddbd38dad567e4bde5b3773da14",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 2584,
+          "sha256": "3898fefb28508ddd1d2f5097edb27366b60dfdad631fbf5527d843aaafca9e68",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/regulation.tsv",
+          "bytes": 440,
+          "sha256": "3bf68da4a292afec37ec0228e0d76afb093d6cf3de2007ea3d1e53d372ae9934",
+          "label": "Regulation network"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "node_count: regulation",
+      "kind": "node_count",
+      "values": {
+        "cograph": 10,
+        "igraph": 10
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "edge_count: regulation",
+      "kind": "edge_count",
+      "values": {
+        "cograph": 30,
+        "igraph": 30
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "density: regulation",
+      "kind": "density",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "component_count: regulation",
+      "kind": "component_count",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "diameter: regulation",
+      "kind": "diameter",
+      "values": {
+        "cograph": 0.97,
+        "igraph": 0.97
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "mean_distance: regulation",
+      "kind": "mean_distance",
+      "values": {
+        "cograph": 0.435222222222222,
+        "igraph": 0.435222222222222
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "min_cut: regulation",
+      "kind": "min_cut",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_degree: regulation",
+      "kind": "centralization_degree",
+      "values": {
+        "cograph": 0.123456790123457,
+        "igraph": 0.123456790123457
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_in_degree: regulation",
+      "kind": "centralization_in_degree",
+      "values": {
+        "cograph": 0.333333333333333,
+        "igraph": 0.333333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_out_degree: regulation",
+      "kind": "centralization_out_degree",
+      "values": {
+        "cograph": 0.222222222222222,
+        "igraph": 0.222222222222222
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_betweenness: regulation",
+      "kind": "centralization_betweenness",
+      "values": {
+        "cograph": 0.149434156378601,
+        "igraph": 0.149434156378601
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_closeness: regulation",
+      "kind": "centralization_closeness",
+      "values": {
+        "cograph": 0.238292957042957,
+        "igraph": 0.238292957042957
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "centralization_eigen: regulation",
+      "kind": "centralization_eigen",
+      "values": {
+        "cograph": 0.478836956754114,
+        "igraph": 0.297257666929193
+      },
+      "difference": 0.181579289824921,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "transitivity: regulation",
+      "kind": "transitivity",
+      "values": {
+        "cograph": 0.467213114754098,
+        "igraph": 0.467213114754098
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "reciprocity: regulation",
+      "kind": "reciprocity",
+      "values": {
+        "cograph": 0.111111111111111,
+        "igraph": 0.2
+      },
+      "difference": 0.0888888888888889,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "assortativity_degree: regulation",
+      "kind": "assortativity_degree",
+      "values": {
+        "cograph": -0.116231278510293,
+        "igraph": -0.116231278510293
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "girth: regulation",
+      "kind": "girth",
+      "values": {
+        "cograph": 2,
+        "igraph": 3
+      },
+      "difference": 1,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "radius: regulation",
+      "kind": "radius",
+      "values": {
+        "cograph": 0.56,
+        "igraph": 0.33
+      },
+      "difference": 0.23,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "disagree"
+    },
+    {
+      "quantity": "vertex_connectivity: regulation",
+      "kind": "vertex_connectivity",
+      "values": {
+        "cograph": 1,
+        "igraph": 1
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "largest_clique_size: regulation",
+      "kind": "largest_clique_size",
+      "values": {
+        "cograph": 4,
+        "igraph": 4
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "cut_vertex_count: regulation",
+      "kind": "cut_vertex_count",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "bridge_count: regulation",
+      "kind": "bridge_count",
+      "values": {
+        "cograph": 0,
+        "igraph": 0
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "global_efficiency: regulation",
+      "kind": "global_efficiency",
+      "values": {
+        "cograph": 3.30449145256638,
+        "igraph": 3.30449145256638
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "local_efficiency: regulation",
+      "kind": "local_efficiency",
+      "values": {
+        "cograph": 2.91876475132229,
+        "igraph": 2.91876475132229
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

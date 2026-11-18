@@ -1,0 +1,1122 @@
+{
+  "schema": "prova.verification-case/1",
+  "title": "Edge betweenness on the karate club",
+  "description": "The betweenness of each of the 78 ties of Zachary's karate club, from edge_centrality(), which computes it with cograph's own kernel.",
+  "covers": [
+    "edge_centrality()"
+  ],
+  "generator": "cograph equivalence/verify/export-bundles.R",
+  "created_at": "2026-11-18",
+  "sides": [
+    {
+      "id": "cograph",
+      "name": "cograph",
+      "version": "2.7.16",
+      "primary": true,
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    },
+    {
+      "id": "igraph",
+      "name": "igraph",
+      "version": "2.3.4",
+      "authority": "open-source",
+      "source": "live",
+      "run_at": "2026-11-18",
+      "platform": "R version 4.6.2 (2026-10-29), aarch64-apple-darwin23"
+    }
+  ],
+  "sections": [
+    {
+      "id": "code",
+      "title": "Code",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/script.R",
+          "bytes": 262,
+          "sha256": "d0c7ff6ff93719386604fcf22aa1640ead3932784683715391eb7c46f495c937",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "edge",
+            "reads": [
+              "data/karate.tsv"
+            ]
+          }
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/script.R",
+          "bytes": 322,
+          "sha256": "6601c66a30c35b859bba1b41e5415e8adce8d0168d3622676a05f282e443aff2",
+          "label": "Script",
+          "type": "code",
+          "language": "r",
+          "run": {
+            "engine": "r",
+            "result": "result",
+            "key": "edge",
+            "reads": [
+              "data/karate.tsv"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "output",
+      "title": "Raw output",
+      "items": [
+        {
+          "side": "cograph",
+          "path": "cograph/console.txt",
+          "bytes": 2074,
+          "sha256": "9293e75f022654b05ee4ec7553e467f24c5bbd5f373b8a2e5daa00d1b00c7cec",
+          "label": "R console",
+          "type": "text"
+        },
+        {
+          "side": "igraph",
+          "path": "igraph/console.txt",
+          "bytes": 2346,
+          "sha256": "032df7b99370a430f415f5e16a693c9588c95265fa093c63ed7672b55b0fcc7f",
+          "label": "R console",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "title": "Data",
+      "items": [
+        {
+          "path": "data/karate.tsv",
+          "bytes": 2585,
+          "sha256": "459657fda2db0864fb5495df4be05fe7053a9de3272868e82a9cc7f8640cd3b7",
+          "label": "Karate club"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "quantity": "betweenness: v01-v02",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 14.1666666666667,
+        "igraph": 14.1666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v03",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 43.6388888888889,
+        "igraph": 43.6388888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v04",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 11.5,
+        "igraph": 11.5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v05",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 29.3333333333333,
+        "igraph": 29.3333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v06",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 43.8333333333333,
+        "igraph": 43.8333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v07",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 43.8333333333333,
+        "igraph": 43.8333333333333
+      },
+      "difference": 7.105427357601e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v08",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 12.802380952381,
+        "igraph": 12.802380952381
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v09",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 41.6484126984127,
+        "igraph": 41.6484126984127
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v11",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 29.3333333333333,
+        "igraph": 29.3333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v12",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 33,
+        "igraph": 33
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v13",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 26.1,
+        "igraph": 26.1
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v14",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 23.7706349206349,
+        "igraph": 23.7706349206349
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v18",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 22.5095238095238,
+        "igraph": 22.5095238095238
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v20",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 25.7706349206349,
+        "igraph": 25.7706349206349
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v22",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 22.5095238095238,
+        "igraph": 22.5095238095238
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v01-v32",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 71.3928571428571,
+        "igraph": 71.3928571428571
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v03",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.0333333333333,
+        "igraph": 13.0333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v04",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 4.33333333333333,
+        "igraph": 4.33333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v08",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 4.16428571428571,
+        "igraph": 4.16428571428571
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v14",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 6.95952380952381,
+        "igraph": 6.95952380952381
+      },
+      "difference": 8.88178419700125e-16,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v18",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 10.4904761904762,
+        "igraph": 10.4904761904762
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v20",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 8.20952380952381,
+        "igraph": 8.20952380952381
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v22",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 10.4904761904762,
+        "igraph": 10.4904761904762
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v02-v31",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 18.1095238095238,
+        "igraph": 18.1095238095238
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v04",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 12.5833333333333,
+        "igraph": 12.5833333333333
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v08",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 14.1452380952381,
+        "igraph": 14.1452380952381
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v09",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 5.14761904761905,
+        "igraph": 5.14761904761905
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v10",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 17.2809523809524,
+        "igraph": 17.2809523809524
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v14",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 4.28095238095238,
+        "igraph": 4.28095238095238
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v28",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 23.1087301587302,
+        "igraph": 23.1087301587302
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v29",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 12.7809523809524,
+        "igraph": 12.7809523809524
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v03-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 38.7015873015873,
+        "igraph": 38.7015873015873
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v04-v08",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 1.88809523809524,
+        "igraph": 1.88809523809524
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v04-v13",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 6.9,
+        "igraph": 6.9
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v04-v14",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 8.37142857142857,
+        "igraph": 8.37142857142857
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v05-v07",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 2.66666666666667,
+        "igraph": 2.66666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v05-v11",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 1.66666666666667,
+        "igraph": 1.66666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v06-v07",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 1.66666666666667,
+        "igraph": 1.66666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v06-v11",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 2.66666666666667,
+        "igraph": 2.66666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v06-v17",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 16.5,
+        "igraph": 16.5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v07-v17",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 16.5,
+        "igraph": 16.5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v09-v31",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 5.5,
+        "igraph": 5.5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v09-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 17.0777777777778,
+        "igraph": 17.0777777777778
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v09-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 22.6849206349206,
+        "igraph": 22.6849206349206
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v10-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 16.6142857142857,
+        "igraph": 16.6142857142857
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v14-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 38.0492063492063,
+        "igraph": 38.0492063492063
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v15-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.5111111111111,
+        "igraph": 13.5111111111111
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v15-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 19.4888888888889,
+        "igraph": 19.4888888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v16-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.5111111111111,
+        "igraph": 13.5111111111111
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v16-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 19.4888888888889,
+        "igraph": 19.4888888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v19-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.5111111111111,
+        "igraph": 13.5111111111111
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v19-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 19.4888888888889,
+        "igraph": 19.4888888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v20-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 33.3134920634921,
+        "igraph": 33.3134920634921
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v21-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.5111111111111,
+        "igraph": 13.5111111111111
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v21-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 19.4888888888889,
+        "igraph": 19.4888888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v23-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.5111111111111,
+        "igraph": 13.5111111111111
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v23-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 19.4888888888889,
+        "igraph": 19.4888888888889
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v24-v26",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 11.0944444444444,
+        "igraph": 11.0944444444444
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v24-v28",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 5.91111111111111,
+        "igraph": 5.91111111111111
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v24-v30",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 3.73333333333333,
+        "igraph": 3.73333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v24-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 12.5333333333333,
+        "igraph": 12.5333333333333
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v24-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 18.3277777777778,
+        "igraph": 18.3277777777778
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v25-v26",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 2.36666666666667,
+        "igraph": 2.36666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v25-v28",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 10.4666666666667,
+        "igraph": 10.4666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v25-v32",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 22.5,
+        "igraph": 22.5
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v26-v32",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 23.5944444444444,
+        "igraph": 23.5944444444444
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v27-v30",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 2.54285714285714,
+        "igraph": 2.54285714285714
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v27-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 30.4571428571429,
+        "igraph": 30.4571428571429
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v28-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 17.097619047619,
+        "igraph": 17.097619047619
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v29-v32",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 8.33333333333333,
+        "igraph": 8.33333333333333
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v29-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.7809523809524,
+        "igraph": 13.7809523809524
+      },
+      "difference": 1.77635683940025e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v30-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 13.0873015873016,
+        "igraph": 13.0873015873016
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v30-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 16.7222222222222,
+        "igraph": 16.7222222222222
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v31-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 9.56666666666667,
+        "igraph": 9.56666666666667
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v31-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 15.0428571428571,
+        "igraph": 15.0428571428571
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v32-v33",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 23.2444444444444,
+        "igraph": 23.2444444444444
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v32-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 29.9539682539683,
+        "igraph": 29.9539682539683
+      },
+      "difference": 3.5527136788005e-15,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    },
+    {
+      "quantity": "betweenness: v33-v34",
+      "kind": "betweenness",
+      "values": {
+        "cograph": 4.61428571428571,
+        "igraph": 4.61428571428571
+      },
+      "difference": 0,
+      "measure": "absolute",
+      "tolerance": 1e-10,
+      "rule": "largest difference between any two sides",
+      "status": "agree"
+    }
+  ]
+}

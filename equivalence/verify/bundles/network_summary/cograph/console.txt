@@ -1,0 +1,18 @@
+
+> network <- as.matrix(utils::read.delim("../data/regulation.tsv", row.names = 1))
+
+> result <- data.frame(network = "regulation", network_summary(network, extended = TRUE, digits = NULL))
+
+> result
+     network node_count edge_count   density component_count diameter
+1 regulation         10         30 0.3333333               1     0.97
+  mean_distance min_cut centralization_degree centralization_in_degree
+1     0.4352222       1             0.1234568                0.3333333
+  centralization_out_degree centralization_betweenness centralization_closeness
+1                 0.2222222                  0.1494342                 0.238293
+  centralization_eigen transitivity reciprocity assortativity_degree girth
+1             0.478837    0.4672131   0.1111111           -0.1162313     2
+  radius vertex_connectivity largest_clique_size cut_vertex_count bridge_count
+1   0.56                   1                   4                0            0
+  global_efficiency local_efficiency
+1          3.304491         2.918765

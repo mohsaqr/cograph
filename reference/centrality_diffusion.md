@@ -5,7 +5,8 @@ Diffusion centrality has two forms, chosen by `diffusion_method`. The
 node's neighbors to its own degree, both scaled by \\\lambda\\: \\DC(v)
 = \lambda k_v + \lambda \sum\_{u \in N(v)} k_u\\. The `"power_series"`
 form sums the rows of the first \\n\\ powers of the weight matrix:
-\$\$DC(v) = \sum\_{w} \left( W + W^2 + \cdots + W^n \right)\_{vw}.\$\$
+\$\$DC(v) = \sum\_{w} \left( W + W^2 + \cdots + W^n \right)\_{vw},\$\$
+and min-max scales these sums to the range from 0 to 1.
 
 ## Usage
 
@@ -50,7 +51,9 @@ neighbor set. `lambda` multiplies every score. The `"power_series"` form
 uses the edge weights, or ones with `weighted = FALSE`, and ignores
 `mode` and `lambda`. With `loops = FALSE` the diagonal of \\W\\ is set
 to zero. The `"power_series"` values match
-`tna::centralities(measures = "Diffusion")`.
+`tna::centralities(measures = "Diffusion")` of tna 1.5.8 or later, which
+scales in the same way, and are `NaN` when the sums do not vary across
+the nodes.
 
 ## See also
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## cograph 2.7.15
+
+### Changed values
+
+- Diffusion centrality with `diffusion_method = "power_series"` (the
+  default for tna models, and with `tna_network = TRUE`) is now min-max
+  scaled to the range from 0 to 1, as
+  `tna::centralities(measures = "Diffusion")` does since tna 1.5.8. The
+  raw sums grow with powers of the edge weights. Values for tna input
+  therefore differ from earlier cograph versions; scores that do not
+  vary across the nodes are `NaN`. The default `"kandhway_kuri"` form is
+  unchanged.
+
 ## cograph 2.7.14
 
 ### Bug fixes

@@ -2883,8 +2883,8 @@ DD(i) = \lambda\left(k_i + \sum_{j\in N(i)} k_j\right)
 **Meaning.** High values indicate local connectivity through the node
 and its neighbours. With `diffusion_method = "power_series"` (automatic
 for TNA inputs), the function instead returns row sums of W + W^2 + … +
-W^n. That variant fixes the horizon at n and ignores `lambda` and
-`mode`.
+W^n, min-max scaled to the range from 0 to 1. That variant fixes the
+horizon at n and ignores `lambda` and `mode`.
 
 **Arguments.** `mode`, `lambda`, `diffusion_method`
 

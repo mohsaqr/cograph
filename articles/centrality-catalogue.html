@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -2399,9 +2399,9 @@ DD(i) = \lambda\left(k_i + \sum_{j\in N(i)} k_j\right)
 <p><strong>Meaning.</strong> High values indicate local connectivity
 through the node and its neighbours. With
 <code>diffusion_method = "power_series"</code> (automatic for TNA
-inputs), the function instead returns row sums of W + W^2 + … +
-W^n. That variant fixes the horizon at n and ignores <code>lambda</code>
-and <code>mode</code>.</p>
+inputs), the function instead returns row sums of W + W^2 + … + W^n,
+min-max scaled to the range from 0 to 1. That variant fixes the horizon
+at n and ignores <code>lambda</code> and <code>mode</code>.</p>
 <p><strong>Arguments.</strong> <code>mode</code>, <code>lambda</code>,
 <code>diffusion_method</code></p>
 <div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">

@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -472,7 +472,8 @@ Only used when <code>diffusion_method = "kandhway_kuri"</code>.</p></dd>
 formula. <code>"kandhway_kuri"</code> (Kandhway &amp; Kuri, 2014) computes the
 1-hop binary-degree neighborhood sum
 \(\lambda d_v + \lambda \sum_{u \in N(v)} d_u\). <code>"power_series"</code>
-computes the matrix power series \(\mathrm{rowSums}(P + P^2 + \ldots + P^n)\)
+computes the matrix power series \(\mathrm{rowSums}(P + P^2 + \ldots + P^n)\),
+min-max scaled to the range from 0 to 1 (<code>NaN</code> when it does not vary across the nodes),
 on the (optionally diagonal-zeroed) weighted matrix and matches
 <code>tna::centralities(., measures = "Diffusion")</code> when
 <code>loops = FALSE</code>. Default NULL auto-detects: <code>"power_series"</code>

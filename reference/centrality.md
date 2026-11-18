@@ -447,8 +447,9 @@ centrality(
   `"kandhway_kuri"` (Kandhway & Kuri, 2014) computes the 1-hop
   binary-degree neighborhood sum \\\lambda d_v + \lambda \sum\_{u \in
   N(v)} d_u\\. `"power_series"` computes the matrix power series
-  \\\mathrm{rowSums}(P + P^2 + \ldots + P^n)\\ on the (optionally
-  diagonal-zeroed) weighted matrix and matches
+  \\\mathrm{rowSums}(P + P^2 + \ldots + P^n)\\, min-max scaled to the
+  range from 0 to 1 (`NaN` when it does not vary across the nodes), on
+  the (optionally diagonal-zeroed) weighted matrix and matches
   `tna::centralities(., measures = "Diffusion")` when `loops = FALSE`.
   Default NULL auto-detects: `"power_series"` for tna objects
   (transition probabilities), `"kandhway_kuri"` otherwise.

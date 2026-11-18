@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,13 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.15" id="cograph-2715">cograph 2.7.15<a class="anchor" aria-label="anchor" href="#cograph-2715"></a></h2>
+<div class="section level3">
+<h3 id="changed-values-2-7-15">Changed values<a class="anchor" aria-label="anchor" href="#changed-values-2-7-15"></a></h3>
+<ul><li>Diffusion centrality with <code>diffusion_method = "power_series"</code> (the default for tna models, and with <code>tna_network = TRUE</code>) is now min-max scaled to the range from 0 to 1, as <code>tna::centralities(measures = "Diffusion")</code> does since tna 1.5.8. The raw sums grow with powers of the edge weights. Values for tna input therefore differ from earlier cograph versions; scores that do not vary across the nodes are <code>NaN</code>. The default <code>"kandhway_kuri"</code> form is unchanged.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.14" id="cograph-2714">cograph 2.7.14<a class="anchor" aria-label="anchor" href="#cograph-2714"></a></h2>
 <div class="section level3">

@@ -4,12 +4,14 @@
 node's neighbors to its own degree, both scaled by \(\lambda\):
 \(DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u\). The &quot;power_series&quot; form sums the
 rows of the first \(n\) powers of the weight matrix:
-$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$"><meta property="og:description" content="Diffusion centrality has two forms, chosen by diffusion_method. The
+$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw},$$
+and min-max scales these sums to the range from 0 to 1."><meta property="og:description" content="Diffusion centrality has two forms, chosen by diffusion_method. The
 &quot;kandhway_kuri&quot; form (Kandhway and Kuri 2014) adds the degrees of a
 node's neighbors to its own degree, both scaled by \(\lambda\):
 \(DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u\). The &quot;power_series&quot; form sums the
 rows of the first \(n\) powers of the weight matrix:
-$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$"><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
+$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw},$$
+and min-max scales these sums to the range from 0 to 1."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +19,7 @@ $$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$"><meta property
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +63,8 @@ $$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$"><meta property
 node's neighbors to its own degree, both scaled by \(\lambda\):
 \(DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u\). The <code>"power_series"</code> form sums the
 rows of the first \(n\) powers of the weight matrix:
-$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.$$</p>
+$$DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw},$$
+and min-max scales these sums to the range from 0 to 1.</p>
     </div>
 
     <div class="section level2">
@@ -110,7 +113,9 @@ and the undirected neighbor set. <code>lambda</code> multiplies every score. The
 <code>weighted = FALSE</code>, and ignores <code>mode</code> and <code>lambda</code>. With
 <code>loops = FALSE</code> the diagonal
 of \(W\) is set to zero. The <code>"power_series"</code> values match
-<code>tna::centralities(measures = "Diffusion")</code>.</p>
+<code>tna::centralities(measures = "Diffusion")</code> of tna 1.5.8 or later,
+which scales in the same way, and are <code>NaN</code> when the sums do not
+vary across the nodes.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

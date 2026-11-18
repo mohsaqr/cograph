@@ -79,9 +79,29 @@ test_that("finite diffusion differs from degree and includes the TNA sum", {
   g <- igraph::make_ring(4)
   expect_equal(unname(centrality_diffusion_centrality(g)), rep(14, 4))
   expect_equal(unname(centrality_diffusion(g)), rep(6, 4))
-  tna <- centrality_diffusion(g, diffusion_method = "power_series")
-  expect_equal(unname(centrality_diffusion_centrality(g, diffusion_steps = 4)),
-               unname(tna))
+  # The power series is the finite sum over n steps, min-max scaled.
+  star <- igraph::make_star(4, mode = "undirected")
+  raw <- unname(centrality_diffusion_centrality(star, diffusion_steps = 4))
+  expect_equal(unname(centrality_diffusion(star,
+                                           diffusion_method = "power_series")),
+               (raw - min(raw)) / (max(raw) - min(raw)))
+})
+
+test_that("power-series diffusion is min-max scaled, NaN when constant", {
+  star <- igraph::make_star(5, mode = "undirected")
+  scaled <- centrality_diffusion(star, diffusion_method = "power_series")
+  expect_equal(range(scaled), c(0, 1))
+  # Relabelling the nodes permutes the scores and nothing else.
+  w <- matrix(c(0, 0.3, 0.3, 0.2, 0, 0.3, 0.1, 0.2, 0), 3, 3, byrow = TRUE)
+  rownames(w) <- colnames(w) <- c("A", "B", "C")
+  perm <- c(3, 1, 2)
+  expect_equal(
+    centrality_diffusion(w, diffusion_method = "power_series")[c("C", "A", "B")],
+    centrality_diffusion(w[perm, perm], diffusion_method = "power_series"))
+  # A ring gives every node the same sum: no min-max scaling exists.
+  ring <- igraph::make_ring(4)
+  expect_true(all(is.nan(
+    centrality_diffusion(ring, diffusion_method = "power_series"))))
 })
 
 test_that("dynamical importance measures actual spectral loss", {

@@ -209,7 +209,8 @@
 #'   formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
 #'   1-hop binary-degree neighborhood sum
 #'   \eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}{lambda d_v + lambda sum_{u in N(v)} d_u}. \code{"power_series"}
-#'   computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)}
+#'   computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)},
+#'   min-max scaled to the range from 0 to 1 (\code{NaN} when it does not vary across the nodes),
 #'   on the (optionally diagonal-zeroed) weighted matrix and matches
 #'   \code{tna::centralities(., measures = "Diffusion")} when
 #'   \code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}
@@ -1282,7 +1283,21 @@ calculate_diffusion_power_series <- function(cg, loops = TRUE) {
     p <- p %*% W
     s <- s + p
   }
-  .rowSums(s, n, n)
+  .diffusion_minmax(.rowSums(s, n, n))
+}
+
+# Min-max scale the power-series diffusion to [0, 1], as tna (>= 1.5.8) does
+# whatever its `normalize` argument: the raw sums grow with powers of the
+# weights. Scores that do not vary across the nodes have no min-max scaling
+# and are NaN (tna's `ranger()`, same tolerance).
+.diffusion_minmax <- function(x) {
+  if (length(x) == 0L) return(x)
+  lo <- min(x)
+  hi <- max(x)
+  if (!isTRUE(hi - lo > 1e-10 * max(abs(c(lo, hi)), 1))) {
+    return(rep(NaN, length(x)))
+  }
+  (x - lo) / (hi - lo)
 }
 
 # Calculate diffusion centrality (vectorized). For each node, sums the
@@ -2603,8 +2618,9 @@ centrality_outharmonic <- function(x, ...) {
 #' \eqn{DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u}{DC(v) = lambda
 #' k_v + lambda sum_{u in N(v)} k_u}. The \code{"power_series"} form sums the
 #' rows of the first \eqn{n} powers of the weight matrix:
-#' \deqn{DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.}{
-#'   DC(v) = sum_w (W + W^2 + ... + W^n)_vw.}
+#' \deqn{DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw},}{
+#'   DC(v) = sum_w (W + W^2 + ... + W^n)_vw,}
+#' and min-max scales these sums to the range from 0 to 1.
 #'
 #' @details
 #' The default is \code{"kandhway_kuri"}, and \code{"power_series"} for tna
@@ -2616,7 +2632,9 @@ centrality_outharmonic <- function(x, ...) {
 #' \code{weighted = FALSE}, and ignores \code{mode} and \code{lambda}. With
 #' \code{loops = FALSE} the diagonal
 #' of \eqn{W} is set to zero. The \code{"power_series"} values match
-#' \code{tna::centralities(measures = "Diffusion")}.
+#' \code{tna::centralities(measures = "Diffusion")} of tna 1.5.8 or later,
+#' which scales in the same way, and are \code{NaN} when the sums do not
+#' vary across the nodes.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"} or

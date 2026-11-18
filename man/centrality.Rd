@@ -336,7 +336,8 @@ Only used when \code{diffusion_method = "kandhway_kuri"}.}
 formula. \code{"kandhway_kuri"} (Kandhway & Kuri, 2014) computes the
 1-hop binary-degree neighborhood sum
 \eqn{\lambda d_v + \lambda \sum_{u \in N(v)} d_u}{lambda d_v + lambda sum_{u in N(v)} d_u}. \code{"power_series"}
-computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)}
+computes the matrix power series \eqn{\mathrm{rowSums}(P + P^2 + \ldots + P^n)}{rowSums(P + P^2 + ... + P^n)},
+min-max scaled to the range from 0 to 1 (\code{NaN} when it does not vary across the nodes),
 on the (optionally diagonal-zeroed) weighted matrix and matches
 \code{tna::centralities(., measures = "Diffusion")} when
 \code{loops = FALSE}. Default NULL auto-detects: \code{"power_series"}

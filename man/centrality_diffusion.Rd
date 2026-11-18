@@ -31,8 +31,9 @@ node's neighbors to its own degree, both scaled by \eqn{\lambda}{lambda}:
 \eqn{DC(v) = \lambda k_v + \lambda \sum_{u \in N(v)} k_u}{DC(v) = lambda
 k_v + lambda sum_{u in N(v)} k_u}. The \code{"power_series"} form sums the
 rows of the first \eqn{n} powers of the weight matrix:
-\deqn{DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw}.}{
-  DC(v) = sum_w (W + W^2 + ... + W^n)_vw.}
+\deqn{DC(v) = \sum_{w} \left( W + W^2 + \cdots + W^n \right)_{vw},}{
+  DC(v) = sum_w (W + W^2 + ... + W^n)_vw,}
+and min-max scales these sums to the range from 0 to 1.
 }
 \details{
 The default is \code{"kandhway_kuri"}, and \code{"power_series"} for tna
@@ -44,7 +45,9 @@ and the undirected neighbor set. \code{lambda} multiplies every score. The
 \code{weighted = FALSE}, and ignores \code{mode} and \code{lambda}. With
 \code{loops = FALSE} the diagonal
 of \eqn{W} is set to zero. The \code{"power_series"} values match
-\code{tna::centralities(measures = "Diffusion")}.
+\code{tna::centralities(measures = "Diffusion")} of tna 1.5.8 or later,
+which scales in the same way, and are \code{NaN} when the sums do not
+vary across the nodes.
 }
 \examples{
 centrality_diffusion(regulation_net)

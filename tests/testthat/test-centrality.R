@@ -188,7 +188,10 @@ test_that("diffusion power_series matches tna::Diffusion byte-for-byte", {
   rownames(W) <- colnames(W) <- c("A", "B", "C")
   t1 <- tna::tna(W)
 
-  tna_diff <- tna::centralities(t1, measures = "Diffusion")$Diffusion
+  # tna >= 1.5.8 min-max scales Diffusion whatever `normalize`; older
+  # versions return the raw sums, so `normalize = TRUE` is asked for.
+  tna_diff <- tna::centralities(t1, measures = "Diffusion",
+                                normalize = TRUE)$Diffusion
 
   # tna_network auto-detects from class: tna input -> power_series + loops=FALSE
   cog_auto <- cograph::centrality(t1, measures = "diffusion")$diffusion_all
@@ -258,8 +261,11 @@ test_that("tna_network respects user-explicit overrides", {
   out <- cograph::centrality(t1, measures = "diffusion",
                               tna_network = TRUE, loops = TRUE)
   # With loops kept on a row-stochastic matrix, the power-series collapses
-  # to a constant n for every node.
-  expect_equal(unique(out$diffusion_all), ncol(W))
+  # to a constant n for every node, which has no min-max scaling: NaN, as
+  # in tna >= 1.5.8. With the tna default loops = FALSE the scores vary.
+  expect_true(all(is.nan(out$diffusion_all)))
+  dropped <- cograph::centrality(t1, measures = "diffusion", tna_network = TRUE)
+  expect_equal(range(dropped$diffusion_all), c(0, 1))
 
   # User explicitly sets transitivity_type = "local" — onnela should NOT
   # silently take over even with tna_network = TRUE. Positive assertion:

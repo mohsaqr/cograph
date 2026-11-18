@@ -1119,7 +1119,7 @@ records <- list(
       "The default method adds the scaled degree of the focal node and its neighbours. On a simple undirected graph:",
       r"(DD(i) = \lambda\left(k_i + \sum_{j\in N(i)} k_j\right))",
       r"(`mode`, `lambda`, `diffusion_method`)",
-      "High values indicate local connectivity through the node and its neighbours. With `diffusion_method = \"power_series\"` (automatic for TNA inputs), the function instead returns row sums of W + W^2 + ... + W^n. That variant fixes the horizon at n and ignores `lambda` and `mode`."),
+      "High values indicate local connectivity through the node and its neighbours. With `diffusion_method = \"power_series\"` (automatic for TNA inputs), the function instead returns row sums of W + W^2 + ... + W^n, min-max scaled to the range from 0 to 1. That variant fixes the horizon at n and ignores `lambda` and `mode`."),
 
   rec("Spectral, walk and influence",
       "Infection Centrality", "infection",

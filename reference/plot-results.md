@@ -258,6 +258,7 @@ plot_netobject_group(
   common_scale = TRUE,
   title_prefix = NULL,
   combined = TRUE,
+  i = NULL,
   ...
 )
 
@@ -549,6 +550,11 @@ plot(x, top = NULL, col = "steelblue", ...)
 
   Optional text placed before each group name in the panel titles.
 
+- i:
+
+  Index or name of a single comparison to plot. `NULL` (default) plots
+  all comparisons.
+
 - layout:
 
   Layout algorithm of the multilevel panels. `NULL` (default) uses
@@ -572,11 +578,6 @@ plot(x, top = NULL, col = "steelblue", ...)
 
   Logical. Whether the absolute effect size is added in parentheses to
   the labels of significant edges.
-
-- i:
-
-  Index or name of a single comparison to plot. `NULL` (default) plots
-  all comparisons.
 
 - k:
 

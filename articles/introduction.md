@@ -539,7 +539,7 @@ network_summary(regulation_net)
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.149                    0.238                0.479
 #>   transitivity reciprocity assortativity_degree
-#> 1        0.423       0.111               -0.116
+#> 1        0.467       0.111               -0.116
 ```
 
 | Function | Purpose |

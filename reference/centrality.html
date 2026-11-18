@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -159,6 +159,7 @@ cograph_network, or tna objects.</p>
 <span>  re_negative <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tna_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  psych_network <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  shared_nodes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -948,6 +949,17 @@ signed weighted network is evaluated with expected-influence measures.
 When <code>TRUE</code>, normalized expected influence is divided by the maximum
 absolute expected-influence value, which keeps its sign and bounds it
 between -1 and 1. <code>FALSE</code> keeps the generic cograph normalization.</p></dd>
+
+
+<dt id="arg-shared-nodes">shared_nodes<a class="anchor" aria-label="anchor" href="#arg-shared-nodes"></a></dt>
+<dd><p>Logical. Only used when <code>x</code> is a group network
+object (a Nestimate <code>netobject_group</code> or a tna group model), which
+carries every group on the node set of the whole data. FALSE (default)
+computes each group on its own nodes: those that have a tie in the
+group (self-loops count) or occur in the group's data, so a member
+without ties stays as an isolate. TRUE keeps
+the common node set in every group. The result then has one row per node per group, with a
+leading <code>group</code> column.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

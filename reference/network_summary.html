@@ -11,7 +11,7 @@ centralization, transitivity, reciprocity and degree assortativity."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,7 @@ centralization, transitivity, reciprocity and degree assortativity.</p>
 <span>  detailed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  extended <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  shared_nodes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -122,14 +123,27 @@ efficiency). Default FALSE.</p></dd>
 Default 3. NULL skips rounding.</p></dd>
 
 
+<dt id="arg-shared-nodes">shared_nodes<a class="anchor" aria-label="anchor" href="#arg-shared-nodes"></a></dt>
+<dd><p>Logical. Only used when <code>x</code> is a group network
+object (a Nestimate <code>netobject_group</code> or a tna group model), which
+carries every group on the node set of the whole data. FALSE (default)
+summarises each group on its own nodes: those that have a tie in the
+group (self-loops count) or occur in the group's data, so a member
+without ties stays as an isolate, so <code>node_count</code> and every
+measure that depends on it describe that group. TRUE keeps
+the common node set in every group.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments (currently unused)</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with one row. The basic measures are always
-computed:</p><dl><dt>node_count</dt>
+    <p>A data frame with one row. For a group network object, one row
+per group with a leading <code>group</code> column; a group with no node of its
+own keeps the common node set and raises a <code>cograph_empty_group</code> warning.
+The basic measures are always computed:</p><dl><dt>node_count</dt>
 <dd><p>Number of nodes in the network</p></dd>
 
 <dt>edge_count</dt>
@@ -241,7 +255,7 @@ network. Edge weights are not used.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   centralization_betweenness centralization_closeness centralization_eigen</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                      0.149                    0.238                0.479</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   transitivity reciprocity assortativity_degree</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        0.423       0.111               -0.116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        0.467       0.111               -0.116</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

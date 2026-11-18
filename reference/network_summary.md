@@ -17,6 +17,7 @@ network_summary(
   detailed = FALSE,
   extended = FALSE,
   digits = 3,
+  shared_nodes = FALSE,
   ...
 )
 ```
@@ -70,13 +71,26 @@ network_summary(
   Integer. Round numeric results to this many decimal places. Default 3.
   NULL skips rounding.
 
+- shared_nodes:
+
+  Logical. Only used when `x` is a group network object (a Nestimate
+  `netobject_group` or a tna group model), which carries every group on
+  the node set of the whole data. FALSE (default) summarises each group
+  on its own nodes: those that have a tie in the group (self-loops
+  count) or occur in the group's data, so a member without ties stays as
+  an isolate, so `node_count` and every measure that depends on it
+  describe that group. TRUE keeps the common node set in every group.
+
 - ...:
 
   Additional arguments (currently unused)
 
 ## Value
 
-A data frame with one row. The basic measures are always computed:
+A data frame with one row. For a group network object, one row per group
+with a leading `group` column; a group with no node of its own keeps the
+common node set and raises a `cograph_empty_group` warning. The basic
+measures are always computed:
 
 - node_count:
 
@@ -222,5 +236,5 @@ network_summary(regulation_net)
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.149                    0.238                0.479
 #>   transitivity reciprocity assortativity_degree
-#> 1        0.423       0.111               -0.116
+#> 1        0.467       0.111               -0.116
 ```

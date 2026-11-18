@@ -1,5 +1,118 @@
 # Changelog
 
+## cograph 2.7.14
+
+### Bug fixes
+
+- A tna model built from sequences kept its transition probabilities
+  only in
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  and
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md).
+  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md),
+  [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md) /
+  [`to_data_frame()`](https://sonsoles.me/cograph/reference/to_data_frame.md)
+  and the wrangling verbs
+  ([`threshold_edges()`](https://sonsoles.me/cograph/reference/threshold_edges.md),
+  [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md),
+  [`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md),
+  `select_*()`, `subset_*()`,
+  [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md),
+  [`reverse_edges()`](https://sonsoles.me/cograph/reference/reverse_edges.md),
+  [`invert_weights()`](https://sonsoles.me/cograph/reference/invert_weights.md),
+  …) read one edge of weight 1 per observed transition, so
+  `threshold_edges(model, minimum = 0.1)` kept every transition and
+  returned 0/1 weights. They now read the model weights.
+  [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md)
+  on such a model is unchanged (a temporal multigraph, as the motif
+  functions need).
+- [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  computes `transitivity` and `mean_local_transitivity` with the same
+  code as
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
+  so both report one formula. It called
+  [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html),
+  whose value on a directed network with reciprocated ties changes after
+  [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html)
+  (0.96 or 0.92, depending on node order, for a network whose value is
+  1). The reported transitivity of such networks changes.
+- `centrality(type = "all")` (and `measures = "all"`) no longer stops
+  when one measure has no value on the network. On a network that is
+  mostly isolates, `mcgm` stopped the call (“automatic alpha is
+  undefined when median coreness is zero”), so no measure was returned;
+  an unsolvable `alpha` system and `nonbacktracking` on a network
+  without edges (“0 x 0 matrix”) did the same. Those columns are now
+  `NA` with a `cograph_undefined_measure` warning. Naming such a measure
+  in `measures =` still raises its error.
+- [`n_communities()`](https://sonsoles.me/cograph/reference/n_communities.md)
+  and
+  [`community_sizes()`](https://sonsoles.me/cograph/reference/community_sizes.md)
+  raise an error of class `cograph_bad_input` for anything that is not a
+  community result. A network gave 0 and an empty vector.
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  and
+  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  read a tna model built from a weight matrix as an aggregate network
+  instead of stopping with “argument must be coercible to non-negative
+  integer”.
+
+### Inputs
+
+- [`get_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md),
+  [`get_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md),
+  [`get_labels()`](https://sonsoles.me/cograph/reference/get_nodes.md),
+  [`n_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md),
+  [`n_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md) and
+  [`is_directed()`](https://sonsoles.me/cograph/reference/get_nodes.md)
+  accept every network input (matrix, edge-list data frame, igraph,
+  statnet network, tna model), not only a `cograph_network`.
+- [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+  and
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  accept tna models and edge-list data frames.
+  [`disparity_filter()`](https://sonsoles.me/cograph/reference/disparity_filter.md),
+  [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md),
+  [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
+  and
+  [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md)
+  accept edge-list data frames.
+
+### Group network objects
+
+- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) has a new
+  argument `isolates` (default `TRUE`). With `FALSE`, nodes without any
+  tie are not drawn (a self-loop counts as a tie), and per-node
+  arguments given for the full node set follow the nodes that stay. On a
+  group object each panel hides its own isolates, which removes the
+  nodes a group only carries because another group has them.
+- `i` selects one group of a Nestimate `netobject_group` in
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md),
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
+  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot-results.md),
+  as it does for tna groups. It was ignored, and a name that matched no
+  group drew every group. An unknown group raises an error of class
+  `cograph_bad_selection`.
+- [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+  and
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  accept group network objects (a Nestimate `netobject_group`, including
+  `net_mlvar`, and tna group models). They return one data frame for all
+  groups with a leading `group` column, instead of the error “x must be
+  a matrix, …”.
+- New argument `shared_nodes` in both. A group object carries every
+  group on the node set of the whole data, so each group reported the
+  same `node_count` and the nodes of the other groups as isolates. The
+  default `shared_nodes = FALSE` analyses each group on its own nodes,
+  those that have a tie in the group or occur in the group’s data, so a
+  member without ties stays as an isolate; `shared_nodes = TRUE` keeps
+  the common node set.
+- The `centrality_*()` shortcuts,
+  [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)
+  and
+  [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
+  raise an error of class `cograph_group_input` for a group object.
+
 ## cograph 2.7.13
 
 - The

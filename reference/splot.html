@@ -15,7 +15,7 @@ methods described in Details."><meta property="og:image" content="https://sonsol
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -249,6 +249,7 @@ methods described in Details.</p>
 <span>  psych_styling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  predictability <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  i <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  isolates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  filetype <span class="op">=</span> <span class="st">"default"</span>,</span>
 <span>  filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"splot"</span><span class="op">)</span>,</span>
 <span>  width <span class="op">=</span> <span class="fl">7</span>,</span>
@@ -1040,7 +1041,22 @@ takes precedence.</p></dd>
 <dt id="arg-i">i<a class="anchor" aria-label="anchor" href="#arg-i"></a></dt>
 <dd><p>Group index or name when x is a group_tna object. If NULL (default),
 plots all groups in a grid. If specified (e.g., i = 1 or i = "Treatment"),
-plots only that group.</p></dd>
+plots only that group. Also selects one group of a Nestimate
+<code>netobject_group</code>.</p></dd>
+
+
+<dt id="arg-isolates">isolates<a class="anchor" aria-label="anchor" href="#arg-isolates"></a></dt>
+<dd><p>Logical. Whether nodes without any tie are drawn (a
+self-loop counts as a tie). Default TRUE draws every node. With FALSE the
+network is restricted to its connected nodes before the layout is
+computed, and per-node arguments given for the full node set
+(<code>labels</code>, <code>node_*</code>, <code>donut_*</code>, <code>pie_*</code>,
+<code>groups</code>, a <code>layout</code> matrix) follow the nodes that stay. For
+a group object every panel leaves out its own isolates, which removes the
+nodes a group only carries because another group has them. Isolation is
+judged on all edges, before <code>threshold</code> and <code>minimum</code> hide
+weak ones. A network without ties is drawn whole with a
+<code>cograph_empty_network</code> warning.</p></dd>
 
 
 <dt id="arg-filetype">filetype<a class="anchor" aria-label="anchor" href="#arg-filetype"></a></dt>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,39 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.14" id="cograph-2714">cograph 2.7.14<a class="anchor" aria-label="anchor" href="#cograph-2714"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-14">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-14"></a></h3>
+<ul><li>A tna model built from sequences kept its transition probabilities only in <code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code>. <code><a href="../reference/to_matrix.html">to_matrix()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code> / <code><a href="../reference/to_data_frame.html">to_data_frame()</a></code> and the wrangling verbs (<code><a href="../reference/threshold_edges.html">threshold_edges()</a></code>, <code><a href="../reference/filter_edges.html">filter_edges()</a></code>, <code><a href="../reference/filter_nodes.html">filter_nodes()</a></code>, <code>select_*()</code>, <code>subset_*()</code>, <code><a href="../reference/remove_isolates.html">remove_isolates()</a></code>, <code><a href="../reference/reverse_edges.html">reverse_edges()</a></code>, <code><a href="../reference/invert_weights.html">invert_weights()</a></code>, …) read one edge of weight 1 per observed transition, so <code>threshold_edges(model, minimum = 0.1)</code> kept every transition and returned 0/1 weights. They now read the model weights. <code><a href="../reference/as_cograph.html">as_cograph()</a></code> on such a model is unchanged (a temporal multigraph, as the motif functions need).</li>
+<li>
+<code><a href="../reference/network_summary.html">network_summary()</a></code> computes <code>transitivity</code> and <code>mean_local_transitivity</code> with the same code as <code><a href="../reference/centrality.html">centrality()</a></code>, so both report one formula. It called <code><a href="https://r.igraph.org/reference/transitivity.html" class="external-link">igraph::transitivity()</a></code>, whose value on a directed network with reciprocated ties changes after <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> (0.96 or 0.92, depending on node order, for a network whose value is 1). The reported transitivity of such networks changes.</li>
+<li>
+<code>centrality(type = "all")</code> (and <code>measures = "all"</code>) no longer stops when one measure has no value on the network. On a network that is mostly isolates, <code>mcgm</code> stopped the call (“automatic alpha is undefined when median coreness is zero”), so no measure was returned; an unsolvable <code>alpha</code> system and <code>nonbacktracking</code> on a network without edges (“0 x 0 matrix”) did the same. Those columns are now <code>NA</code> with a <code>cograph_undefined_measure</code> warning. Naming such a measure in <code>measures =</code> still raises its error.</li>
+<li>
+<code><a href="../reference/n_communities.html">n_communities()</a></code> and <code><a href="../reference/community_sizes.html">community_sizes()</a></code> raise an error of class <code>cograph_bad_input</code> for anything that is not a community result. A network gave 0 and an empty vector.</li>
+<li>
+<code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> read a tna model built from a weight matrix as an aggregate network instead of stopping with “argument must be coercible to non-negative integer”.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="inputs-2-7-14">Inputs<a class="anchor" aria-label="anchor" href="#inputs-2-7-14"></a></h3>
+<ul><li>
+<code><a href="../reference/get_nodes.html">get_nodes()</a></code>, <code><a href="../reference/get_nodes.html">get_edges()</a></code>, <code><a href="../reference/get_nodes.html">get_labels()</a></code>, <code><a href="../reference/get_nodes.html">n_nodes()</a></code>, <code><a href="../reference/get_nodes.html">n_edges()</a></code> and <code><a href="../reference/get_nodes.html">is_directed()</a></code> accept every network input (matrix, edge-list data frame, igraph, statnet network, tna model), not only a <code>cograph_network</code>.</li>
+<li>
+<code><a href="../reference/motif_census.html">motif_census()</a></code> and <code><a href="../reference/triad_census.html">triad_census()</a></code> accept tna models and edge-list data frames. <code><a href="../reference/disparity_filter.html">disparity_filter()</a></code>, <code><a href="../reference/simplify.html">simplify()</a></code>, <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> and <code><a href="../reference/plot_chord.html">plot_chord()</a></code> accept edge-list data frames.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="group-network-objects-2-7-14">Group network objects<a class="anchor" aria-label="anchor" href="#group-network-objects-2-7-14"></a></h3>
+<ul><li>
+<code><a href="../reference/splot.html">splot()</a></code> has a new argument <code>isolates</code> (default <code>TRUE</code>). With <code>FALSE</code>, nodes without any tie are not drawn (a self-loop counts as a tie), and per-node arguments given for the full node set follow the nodes that stay. On a group object each panel hides its own isolates, which removes the nodes a group only carries because another group has them.</li>
+<li>
+<code>i</code> selects one group of a Nestimate <code>netobject_group</code> in <code><a href="../reference/splot.html">splot()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/plot-results.html">plot_netobject_group()</a></code>, as it does for tna groups. It was ignored, and a name that matched no group drew every group. An unknown group raises an error of class <code>cograph_bad_selection</code>.</li>
+<li>
+<code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code> accept group network objects (a Nestimate <code>netobject_group</code>, including <code>net_mlvar</code>, and tna group models). They return one data frame for all groups with a leading <code>group</code> column, instead of the error “x must be a matrix, …”.</li>
+<li>New argument <code>shared_nodes</code> in both. A group object carries every group on the node set of the whole data, so each group reported the same <code>node_count</code> and the nodes of the other groups as isolates. The default <code>shared_nodes = FALSE</code> analyses each group on its own nodes, those that have a tie in the group or occur in the group’s data, so a member without ties stays as an isolate; <code>shared_nodes = TRUE</code> keeps the common node set.</li>
+<li>The <code>centrality_*()</code> shortcuts, <code><a href="../reference/reaching_global.html">reaching_global()</a></code> and <code><a href="../reference/plot_centrality.html">plot_centrality()</a></code> raise an error of class <code>cograph_group_input</code> for a group object.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.13" id="cograph-2713">cograph 2.7.13<a class="anchor" aria-label="anchor" href="#cograph-2713"></a></h2>
 <ul><li>The <code><a href="../reference/plot_edge_diff_forest.html">plot_edge_diff_forest()</a></code> example passes <code>show_nonsig = TRUE</code>, so it draws when no edge difference is significant.</li>

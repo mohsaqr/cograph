@@ -185,7 +185,7 @@ cases dropped.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -440,6 +440,7 @@ cases dropped.</p></dd>
 <span>  common_scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  title_prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  combined <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  i <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -597,7 +598,7 @@ remove non-positive fitted curve values.</p></dd>
 <dd><p>Number of columns and rows of the panel grid. A
 <code>NULL</code> value is computed from the number of panels. For the
 pattern diagrams of a <code>cograph_motif_result</code> (<code>type =
-  "patterns"</code>, or <code>"triads"</code> on a census) the grid has four columns
+"patterns"</code>, or <code>"triads"</code> on a census) the grid has four columns
 unless <code>ncol</code> is given.</p></dd>
 
 
@@ -733,6 +734,11 @@ edge weight. Default <code>TRUE</code>.</p></dd>
 panel titles.</p></dd>
 
 
+<dt id="arg-i">i<a class="anchor" aria-label="anchor" href="#arg-i"></a></dt>
+<dd><p>Index or name of a single comparison to plot. <code>NULL</code>
+(default) plots all comparisons.</p></dd>
+
+
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
 <dd><p>Layout algorithm of the multilevel panels. <code>NULL</code>
 (default) uses <code>"oval"</code>.</p></dd>
@@ -756,11 +762,6 @@ type and transparency of non-significant edge differences.</p></dd>
 <dt id="arg-show-effect">show_effect<a class="anchor" aria-label="anchor" href="#arg-show-effect"></a></dt>
 <dd><p>Logical. Whether the absolute effect size is added in
 parentheses to the labels of significant edges.</p></dd>
-
-
-<dt id="arg-i">i<a class="anchor" aria-label="anchor" href="#arg-i"></a></dt>
-<dd><p>Index or name of a single comparison to plot. <code>NULL</code>
-(default) plots all comparisons.</p></dd>
 
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>

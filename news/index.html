@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.16" id="cograph-2716">cograph 2.7.16<a class="anchor" aria-label="anchor" href="#cograph-2716"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.7.17" id="cograph-2717">cograph 2.7.17<a class="anchor" aria-label="anchor" href="#cograph-2717"></a></h2>
 <div class="section level3">
-<h3 id="changes-to-results-2-7-16">Changes to results<a class="anchor" aria-label="anchor" href="#changes-to-results-2-7-16"></a></h3>
+<h3 id="changes-to-results-2-7-17">Changes to results<a class="anchor" aria-label="anchor" href="#changes-to-results-2-7-17"></a></h3>
 <ul><li>
 <code><a href="../reference/triad_census.html">triad_census()</a></code> returns a data frame (<code>type</code>, <code>count</code>) instead of a named vector. <code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/motif_census.html">motif_census()</a></code> count only positive weights as ties, and <code>motif_census(size = 4)</code> gives <code>NA</code> for the classes igraph does not count.</li>
 <li>
@@ -68,7 +68,7 @@
 <li>Corrected on directed networks: communicability, local transitivity, DMNC, gateway centrality and <code><a href="../reference/estrada_index.html">estrada_index()</a></code>. Delta betweenness no longer depends on the scale of the weights.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-2-7-16">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-16"></a></h3>
+<h3 id="new-features-2-7-17">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-17"></a></h3>
 <ul><li>
 <code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code> accept group network objects (Nestimate groups, including <code>net_mlvar</code>, and tna group models) and return one data frame with a <code>group</code> column. <code>shared_nodes</code> chooses each group’s own nodes (default) or the common node set.</li>
 <li>
@@ -81,7 +81,7 @@
 <code><a href="../reference/get_nodes.html">get_nodes()</a></code>, <code><a href="../reference/get_nodes.html">get_edges()</a></code>, <code><a href="../reference/get_nodes.html">n_nodes()</a></code>, <code><a href="../reference/get_nodes.html">n_edges()</a></code> and <code><a href="../reference/get_nodes.html">is_directed()</a></code> accept every network input. <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/triad_census.html">triad_census()</a></code>, <code><a href="../reference/disparity_filter.html">disparity_filter()</a></code>, <code><a href="../reference/simplify.html">simplify()</a></code>, <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> and <code><a href="../reference/plot_chord.html">plot_chord()</a></code> accept edge-list data frames.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-2-7-16">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-16"></a></h3>
+<h3 id="bug-fixes-2-7-17">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-17"></a></h3>
 <ul><li>tna models built from sequences keep their weights in <code><a href="../reference/to_matrix.html">to_matrix()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code> and the wrangling verbs such as <code><a href="../reference/threshold_edges.html">threshold_edges()</a></code>.</li>
 <li>
 <code>centrality(type = "all")</code> gives <code>NA</code> with a warning for a measure that is undefined on the network, instead of stopping, including on signed weights.</li>
@@ -101,7 +101,7 @@
 <li>Examples and tests that need igraph check that it is installed.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-2-7-16">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-16"></a></h3>
+<h3 id="documentation-2-7-17">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-17"></a></h3>
 <ul><li>Help pages were checked against the code and corrected. Print, summary and plot methods are documented with the function that creates the object.</li>
 </ul></div>
 </div>

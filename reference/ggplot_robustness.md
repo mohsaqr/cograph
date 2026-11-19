@@ -50,7 +50,8 @@ ggplot_robustness(
 - title:
 
   Overall title. Default NULL. With a single network the title is
-  replaced by ": sequential removal of nodes".
+  replaced by the network's name followed by ": sequential removal of
+  nodes".
 
 - n_iter:
 

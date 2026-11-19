@@ -163,7 +163,8 @@ parse_tna <- function(tna_obj, directed = NULL, simplify = FALSE) {
   if (directed) {
     edge_idx <- which(x != 0, arr.ind = TRUE)
   } else {
-    edge_idx <- which(upper.tri(x) & x != 0, arr.ind = TRUE)
+    # One row per unordered pair, self-loops included (the diagonal).
+    edge_idx <- which(upper.tri(x, diag = TRUE) & x != 0, arr.ind = TRUE)
   }
   if (nrow(edge_idx) == 0) {
     return(data.frame(from = integer(0), to = integer(0),

@@ -136,7 +136,13 @@ network_summary <- function(x,
   # one formula. igraph::transitivity() on a directed graph with reciprocated
   # arcs changes its answer once simplify() or any_multiple() has been called
   # on the object (0.96 / 0.92 for a network whose value is 1).
-  cg <- .cg_graph(g)
+  # Transitivity counts ties, so the context is built from the edges alone:
+  # an edge of weight 0, or parallel weights that sum to 0, is still a tie.
+  g_ties <- g
+  if ("weight" %in% igraph::edge_attr_names(g_ties)) {
+    g_ties <- igraph::delete_edge_attr(g_ties, "weight")
+  }
+  cg <- .cg_graph(g_ties)
 
   # Basic measures (always computed)
   results <- list(

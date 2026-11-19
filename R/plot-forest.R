@@ -1706,8 +1706,8 @@ plot_bootstrap_forest.net_bootstrap_group <- function(
 #' @examplesIf requireNamespace("Nestimate", quietly = TRUE)
 #' set.seed(1)
 #' data1 <- as.data.frame(matrix(rnorm(60), 20, 3, dimnames = list(NULL, c("A","B","C"))))
-#' bg <- Nestimate::boot_glasso(data1, iter = 50, cs_iter = 25,
-#'                              centrality = c("strength", "expected_influence"))
+#' bg <- Nestimate::boot_glasso(data1, iter = 20, cs_iter = 10,
+#'                              centrality = "strength")
 #' plot_edge_diff_forest(bg, show_nonsig = TRUE)
 #' @export
 plot_edge_diff_forest <- function(x, ...) UseMethod("plot_edge_diff_forest")

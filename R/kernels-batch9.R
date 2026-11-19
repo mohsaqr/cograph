@@ -649,6 +649,12 @@
   n <- nrow(w)
   if (is.null(n) || n == 0L) return(integer(0))
   w <- w * (row(w) != col(w))
+  if (any(w < 0, na.rm = TRUE)) {
+    # The generalized degree takes a fractional power of the strength.
+    stop(errorCondition(
+      "Weighted k-shell needs non-negative weights; found a negative edge.",
+      class = "cograph_negative_weights", call = NULL))
+  }
   w <- pmax(w, t(w))
   nb <- (w != 0) * 1
   vals <- w[nb != 0]

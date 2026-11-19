@@ -1122,8 +1122,13 @@ centrality <- function(x, type = c("basic", "extended", "all"),
     # Dependency-free all-pairs shortest paths (see R/kernels-distance.R).
     # The kernel takes a weight matrix, so the graph's edges and the
     # path weights actually in force are assembled into one first.
-    shared_dist_mat <- .cg_distances(
-      .cg_path_matrix(cg, weights_for_paths), mode, cutoff)
+    # Negative weights have no shortest paths. The shared matrix is then left
+    # NULL, so each distance-based measure meets the condition on its own:
+    # NA with a warning in a type tier, an error when named in `measures`.
+    shared_dist_mat <- tryCatch(
+      .cg_distances(.cg_path_matrix(cg, weights_for_paths), mode, cutoff),
+      cograph_negative_weights = function(e) NULL
+    )
   }
 
   # Batch 7 scaling measures are defined on hop counts, not path weights,

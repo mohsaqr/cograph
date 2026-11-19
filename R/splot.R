@@ -671,6 +671,12 @@ splot <- function(
   if (!isTRUE(isolates) && !isFALSE(isolates)) {
     .cg_stop_bad_parameter("`isolates` must be TRUE or FALSE")
   }
+  # An edge-list data frame is read as a network first, so its isolates (a
+  # node listed only with weight 0) are found the same way.
+  if (!isolates && is.data.frame(x) && !.is_network_group(x) &&
+      all(c("from", "to") %in% tolower(names(x)))) {
+    x <- as_cograph(x, directed = directed)
+  }
   if (!isolates && .is_single_network(x)) {
     .shown <- .splot_hide_isolates(x, .user_args, .dots)
     x <- .shown$x

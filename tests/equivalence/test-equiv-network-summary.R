@@ -323,12 +323,12 @@ test_that("network_summary directed: basic + reciprocity match igraph (100 netwo
     .compare_scalar(ns$centralization_betweenness,
                     igraph::centr_betw(g, directed = TRUE)$centralization,
                     "centralization_betweenness_dir", cfg)
-    # network_summary applies simplify(sum) before computing, so reference must
-    # use the simplified graph too
-    g_simple <- igraph::simplify(g, remove.multiple = TRUE, remove.loops = FALSE,
-                                  edge.attr.comb = list(weight = "sum", "ignore"))
+    # Global transitivity ignores direction (igraph's documented semantics);
+    # the reference is the collapsed undirected graph, where igraph's answer
+    # does not depend on simplify() or node order.
+    g_und <- igraph::as_undirected(g, mode = "collapse")
     .compare_scalar(ns$transitivity,
-                    igraph::transitivity(g_simple, type = "global"),
+                    igraph::transitivity(g_und, type = "global"),
                     "transitivity_dir", cfg)
     .compare_scalar(ns$reciprocity,
                     igraph::reciprocity(g, mode = "ratio"),

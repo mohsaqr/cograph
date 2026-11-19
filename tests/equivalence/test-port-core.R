@@ -146,9 +146,9 @@ test_that("normalised closeness / harmonic and personalised PageRank match igrap
     expect_equal(got[[paste0("closeness_", md)]],
                  unname(igraph::closeness(g, mode = md, normalized = TRUE)),
                  tolerance = 1e-12, info = md)
-    # centrality() rescales every measure but closeness to a maximum of 1.
-    ref_h <- igraph::harmonic_centrality(g, mode = md, normalized = TRUE)
-    expect_equal(got[[paste0("harmonic_", md)]], unname(ref_h / max(ref_h)),
+    # Normalised harmonic is divided by n - 1 only, as igraph does (2.7.4).
+    expect_equal(got[[paste0("harmonic_", md)]],
+                 unname(igraph::harmonic_centrality(g, mode = md, normalized = TRUE)),
                  tolerance = 1e-12, info = md)
     invisible(NULL)
   })

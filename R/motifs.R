@@ -75,8 +75,10 @@ motif_census <- function(x, size = 3, n_random = 100,
   method <- match.arg(method)
   .need_igraph("motif_census()")
 
-  # A tna model or an edge list is read through its weight matrix
-  if (inherits(x, "tna") || is.data.frame(x)) x <- to_matrix(x)
+  # A tna model is read through its weight matrix, an edge list through its
+  # rows (a tie where any row of the pair has a positive weight)
+  if (inherits(x, "tna")) x <- to_matrix(x)
+  if (is.data.frame(x)) x <- .census_edge_matrix(x)
 
   # Convert to igraph
   if (inherits(x, "igraph")) {
@@ -206,6 +208,28 @@ motif_census <- function(x, size = 3, n_random = 100,
   drop <- which(is.na(w) | w <= 0)
   if (length(drop) == 0) return(g)
   igraph::delete_edges(g, drop)
+}
+
+#' Tie matrix of an edge list for the censuses
+#'
+#' A pair is a tie when any of its rows has a positive weight, the rule the
+#' igraph input follows edge by edge, so duplicate rows count the same in any
+#' order. Directedness is read as `as_cograph()` reads it.
+#' @param x An edge-list data frame.
+#' @return A 0/1 matrix with node names, mirrored for an undirected list.
+#' @keywords internal
+#' @noRd
+.census_edge_matrix <- function(x) {
+  net <- as_cograph(x)
+  e <- net$edges
+  n <- nrow(net$nodes)
+  labels <- net$nodes$label
+  tie <- matrix(0, n, n, dimnames = list(labels, labels))
+  keep <- !is.na(e$weight) & e$weight > 0
+  idx <- cbind(e$from[keep], e$to[keep])
+  tie[idx] <- 1
+  if (!isTRUE(net$directed)) tie[idx[, c(2L, 1L), drop = FALSE]] <- 1
+  tie
 }
 
 #' @noRd
@@ -545,8 +569,10 @@ plot.cograph_motifs <- function(x, type = c("bar", "heatmap", "network"),
 #' @export
 triad_census <- function(x) {
   .need_igraph("triad_census()")
-  # A tna model or an edge list is read through its weight matrix
-  if (inherits(x, "tna") || is.data.frame(x)) x <- to_matrix(x)
+  # A tna model is read through its weight matrix, an edge list through its
+  # rows (a tie where any row of the pair has a positive weight)
+  if (inherits(x, "tna")) x <- to_matrix(x)
+  if (is.data.frame(x)) x <- .census_edge_matrix(x)
   if (inherits(x, "igraph")) {
     g <- .motif_positive_edges(x)
   } else if (inherits(x, "cograph_network")) {

@@ -1,89 +1,72 @@
 # Changelog
 
-## cograph 2.7.15
+## cograph 2.7.16
 
-### Changed values
+### Changes to results
 
-- Diffusion centrality with `diffusion_method = "power_series"` (the
-  default for tna models, and with `tna_network = TRUE`) is now min-max
-  scaled to the range from 0 to 1, as
-  `tna::centralities(measures = "Diffusion")` does since tna 1.5.8. The
-  raw sums grow with powers of the edge weights. Values for tna input
-  therefore differ from earlier cograph versions; scores that do not
-  vary across the nodes are `NaN`. The default `"kandhway_kuri"` form is
-  unchanged.
-
-## cograph 2.7.14
-
-### Bug fixes
-
-- A tna model built from sequences kept its transition probabilities
-  only in
-  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
+- [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
+  returns a data frame (`type`, `count`) instead of a named vector.
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
   and
-  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md).
-  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md),
-  [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md) /
-  [`to_data_frame()`](https://sonsoles.me/cograph/reference/to_data_frame.md)
-  and the wrangling verbs
-  ([`threshold_edges()`](https://sonsoles.me/cograph/reference/threshold_edges.md),
-  [`filter_edges()`](https://sonsoles.me/cograph/reference/filter_edges.md),
-  [`filter_nodes()`](https://sonsoles.me/cograph/reference/filter_nodes.md),
-  `select_*()`, `subset_*()`,
-  [`remove_isolates()`](https://sonsoles.me/cograph/reference/remove_isolates.md),
-  [`reverse_edges()`](https://sonsoles.me/cograph/reference/reverse_edges.md),
-  [`invert_weights()`](https://sonsoles.me/cograph/reference/invert_weights.md),
-  …) read one edge of weight 1 per observed transition, so
-  `threshold_edges(model, minimum = 0.1)` kept every transition and
-  returned 0/1 weights. They now read the model weights.
-  [`as_cograph()`](https://sonsoles.me/cograph/reference/as_cograph.md)
-  on such a model is unchanged (a temporal multigraph, as the motif
-  functions need).
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
+  count only positive weights as ties, and `motif_census(size = 4)`
+  gives `NA` for the classes igraph does not count.
+- [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
+  and `motifs(named_nodes = TRUE)` match exact labelled patterns by
+  default (`strict = TRUE`); `strict = FALSE` gives one row per triple
+  and type, as before. Instance mode defaults to `min_transitions = 3`
+  and `min_count = 2`; census mode keeps `min_transitions = 5`.
+- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
+  now wraps `subgraphs(strict = FALSE)`, so the two agree: `sig` is
+  logical, `expected` and `z` are not rounded, and rows are sorted by
+  decreasing \|z\|.
+- `pattern = "closed"` selects the seven closed triad types.
+- Motif plots use corrected triad names (111D and 111U were swapped;
+  201, 120D, 120U, 120C and 210 are renamed). Counts were already
+  correct.
+- `weighted = FALSE` is honoured by every centrality measure.
+- [`centrality_alpha()`](https://sonsoles.me/cograph/reference/centrality_alpha.md)
+  and
+  [`centrality_power()`](https://sonsoles.me/cograph/reference/centrality_power.md)
+  honour `mode`; the default `mode = "all"` symmetrizes directed input.
+- Harmonic centrality with `normalized = TRUE` is divided by n - 1 only.
+- Diffusion with `diffusion_method = "power_series"` (the default for
+  tna models) is scaled to 0-1, as in tna 1.5.8.
 - [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
-  computes `transitivity` and `mean_local_transitivity` with the same
-  code as
-  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
-  so both report one formula. It called
-  [`igraph::transitivity()`](https://r.igraph.org/reference/transitivity.html),
-  whose value on a directed network with reciprocated ties changes after
-  [`igraph::simplify()`](https://r.igraph.org/reference/simplify.html)
-  (0.96 or 0.92, depending on node order, for a network whose value is
-  1). The reported transitivity of such networks changes.
-- `centrality(type = "all")` (and `measures = "all"`) no longer stops
-  when one measure has no value on the network. On a network that is
-  mostly isolates, `mcgm` stopped the call (“automatic alpha is
-  undefined when median coreness is zero”), so no measure was returned;
-  an unsolvable `alpha` system and `nonbacktracking` on a network
-  without edges (“0 x 0 matrix”) did the same. Those columns are now
-  `NA` with a `cograph_undefined_measure` warning. Naming such a measure
-  in `measures =` still raises its error.
-- [`n_communities()`](https://sonsoles.me/cograph/reference/n_communities.md)
+  reports transitivity with the same formula as
+  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md).
+- Corrected on directed networks: communicability, local transitivity,
+  DMNC, gateway centrality and
+  [`estrada_index()`](https://sonsoles.me/cograph/reference/estrada_index.md).
+  Delta betweenness no longer depends on the scale of the weights.
+
+### New features
+
+- [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
   and
-  [`community_sizes()`](https://sonsoles.me/cograph/reference/community_sizes.md)
-  raise an error of class `cograph_bad_input` for anything that is not a
-  community result. A network gave 0 and an empty vector.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  accept group network objects (Nestimate groups, including `net_mlvar`,
+  and tna group models) and return one data frame with a `group` column.
+  `shared_nodes` chooses each group’s own nodes (default) or the common
+  node set.
+- `splot(isolates = FALSE)` hides nodes without ties.
+- `i` selects one group of a Nestimate group object in
+  [`splot()`](https://sonsoles.me/cograph/reference/splot.md) and
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
   [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  and
-  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  read a tna model built from a weight matrix as an aggregate network
-  instead of stopping with “argument must be coercible to non-negative
-  integer”.
-
-### Inputs
-
+  gain `p_adjust`, `family` and `count_repeats`.
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) on
+  motif results gain `significant`.
 - [`get_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md),
   [`get_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md),
-  [`get_labels()`](https://sonsoles.me/cograph/reference/get_nodes.md),
   [`n_nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md),
   [`n_edges()`](https://sonsoles.me/cograph/reference/get_nodes.md) and
   [`is_directed()`](https://sonsoles.me/cograph/reference/get_nodes.md)
-  accept every network input (matrix, edge-list data frame, igraph,
-  statnet network, tna model), not only a `cograph_network`.
-- [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
-  and
-  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
-  accept tna models and edge-list data frames.
+  accept every network input.
+  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
+  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md),
   [`disparity_filter()`](https://sonsoles.me/cograph/reference/disparity_filter.md),
   [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md),
   [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
@@ -91,363 +74,46 @@
   [`plot_chord()`](https://sonsoles.me/cograph/reference/plot_chord.md)
   accept edge-list data frames.
 
-### Group network objects
+### Bug fixes
 
-- [`splot()`](https://sonsoles.me/cograph/reference/splot.md) has a new
-  argument `isolates` (default `TRUE`). With `FALSE`, nodes without any
-  tie are not drawn (a self-loop counts as a tie), and per-node
-  arguments given for the full node set follow the nodes that stay. On a
-  group object each panel hides its own isolates, which removes the
-  nodes a group only carries because another group has them.
-- `i` selects one group of a Nestimate `netobject_group` in
-  [`splot()`](https://sonsoles.me/cograph/reference/splot.md),
-  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
-  [`plot_netobject_group()`](https://sonsoles.me/cograph/reference/plot-results.md),
-  as it does for tna groups. It was ignored, and a name that matched no
-  group drew every group. An unknown group raises an error of class
-  `cograph_bad_selection`.
-- [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-  and
-  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
-  accept group network objects (a Nestimate `netobject_group`, including
-  `net_mlvar`, and tna group models). They return one data frame for all
-  groups with a leading `group` column, instead of the error “x must be
-  a matrix, …”.
-- New argument `shared_nodes` in both. A group object carries every
-  group on the node set of the whole data, so each group reported the
-  same `node_count` and the nodes of the other groups as isolates. The
-  default `shared_nodes = FALSE` analyses each group on its own nodes,
-  those that have a tie in the group or occur in the group’s data, so a
-  member without ties stays as an isolate; `shared_nodes = TRUE` keeps
-  the common node set.
-- The `centrality_*()` shortcuts,
-  [`reaching_global()`](https://sonsoles.me/cograph/reference/reaching_global.md)
-  and
-  [`plot_centrality()`](https://sonsoles.me/cograph/reference/plot_centrality.md)
-  raise an error of class `cograph_group_input` for a group object.
-
-## cograph 2.7.13
-
-- The
-  [`plot_edge_diff_forest()`](https://sonsoles.me/cograph/reference/plot_edge_diff_forest.md)
-  example passes `show_nonsig = TRUE`, so it draws when no edge
-  difference is significant.
-
-## cograph 2.7.12
-
-### Breaking changes
-
-- [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
-  returns a data frame with one row per MAN type (`type`, `count`)
-  instead of a named vector, like
-  [`dyad_census()`](https://sonsoles.me/cograph/reference/dyad_census.md).
+- tna models built from sequences keep their weights in
+  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md),
+  [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md)
+  and the wrangling verbs such as
+  [`threshold_edges()`](https://sonsoles.me/cograph/reference/threshold_edges.md).
+- `centrality(type = "all")` gives `NA` with a warning for a measure
+  that is undefined on the network, instead of stopping, including on
+  signed weights.
+- Undirected tna models keep their self-loops in
+  [`to_matrix()`](https://sonsoles.me/cograph/reference/to_matrix.md),
+  [`to_df()`](https://sonsoles.me/cograph/reference/to_data_frame.md)
+  and the wrangling verbs.
+- `network_summary(weighted = FALSE)` counts an edge of weight 0 as a
+  tie in transitivity.
+- `splot(isolates = FALSE)` also hides isolates of an edge-list data
+  frame.
 - [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)
   and
   [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md)
-  count an edge only where the weight is positive, the rule
-  [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) already
-  used. A negative weight (for example a negative correlation) is no
-  longer a tie.
-- `motif_census(size = 4)` reports `NA` for the disconnected classes
-  that igraph does not count, instead of a false 0.
-- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  is now a wrapper of `subgraphs(strict = FALSE)` instead of a separate
-  implementation, so the two always agree. Its `sig` column is logical,
-  `expected` and `z` are no longer rounded, rows are sorted by
-  decreasing \|z\| (the strongest deficits are no longer cut by `top`),
-  `by_type` groups in MAN order, and at aggregate level significance is
-  not available (a `cograph_no_units` warning is raised).
-
-### New features
-
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  gain `count_repeats` (default `FALSE`, so results are unchanged). With
-  `count_repeats = TRUE`, repeated codes such as A -\> A count toward
-  `min_transitions` and are shuffled with the other transitions in the
-  permutation null, so repeated codes are treated as distinct events, as
-  when several different utterances share one code. Observed triads
-  never contain a repeat. This reproduces the counts, expected values
-  and z-scores of census results computed before 2.4.6.
-
-### Bug fixes
-
-- Motif plot colours and significance stars follow the adjusted p-value
-  when `p_adjust` is set, so they match the `sig` column.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) with
-  `window` but no actor column raises a `cograph_window_needs_actor`
-  error; it used to pool the windows and test them against a null built
-  from the first one.
-- An empty individual-level
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  result is `NULL` with a message, as documented.
-- `motifs(as_cograph(<tna>))` is analysed per sequence, like the tna
-  itself.
-- Edge lists are read case-insensitively (`From`/`To`) and a `count`
-  column is used as the weight, so
-  [`get_edge_list()`](https://sonsoles.me/cograph/reference/get_edge_list.md)
-  output keeps its weights. An edge list without `from` or `to` raises
-  `cograph_bad_edgelist`.
-- `edge_method = "expected"` no longer fails on a unit with no
-  transitions.
-- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  no longer merges distinct id combinations such as (“a_b”, “c”) and
-  (“a”, “b_c”), and `data` without `id` raises `cograph_data_needs_id`.
-- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a census
-  with `significant = TRUE` draws only the significant types and returns
-  the input; `ncol` reaches the pattern grid.
-- [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  help page uses the corrected triad names; the print methods are
-  documented (`?print-motifs`), and
-  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  results gain
-  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html).
-- Motif help pages corrected: the edge-list columns, rolling versus
-  tumbling windows, the size of the full test family, instance-mode type
-  counts, `min_count` and `min_transitions` on probability matrices, and
-  `count_repeats` in the details.
-- Motif plots name every triad type by its structure. Seven names were
-  wrong or vague: 111D is now “In-star + mutual” and 111U “Out-star +
-  mutual” (they were swapped), 201 is “Two mutuals” (was “Mutual +
-  in-star”), 120D is “Out-star onto mutual” (was “Two out-stars”), 120U
-  is “In-star from mutual” (was “Two in-stars”), 120C is “Cycle +
-  mutual” (was “Mixed regulated”) and 210 is “Near-clique” (was
-  “Mutual + feed-forward”). Only titles changed: counts, significance
-  and the drawn triads were already correct. A new test checks every
-  name against the structure of its triad.
-
-### Documentation
-
-- The package help page
-  ([`?"cograph-package"`](https://sonsoles.me/cograph/reference/cograph-package.md))
-  describes the analysis functions and every layout family, not only the
-  plotting functions.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
-  [`motif_census()`](https://sonsoles.me/cograph/reference/motif_census.md),
-  [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md),
-  [`network_small_world()`](https://sonsoles.me/cograph/reference/network_small_world.md),
-  [`network_global_efficiency()`](https://sonsoles.me/cograph/reference/network_global_efficiency.md),
-  [`network_local_efficiency()`](https://sonsoles.me/cograph/reference/network_local_efficiency.md),
-  [`compare_communities()`](https://sonsoles.me/cograph/reference/compare_communities.md),
-  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
-  and
-  [`supra_adjacency()`](https://sonsoles.me/cograph/reference/supra_adjacency.md)
-  cite the methods they implement.
-- [`?supra_adjacency`](https://sonsoles.me/cograph/reference/supra_adjacency.md)
-  shows the matrix dimension correctly, and
-  [`?soplot`](https://sonsoles.me/cograph/reference/soplot.md) no longer
-  repeats its return value.
-- The introduction vignette describes
-  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
-  and
-  [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
-  correctly, uses the argument names of
-  [`select_edges_between()`](https://sonsoles.me/cograph/reference/select_edges_between.md),
-  and links the function reference on the pkgdown site.
-- The centrality catalogue shows each measure’s arguments, builds the
-  membership vector with
-  [`communities()`](https://sonsoles.me/cograph/reference/communities.md)
-  and
-  [`membership()`](https://sonsoles.me/cograph/reference/membership.md),
-  and names the five examples that warn on `student_interactions`.
-
-## cograph 2.7.10
-
-### Bug fixes
-
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) in
-  census mode (`named_nodes = FALSE`) defaults to `min_transitions = 5`
-  again, so census results are as before 2.7.9. Instance mode
-  ([`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md),
-  `motifs(named_nodes = TRUE)`) keeps the 2.7.9 default of 3.
-
-## cograph 2.7.9
-
-### Breaking changes
-
-- [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  and `motifs(named_nodes = TRUE)` now match labelled patterns by
-  default (`strict = TRUE`). A row is one node triple with one exact set
-  of arrows, so a cycle and its reverse are separate rows, `observed`
-  counts the units in which the triple shows exactly that pattern, and
-  the permutation null counts the same exact pattern. `strict = FALSE`
-  restores one row per triple and MAN type.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md),
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  and
-  [`extract_motifs()`](https://sonsoles.me/cograph/reference/extract_motifs.md)
-  default to `min_transitions = 3`, the fewest transitions that can form
-  a closed triad (previously 5). In instance mode `min_count` defaults
-  to 2, since a pattern seen in a single unit cannot recur (previously
-  5).
-- `pattern = "closed"` now selects the seven closed types, the same as
-  `"triangle"`.
-- `expected` and `z` are stored unrounded.
-
-### New features
-
-- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and
-  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) on a
-  motif result gain a `significant` argument. With `significant = TRUE`,
-  `plot(type = "triads")` draws only the triads flagged significant and
-  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
-  only those rows. A result computed without significance raises a
-  `cograph_no_significance` error.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  gain `p_adjust`, any of
-  [`stats::p.adjust.methods`](https://rdrr.io/r/stats/p.adjust.html),
-  defaulting to `"none"` as in HYPA. The adjusted values are returned in
-  a new `p_adj` column and `sig` is `p_adj < 0.05`.
-- [`motifs()`](https://sonsoles.me/cograph/reference/motifs.md) and
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  gain `family`. `family = "all"` tests every node triple and pattern,
-  including those no unit shows, which keeps the false-positive rate at
-  the nominal level; the default `"observed"` tests only the observed
-  rows.
-- Instance results carry `pattern` (the labelled edge set, for example
-  `"A -> B, B <-> C"`), `pattern_n` and `pattern_code`.
-- The result records `n_units` (units analysed) and `n_units_total`
-  (units supplied), and [`print()`](https://rdrr.io/r/base/print.html)
-  reports both.
-
-### Bug fixes
-
-- `plot(type = "triads")` on a
-  [`subgraphs()`](https://sonsoles.me/cograph/reference/subgraphs.md)
-  result draws the arrows the units actually showed, with `node1` at the
-  top, `node2` bottom left and `node3` bottom right. It previously drew
-  the canonical MAN representative, whose arrows did not correspond to
-  the named nodes.
-- `n_units` counted every unit supplied, including those removed by
-  `min_transitions`.
-- Triad captions show p to three decimals, and the adjusted p when an
-  adjustment was requested.
-
-## cograph 2.7.8
-
-### Bug fixes
-
+  of an edge list no longer depend on the order of duplicate rows.
 - [`plot_simplicial()`](https://sonsoles.me/cograph/reference/plot_simplicial.md)
-  keeps multi-word state names whole when pathways are given in full
-  arrow notation (`"A -> B -> C"`), instead of splitting them on spaces.
-  The HYPA, MOGen and HON pathway extractors emit full arrow notation,
-  so every state of a path is drawn as its own vertex.
-
-## cograph 2.7.6
-
-### Bug fixes
-
-- [`plot_mcml()`](https://sonsoles.me/cograph/reference/plot_mcml.md) is
-  restored to its 2.7.4 behaviour: on directed input both modes plot
-  row-normalized cluster weights, and `mode` changes only the default
-  edge labels. 2.7.5 had changed the default figure.
-
-## cograph 2.7.5
-
-### Bug fixes
-
-- `weighted = FALSE` is now honoured by every centrality measure. About
-  twenty measures, among them closeness, betweenness, harmonic,
-  eigenvector, pagerank, strength and katz, used the edge weights
-  regardless of this argument.
-- Communicability is computed with a general matrix exponential, so its
-  values are correct on directed networks. Communicability betweenness
-  no longer stops with a singular-system error, and
-  `centrality(x, type = "all")` runs on the bundled `regulation_net`.
-- [`centrality_gateway()`](https://sonsoles.me/cograph/reference/centrality_gateway.md)
-  uses the same ties for degree and module links, so the score lies
-  between 0 and 1 on directed networks; it honours `mode` and accepts
-  character or factor membership.
-- [`centrality_alpha()`](https://sonsoles.me/cograph/reference/centrality_alpha.md)
-  and
-  [`centrality_power()`](https://sonsoles.me/cograph/reference/centrality_power.md)
-  honour `mode`. With the default `mode = "all"` a directed network is
-  symmetrized, which changes their default results on directed input.
-- [`centrality_expected_influence_1()`](https://sonsoles.me/cograph/reference/centrality_expected_influence_1.md)
-  and `_2()` no longer count each edge twice on undirected networks with
-  `mode = "all"`.
-- Local transitivity on directed networks equals
-  `igraph::transitivity(type = "local")`; DMNC no longer double-counts
-  reciprocated neighbors.
-- Harmonic centrality with `normalized = TRUE` is divided by n - 1 only;
-  a named `personalized` vector in PageRank is matched to node names;
-  percolation honours `invert_weights`; Katz centrality of a single node
-  is 1.
-- Delta betweenness weights each pair by the number of edges on its
-  shortest path, so it no longer returns zeros when all weights are
-  below 1 and no longer depends on the scale of the weights.
-- Undefined values (disconnected or degenerate networks, missing
-  membership, directed-only measures on undirected input) now come with
-  a `cograph_undefined_measure` warning, and invalid arguments raise
-  classed errors (`cograph_bad_parameter`, `cograph_bad_membership`).
-  `decay_parameter` and `dmnc_epsilon` are validated.
-- [`estrada_index()`](https://sonsoles.me/cograph/reference/estrada_index.md)
-  is correct on directed networks; the efficiency functions accept tna
-  input with `weights = NA`;
-  [`simplify()`](https://sonsoles.me/cograph/reference/simplify.md)
-  keeps the weight matrix in step with the merged edges;
-  [`is_bipartite()`](https://sonsoles.me/cograph/reference/is_bipartite.md)
-  works on named graphs;
-  [`split_components()`](https://sonsoles.me/cograph/reference/split_components.md)
-  handles an empty network.
+  keeps multi-word state names whole.
+- Motif plot colours and stars follow the adjusted p-value.
 - [`cluster_significance()`](https://sonsoles.me/cograph/reference/cluster_significance.md)
-  compares weighted modularity against null graphs that carry the
-  observed weights.
-  [`csum()`](https://sonsoles.me/cograph/reference/csum.md) and
-  [`summarize_clusters()`](https://sonsoles.me/cograph/reference/summarize_clusters.md)
-  symmetrize the input when `directed = FALSE`, and sequence data with
-  columns V1, V2, … is read as sequences.
-  [`aggregate_layers()`](https://sonsoles.me/cograph/reference/aggregate_layers.md)
-  binarizes a single layer for union and intersection;
-  [`cluster_quality()`](https://sonsoles.me/cograph/reference/cluster_quality.md)
-  density ignores self-loops.
-- [`rich_club()`](https://sonsoles.me/cograph/reference/rich_club.md)
-  warns (`cograph_null_draw_failed`) when null graphs cannot be drawn.
-  [`nodes()`](https://sonsoles.me/cograph/reference/get_nodes.md) now
-  signals its deprecation.
-- [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md)
-  handles missing states;
-  [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md)
-  accumulates slices correctly and accepts a coordinate layout;
+  compares against null graphs with the observed weights.
+- Fixes in
+  [`plot_trajectories()`](https://sonsoles.me/cograph/reference/plot_trajectories.md),
+  [`plot_network_evolution()`](https://sonsoles.me/cograph/reference/plot_network_evolution.md),
   [`plot_heatmap()`](https://sonsoles.me/cograph/reference/plot_heatmap.md)
-  builds a full diverging scale from one colour;
-  [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md)
-  labels every layer with its own nodes;
-  [`layout_oval()`](https://sonsoles.me/cograph/reference/layout_oval.md)
-  orders by node names;
-  [`sn_layout()`](https://sonsoles.me/cograph/reference/sn_layout.md)
-  reports an unknown layout clearly; `CographTheme` clone and merge keep
-  added parameters.
-
-## cograph 2.7.4
+  and
+  [`plot_ml_heatmap()`](https://sonsoles.me/cograph/reference/plot_ml_heatmap.md).
+- Examples and tests that need igraph check that it is installed.
 
 ### Documentation
 
-- Help pages for print, summary and plot methods no longer stand alone.
-  The methods are described on the page of the function that creates the
-  object, and plot methods with their own arguments are documented
-  together in `?plot-results`. Network accessors, themes, palettes,
-  shapes and the layout registry each share one page.
-- Every `centrality_*()` page follows one layout: definition, the
-  arguments of
-  [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md)
-  that tune the measure with their defaults, how direction and weights
-  are read, when the result is `NA` and which condition is raised,
-  references and one example on `regulation_net`.
-- The help pages were checked against the code, and statements that did
-  not match the behaviour of the functions were corrected.
-- Formulas print in readable plain text in the console help.
-- Examples are shorter and use the bundled data.
-
-## cograph 2.7.3
-
-### Bug fixes
-
-- Examples and tests that require the optional `igraph` package now
-  check that it is available. This fixes CRAN check failures on Intel
-  macOS when `igraph` is unavailable, while examples and tests using
-  native cograph functionality continue to run.
+- Help pages were checked against the code and corrected. Print, summary
+  and plot methods are documented with the function that creates the
+  object.
 
 ## cograph 2.7.2
 

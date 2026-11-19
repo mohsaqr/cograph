@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.16</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,198 +45,64 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.15" id="cograph-2715">cograph 2.7.15<a class="anchor" aria-label="anchor" href="#cograph-2715"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.7.16" id="cograph-2716">cograph 2.7.16<a class="anchor" aria-label="anchor" href="#cograph-2716"></a></h2>
 <div class="section level3">
-<h3 id="changed-values-2-7-15">Changed values<a class="anchor" aria-label="anchor" href="#changed-values-2-7-15"></a></h3>
-<ul><li>Diffusion centrality with <code>diffusion_method = "power_series"</code> (the default for tna models, and with <code>tna_network = TRUE</code>) is now min-max scaled to the range from 0 to 1, as <code>tna::centralities(measures = "Diffusion")</code> does since tna 1.5.8. The raw sums grow with powers of the edge weights. Values for tna input therefore differ from earlier cograph versions; scores that do not vary across the nodes are <code>NaN</code>. The default <code>"kandhway_kuri"</code> form is unchanged.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.14" id="cograph-2714">cograph 2.7.14<a class="anchor" aria-label="anchor" href="#cograph-2714"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-14">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-14"></a></h3>
-<ul><li>A tna model built from sequences kept its transition probabilities only in <code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code>. <code><a href="../reference/to_matrix.html">to_matrix()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code> / <code><a href="../reference/to_data_frame.html">to_data_frame()</a></code> and the wrangling verbs (<code><a href="../reference/threshold_edges.html">threshold_edges()</a></code>, <code><a href="../reference/filter_edges.html">filter_edges()</a></code>, <code><a href="../reference/filter_nodes.html">filter_nodes()</a></code>, <code>select_*()</code>, <code>subset_*()</code>, <code><a href="../reference/remove_isolates.html">remove_isolates()</a></code>, <code><a href="../reference/reverse_edges.html">reverse_edges()</a></code>, <code><a href="../reference/invert_weights.html">invert_weights()</a></code>, …) read one edge of weight 1 per observed transition, so <code>threshold_edges(model, minimum = 0.1)</code> kept every transition and returned 0/1 weights. They now read the model weights. <code><a href="../reference/as_cograph.html">as_cograph()</a></code> on such a model is unchanged (a temporal multigraph, as the motif functions need).</li>
-<li>
-<code><a href="../reference/network_summary.html">network_summary()</a></code> computes <code>transitivity</code> and <code>mean_local_transitivity</code> with the same code as <code><a href="../reference/centrality.html">centrality()</a></code>, so both report one formula. It called <code><a href="https://r.igraph.org/reference/transitivity.html" class="external-link">igraph::transitivity()</a></code>, whose value on a directed network with reciprocated ties changes after <code><a href="https://r.igraph.org/reference/simplify.html" class="external-link">igraph::simplify()</a></code> (0.96 or 0.92, depending on node order, for a network whose value is 1). The reported transitivity of such networks changes.</li>
-<li>
-<code>centrality(type = "all")</code> (and <code>measures = "all"</code>) no longer stops when one measure has no value on the network. On a network that is mostly isolates, <code>mcgm</code> stopped the call (“automatic alpha is undefined when median coreness is zero”), so no measure was returned; an unsolvable <code>alpha</code> system and <code>nonbacktracking</code> on a network without edges (“0 x 0 matrix”) did the same. Those columns are now <code>NA</code> with a <code>cograph_undefined_measure</code> warning. Naming such a measure in <code>measures =</code> still raises its error.</li>
-<li>
-<code><a href="../reference/n_communities.html">n_communities()</a></code> and <code><a href="../reference/community_sizes.html">community_sizes()</a></code> raise an error of class <code>cograph_bad_input</code> for anything that is not a community result. A network gave 0 and an empty vector.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> read a tna model built from a weight matrix as an aggregate network instead of stopping with “argument must be coercible to non-negative integer”.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="inputs-2-7-14">Inputs<a class="anchor" aria-label="anchor" href="#inputs-2-7-14"></a></h3>
+<h3 id="changes-to-results-2-7-16">Changes to results<a class="anchor" aria-label="anchor" href="#changes-to-results-2-7-16"></a></h3>
 <ul><li>
-<code><a href="../reference/get_nodes.html">get_nodes()</a></code>, <code><a href="../reference/get_nodes.html">get_edges()</a></code>, <code><a href="../reference/get_nodes.html">get_labels()</a></code>, <code><a href="../reference/get_nodes.html">n_nodes()</a></code>, <code><a href="../reference/get_nodes.html">n_edges()</a></code> and <code><a href="../reference/get_nodes.html">is_directed()</a></code> accept every network input (matrix, edge-list data frame, igraph, statnet network, tna model), not only a <code>cograph_network</code>.</li>
+<code><a href="../reference/triad_census.html">triad_census()</a></code> returns a data frame (<code>type</code>, <code>count</code>) instead of a named vector. <code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/motif_census.html">motif_census()</a></code> count only positive weights as ties, and <code>motif_census(size = 4)</code> gives <code>NA</code> for the classes igraph does not count.</li>
 <li>
-<code><a href="../reference/motif_census.html">motif_census()</a></code> and <code><a href="../reference/triad_census.html">triad_census()</a></code> accept tna models and edge-list data frames. <code><a href="../reference/disparity_filter.html">disparity_filter()</a></code>, <code><a href="../reference/simplify.html">simplify()</a></code>, <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> and <code><a href="../reference/plot_chord.html">plot_chord()</a></code> accept edge-list data frames.</li>
+<code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code>motifs(named_nodes = TRUE)</code> match exact labelled patterns by default (<code>strict = TRUE</code>); <code>strict = FALSE</code> gives one row per triple and type, as before. Instance mode defaults to <code>min_transitions = 3</code> and <code>min_count = 2</code>; census mode keeps <code>min_transitions = 5</code>.</li>
+<li>
+<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> now wraps <code>subgraphs(strict = FALSE)</code>, so the two agree: <code>sig</code> is logical, <code>expected</code> and <code>z</code> are not rounded, and rows are sorted by decreasing |z|.</li>
+<li>
+<code>pattern = "closed"</code> selects the seven closed triad types.</li>
+<li>Motif plots use corrected triad names (111D and 111U were swapped; 201, 120D, 120U, 120C and 210 are renamed). Counts were already correct.</li>
+<li>
+<code>weighted = FALSE</code> is honoured by every centrality measure.</li>
+<li>
+<code><a href="../reference/centrality_alpha.html">centrality_alpha()</a></code> and <code><a href="../reference/centrality_power.html">centrality_power()</a></code> honour <code>mode</code>; the default <code>mode = "all"</code> symmetrizes directed input.</li>
+<li>Harmonic centrality with <code>normalized = TRUE</code> is divided by n - 1 only.</li>
+<li>Diffusion with <code>diffusion_method = "power_series"</code> (the default for tna models) is scaled to 0-1, as in tna 1.5.8.</li>
+<li>
+<code><a href="../reference/network_summary.html">network_summary()</a></code> reports transitivity with the same formula as <code><a href="../reference/centrality.html">centrality()</a></code>.</li>
+<li>Corrected on directed networks: communicability, local transitivity, DMNC, gateway centrality and <code><a href="../reference/estrada_index.html">estrada_index()</a></code>. Delta betweenness no longer depends on the scale of the weights.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="group-network-objects-2-7-14">Group network objects<a class="anchor" aria-label="anchor" href="#group-network-objects-2-7-14"></a></h3>
+<h3 id="new-features-2-7-16">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-16"></a></h3>
 <ul><li>
-<code><a href="../reference/splot.html">splot()</a></code> has a new argument <code>isolates</code> (default <code>TRUE</code>). With <code>FALSE</code>, nodes without any tie are not drawn (a self-loop counts as a tie), and per-node arguments given for the full node set follow the nodes that stay. On a group object each panel hides its own isolates, which removes the nodes a group only carries because another group has them.</li>
+<code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code> accept group network objects (Nestimate groups, including <code>net_mlvar</code>, and tna group models) and return one data frame with a <code>group</code> column. <code>shared_nodes</code> chooses each group’s own nodes (default) or the common node set.</li>
 <li>
-<code>i</code> selects one group of a Nestimate <code>netobject_group</code> in <code><a href="../reference/splot.html">splot()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="../reference/plot-results.html">plot_netobject_group()</a></code>, as it does for tna groups. It was ignored, and a name that matched no group drew every group. An unknown group raises an error of class <code>cograph_bad_selection</code>.</li>
+<code>splot(isolates = FALSE)</code> hides nodes without ties.</li>
 <li>
-<code><a href="../reference/centrality.html">centrality()</a></code> and <code><a href="../reference/network_summary.html">network_summary()</a></code> accept group network objects (a Nestimate <code>netobject_group</code>, including <code>net_mlvar</code>, and tna group models). They return one data frame for all groups with a leading <code>group</code> column, instead of the error “x must be a matrix, …”.</li>
-<li>New argument <code>shared_nodes</code> in both. A group object carries every group on the node set of the whole data, so each group reported the same <code>node_count</code> and the nodes of the other groups as isolates. The default <code>shared_nodes = FALSE</code> analyses each group on its own nodes, those that have a tie in the group or occur in the group’s data, so a member without ties stays as an isolate; <code>shared_nodes = TRUE</code> keeps the common node set.</li>
-<li>The <code>centrality_*()</code> shortcuts, <code><a href="../reference/reaching_global.html">reaching_global()</a></code> and <code><a href="../reference/plot_centrality.html">plot_centrality()</a></code> raise an error of class <code>cograph_group_input</code> for a group object.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.13" id="cograph-2713">cograph 2.7.13<a class="anchor" aria-label="anchor" href="#cograph-2713"></a></h2>
-<ul><li>The <code><a href="../reference/plot_edge_diff_forest.html">plot_edge_diff_forest()</a></code> example passes <code>show_nonsig = TRUE</code>, so it draws when no edge difference is significant.</li>
-</ul></div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.12" id="cograph-2712">cograph 2.7.12<a class="anchor" aria-label="anchor" href="#cograph-2712"></a></h2>
-<div class="section level3">
-<h3 id="breaking-changes-2-7-12">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-7-12"></a></h3>
-<ul><li>
-<code><a href="../reference/triad_census.html">triad_census()</a></code> returns a data frame with one row per MAN type (<code>type</code>, <code>count</code>) instead of a named vector, like <code><a href="../reference/dyad_census.html">dyad_census()</a></code>.</li>
+<code>i</code> selects one group of a Nestimate group object in <code><a href="../reference/splot.html">splot()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
 <li>
-<code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/motif_census.html">motif_census()</a></code> count an edge only where the weight is positive, the rule <code><a href="../reference/motifs.html">motifs()</a></code> already used. A negative weight (for example a negative correlation) is no longer a tie.</li>
+<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>p_adjust</code>, <code>family</code> and <code>count_repeats</code>. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on motif results gain <code>significant</code>.</li>
 <li>
-<code>motif_census(size = 4)</code> reports <code>NA</code> for the disconnected classes that igraph does not count, instead of a false 0.</li>
-<li>
-<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> is now a wrapper of <code>subgraphs(strict = FALSE)</code> instead of a separate implementation, so the two always agree. Its <code>sig</code> column is logical, <code>expected</code> and <code>z</code> are no longer rounded, rows are sorted by decreasing |z| (the strongest deficits are no longer cut by <code>top</code>), <code>by_type</code> groups in MAN order, and at aggregate level significance is not available (a <code>cograph_no_units</code> warning is raised).</li>
+<code><a href="../reference/get_nodes.html">get_nodes()</a></code>, <code><a href="../reference/get_nodes.html">get_edges()</a></code>, <code><a href="../reference/get_nodes.html">n_nodes()</a></code>, <code><a href="../reference/get_nodes.html">n_edges()</a></code> and <code><a href="../reference/get_nodes.html">is_directed()</a></code> accept every network input. <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/triad_census.html">triad_census()</a></code>, <code><a href="../reference/disparity_filter.html">disparity_filter()</a></code>, <code><a href="../reference/simplify.html">simplify()</a></code>, <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> and <code><a href="../reference/plot_chord.html">plot_chord()</a></code> accept edge-list data frames.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-2-7-12">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-12"></a></h3>
-<ul><li>
-<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>count_repeats</code> (default <code>FALSE</code>, so results are unchanged). With <code>count_repeats = TRUE</code>, repeated codes such as A -&gt; A count toward <code>min_transitions</code> and are shuffled with the other transitions in the permutation null, so repeated codes are treated as distinct events, as when several different utterances share one code. Observed triads never contain a repeat. This reproduces the counts, expected values and z-scores of census results computed before 2.4.6.</li>
+<h3 id="bug-fixes-2-7-16">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-16"></a></h3>
+<ul><li>tna models built from sequences keep their weights in <code><a href="../reference/to_matrix.html">to_matrix()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code> and the wrangling verbs such as <code><a href="../reference/threshold_edges.html">threshold_edges()</a></code>.</li>
+<li>
+<code>centrality(type = "all")</code> gives <code>NA</code> with a warning for a measure that is undefined on the network, instead of stopping, including on signed weights.</li>
+<li>Undirected tna models keep their self-loops in <code><a href="../reference/to_matrix.html">to_matrix()</a></code>, <code><a href="../reference/to_data_frame.html">to_df()</a></code> and the wrangling verbs.</li>
+<li>
+<code>network_summary(weighted = FALSE)</code> counts an edge of weight 0 as a tie in transitivity.</li>
+<li>
+<code>splot(isolates = FALSE)</code> also hides isolates of an edge-list data frame.</li>
+<li>
+<code><a href="../reference/triad_census.html">triad_census()</a></code> and <code><a href="../reference/motif_census.html">motif_census()</a></code> of an edge list no longer depend on the order of duplicate rows.</li>
+<li>
+<code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> keeps multi-word state names whole.</li>
+<li>Motif plot colours and stars follow the adjusted p-value.</li>
+<li>
+<code><a href="../reference/cluster_significance.html">cluster_significance()</a></code> compares against null graphs with the observed weights.</li>
+<li>Fixes in <code><a href="../reference/plot_trajectories.html">plot_trajectories()</a></code>, <code><a href="../reference/plot_network_evolution.html">plot_network_evolution()</a></code>, <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> and <code><a href="../reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code>.</li>
+<li>Examples and tests that need igraph check that it is installed.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-2-7-12">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-12"></a></h3>
-<ul><li>Motif plot colours and significance stars follow the adjusted p-value when <code>p_adjust</code> is set, so they match the <code>sig</code> column.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code> with <code>window</code> but no actor column raises a <code>cograph_window_needs_actor</code> error; it used to pool the windows and test them against a null built from the first one.</li>
-<li>An empty individual-level <code><a href="../reference/subgraphs.html">subgraphs()</a></code> result is <code>NULL</code> with a message, as documented.</li>
-<li>
-<code>motifs(as_cograph(&lt;tna&gt;))</code> is analysed per sequence, like the tna itself.</li>
-<li>Edge lists are read case-insensitively (<code>From</code>/<code>To</code>) and a <code>count</code> column is used as the weight, so <code><a href="../reference/get_edge_list.html">get_edge_list()</a></code> output keeps its weights. An edge list without <code>from</code> or <code>to</code> raises <code>cograph_bad_edgelist</code>.</li>
-<li>
-<code>edge_method = "expected"</code> no longer fails on a unit with no transitions.</li>
-<li>
-<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> no longer merges distinct id combinations such as (“a_b”, “c”) and (“a”, “b_c”), and <code>data</code> without <code>id</code> raises <code>cograph_data_needs_id</code>.</li>
-<li>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a census with <code>significant = TRUE</code> draws only the significant types and returns the input; <code>ncol</code> reaches the pattern grid.</li>
-<li>
-<code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> help page uses the corrected triad names; the print methods are documented (<code>?print-motifs</code>), and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> results gain <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>.</li>
-<li>Motif help pages corrected: the edge-list columns, rolling versus tumbling windows, the size of the full test family, instance-mode type counts, <code>min_count</code> and <code>min_transitions</code> on probability matrices, and <code>count_repeats</code> in the details.</li>
-<li>Motif plots name every triad type by its structure. Seven names were wrong or vague: 111D is now “In-star + mutual” and 111U “Out-star + mutual” (they were swapped), 201 is “Two mutuals” (was “Mutual + in-star”), 120D is “Out-star onto mutual” (was “Two out-stars”), 120U is “In-star from mutual” (was “Two in-stars”), 120C is “Cycle + mutual” (was “Mixed regulated”) and 210 is “Near-clique” (was “Mutual + feed-forward”). Only titles changed: counts, significance and the drawn triads were already correct. A new test checks every name against the structure of its triad.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="documentation-2-7-12">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-12"></a></h3>
-<ul><li>The package help page (<code><a href="../reference/cograph-package.html">?"cograph-package"</a></code>) describes the analysis functions and every layout family, not only the plotting functions.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/motif_census.html">motif_census()</a></code>, <code><a href="../reference/triad_census.html">triad_census()</a></code>, <code><a href="../reference/network_small_world.html">network_small_world()</a></code>, <code><a href="../reference/network_global_efficiency.html">network_global_efficiency()</a></code>, <code><a href="../reference/network_local_efficiency.html">network_local_efficiency()</a></code>, <code><a href="../reference/compare_communities.html">compare_communities()</a></code>, <code><a href="../reference/cluster_quality.html">cluster_quality()</a></code> and <code><a href="../reference/supra_adjacency.html">supra_adjacency()</a></code> cite the methods they implement.</li>
-<li>
-<code><a href="../reference/supra_adjacency.html">?supra_adjacency</a></code> shows the matrix dimension correctly, and <code><a href="../reference/soplot.html">?soplot</a></code> no longer repeats its return value.</li>
-<li>The introduction vignette describes <code><a href="../reference/cluster_quality.html">cluster_quality()</a></code> and <code><a href="../reference/cluster_significance.html">cluster_significance()</a></code> correctly, uses the argument names of <code><a href="../reference/select_edges_between.html">select_edges_between()</a></code>, and links the function reference on the pkgdown site.</li>
-<li>The centrality catalogue shows each measure’s arguments, builds the membership vector with <code><a href="../reference/communities.html">communities()</a></code> and <code><a href="../reference/membership.html">membership()</a></code>, and names the five examples that warn on <code>student_interactions</code>.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.10" id="cograph-2710">cograph 2.7.10<a class="anchor" aria-label="anchor" href="#cograph-2710"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-10">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-10"></a></h3>
-<ul><li>
-<code><a href="../reference/motifs.html">motifs()</a></code> in census mode (<code>named_nodes = FALSE</code>) defaults to <code>min_transitions = 5</code> again, so census results are as before 2.7.9. Instance mode (<code><a href="../reference/subgraphs.html">subgraphs()</a></code>, <code>motifs(named_nodes = TRUE)</code>) keeps the 2.7.9 default of 3.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.9" id="cograph-279">cograph 2.7.9<a class="anchor" aria-label="anchor" href="#cograph-279"></a></h2>
-<div class="section level3">
-<h3 id="breaking-changes-2-7-9">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-7-9"></a></h3>
-<ul><li>
-<code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code>motifs(named_nodes = TRUE)</code> now match labelled patterns by default (<code>strict = TRUE</code>). A row is one node triple with one exact set of arrows, so a cycle and its reverse are separate rows, <code>observed</code> counts the units in which the triple shows exactly that pattern, and the permutation null counts the same exact pattern. <code>strict = FALSE</code> restores one row per triple and MAN type.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code>, <code><a href="../reference/subgraphs.html">subgraphs()</a></code> and <code><a href="../reference/extract_motifs.html">extract_motifs()</a></code> default to <code>min_transitions = 3</code>, the fewest transitions that can form a closed triad (previously 5). In instance mode <code>min_count</code> defaults to 2, since a pattern seen in a single unit cannot recur (previously 5).</li>
-<li>
-<code>pattern = "closed"</code> now selects the seven closed types, the same as <code>"triangle"</code>.</li>
-<li>
-<code>expected</code> and <code>z</code> are stored unrounded.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="new-features-2-7-9">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-9"></a></h3>
-<ul><li>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> on a motif result gain a <code>significant</code> argument. With <code>significant = TRUE</code>, <code>plot(type = "triads")</code> draws only the triads flagged significant and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> returns only those rows. A result computed without significance raises a <code>cograph_no_significance</code> error.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>p_adjust</code>, any of <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">stats::p.adjust.methods</a></code>, defaulting to <code>"none"</code> as in HYPA. The adjusted values are returned in a new <code>p_adj</code> column and <code>sig</code> is <code>p_adj &lt; 0.05</code>.</li>
-<li>
-<code><a href="../reference/motifs.html">motifs()</a></code> and <code><a href="../reference/subgraphs.html">subgraphs()</a></code> gain <code>family</code>. <code>family = "all"</code> tests every node triple and pattern, including those no unit shows, which keeps the false-positive rate at the nominal level; the default <code>"observed"</code> tests only the observed rows.</li>
-<li>Instance results carry <code>pattern</code> (the labelled edge set, for example <code>"A -&gt; B, B &lt;-&gt; C"</code>), <code>pattern_n</code> and <code>pattern_code</code>.</li>
-<li>The result records <code>n_units</code> (units analysed) and <code>n_units_total</code> (units supplied), and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports both.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-9">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-9"></a></h3>
-<ul><li>
-<code>plot(type = "triads")</code> on a <code><a href="../reference/subgraphs.html">subgraphs()</a></code> result draws the arrows the units actually showed, with <code>node1</code> at the top, <code>node2</code> bottom left and <code>node3</code> bottom right. It previously drew the canonical MAN representative, whose arrows did not correspond to the named nodes.</li>
-<li>
-<code>n_units</code> counted every unit supplied, including those removed by <code>min_transitions</code>.</li>
-<li>Triad captions show p to three decimals, and the adjusted p when an adjustment was requested.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.8" id="cograph-278">cograph 2.7.8<a class="anchor" aria-label="anchor" href="#cograph-278"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-8"></a></h3>
-<ul><li>
-<code><a href="../reference/plot_simplicial.html">plot_simplicial()</a></code> keeps multi-word state names whole when pathways are given in full arrow notation (<code>"A -&gt; B -&gt; C"</code>), instead of splitting them on spaces. The HYPA, MOGen and HON pathway extractors emit full arrow notation, so every state of a path is drawn as its own vertex.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.6" id="cograph-276">cograph 2.7.6<a class="anchor" aria-label="anchor" href="#cograph-276"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-6"></a></h3>
-<ul><li>
-<code><a href="../reference/plot_mcml.html">plot_mcml()</a></code> is restored to its 2.7.4 behaviour: on directed input both modes plot row-normalized cluster weights, and <code>mode</code> changes only the default edge labels. 2.7.5 had changed the default figure.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.5" id="cograph-275">cograph 2.7.5<a class="anchor" aria-label="anchor" href="#cograph-275"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-5"></a></h3>
-<ul><li>
-<code>weighted = FALSE</code> is now honoured by every centrality measure. About twenty measures, among them closeness, betweenness, harmonic, eigenvector, pagerank, strength and katz, used the edge weights regardless of this argument.</li>
-<li>Communicability is computed with a general matrix exponential, so its values are correct on directed networks. Communicability betweenness no longer stops with a singular-system error, and <code>centrality(x, type = "all")</code> runs on the bundled <code>regulation_net</code>.</li>
-<li>
-<code><a href="../reference/centrality_gateway.html">centrality_gateway()</a></code> uses the same ties for degree and module links, so the score lies between 0 and 1 on directed networks; it honours <code>mode</code> and accepts character or factor membership.</li>
-<li>
-<code><a href="../reference/centrality_alpha.html">centrality_alpha()</a></code> and <code><a href="../reference/centrality_power.html">centrality_power()</a></code> honour <code>mode</code>. With the default <code>mode = "all"</code> a directed network is symmetrized, which changes their default results on directed input.</li>
-<li>
-<code><a href="../reference/centrality_expected_influence_1.html">centrality_expected_influence_1()</a></code> and <code>_2()</code> no longer count each edge twice on undirected networks with <code>mode = "all"</code>.</li>
-<li>Local transitivity on directed networks equals <code>igraph::transitivity(type = "local")</code>; DMNC no longer double-counts reciprocated neighbors.</li>
-<li>Harmonic centrality with <code>normalized = TRUE</code> is divided by n - 1 only; a named <code>personalized</code> vector in PageRank is matched to node names; percolation honours <code>invert_weights</code>; Katz centrality of a single node is 1.</li>
-<li>Delta betweenness weights each pair by the number of edges on its shortest path, so it no longer returns zeros when all weights are below 1 and no longer depends on the scale of the weights.</li>
-<li>Undefined values (disconnected or degenerate networks, missing membership, directed-only measures on undirected input) now come with a <code>cograph_undefined_measure</code> warning, and invalid arguments raise classed errors (<code>cograph_bad_parameter</code>, <code>cograph_bad_membership</code>). <code>decay_parameter</code> and <code>dmnc_epsilon</code> are validated.</li>
-<li>
-<code><a href="../reference/estrada_index.html">estrada_index()</a></code> is correct on directed networks; the efficiency functions accept tna input with <code>weights = NA</code>; <code><a href="../reference/simplify.html">simplify()</a></code> keeps the weight matrix in step with the merged edges; <code><a href="../reference/is_bipartite.html">is_bipartite()</a></code> works on named graphs; <code><a href="../reference/split_components.html">split_components()</a></code> handles an empty network.</li>
-<li>
-<code><a href="../reference/cluster_significance.html">cluster_significance()</a></code> compares weighted modularity against null graphs that carry the observed weights. <code><a href="../reference/csum.html">csum()</a></code> and <code><a href="../reference/summarize_clusters.html">summarize_clusters()</a></code> symmetrize the input when <code>directed = FALSE</code>, and sequence data with columns V1, V2, … is read as sequences. <code><a href="../reference/aggregate_layers.html">aggregate_layers()</a></code> binarizes a single layer for union and intersection; <code><a href="../reference/cluster_quality.html">cluster_quality()</a></code> density ignores self-loops.</li>
-<li>
-<code><a href="../reference/rich_club.html">rich_club()</a></code> warns (<code>cograph_null_draw_failed</code>) when null graphs cannot be drawn. <code><a href="../reference/get_nodes.html">nodes()</a></code> now signals its deprecation.</li>
-<li>
-<code><a href="../reference/plot_trajectories.html">plot_trajectories()</a></code> handles missing states; <code><a href="../reference/plot_network_evolution.html">plot_network_evolution()</a></code> accumulates slices correctly and accepts a coordinate layout; <code><a href="../reference/plot_heatmap.html">plot_heatmap()</a></code> builds a full diverging scale from one colour; <code><a href="../reference/plot_ml_heatmap.html">plot_ml_heatmap()</a></code> labels every layer with its own nodes; <code><a href="../reference/layout_oval.html">layout_oval()</a></code> orders by node names; <code><a href="../reference/sn_layout.html">sn_layout()</a></code> reports an unknown layout clearly; <code>CographTheme</code> clone and merge keep added parameters.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.4" id="cograph-274">cograph 2.7.4<a class="anchor" aria-label="anchor" href="#cograph-274"></a></h2>
-<div class="section level3">
-<h3 id="documentation-2-7-4">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-4"></a></h3>
-<ul><li>Help pages for print, summary and plot methods no longer stand alone. The methods are described on the page of the function that creates the object, and plot methods with their own arguments are documented together in <code>?plot-results</code>. Network accessors, themes, palettes, shapes and the layout registry each share one page.</li>
-<li>Every <code>centrality_*()</code> page follows one layout: definition, the arguments of <code><a href="../reference/centrality.html">centrality()</a></code> that tune the measure with their defaults, how direction and weights are read, when the result is <code>NA</code> and which condition is raised, references and one example on <code>regulation_net</code>.</li>
-<li>The help pages were checked against the code, and statements that did not match the behaviour of the functions were corrected.</li>
-<li>Formulas print in readable plain text in the console help.</li>
-<li>Examples are shorter and use the bundled data.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.7.3" id="cograph-273">cograph 2.7.3<a class="anchor" aria-label="anchor" href="#cograph-273"></a></h2>
-<div class="section level3">
-<h3 id="bug-fixes-2-7-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-3"></a></h3>
-<ul><li>Examples and tests that require the optional <code>igraph</code> package now check that it is available. This fixes CRAN check failures on Intel macOS when <code>igraph</code> is unavailable, while examples and tests using native cograph functionality continue to run.</li>
+<h3 id="documentation-2-7-16">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-16"></a></h3>
+<ul><li>Help pages were checked against the code and corrected. Print, summary and plot methods are documented with the function that creates the object.</li>
 </ul></div>
 </div>
     <div class="section level2">

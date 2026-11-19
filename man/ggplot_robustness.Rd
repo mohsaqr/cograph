@@ -33,7 +33,8 @@ after each removal, "static" uses initial centrality ranking throughout.}
 Default NULL uses red, green and blue.}
 
 \item{title}{Overall title. Default NULL. With a single network the title
-is replaced by "\if{html}{\out{<name>}}: sequential removal of nodes".}
+is replaced by the network's name followed by
+": sequential removal of nodes".}
 
 \item{n_iter}{Iterations for random. Default 1000.}
 

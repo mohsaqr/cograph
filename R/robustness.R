@@ -401,7 +401,8 @@ plot_robustness <- function(...,
 #' @param strategy Character string; "sequential" (default) recalculates centrality
 #'   after each removal, "static" uses initial centrality ranking throughout.
 #' @param title Overall title. Default NULL. With a single network the title
-#'   is replaced by "<name>: sequential removal of nodes".
+#'   is replaced by the network's name followed by
+#'   ": sequential removal of nodes".
 #' @param n_iter Iterations for random. Default 1000.
 #' @param seed Random seed. Default NULL.
 #' @param type Removal type. Default "vertex".

@@ -9,15 +9,11 @@ test_that("localized bridging reproduces Macker's complete synthetic table", {
   g <- igraph::graph_from_edgelist(matrix(edges, ncol = 2, byrow = TRUE),
                                    directed = FALSE)
   # Figure1 and TableI, original MILCOM2016 paper pp2-3, visually read.
-  coefficient <- c(.1, 6 / 7, 4, 6 / 7, 6 / 7, 2 / 9,
-                   3 / 5, 3 / 5, .5, 1 / 6, 3)
-  one_hop <- c(6, 1, 0, 1, 1, 3, 1, 1, 1, 3, 0)
+  # The scores themselves are compared with Table I in
+  # tests/equivalence/test-centrality-zoo-b-brokerage.R; the internal ego
+  # credits are checked against the printed two-hop column here.
   two_hop <- c(11.5, 3, 0, 3, 12, 6.5, 1, 1, .5, 3.5, 0)
   order <- LETTERS[1:11]
-  expect_equal(unname(centrality_localized_bridging(g)[order]),
-               one_hop * coefficient)
-  expect_equal(unname(centrality_extended_local_bridging(g)[order]),
-               two_hop * coefficient)
   a <- as.matrix(igraph::as_adjacency_matrix(g))[order, order]
   for (i in seq_len(11)) {
     first <- which(a[i, ] > 0)
@@ -30,21 +26,14 @@ test_that("localized bridging reproduces Macker's complete synthetic table", {
 })
 
 test_that("localized bridging uses induced ego paths and original degrees", {
-  g <- igraph::make_tree(5, children = 1, mode = "undirected")
-  expect_equal(unname(centrality_localized_bridging(g)),
-               c(0, 1 / 3, .5, 1 / 3, 0))
-  expect_equal(unname(centrality_extended_local_bridging(g)),
-               c(0, 2 / 3, 2, 2 / 3, 0))
+  # Paths, stars and cliques are compared with NetworkX's ego betweenness in
+  # tests/equivalence/test-centrality-zoo-b-brokerage.R.
   for (r in 2:5) {
     star <- igraph::make_star(r + 1, mode = "undirected")
-    expect_equal(unname(centrality_localized_bridging(star)),
-                 c((r - 1) / (2 * r), rep(0, r)))
     expect_equal(centrality_extended_local_bridging(star),
                  centrality_localized_bridging(star))
   }
   clique <- igraph::make_full_graph(4)
-  expect_equal(unname(centrality_localized_bridging(clique)), rep(0, 4))
-  expect_equal(unname(centrality_extended_local_bridging(clique)), rep(0, 4))
   # Preserve the existing degree-only public score, but do not call it LBC.
   expect_equal(unname(centrality_local_bridging(clique)), rep(1 / 9, 4))
 })

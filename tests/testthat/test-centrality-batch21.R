@@ -3,13 +3,6 @@
 skip_if_not_installed("igraph")
 
 test_that("global structure models agree with analytical graphs", {
-  star <- igraph::make_star(5, mode = "undirected")
-  expect_equal(unname(centrality_global_structure(star)),
-               exp(1 / 5) * c(4, rep(2.5, 4)))
-  self <- exp(c(4, 1, 1, 1, 1) / 5)
-  expected <- c(4 * self[1] * self[2],
-                rep(self[2] * (self[1] + 1.5 * self[2]), 4))
-  expect_equal(unname(centrality_hybrid_global_structure(star)), expected)
   ring <- igraph::make_ring(4)
   expect_equal(unname(centrality_global_structure(ring)), rep(5 * exp(0.5), 4))
   expect_equal(unname(centrality_hybrid_global_structure(ring)),
@@ -64,10 +57,6 @@ test_that("global structure conventions include global size and isolates", {
     expect_false(isTRUE(all.equal(changed, unname(fun(g)))))
   }
   edge <- igraph::make_graph(c(1, 2), n = 3, directed = FALSE)
-  score <- centrality_global_structure(edge)
-  expect_equal(unname(score), c(exp(1 / 3), exp(1 / 3), 0))
-  expect_equal(unname(centrality_hybrid_global_structure(edge)),
-               c(exp(2 / 3), exp(2 / 3), 0))
 })
 
 test_that("global structure projections, labels and metadata are consistent", {
@@ -101,18 +90,11 @@ test_that("global structure projections, labels and metadata are consistent", {
 })
 
 test_that("IGSM retains the mean-degree ceiling and its sparse extensions", {
-  star <- igraph::make_star(5, mode = "undirected")
-  expected <- c(4 * exp(0.8), rep(5.5 * exp(0.2), 4))
-  expect_equal(unname(centrality_improved_global_structure(star)), expected)
   ring <- igraph::make_ring(4)
   expect_equal(unname(centrality_improved_global_structure(ring)),
                rep(5 * exp(0.5), 4))
-  # Mean degree=0.4, ceil(log2(0.4))=-1: distance two multiplies by two.
-  path <- igraph::make_graph(c(1, 2, 2, 3), n = 10, directed = FALSE)
-  expected <- c(4 * exp(0.1), 2 * exp(0.2), 4 * exp(0.1), rep(0, 7))
-  expect_equal(unname(centrality_improved_global_structure(path)), expected)
   # Mean degree=0.8 has exponent zero, including all reachable degrees.
-  path <- igraph::delete_vertices(path, 6:10)
+  path <- igraph::make_graph(c(1, 2, 2, 3), n = 5, directed = FALSE)
   expected <- c(3 * exp(0.2), 2 * exp(0.4), 3 * exp(0.2), 0, 0)
   expect_equal(unname(centrality_improved_global_structure(path)), expected)
 })

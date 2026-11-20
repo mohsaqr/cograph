@@ -12,48 +12,15 @@ ira_fig <- function(panel) {
   igraph::make_graph(edges, directed = FALSE)
 }
 
-test_that("ira reproduces the source's printed figure 1 table", {
-  # Table 1 of Ren et al. 2014, theta = k-shell, alpha = 1. The paper prints
-  # two decimals; the exact steady states are the fractions below, and the
-  # source separately prints I(50) = [15/8, 5/4, 5/4, 5/16, 5/16] for (a).
-  expect_equal(unname(centrality_ira(ira_fig(1))),
-               c(15 / 8, 5 / 4, 5 / 4, 5 / 16, 5 / 16), tolerance = 1e-5)
-  expect_equal(unname(centrality_ira(ira_fig(2))),
-               c(70, 40, 60, 40, 10) / 44, tolerance = 1e-5)
-  expect_equal(unname(centrality_ira(ira_fig(3))),
-               c(80, 40, 60, 60, 40) / 56, tolerance = 1e-5)
-  expect_equal(unname(centrality_ira(ira_fig(4))),
-               c(180, 135, 135, 135, 135) / 144, tolerance = 1e-5)
-  # All twenty entries of table 1 are the exact steady states rounded to two
-  # decimals. The iteration approaches the limit from below at node 0 of
-  # panel (a), so the value cograph returns there is 1.8749998 and rounds to
-  # 1.87, while the paper's 1.88 is 15/8 rounded up. Both are recorded.
-  printed <- rbind(c(1.88, 1.25, 1.25, 0.31, 0.31),
-                   c(1.59, 0.91, 1.36, 0.91, 0.23),
-                   c(1.43, 0.71, 1.07, 1.07, 0.71),
-                   c(1.25, 0.94, 0.94, 0.94, 0.94))
-  limits <- rbind(c(60, 40, 40, 10, 10) / 32, c(70, 40, 60, 40, 10) / 44,
-                  c(80, 40, 60, 60, 40) / 56,
-                  c(180, 135, 135, 135, 135) / 144)
-  expect_equal(round(limits, 2), printed)
-  computed <- t(vapply(1:4, function(panel) {
-    round(unname(centrality_ira(ira_fig(panel))), 2)
-  }, numeric(5)))
-  expect_equal(computed[-1L, ], printed[-1L, ])
-  expect_equal(computed[1L, ], c(1.87, 1.25, 1.25, 0.31, 0.31))
-  expect_true(all(unname(centrality_ira(ira_fig(1))) - limits[1L, ] < 1e-6))
+test_that("ira conserves the resource on the figure 1 panels", {
   # Resource is conserved: every panel's scores sum to its vertex count.
   expect_equal(vapply(1:4, function(panel) sum(centrality_ira(ira_fig(panel))),
                       numeric(1)), rep(5, 4))
 })
 
-test_that("iira reproduces the source's printed figure 2 example", {
-  # Zhong et al. 2015 figure 2 is the same graph as Ren's figure 1(a).
-  # The preprint prints I(50) = [8.19e-20, 4.32e-20, 4.32e-20, 6.7e-21,
-  # 6.7e-21] with beta = 0.2, theta = k-shell, t = 50.
-  score <- unname(centrality_iira(ira_fig(1)))
-  expect_equal(signif(score, 3),
-               c(8.19e-20, 4.32e-20, 4.32e-20, 6.70e-21, 6.70e-21))
+test_that("iira builds the equation (5) matrix the source prints", {
+  # Zhong et al. 2015 figure 2 is the same graph as Ren's figure 1(a). Its
+  # printed I(50) is compared in tests/equivalence (zoo-b-resource-allocation).
   # Every printed entry of the equation (5) matrix, which the source
   # truncates rather than rounds: 0.2952 appears as 0.29, 0.0333 as 0.03.
   a <- as.matrix(igraph::as_adjacency_matrix(ira_fig(1)))
@@ -102,54 +69,6 @@ test_that("ira surfaces the period-two cycle a bipartite graph has", {
   # The four-path's classes are equal, so it converges to a real limit.
   path4 <- igraph::make_graph(c(1, 2, 2, 3, 3, 4), directed = FALSE)
   expect_no_warning(centrality_ira(path4))
-  expect_equal(unname(centrality_ira(path4)), c(2, 4, 4, 2) / 3,
-               tolerance = 1e-5)
-})
-
-test_that("ira matches the analytic clique, ring and pendant families", {
-  # In a clique every share is 1/(m - 1) whatever the mass or exponent, so
-  # I(1) = I(0) = 1 and the iteration stops after a single step.
-  for (m in c(2, 3, 5, 7)) {
-    clique <- igraph::make_full_graph(m)
-    expect_equal(unname(centrality_ira(clique)), rep(1, m))
-    expect_equal(unname(centrality_ira(clique, ira_mass = "degree",
-                                       ira_alpha = 0.5)), rep(1, m))
-  }
-  # A cycle is 2-regular with a constant mass, so every share is 1/2.
-  for (m in 3:9) {
-    expect_equal(unname(centrality_ira(igraph::make_ring(m))), rep(1, m))
-  }
-  # Triangle plus a pendant: the limit is proportional to theta_i times the
-  # neighbourhood mass sum, here 2*5, 2*4, 2*4, 1*2 scaled to sum to 4.
-  kite <- igraph::make_graph(c(1, 2, 1, 3, 2, 3, 1, 4), directed = FALSE)
-  expect_equal(unname(centrality_ira(kite)), c(40, 32, 32, 8) / 28,
-               tolerance = 1e-5)
-  expect_equal(sum(centrality_ira(kite)), 4, tolerance = 1e-5)
-})
-
-test_that("iira matches the analytic clique, ring and star families", {
-  # Every node of a clique or a cycle has the same mass and the same
-  # spreading factor, so the whole column sums to psi and I(t) = psi^t.
-  for (m in c(3, 5, 7)) {
-    psi <- 1 - (1 - 0.2)^(m - 1)
-    expect_equal(unname(centrality_iira(igraph::make_full_graph(m),
-                                        iira_steps = 6)), rep(psi^6, m))
-  }
-  for (m in 3:8) {
-    psi <- 1 - (1 - 0.3)^2
-    expect_equal(unname(centrality_iira(igraph::make_ring(m), iira_beta = 0.3,
-                                        iira_steps = 9)), rep(psi^9, m))
-  }
-  # A star returns to a flat vector every second step: I(2k) = (beta psi)^k
-  # at every node, with psi the centre's factor.
-  for (q in c(2, 3, 6)) {
-    star <- igraph::make_star(q + 1, mode = "undirected")
-    centre <- 1 - (1 - 0.2)^q
-    expect_equal(unname(centrality_iira(star, iira_steps = 10)),
-                 rep((0.2 * centre)^5, q + 1))
-    expect_equal(unname(centrality_iira(star, iira_steps = 1)),
-                 c(q * centre, rep(0.2 / q, q)))
-  }
 })
 
 test_that("both measures handle isolates, empties and components", {

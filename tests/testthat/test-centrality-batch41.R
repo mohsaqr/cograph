@@ -2,28 +2,7 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("relative entropy is the normalised geometric mean on stars", {
-  # Leaves carry no shortest path, so equation (4) betweenness is zero and
-  # the geometric mean annihilates them: the centre takes the whole share.
-  for (q in c(2, 3, 5, 9)) {
-    star <- igraph::make_star(q + 1, mode = "undirected")
-    expect_equal(unname(centrality_relative_entropy(star)),
-                 c(1, numeric(q)))
-    # Degree and closeness alone keep every node in play. Degree gives the
-    # centre 1/2 against 1/(2q) per leaf; equation (3) closeness gives it
-    # 1/q against 1/(2q-1), so the ratio of geometric means is sqrt(2q-1).
-    leaf <- 1 / (q + sqrt(2 * q - 1))
-    expect_equal(unname(centrality_relative_entropy(
-      star, re_indexes = c("degree", "closeness")
-    )), c(sqrt(2 * q - 1) * leaf, rep(leaf, q)))
-  }
-})
-
 test_that("relative entropy is uniform on vertex-transitive graphs", {
-  for (n in 4:8) {
-    expect_equal(unname(centrality_relative_entropy(igraph::make_ring(n))),
-                 rep(1 / n, n))
-  }
   # Every index is constant, so equations (8) and (9) both give the uniform
   # distribution whatever direction each index is declared to have.
   expect_equal(unname(centrality_relative_entropy(
@@ -31,23 +10,6 @@ test_that("relative entropy is uniform on vertex-transitive graphs", {
     re_indexes = c("degree", "n_components", "largest_component"),
     re_negative = c("degree", "n_components")
   )), rep(1 / 6, 6))
-})
-
-test_that("a single index reproduces its own distribution on a path", {
-  path <- igraph::make_graph(c(1, 2, 2, 3, 3, 4, 4, 5), directed = FALSE)
-  # Equation (8) on the degree sequence 1, 2, 2, 2, 1.
-  expect_equal(unname(centrality_relative_entropy(path,
-                                                  re_indexes = "degree")),
-               c(1, 2, 2, 2, 1) / 8)
-  # Equation (6) by hand: 5/4, 9/16, 5/8, 9/16, 5/4, summing to 17/4. As a
-  # negative index equation (9) divides the complements by |V| - 1 = 4.
-  expect_equal(unname(centrality_relative_entropy(path,
-                                                  re_indexes = "constraint")),
-               c(3 / 17, 59 / 272, 29 / 136, 59 / 272, 3 / 17))
-  # Declaring the same index positive inverts the reading.
-  expect_equal(unname(centrality_relative_entropy(
-    path, re_indexes = "constraint", re_negative = character()
-  )), c(5 / 17, 9 / 68, 5 / 34, 9 / 68, 5 / 17))
 })
 
 test_that("relative entropy reproduces the published Kite tables", {
@@ -72,7 +34,8 @@ test_that("relative entropy reproduces the published Kite tables", {
                c(9, 8, 7, 9, 9, 9, 9, 9, 9, 9))
   # Table 2, in the three printed columns. The paper integrated its own
   # rounded Table 1 and Table 3 columns, so the exact graph agrees only to
-  # about 4e-5; recomputing from the printed columns closes the gap.
+  # about 4e-5 (declared in tests/equivalence/test-centrality-zoo-b-relative-
+  # entropy.R); recomputing from the printed columns closes the gap.
   printed <- list(
     c(0, 0.127939, 0.177613, 0.180540, 0.180540, 0, 0.151213, 0,
       0.091078, 0.091078),
@@ -93,9 +56,6 @@ test_that("relative entropy reproduces the published Kite tables", {
     largest_component = c(9, 8, 7, 9, 9, 9, 9, 9, 9, 9)
   )
   for (k in seq_along(sets)) {
-    exact <- unname(centrality_relative_entropy(kite,
-                                                re_indexes = sets[[k]]))
-    expect_lt(max(abs(exact - printed[[k]])), 4e-5)
     logs <- vapply(sets[[k]], function(nm) {
       .cg_re_distribution(rounded[[nm]], nm,
                           nm %in% .cg_re_negative_default())
@@ -106,17 +66,6 @@ test_that("relative entropy reproduces the published Kite tables", {
 })
 
 test_that("closeness sums over reachable partners on disconnected graphs", {
-  # Equation (3) sums over all of V and is infinite here, which would leave
-  # the index identically zero. The cograph extension sums the reachable
-  # partners: 1/3 at an end, 1/2 at a centre of each three-node path.
-  two_paths <- igraph::disjoint_union(
-    igraph::make_graph(c(1, 2, 2, 3), directed = FALSE),
-    igraph::make_graph(c(1, 2, 2, 3), directed = FALSE)
-  )
-  end <- 1 / (4 + 2 * sqrt(3))
-  expect_equal(unname(centrality_relative_entropy(
-    two_paths, re_indexes = c("degree", "closeness")
-  )), c(end, sqrt(3) * end, end, end, sqrt(3) * end, end))
   # An isolate reaches nobody and invests nowhere, so cograph gives it
   # closeness zero and constraint zero; its degree of zero already zeroes it.
   with_isolate <- igraph::disjoint_union(

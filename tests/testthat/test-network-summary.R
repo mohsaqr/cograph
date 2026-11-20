@@ -225,11 +225,8 @@ test_that("network_clique_size() handles a directed multigraph", {
   skip_if_not_installed("igraph")
   g <- to_igraph(student_interactions)
   expect_true(igraph::is_directed(g))
-  skel <- igraph::simplify(igraph::as_undirected(g, mode = "collapse"))
-  reference <- length(igraph::largest_cliques(skel)[[1]])
-  expect_identical(as.numeric(network_clique_size(student_interactions)),
-                   as.numeric(reference))
-  expect_identical(as.numeric(network_clique_size(g)), as.numeric(reference))
+  # The clique number itself is compared with NetworkX in tests/equivalence/test-network-structure.R.
+  expect_identical(network_clique_size(g), network_clique_size(student_interactions))
 })
 
 test_that("network_clique_size() ignores edge direction", {

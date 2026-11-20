@@ -3,29 +3,13 @@
 skip_if_not_installed("igraph")
 
 test_that("Expected Force counts event orders and boundary edges", {
-  for (n in 4:7) {
-    clique <- igraph::make_full_graph(n)
-    expect_equal(unname(centrality_expected_force(clique)),
-                 rep(log(2 * (n - 1) * (n - 2)), n))
-  }
+  # Cliques, stars, rings, the directed diamond, an out-star, the karate
+  # club and the modified form are compared with Lawyer's enumeration written
+  # out in tests/equivalence/test-centrality-zoo-b-flow-power.R.
   star <- igraph::make_star(5, mode = "undirected")
-  raw <- c(log(12), rep(log(3), 4))
-  expect_equal(unname(centrality_expected_force(star)), raw)
-  expect_equal(unname(centrality_modified_expected_force(star)),
-               raw * log(2 * c(4, 1, 1, 1, 1)))
+  raw <- unname(centrality_expected_force(star))
   expect_equal(unname(centrality_expected_force(star, normalized = TRUE)),
                raw / max(raw))
-  expect_equal(unname(centrality_expected_force(igraph::make_ring(4))),
-               rep(log(4), 4))
-  # Diamond: identical infected sets arise by distinct edges;
-  # boundary edges to the same outside node must each contribute.
-  g <- igraph::make_graph(c(1, 2, 1, 3, 2, 4, 3, 4), directed = TRUE)
-  # Seed1 outcomes: degrees2,2,1,1; probabilities1/3,1/3,1/6,1/6.
-  expected <- -2 * (log(1 / 3) / 3 + log(1 / 6) / 6)
-  expect_equal(unname(centrality_expected_force(g))[1], expected)
-  expect_equal(unname(centrality_expected_force(
-    igraph::make_star(5, mode = "out")
-  )), c(log(12), rep(0, 4)))
   expect_equal(unname(centrality_expected_force(
     igraph::make_star(5, mode = "in")
   )), rep(0, 5))

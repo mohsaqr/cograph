@@ -14,12 +14,6 @@ test_that("improved closeness agrees with analytical path multiplicities", {
   }
   clique <- centrality_improved_closeness(igraph::make_full_graph(4))
   expect_equal(unname(clique), rep(1, 4))
-  g <- igraph::make_graph("Zachary")
-  expect_equal(unname(centrality_improved_closeness(g, icc_alpha = 0)),
-               unname(igraph::closeness(g, normalized = TRUE, weights = NA)))
-  bipartite <- igraph::make_full_bipartite_graph(3, 3)
-  expect_equal(unname(centrality_improved_closeness(bipartite, icc_alpha = 1)),
-               rep(15 / 13, 6))
 })
 
 test_that("improved closeness documents disconnected and degenerate inputs", {

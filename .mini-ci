@@ -7,3 +7,16 @@ node system
 # needs unreleased goes in as: sibling ../DIR
 job test   Rscript -e 'testthat::test_local(stop_on_failure = TRUE)'
 job check  Rscript -e 'r <- rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "never"); print(r); if (r$status != 0 || length(r$errors) || length(r$warnings)) quit(status = 1)'
+
+# Prova Verify: capture of the equivalence tests, run as
+#   mini-ci -- Rscript ../equivalence/cograph/import-tests.R capture [file-regex]
+include ../equivalence/cograph/import-tests.R
+include ../equivalence/import-tests-common.R
+include ../prova/.claude/worktrees/verify/reporters/verify-capture.R
+fetch .ci/verify-capture
+
+# The declared equivalence tests (tests/equivalence, the standard: ../equivalence/STANDARD.md): every
+# comparison with a reference, recorded in .ci/verify-capture/capture.json. Then, on the Mac:
+#   sh ../equivalence/push.sh cograph
+# One file while writing it: mini-ci -- Rscript tests/equivalence/run.R <file-regex>
+job verify Rscript tests/equivalence/run.R

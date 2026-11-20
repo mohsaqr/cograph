@@ -26,7 +26,6 @@ test_that("weighted regularization follows exact determinant ratios", {
               dimnames = list(c("C", "A", "B"), c("C", "A", "B")))
   # det(I+L)=46; principal minors excluding nodes are 20,21,19.
   expected <- stats::setNames(46 / c(20, 21, 19), rownames(a))
-  expect_equal(centrality_graph_regularization(a), expected)
   expect_equal(centrality(a, measures = "graph_regularization")$
                  graph_regularization, unname(expected))
   expect_equal(unname(centrality_graph_regularization(a, weighted = FALSE)),

@@ -40,60 +40,17 @@ iec_complete <- function(n) {
   a
 }
 
-test_that("a complete graph scores 1/n at every node", {
-  # W = J/n, so W^Inf = W, Z = I, Z_dg = I and equation (11) gives
-  # M = (I - I + E) diag(n) = n E. Every off-diagonal column entry is n,
-  # the column sum over i != j is n(n-1) and the score is 1/n.
-  # Friedkin's Table 1 prints .200 for network 21, the five-node case.
-  for (n in 3:9) {
-    expect_equal(unname(centrality_iec(iec_complete(n))), rep(1 / n, n))
-  }
-  expect_equal(unname(centrality_iec(iec_complete(5))), rep(0.2, 5))
-})
-
-test_that("a star matches its hand derivation", {
-  # With a_ii = 1 a leaf stays put or steps to the centre with probability
-  # 1/2 each, so its mean first passage to the centre is 2 and the centre's
-  # column sums to 2m: IEC(centre) = m / (2m) = 1/2 for every m.
-  # For a leaf target, x = E[steps from the centre] and y = E[steps from
-  # another leaf] satisfy x = 1 + x/(m+1) + (m-1)y/(m+1) and y = 1 + y/2 +
-  # x/2. The second gives y = x + 2; substituting, every x term cancels and
-  # x = 3m - 1, y = 3m + 1, so the column sums to (3m-2)(m+1) and
-  # IEC(leaf) = m / ((3m-2)(m+1)).
-  # Table 1 network 1 prints .500 and .080, which is m = 4.
-  for (m in 2:9) {
-    expect_equal(unname(centrality_iec(iec_star(m))),
-                 c(0.5, rep(m / ((3 * m - 2) * (m + 1)), m)))
-  }
-  expect_equal(unname(centrality_iec(iec_star(4))), c(0.5, rep(0.08, 4)))
-})
-
 test_that("a ring matches its hand derivation", {
   # W is circulant with 1/3 on the diagonal and on both neighbours: the
   # cycle walk made lazy with probability 1/3. Laziness multiplies every
   # mean first passage time by 3/2, so from m(d) = d(q-d) the column sums
   # to (3/2) q(q^2-1)/6 = q(q^2-1)/4 and IEC = 4/(q(q+1)).
   # Table 1 network 8, the pentagon, prints .133 = 4/30.
-  for (q in 3:10) {
-    expect_equal(unname(centrality_iec(iec_ring(q))),
-                 rep(4 / (q * (q + 1)), q))
-  }
-  expect_equal(unname(centrality_iec(iec_ring(5))), rep(4 / 30, 5))
+  # The closed form and Table 1 network 8 moved to
+  # tests/equivalence/test-centrality-zoo-b-iec.R.
   # C_3 is K_3, so the ring and complete forms must agree there.
   expect_equal(unname(centrality_iec(iec_ring(3))),
                unname(centrality_iec(iec_complete(3))))
-})
-
-test_that("a directed cycle matches its hand derivation", {
-  # Every row sum is 2, so the walker stays or advances one arc with
-  # probability 1/2. Reaching a node d arcs ahead needs d advances, each a
-  # Geometric(1/2) wait, so m_ij = 2d, the column sums to q(q-1) and the
-  # score is 1/q --- what the complete graph gives, on a quarter of the arcs.
-  for (q in 3:9) {
-    expect_equal(unname(centrality_iec(iec_directed_cycle(q),
-                                       directed = TRUE)),
-                 rep(1 / q, q))
-  }
 })
 
 test_that("the five-node path reproduces Friedkin's Table 1 network 3", {
@@ -103,8 +60,8 @@ test_that("the five-node path reproduces Friedkin's Table 1 network 3", {
   p5[cbind(1:4, 2:5)] <- 1
   p5[cbind(2:5, 1:4)] <- 1
   scores <- unname(centrality_iec(p5))
+  # The printed values moved to tests/equivalence/test-centrality-zoo-b-iec.R.
   expect_equal(scores, c(1 / 20, 2 / 19, 1 / 6, 2 / 19, 1 / 20))
-  expect_equal(round(scores, 3), c(0.050, 0.105, 0.167, 0.105, 0.050))
 })
 
 test_that("the influence chain carries the source's unit self-loop", {
@@ -255,7 +212,6 @@ test_that("iec is not markov, and not a rescaling of it", {
   # divides the column sum by n rather than n - 1. The second is a constant
   # factor; the first is not, and it can reorder nodes.
   star <- iec_star(4)
-  expect_equal(unname(centrality_iec(star)), c(0.5, rep(0.08, 4)))
   expect_false(isTRUE(all.equal(unname(centrality_iec(star)),
                                 unname(centrality_markov(star)))))
   kite <- iec_kite()

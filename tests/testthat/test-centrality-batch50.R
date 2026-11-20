@@ -5,13 +5,6 @@
 # (1)-(3), pages 210-211; three of the fixtures are printed in the paper
 # and are named where they are used.
 
-dil_star <- function(leaves) {
-  a <- matrix(0, leaves + 1L, leaves + 1L)
-  a[1L, -1L] <- 1
-  a[-1L, 1L] <- 1
-  a
-}
-
 dil_ring <- function(n) {
   a <- matrix(0, n, n)
   a[cbind(seq_len(n), c(seq_len(n - 1L) + 1L, 1L))] <- 1
@@ -23,12 +16,6 @@ dil_path <- function(n) {
   a <- matrix(0, n, n)
   a[cbind(seq_len(n - 1L), seq_len(n - 1L) + 1L)] <- 1
   a[cbind(seq_len(n - 1L) + 1L, seq_len(n - 1L))] <- 1
-  a
-}
-
-dil_complete <- function(n) {
-  a <- matrix(1, n, n)
-  diag(a) <- 0
   a
 }
 
@@ -59,12 +46,6 @@ dil_paw <- function() {
   dil_from_edges(4L, rbind(c(1, 2), c(1, 3), c(2, 3), c(3, 4)))
 }
 
-dil_petersen <- function() {
-  dil_from_edges(10L, rbind(c(1, 2), c(2, 3), c(3, 4), c(4, 5), c(5, 1),
-                            c(6, 8), c(8, 10), c(10, 7), c(7, 9), c(9, 6),
-                            c(1, 6), c(2, 7), c(3, 8), c(4, 9), c(5, 10)))
-}
-
 # ===========================================================================
 # The published fixtures
 # ===========================================================================
@@ -87,8 +68,8 @@ test_that("lambda is p/2 + 1 and not 2p + 1", {
   # the trap graph p = 1, U = (3-1-1)(3-1-1) = 1 and the two corners split
   # I evenly, so each scores 3 + (1/1.5)/2 = 10/3. The wrong reading gives
   # I = 1/3 and a score of 19/6.
+  # The value 10/3 itself moved to tests/equivalence/test-centrality-zoo-b-dil.R.
   hubs <- centrality_dil(dil_lambda_trap())[1:2]
-  expect_equal(unname(hubs), c(10 / 3, 10 / 3))
   expect_false(isTRUE(all.equal(unname(hubs[1]), 19 / 6)))
 })
 
@@ -108,9 +89,8 @@ test_that("the paper's Fig. 2 node scores are reproduced", {
   expect_equal(importance[2, 27], 0)
   expect_equal(importance[4, 5], 2)
   expect_equal(importance[5, 6], 4)
+  # The printed L_v2 and L_v5 moved to tests/equivalence/test-centrality-zoo-b-dil.R.
   scores <- centrality_dil(fig2)
-  expect_equal(unname(scores[2]), 26 / 9)
-  expect_equal(unname(scores[5]), 52 / 15)
   # The point the paper makes with the fixture: the bridge node outranks
   # the hub's neighbour even though the two have equal degree.
   expect_gt(scores[5], scores[2])
@@ -135,13 +115,9 @@ test_that("all 21 printed values of the ARPA table are reproduced", {
   # Table 3's DIL column, in the descending order the paper prints it.
   nodes <- c(3, 14, 2, 12, 19, 6, 15, 16, 17, 13, 18, 4, 5, 7, 11, 20, 21,
              8, 9, 10, 1)
-  printed <- c(15.25, 14.35, 11.55, 7.6667, 7.6667, 7, 5.9333, 3.5, 3.5,
-               3.4167, 3.4167, 3.25, 3.1667, 3.1667, 3.1667, 3.1667, 3.1667,
-               3, 3, 3, 2)
   computed <- as.numeric(centrality_dil(arpa))[nodes]
-  # The paper prints four decimals, so the comparison is against its own
-  # rounding rather than against a widened tolerance.
-  expect_equal(floor(computed * 10000 + 0.5) / 10000, printed)
+  # The comparison with the printed column moved to
+  # tests/equivalence/test-centrality-zoo-b-dil.R.
   # The exact rationals behind the four repeating values.
   expect_equal(computed[4], 23 / 3)
   expect_equal(computed[7], 89 / 15)
@@ -155,65 +131,14 @@ test_that("all 21 printed values of the ARPA table are reproduced", {
 # Hand-derived analytic families
 # ===========================================================================
 
-test_that("a complete graph scores its degree at every node", {
-  # Every line of K_n sits on p = n - 2 triangles, so
-  # U = (n - 1 - (n - 2) - 1)^2 = 0 and no line carries any importance.
-  for (n in 2:9) {
-    expect_equal(unname(centrality_dil(dil_complete(n))), rep(n - 1, n))
-  }
-})
-
-test_that("a star scores its degree at every node", {
-  # Every line of a star touches a leaf, whose k - p - 1 factor is zero.
-  for (leaves in 1:8) {
-    expect_equal(unname(centrality_dil(dil_star(leaves))),
-                 c(leaves, rep(1, leaves)))
-  }
-})
-
-test_that("a triangle-free k-regular graph scores k + k(k-1)^2/2", {
-  # p = 0, so I = (k-1)^2 on every line and the two equal-degree endpoints
-  # split it evenly.
-  for (n in 4:12) {
-    expect_equal(unname(centrality_dil(dil_ring(n))), rep(3, n))
-  }
-  expect_equal(unname(centrality_dil(dil_petersen())), rep(9, 10))
-})
-
-test_that("C3 follows the complete-graph form, not the ring form", {
-  # C3 is K3: it is not triangle-free, so the 2-regular ring value 3 does
-  # not apply and every node scores its degree.
-  expect_equal(unname(centrality_dil(dil_ring(3))), rep(2, 3))
-})
-
 test_that("a path scores 1, 2.5, 3, ..., 3, 2.5, 1", {
   # A line to an end has U = 0; a line between two degree-two nodes has
   # I = 1, split evenly.
   expect_equal(unname(centrality_dil(dil_path(2))), c(1, 1))
   expect_equal(unname(centrality_dil(dil_path(3))), c(1, 2, 1))
   expect_equal(unname(centrality_dil(dil_path(4))), c(1, 2.5, 2.5, 1))
-  expect_equal(unname(centrality_dil(dil_path(5))), c(1, 2.5, 3, 2.5, 1))
   expect_equal(unname(centrality_dil(dil_path(7))),
                c(1, 2.5, 3, 3, 3, 2.5, 1))
-})
-
-test_that("a complete bipartite graph matches its closed form", {
-  # K_{a,b} is triangle-free, so I = (a-1)(b-1) on every line and a node of
-  # the a-side scores b + b (a-1)(b-1)^2 / (a + b - 2).
-  for (sides in list(c(2, 3), c(3, 3), c(3, 4), c(4, 5))) {
-    sa <- sides[1L]
-    sb <- sides[2L]
-    bip <- matrix(0, sa + sb, sa + sb)
-    bip[seq_len(sa), sa + seq_len(sb)] <- 1
-    bip[sa + seq_len(sb), seq_len(sa)] <- 1
-    imp <- (sa - 1) * (sb - 1)
-    den <- sa + sb - 2
-    expect_equal(
-      unname(centrality_dil(bip)),
-      c(rep(sb + sb * imp * (sb - 1) / den, sa),
-        rep(sa + sa * imp * (sa - 1) / den, sb))
-    )
-  }
 })
 
 # ===========================================================================

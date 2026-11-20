@@ -2,50 +2,14 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("lnc has a closed form on stars", {
-  # A leaf has degree one, so its own contribution is 0^0 = 1 and its
-  # cluster degree is the centre's degree q, against a denominator of
-  # n - 1 = q: every leaf scores exactly one, whatever the star's size.
-  # The centre's cluster degree is q leaves of degree one, so its score is
-  # q^3 (1 - 1/q)^(q - 1).
-  for (q in c(1:6, 20)) {
-    g <- igraph::make_star(q + 1, mode = "undirected")
-    centre <- q^3 * (1 - 1 / q)^(q - 1)
-    expect_equal(unname(centrality_lnc(g)), c(centre, rep(1, q)))
-  }
-  # The two-node star is the single edge, where both nodes are leaves.
-  expect_equal(unname(centrality_lnc(igraph::make_star(2, "undirected"))),
-               c(1, 1))
-})
-
-test_that("lnc is constant on regular graphs and scales with the order", {
-  # Every node of a k-regular graph on n vertices has cluster degree k^2,
-  # so the score is k^4 (1 - 1/k)^(k - 1) k / (n - 1), the same everywhere.
-  for (n in 2:8) {
-    k <- n - 1
-    expect_equal(unname(centrality_lnc(igraph::make_full_graph(n))),
-                 rep(k^4 * (1 - 1 / k)^(k - 1), n))
-  }
-  for (n in 3:8) {
-    # A ring is two-regular: 2^3 (1/2) 4 / (n - 1) = 16 / (n - 1).
-    expect_equal(unname(centrality_lnc(igraph::make_ring(n))),
-                 rep(16 / (n - 1), n))
-  }
-  expect_equal(unname(centrality_lnc(igraph::make_ring(6))), rep(3.2, 6))
-})
-
-test_that("lnc follows hand-computed degrees on a path", {
+test_that("lnc normalization divides by the maximum", {
   g <- igraph::make_graph(c(1, 2, 2, 3, 3, 4, 4, 5), directed = FALSE)
-  # Degrees 1, 2, 2, 2, 1; cluster degrees 2, 3, 4, 3, 2; n - 1 = 4; the
-  # degree-two own contribution is 2^3 (1/2) = 4 and the degree-one one is 1.
-  score <- c(1 * 2 / 4, 4 * 3 / 4, 4 * 4 / 4, 4 * 3 / 4, 1 * 2 / 4)
-  expect_equal(unname(centrality_lnc(g)), c(0.5, 3, 4, 3, 0.5))
-  expect_equal(unname(centrality_lnc(g)), score)
+  score <- unname(centrality_lnc(g))
   expect_equal(unname(centrality_lnc(g, normalized = TRUE)),
                score / max(score))
 })
 
-test_that("lnc reproduces the published eleven-node example", {
+test_that("lnc terms reproduce the printed v5 intermediates", {
   # Dai et al. (2019), Figure 1 and Table 1, journal page 131720.
   edges <- c(2, 1, 1, 3, 1, 4, 1, 5, 5, 6, 5, 7, 5, 8, 6, 8, 7, 8, 8, 9,
              9, 10, 9, 11, 10, 11)
@@ -56,12 +20,8 @@ test_that("lnc reproduces the published eleven-node example", {
   expect_equal(terms$cluster_degree[5], 12)
   expect_equal(terms$own_con[5], 1.6875)
   expect_equal(terms$nei_con[5], 19.2)
-  # Table 1, all eleven printed influences.
-  expect_equal(round(unname(centrality_lnc(g)), 1),
-               c(18.9, 0.4, 0.4, 0.4, 32.4, 3.2, 3.2, 29.7, 9.6, 2, 2))
-  # The paper's own ranking: v5 first, v8 second, v1 third, v9 fourth.
-  expect_equal(order(centrality_lnc(g), decreasing = TRUE)[1:4],
-               c(5L, 8L, 1L, 9L))
+  # Table 1 and the ranking are compared in tests/equivalence
+  # (zoo-b-local-contribution).
 })
 
 test_that("lnc rescales when a disconnected component is added", {

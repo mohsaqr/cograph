@@ -2,22 +2,7 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("dkgm masses combine degree, shell and removal stage on stars", {
-  # Leaves leave in stage one and the centre in stage two, so q(1) = 2 and
-  # the improved shell denominator is three.
-  for (q in c(2:6, 20)) {
-    g <- igraph::make_star(q + 1, mode = "undirected")
-    leaf <- 7 / 3
-    centre <- q + 5 / 3
-    expect_equal(unname(centrality_dkgm(g, dkgm_radius = 1)),
-                 c(q * centre * leaf, rep(leaf * centre, q)))
-    expect_equal(unname(centrality_dkgm(g)),
-                 c(q * centre * leaf,
-                   rep(leaf * centre + (q - 1) * leaf^2 / 4, q)))
-  }
-})
-
-test_that("dkgm reproduces the published nine-node example", {
+test_that("dkgm peels the published nine-node example as Tables 1-4 print", {
   edges <- c(1, 2, 2, 3, 2, 7, 3, 4, 3, 7, 4, 5, 4, 6, 4, 7,
              5, 6, 5, 7, 5, 8, 6, 7, 6, 9)
   g <- igraph::make_graph(edges, directed = FALSE)
@@ -32,10 +17,8 @@ test_that("dkgm reproduces the published nine-node example", {
   expect_equal(round(.cg_dk_index(a), 4),
                c(2.3333, 5.3333, 5.6667, rep(7.3333, 3), 8.3333,
                  2.3333, 2.3333))
-  # Table 5, R = 2.
-  expect_equal(round(unname(centrality_dkgm(g)), 2),
-               c(20.61, 116.44, 143.08, 228.56, 210.22, 210.22, 289.58,
-                 30.53, 30.53))
+  # Table 5 (R = 2) is an equivalence test
+  # (tests/equivalence/test-centrality-zoo-b-gravity.R).
 })
 
 test_that("dkgm follows shell stages and distance shells on a path", {
@@ -44,10 +27,8 @@ test_that("dkgm follows shell stages and distance shells on a path", {
   # stage three, so the denominator is four and DK is 9/4, 7/2, 15/4, 7/2, 9/4.
   expect_equal(.cg_dk_index(as.matrix(igraph::as_adjacency_matrix(g))),
                c(9 / 4, 7 / 2, 15 / 4, 7 / 2, 9 / 4))
-  radius_two <- c(639 / 64, 385 / 16, 30.46875, 385 / 16, 639 / 64)
-  expect_equal(unname(centrality_dkgm(g)), radius_two)
-  expect_equal(unname(centrality_dkgm(g, dkgm_radius = 1)),
-               c(63 / 8, 21, 26.25, 21, 63 / 8))
+  # The scores at radius 1 and 2 are equivalence tests.
+  radius_two <- unname(centrality_dkgm(g))
   expect_equal(unname(centrality_dkgm(g, normalized = TRUE)),
                radius_two / max(radius_two))
   expect_equal(centrality_dkgm(g, dkgm_radius = 1.9),
@@ -60,12 +41,7 @@ test_that("dkgm follows shell stages and distance shells on a path", {
                centrality_dkgm(g, dkgm_radius = 1))
 })
 
-test_that("dkgm agrees with regular graphs and empty sums", {
-  for (n in c(2, 3, 5, 8)) {
-    # Every node has shell n-1, stage one and distance one to the rest.
-    expect_equal(unname(centrality_dkgm(igraph::make_full_graph(n))),
-                 rep((n - 1) * (2 * n - 1.5)^2, n))
-  }
+test_that("dkgm gives empty sums zero", {
   for (n in 0:3) {
     expect_equal(unname(centrality_dkgm(
       igraph::make_empty_graph(n, directed = FALSE)
@@ -74,8 +50,6 @@ test_that("dkgm agrees with regular graphs and empty sums", {
   g <- igraph::make_ring(7)
   expect_equal(unname(centrality_dkgm(g, dkgm_radius = 0)), numeric(7))
   expect_equal(unname(centrality_dkgm(g, dkgm_radius = .5)), numeric(7))
-  expect_equal(unname(centrality_dkgm(g, dkgm_radius = 1)), rep(2 * 4.5^2, 7))
-  expect_equal(unname(centrality_dkgm(g)), rep(2 * 4.5^2 * 1.25, 7))
 })
 
 test_that("dkgm shares one global stage denominator across components", {

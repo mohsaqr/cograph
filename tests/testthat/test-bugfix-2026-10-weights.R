@@ -36,22 +36,6 @@ test_that("bug 1: weighted = FALSE gives the binary-adjacency result", {
                             "betweenness", "pagerank", "katz")]))
 })
 
-test_that("bug 1: weighted = FALSE matches igraph's unweighted measures", {
-  skip_if_not_installed("igraph")
-  net <- .bugfix_weighted_net()
-  g <- igraph::graph_from_adjacency_matrix(net$w, mode = "directed",
-                                           weighted = TRUE)
-  res <- centrality(net$w, measures = c("betweenness", "closeness",
-                                        "strength"),
-                    mode = "out", weighted = FALSE)
-  expect_equal(res$betweenness,
-               as.numeric(igraph::betweenness(g, weights = NA)))
-  expect_equal(res$closeness_out,
-               as.numeric(igraph::closeness(g, mode = "out", weights = NA)))
-  expect_equal(res$strength_out,
-               as.numeric(igraph::degree(g, mode = "out")))
-})
-
 test_that("bug 2: current-flow betweenness with weighted = FALSE is binary", {
   # Four-cycle: each node carries 1/4 of the current for the two adjacent
   # pairs routed round the long way and 1/2 for the opposite pair, total 1,
@@ -93,17 +77,6 @@ test_that("bug 11: a named personalized vector is matched to node names", {
   expect_error(
     centrality_pagerank(net$w, personalized = c(p[-1], Z = 1)),
     class = "cograph_bad_input")
-})
-
-test_that("bug 11: personalized PageRank matches igraph", {
-  skip_if_not_installed("igraph")
-  net <- .bugfix_weighted_net()
-  p <- c(A = 5, B = 1, C = 0, D = 2, E = 0, F = 1)
-  g <- igraph::graph_from_adjacency_matrix(net$w, mode = "directed",
-                                           weighted = TRUE)
-  ref <- igraph::page_rank(g, personalized = unname(p))$vector
-  expect_equal(unname(centrality_pagerank(net$w, personalized = rev(p))),
-               as.numeric(ref), tolerance = 1e-8)
 })
 
 test_that("bug 12: percolation honours invert_weights", {

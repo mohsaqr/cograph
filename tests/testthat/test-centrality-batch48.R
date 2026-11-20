@@ -14,13 +14,6 @@ lhc_kite <- function() {
   a
 }
 
-lhc_star <- function(leaves) {
-  a <- matrix(0, leaves + 1L, leaves + 1L)
-  a[1L, -1L] <- 1
-  a[-1L, 1L] <- 1
-  a
-}
-
 lhc_ring <- function(n) {
   a <- matrix(0, n, n)
   for (k in seq_len(n)) {
@@ -29,66 +22,6 @@ lhc_ring <- function(n) {
   }
   a
 }
-
-test_that("the path 1-2-3 matches its hand derivation", {
-  # Triangle-free, so TP is zero. Degrees 1, 2, 1 and d(1,3) = 2, so
-  # C(end) = 2/1 + 1/4 and C(middle) = 1/1 + 1/1 = 2. Equation (2) then
-  # gives Lhc(end) = C(middle) = 2 and Lhc(middle) = 2 C(end) = 4.5.
-  p3 <- matrix(0, 3, 3)
-  p3[1, 2] <- p3[2, 1] <- p3[2, 3] <- p3[3, 2] <- 1
-  expect_equal(unname(centrality_lhc(p3)), c(2, 4.5, 2))
-  # At radius 1 the second-order term disappears: C(end) = 2, C(mid) = 2.
-  expect_equal(unname(centrality_lhc(p3, lhc_radius = 1)), c(2, 4, 2))
-})
-
-test_that("a star matches its hand derivation", {
-  # A star is triangle-free. The centre has degree m and every leaf 1;
-  # centre-leaf distance is 1 and leaf-leaf distance 2, so
-  #   C(centre) = m * 1,      C(leaf) = m + (m - 1) / 4   (radius >= 2)
-  #   Lhc(centre) = m * C(leaf),  Lhc(leaf) = C(centre) = m.
-  for (m in 2:9) {
-    star <- lhc_star(m)
-    expect_equal(unname(centrality_lhc(star)),
-                 c(m * (m + (m - 1) / 4), rep(m, m)))
-    # At radius 1 the leaf-leaf term vanishes and C(leaf) = m.
-    expect_equal(unname(centrality_lhc(star, lhc_radius = 1)),
-                 c(m * m, rep(m, m)))
-  }
-})
-
-test_that("a complete graph matches its hand derivation", {
-  # Every degree is n - 1, every NTS is (n-1)(n-2)/2, so TNTS is
-  # n(n-1)(n-2)/2 and TP is exactly 1/n. Every distance is 1, so
-  #   C(v) = (n-1) * (n-1) * (1 + 1/n)  and  Lhc(v) = (n-1) C(v).
-  closed <- function(n) (n - 1)^3 * (n + 1) / n
-  for (n in 3:8) {
-    for (radius in 1:3) {
-      expect_equal(unname(centrality_lhc(igraph::make_full_graph(n),
-                                         lhc_radius = radius)),
-                   rep(closed(n), n))
-    }
-  }
-  expect_equal(unname(centrality_lhc(igraph::make_full_graph(5))),
-               rep(76.8, 5))
-})
-
-test_that("a ring matches its hand derivation while the ball does not wrap", {
-  # C_n is triangle-free for n >= 4 and every degree is 2, with exactly two
-  # nodes at each distance 1..radius as long as n > 2 * radius:
-  #   C(v) = sum_{d = 1..radius} 4 / d^2,   Lhc(v) = 2 C(v).
-  for (radius in 1:3) {
-    closed <- 2 * sum(4 / seq_len(radius)^2)
-    for (n in seq(max(4, 2 * radius + 1), max(4, 2 * radius + 1) + 4)) {
-      expect_equal(unname(centrality_lhc(lhc_ring(n), lhc_radius = radius)),
-                   rep(closed, n))
-    }
-  }
-  # The n >= 4 precondition is load-bearing, not decorative: C_3 is K_3,
-  # its TP term does not vanish, and it follows the complete-graph form
-  # (32/3) rather than the triangle-free ring form (8).
-  expect_equal(unname(centrality_lhc(lhc_ring(3), lhc_radius = 1)),
-               rep(32 / 3, 3))
-})
 
 test_that("the share is normalised by TNTS, not by the triangle count", {
   # The source states that the number of distinct triangles is (1/3) TNTS,
@@ -133,14 +66,8 @@ test_that("a triangle-free graph drops TP rather than dividing by zero", {
   # TNTS = 0 makes TP a 0/0 at every node. Every numerator is zero too, so
   # cograph writes TP as zero and the index reduces to the plain
   # degree-over-squared-distance sum. Nothing is NA and nothing is NaN.
-  plain <- function(a, radius) {
-    n <- nrow(a)
-    d <- .cg_distances(a, "all")
-    inside <- is.finite(d) & d >= 1 & d <= radius
-    disc <- matrix(0, n, n)
-    disc[inside] <- 1 / d[inside]^2
-    as.numeric(a %*% (disc %*% rowSums(a)))
-  }
+  # (The comparison with that sum moved to
+  # tests/equivalence/test-centrality-zoo-b-lhc.R.)
   adj <- function(g) as.matrix(igraph::as_adjacency_matrix(g))
   graphs <- list(adj(igraph::make_tree(11, 3, mode = "undirected")),
                  adj(igraph::make_star(7, mode = "undirected")),
@@ -152,52 +79,6 @@ test_that("a triangle-free graph drops TP rather than dividing by zero", {
     expect_equal(attr(terms, "tnts"), 0)
     expect_equal(terms$tp, rep(0, nrow(terms)))
     expect_true(all(is.finite(terms$lhc)))
-    for (radius in 1:3) {
-      expect_equal(unname(centrality_lhc(a, lhc_radius = radius)),
-                   plain(a, radius))
-    }
-  }
-})
-
-test_that("the kernel agrees with the definition written out node by node", {
-  # Equations (1) and (2) accumulated with explicit loops over Phi(v) and
-  # tau(v), rather than as the matrix products production uses. The point
-  # of the test is that it is written out, so the loops are the check.
-  definitional <- function(a, radius) {
-    a <- .cg_undirected_view(a)
-    n <- nrow(a)
-    k <- rowSums(a)
-    nts <- .cg_triangle_counts(a)
-    tnts <- sum(nts)
-    tp <- if (tnts > 0) nts / tnts else rep(0, n)
-    d <- .cg_distances(a, "all")
-    influence <- numeric(n)
-    for (v in seq_len(n)) {
-      total <- 0
-      for (u in seq_len(n)) {
-        if (is.finite(d[v, u]) && d[v, u] >= 1 && d[v, u] <= radius) {
-          total <- total + k[u] * (1 + tp[u]) / d[v, u]^2
-        }
-      }
-      influence[v] <- total
-    }
-    out <- numeric(n)
-    for (v in seq_len(n)) {
-      for (w in seq_len(n)) if (a[v, w] > 0) out[v] <- out[v] + influence[w]
-    }
-    out
-  }
-  set.seed(4802)
-  adj <- function(g) as.matrix(igraph::as_adjacency_matrix(g))
-  graphs <- list(lhc_kite(),
-                 adj(igraph::sample_gnp(12, 0.3)),
-                 adj(igraph::sample_gnp(9, 0.5)),
-                 adj(igraph::make_tree(13, 2, mode = "undirected")),
-                 adj(igraph::sample_gnp(10, 0.25)))
-  for (a in graphs) {
-    for (radius in c(1, 2, 3, 7)) {
-      expect_equal(.cg_lhc_terms(a, radius)$lhc, definitional(a, radius))
-    }
   }
 })
 

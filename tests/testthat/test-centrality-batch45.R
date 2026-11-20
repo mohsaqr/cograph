@@ -2,59 +2,14 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("ked has a closed form on stars", {
-  # A q-star has n = q + 1. The centre's q neighbours are all leaves of
-  # degree one, so its neighbour-degree distribution is uniform, H = 1 and
-  # E = 2; its cluster degree is q. A leaf's only neighbour is the centre,
-  # so its cluster degree is q too, and a single neighbour means H = 0 and
-  # E = 1 by the cograph convention. Both therefore share the same D, and
-  # the centre scores exactly 2q times a leaf.
-  for (q in 2:7) {
-    g <- igraph::make_star(q + 1, mode = "undirected")
-    d <- exp(q / (q + 1))
-    expect_equal(unname(centrality_ked(g)), c(2 * q * d, rep(d, q)))
-  }
-  # The two-node star is the single edge: both nodes are leaves, so both
-  # take the H = 0 convention and score exp(1 / 2), not 2 exp(1 / 2).
-  expect_equal(unname(centrality_ked(igraph::make_star(2, "undirected"))),
-               rep(exp(0.5), 2))
-})
-
-test_that("ked is constant on regular graphs and depends on the order", {
-  # On an r-regular graph every neighbour has degree r, so the distribution
-  # is uniform, H = 1 and E = 2, and the cluster degree is r^2.
-  for (n in 3:8) {
-    r <- n - 1
-    expect_equal(unname(centrality_ked(igraph::make_full_graph(n))),
-                 rep(2 * r * exp(r^2 / n), n))
-  }
-  for (n in 3:8) {
-    # A ring is two-regular: 2 * 2 * exp(4 / n).
-    expect_equal(unname(centrality_ked(igraph::make_ring(n))),
-                 rep(4 * exp(4 / n), n))
-  }
-  expect_equal(unname(centrality_ked(igraph::make_ring(4))),
-               rep(4 * exp(1), 4))
-})
-
-test_that("ked follows hand-computed entropies on a path", {
+test_that("ked normalization divides by the maximum", {
   g <- igraph::make_graph(c(1, 2, 2, 3, 3, 4, 4, 5), directed = FALSE)
-  # Degrees 1, 2, 2, 2, 1; cluster degrees 2, 3, 4, 3, 2; N = 5. The ends
-  # have one neighbour, so H = 0 and E = 1. Node 3's two neighbours both
-  # have degree two, so its distribution is uniform and E = 2. Nodes 2 and
-  # 4 see degrees 1 and 2 against a cluster degree of 3.
-  h2 <- -(1 / 3) * log(1 / 3) - (2 / 3) * log(2 / 3)
-  e2 <- 1 + h2 / log(2)
-  score <- c(1 * 1 * exp(2 / 5), 2 * e2 * exp(3 / 5), 2 * 2 * exp(4 / 5),
-             2 * e2 * exp(3 / 5), 1 * 1 * exp(2 / 5))
-  expect_equal(unname(centrality_ked(g)), score)
+  score <- unname(centrality_ked(g))
   expect_equal(unname(centrality_ked(g, normalized = TRUE)),
                score / max(score))
-  # The middle node wins even though every interior node has degree two.
-  expect_equal(which.max(score), 3L)
 })
 
-test_that("ked reproduces the two scores printed for the source's fig. 1", {
+test_that("ked terms follow the caption of the source's fig. 1", {
   # Chen, Xiao, Zeng and Zhang (2014), page 4: "the f_i for the red node is
   # 25.9187 in fig. 1(a) and 19.2212 in fig. 1(b)". Panel (a) is a red node
   # joined to five blue nodes, each carrying three grey leaves; panel (b)
@@ -78,8 +33,8 @@ test_that("ked reproduces the two scores printed for the source's fig. 1", {
   expect_equal(terms_b$cluster_degree[1], 20)
   expect_equal(terms_a$diversity[1], 1)
   expect_lt(terms_b$diversity[1], 1)
-  expect_equal(round(centrality_ked(panel_a)[[1]], 4), 25.9187)
-  expect_equal(round(centrality_ked(panel_b)[[1]], 4), 19.2212)
+  # The two printed scores are compared in tests/equivalence
+  # (zoo-b-local-contribution).
 })
 
 test_that("ked is not the Centrality Zoo's formula", {

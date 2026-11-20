@@ -2,13 +2,12 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("ControlRank reproduces the published bi-star example", {
+test_that("ControlRank keeps the bi-star's symmetry and order", {
   g <- igraph::make_graph(c(1, 2, 1, 7, 2, 3, 2, 4, 2, 5, 2, 6,
                             7, 8, 7, 9, 7, 10, 7, 11), directed = FALSE)
-  published <- c(.17, .09, .05, .05, .05, .05, .09, .05, .05, .05, .05)
+  # The printed values and the hub's 3 - sqrt(8) are equivalence tests
+  # (tests/equivalence/test-centrality-zoo-b-spectral.R).
   got <- centrality_controlrank(g)
-  expect_equal(round(unname(got), 2), published)
-  expect_equal(unname(got[1]), 3 - sqrt(8), tolerance = 1e-12)
   expect_equal(unname(got[2]), unname(got[7]), tolerance = 1e-12)
   expect_gt(got[1], got[2])
   expect_gt(got[2], got[3])
@@ -16,17 +15,8 @@ test_that("ControlRank reproduces the published bi-star example", {
                unname(got))
 })
 
-test_that("ControlRank uses original degrees in the grounded matrix", {
-  for (n in 3:8) {
-    star <- igraph::make_star(n, mode = "undirected")
-    leaf <- 2 / (n + sqrt(n^2 - 4))
-    expect_equal(unname(centrality_controlrank(star)),
-                 c(1, rep(leaf, n - 1)), tolerance = 1e-12)
-    expect_equal(unname(centrality_controlrank(igraph::make_full_graph(n))),
-                 rep(1, n), tolerance = 1e-12)
-    expect_equal(unname(centrality_controlrank(igraph::make_ring(n))),
-                 rep(2 - 2 * cos(pi / n), n), tolerance = 1e-12)
-  }
+test_that("ControlRank scores empty and disconnected graphs zero", {
+  # The star, clique and ring closed forms are equivalence tests.
   for (n in 0:3) {
     expect_equal(unname(centrality_controlrank(igraph::make_empty_graph(n))),
                  numeric(n))
@@ -39,11 +29,11 @@ test_that("ControlRank uses original degrees in the grounded matrix", {
 test_that("ControlRank retains signed directed scores and row orientation", {
   a <- matrix(0, 3, 3)
   a[1, 2] <- a[2, 3] <- 1
-  expected <- c((1 - sqrt(2)) / 2, 0, .5)
-  expect_equal(unname(centrality_controlrank(a)), expected)
+  # The values (1 - sqrt(2)) / 2, 0, 1 / 2 are an equivalence test.
+  expected <- unname(centrality_controlrank(a))
   expect_equal(unname(centrality_controlrank(t(a))), rev(expected))
   expect_equal(unname(centrality_controlrank(a, normalized = TRUE)),
-               expected * 2)
+               expected / max(expected))
   expect_equal(unname(centrality_controlrank(a, mode = "in", cutoff = 1,
                                              invert_weights = TRUE)), expected)
   # A disjoint union of directed chains has negative minimum modes even

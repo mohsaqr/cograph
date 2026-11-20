@@ -8,6 +8,6 @@
 helper_env <- environment()
 invisible(lapply(
   c("helper-cograph.R", "helper-test-utils.R", "helper-networks.R"),
-  function(f) sys.source(testthat::test_path("..", "testthat", f),
+  function(f) sys.source(testthat::test_path("..", "..", "testthat", f),
                          envir = helper_env)
 ))

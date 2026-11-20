@@ -180,7 +180,7 @@ rownames(.test_mat) <- colnames(.test_mat) <- LETTERS[1:5]
 # --- sna package comparison ---
 
 
-test_that("diffusion power_series matches tna::Diffusion byte-for-byte", {
+test_that("tna_network = FALSE on a tna object gives cograph's default diffusion", {
   skip_if_not_installed("tna")
   W <- matrix(c(0.4, 0.3, 0.3,
                 0.2, 0.5, 0.3,
@@ -188,64 +188,15 @@ test_that("diffusion power_series matches tna::Diffusion byte-for-byte", {
   rownames(W) <- colnames(W) <- c("A", "B", "C")
   t1 <- tna::tna(W)
 
-  # tna >= 1.5.8 min-max scales Diffusion whatever `normalize`; older
-  # versions return the raw sums, so `normalize = TRUE` is asked for.
-  tna_diff <- tna::centralities(t1, measures = "Diffusion",
-                                normalize = TRUE)$Diffusion
-
-  # tna_network auto-detects from class: tna input -> power_series + loops=FALSE
-  cog_auto <- cograph::centrality(t1, measures = "diffusion")$diffusion_all
-  expect_equal(cog_auto, tna_diff, tolerance = 1e-12)
-
-  # Explicit method on raw matrix produces the same result.
-  cog_explicit <- cograph::centrality(W, measures = "diffusion",
-                                       diffusion_method = "power_series",
-                                       loops = FALSE)$diffusion_all
-  expect_equal(cog_explicit, tna_diff, tolerance = 1e-12)
-
-  # tna_network = TRUE on raw matrix flips both diffusion_method and loops.
-  cog_umbrella <- cograph::centrality(W, measures = "diffusion",
-                                       tna_network = TRUE)$diffusion_all
-  expect_equal(cog_umbrella, tna_diff, tolerance = 1e-12)
-
-  # Default kandhway_kuri on a raw matrix is the binary-degree formula —
-  # different by construction from tna's power-series.
+  # The comparisons with tna::centralities() are in
+  # tests/equivalence/test-centrality-a1-tna.R.
+  # Default kandhway_kuri on a raw matrix is the binary-degree formula.
   cog_kk <- cograph::centrality(W, measures = "diffusion")$diffusion_all
-  expect_false(isTRUE(all.equal(cog_kk, tna_diff, tolerance = 1e-3)))
 
   # tna_network = FALSE on tna input opts out and returns cograph defaults.
   cog_off <- cograph::centrality(t1, measures = "diffusion",
                                   tna_network = FALSE)$diffusion_all
   expect_equal(cog_off, cog_kk, tolerance = 1e-12)
-})
-
-test_that("transitivity onnela matches tna::Clustering byte-for-byte", {
-  skip_if_not_installed("tna")
-  W <- matrix(c(0.4, 0.3, 0.3,
-                0.2, 0.5, 0.3,
-                0.1, 0.2, 0.7), 3, 3, byrow = TRUE)
-  rownames(W) <- colnames(W) <- c("A", "B", "C")
-  t1 <- tna::tna(W)
-
-  tna_clust <- tna::centralities(t1, measures = "Clustering")$Clustering
-
-  # tna input via auto tna_network picks "onnela".
-  cog_auto <- cograph::centrality(t1, measures = "transitivity")$transitivity
-  expect_equal(cog_auto, tna_clust, tolerance = 1e-12)
-
-  # Explicit type on raw matrix matches.
-  cog_explicit <- cograph::centrality(W, measures = "transitivity",
-                                       transitivity_type = "onnela")$transitivity
-  expect_equal(cog_explicit, tna_clust, tolerance = 1e-12)
-
-  # Umbrella on raw matrix flips transitivity_type.
-  cog_umbrella <- cograph::centrality(W, measures = "transitivity",
-                                       tna_network = TRUE)$transitivity
-  expect_equal(cog_umbrella, tna_clust, tolerance = 1e-12)
-
-  # Default Watts-Strogatz on raw matrix is unweighted and differs.
-  cog_local <- cograph::centrality(W, measures = "transitivity")$transitivity
-  expect_false(isTRUE(all.equal(cog_local, tna_clust, tolerance = 1e-3)))
 })
 
 test_that("tna_network respects user-explicit overrides", {
@@ -293,39 +244,8 @@ test_that("tna_network respects user-explicit overrides", {
 # --- NetworkX package comparison (via reticulate) ---
 
 
-# --- Manual verification (for current_flow_closeness) ---
-
-test_that("current_flow_closeness matches manual pseudoinverse calculation", {
-  n <- 5
-  L <- igraph::laplacian_matrix(.test_g, sparse = FALSE)
-  J <- matrix(1, n, n)
-  L_tilde <- L - J / n
-  svd_result <- svd(L_tilde)
-  tol <- max(dim(L_tilde)) * max(svd_result$d) * .Machine$double.eps
-  positive <- svd_result$d > tol
-  L_pinv <- svd_result$v[, positive, drop = FALSE] %*%
-    diag(1 / svd_result$d[positive], nrow = sum(positive)) %*%
-    t(svd_result$u[, positive, drop = FALSE])
-  diag_L_pinv <- diag(L_pinv)
-
-  manual_cfc <- numeric(n)
-  for (i in 1:n) {
-    total_resistance <- 0
-    for (j in 1:n) {
-      if (i != j) {
-        R_ij <- diag_L_pinv[i] + diag_L_pinv[j] - 2 * L_pinv[i, j]
-        total_resistance <- total_resistance + R_ij
-      }
-    }
-    manual_cfc[i] <- (n - 1) / total_resistance
-  }
-
-  expect_equal(
-    unname(centrality_current_flow_closeness(.test_mat)),
-    manual_cfc,
-    tolerance = 1e-6
-  )
-})
+# The pseudo-inverse check of current_flow_closeness is in
+# tests/equivalence/test-centrality-flow.R.
 
 # --- Property-based tests (fallback when NetworkX unavailable) ---
 

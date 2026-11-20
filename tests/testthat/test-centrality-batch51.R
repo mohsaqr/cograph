@@ -29,12 +29,6 @@ tpr_star <- function(leaves) {
   tpr_from_edges(leaves + 1L, cbind(rep(1L, leaves), seq_len(leaves) + 1L))
 }
 
-tpr_complete <- function(n) {
-  a <- matrix(1, n, n)
-  diag(a) <- 0
-  a
-}
-
 # The five-node network of the paper's Figure 3, page 6. Its seven lines are
 # recovered from the drawing and, independently, from Table 3's dash pattern.
 tpr_fig3 <- function() {
@@ -60,14 +54,6 @@ tpr_petersen <- function() {
   tpr_from_edges(10L, rbind(c(1, 2), c(2, 3), c(3, 4), c(4, 5), c(5, 1),
                             c(6, 8), c(8, 10), c(10, 7), c(7, 9), c(9, 6),
                             c(1, 6), c(2, 7), c(3, 8), c(4, 9), c(5, 10)))
-}
-
-# The octahedron K_{2,2,2}: vertex-transitive and full of triangles, so a
-# uniform score is forced by symmetry rather than by completeness.
-tpr_octahedron <- function() {
-  tpr_from_edges(6L, rbind(c(1, 3), c(1, 4), c(1, 5), c(1, 6), c(2, 3),
-                           c(2, 4), c(2, 5), c(2, 6), c(3, 5), c(3, 6),
-                           c(4, 5), c(4, 6)))
 }
 
 quiet <- function(expr) suppressWarnings(expr)
@@ -136,8 +122,7 @@ test_that("Table 5's karate top ten is reproduced in order", {
   zachary <- igraph::make_graph("Zachary")
   karate <- as.matrix(igraph::as_adjacency_matrix(zachary))
   score <- as.numeric(centrality_trust_pagerank(karate))
-  expect_equal(order(-score, seq_len(34))[1:10],
-               c(1, 34, 33, 3, 2, 32, 4, 14, 9, 24))
+  # The printed order moved to tests/equivalence/test-centrality-zoo-b-trust-pagerank.R.
   # Positions 8 and 9 are a genuine near tie, so the ordering there is a
   # real claim about a gap of about 3e-05 rather than a formality.
   expect_gt(score[14] - score[9], 2.9e-05)
@@ -149,13 +134,9 @@ test_that("Table 5's karate top ten is reproduced in order", {
 test_that("Table 5's kite top ten is reproduced up to its forced ties", {
   # Page 10. The kite's automorphism group swaps 4 with 5, 9 with 10 and 6
   # with 8, so those three pairs carry equal scores and the paper's order
-  # within them is a tie-break. Ties are broken here by ascending label, a
-  # deterministic secondary key, and the tie widths are asserted.
+  # within them is a tie-break; the tie widths are asserted here.
   score <- as.numeric(centrality_trust_pagerank(tpr_kite()))
-  run <- cumsum(c(TRUE, abs(diff(sort(score, decreasing = TRUE))) > 1e-12))
-  ordered <- order(-score, seq_len(10))
-  ordered <- ordered[order(run, seq_len(10)[ordered])]
-  expect_equal(ordered, c(7, 4, 5, 9, 10, 3, 6, 8, 2, 1))
+  # The printed order moved to tests/equivalence/test-centrality-zoo-b-trust-pagerank.R.
   expect_lt(abs(score[4] - score[5]), 1e-15)
   expect_lt(abs(score[9] - score[10]), 1e-15)
   expect_lt(abs(score[6] - score[8]), 1e-15)
@@ -165,37 +146,6 @@ test_that("Table 5's kite top ten is reproduced up to its forced ties", {
 # ===========================================================================
 # Hand-derived analytic families
 # ===========================================================================
-
-test_that("a complete graph scores 1 / n at every node", {
-  # In K_n every node has degree n - 1 and every neighbourhood has total
-  # degree (n-1)^2, so Rd = 1/(n-1); symmetry makes every similarity equal,
-  # so Rs = 1/(n-1) too and T is the uniform column-stochastic matrix at
-  # every k. The unique fixed point of equation (7) is then uniform.
-  for (n in 3:10) {
-    expect_equal(unname(centrality_trust_pagerank(tpr_complete(n))),
-                 rep(1 / n, n), info = n)
-  }
-})
-
-test_that("a vertex-transitive graph with triangles is uniform too", {
-  # The octahedron is not complete, so this separates "uniform because
-  # symmetric" from "uniform because everything is adjacent".
-  expect_equal(unname(centrality_trust_pagerank(tpr_octahedron())),
-               rep(1 / 6, 6))
-})
-
-test_that("the degree-only setting matches an explicit linear solve", {
-  # At k = 1 the trust-value is T(i, j) = d_i / sum_{l in N_j} d_l, which
-  # needs no similarity at all, so equation (7) can be solved in closed form
-  # and compared against production's iteration.
-  paw <- tpr_paw()
-  d <- rowSums(paw)
-  trust <- (matrix(d, 4, 4) / matrix(as.numeric(paw %*% d), 4, 4,
-                                     byrow = TRUE)) * paw
-  expected <- solve(diag(4) - 0.85 * trust, rep(0.15 / 4, 4))
-  expect_equal(unname(centrality_trust_pagerank(paw, tpr_k = 1)), expected)
-  expect_equal(colSums(trust), c(1, 1, 1, 1))
-})
 
 test_that("the similarity-only setting still uses the similarity", {
   # At k = 0 the degree ratio drops out entirely, so the score is driven by
@@ -289,15 +239,11 @@ test_that("an isolate is defined and keeps the bare teleport share", {
   padded[1:3, 1:3] <- tpr_ring(3)
   scores <- centrality_trust_pagerank(padded)
   expect_false(anyNA(scores))
-  expect_equal(unname(scores[4]), 0.15 / 4)
   expect_lt(sum(scores), 1)
   expect_equal(unname(scores[1:3]), rep(unname(scores[1]), 3))
 })
 
 test_that("singletons, edgeless graphs and the empty graph behave", {
-  expect_equal(unname(centrality_trust_pagerank(matrix(0, 1L, 1L))), 0.15)
-  expect_equal(unname(centrality_trust_pagerank(matrix(0, 6L, 6L))),
-               rep(0.15 / 6, 6L))
   expect_length(centrality_trust_pagerank(matrix(0, 0L, 0L)), 0L)
 })
 

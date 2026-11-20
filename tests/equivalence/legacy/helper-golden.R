@@ -8,7 +8,7 @@
 .golden_path <- function(tag = "baseline") {
   committed <- testthat::test_path("golden", paste0("golden_", tag, ".rds"))
   if (file.exists(committed)) return(committed)
-  local <- testthat::test_path("..", "..", "local_testing_and_equivalence", "golden",
+  local <- testthat::test_path("..", "..", "..", "local_testing_and_equivalence", "golden",
                                paste0("golden_", tag, ".rds"))
   if (file.exists(local)) return(local)
   NA_character_

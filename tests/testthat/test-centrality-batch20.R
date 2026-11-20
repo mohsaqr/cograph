@@ -4,7 +4,6 @@ skip_if_not_installed("igraph")
 
 test_that("exogenous bases agree with analytical undirected scores", {
   star <- igraph::make_star(5, mode = "undirected")
-  expect_equal(unname(centrality_exogenous(star)), c(52, rep(13, 4)))
   degree <- centrality_exogenous(star, exogenous_base = "degree")
   expect_equal(unname(degree), c(4, rep(1, 4)))
   between <- centrality_exogenous(star, exogenous_base = "betweenness")

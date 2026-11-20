@@ -90,13 +90,13 @@ test_that("bug 10: information is NA with a classed warning when disconnected", 
   expect_true(all(is.na(ic)))
 })
 
-test_that("bug 10: connected information still equals sna::infocent", {
-  skip_if_not_installed("sna")
+test_that("bug 10: connected information has no warning and an isolate scores 0", {
+  # The comparison with sna::infocent() on this graph is in
+  # tests/equivalence/test-centrality-sna.R.
   m <- .labelled(matrix(0, 5, 5))
   m[1, 2] <- m[2, 1] <- m[1, 3] <- m[3, 1] <- m[2, 3] <- m[3, 2] <- 1
   m[4, 5] <- m[5, 4] <- m[3, 4] <- m[4, 3] <- 1
   expect_no_warning(ic <- centrality_information(m))
-  expect_equal(unname(ic), sna::infocent(m, gmode = "graph"))
   # An isolate leaves the component intact and scores 0.
   iso <- .labelled(rbind(cbind(unname(m), 0), 0))
   expect_no_warning(ic_iso <- centrality_information(iso))

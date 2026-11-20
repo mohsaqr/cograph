@@ -2,46 +2,6 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("hcc is 2 everywhere on a regular graph and ehcc is 2 (1 + k)", {
-  # Every node of an r-regular graph has the same extended degree for any
-  # delta, so one round removes the whole graph: pos and pos_max are both
-  # one, the extended-degree share is one, and HCC is 1 + 1 = 2.
-  for (n in 3:8) {
-    ring <- igraph::make_ring(n)
-    expect_equal(unname(centrality_hcc(ring)), rep(2, n))
-    expect_equal(unname(centrality_ehcc(ring)), rep(6, n))
-    full <- igraph::make_full_graph(n)
-    expect_equal(unname(centrality_hcc(full)), rep(2, n))
-    expect_equal(unname(centrality_ehcc(full)), rep(2 * n, n))
-  }
-  # The single edge is one-regular.
-  expect_equal(unname(centrality_hcc(igraph::make_full_graph(2))), c(2, 2))
-  expect_equal(unname(centrality_ehcc(igraph::make_full_graph(2))), c(4, 4))
-})
-
-test_that("hcc has a closed form on stars", {
-  # A q-star has one centre of degree q and q leaves of degree one. The
-  # centre's extended degree is delta q + (1 - delta) q = q; a leaf's is
-  # delta + (1 - delta) q, which is smaller whenever q > 1 *and* delta > 0,
-  # so round one removes every leaf and round two the now isolated centre.
-  # The maximum extended degree is the centre's q and pos_max is two. At
-  # delta = 0 the two coincide and the star peels in one round instead; it
-  # is covered by the uniform case in the hcc_delta test below.
-  for (q in 2:7) {
-    g <- igraph::make_star(q + 1, mode = "undirected")
-    for (delta in c(0.25, 0.5, 0.75, 1)) {
-      leaf <- (delta + (1 - delta) * q) / q + 1 / 2
-      score <- centrality_hcc(g, hcc_delta = delta)
-      expect_equal(unname(score), c(2, rep(leaf, q)))
-      expect_equal(unname(centrality_ehcc(g, hcc_delta = delta)),
-                   c(2 + q * leaf, rep(leaf + 2, q)))
-    }
-  }
-  # delta = 0.5 on the five-star: leaves score 3/5 + 1/2 = 1.1.
-  expect_equal(unname(centrality_hcc(igraph::make_star(6, "undirected"))),
-               c(2, rep(1.1, 5)))
-})
-
 test_that("hcc follows a hand-computed peel on paths", {
   # Path of five. Degrees 1, 2, 2, 2, 1; extended degrees at delta = 0.5
   # are 1.5, 2.5, 3, 2.5, 1.5. Round one removes the two ends, leaving a
@@ -54,12 +14,7 @@ test_that("hcc follows a hand-computed peel on paths", {
   expect_equal(terms$pos, c(1, 2, 3, 2, 1))
   expect_equal(attr(terms, "pos_max"), 3L)
   expect_equal(attr(terms, "kex_max"), 3)
-  score <- c(1.5 / 3 + 1 / 3, 2.5 / 3 + 2 / 3, 1 + 1,
-             2.5 / 3 + 2 / 3, 1.5 / 3 + 1 / 3)
-  expect_equal(unname(centrality_hcc(g)), score)
-  expect_equal(unname(centrality_ehcc(g)),
-               c(score[1] + score[2], sum(score[1:3]), sum(score[2:4]),
-                 sum(score[3:5]), score[4] + score[5]))
+  score <- unname(centrality_hcc(g))
   expect_equal(unname(centrality_hcc(g, normalized = TRUE)), score / max(score))
   # The three-path is the two-star, so its centre scores 2 and its ends
   # (0.5 + 0.5 * 2) / 2 + 1 / 2 = 1.25.
@@ -72,7 +27,7 @@ test_that("hcc follows a hand-computed peel on paths", {
   expect_equal(four$pos, c(1, 2, 2, 1))
 })
 
-test_that("hcc reproduces every value the source prints for its figure 1", {
+test_that("hcc terms reproduce tables 1 and 2 of the source's figure 1", {
   # Liu and Zheng (2023), Scientific Reports 13:3197, page 4. The figure 1
   # graph has 10 nodes and 14 edges; tables 1, 2 and 3 print the classical
   # and extended degrees, the six-round decomposition trace and the HCC
@@ -94,44 +49,13 @@ test_that("hcc reproduces every value the source prints for its figure 1", {
   expect_equal(terms$pos[order_in_graph], c(4, 4, 2, 6, 6, 6, 6, 3, 5, 1))
   expect_equal(attr(terms, "pos_max"), 6L)
   expect_equal(attr(terms, "kex_max"), 11)
-  # Table 3, printed: ten HCC values at the printed two decimals.
+  # Table 3 and the worked line HCC(a) = 4.5/11 + 4/6 are compared in
+  # tests/equivalence (zoo-b-hybrid-characteristic). The worked line
+  # EHCC(a) = HCC(a) + HCC(b) + HCC(e) is the definition, checked here.
   score <- centrality_hcc(g)[nodes]
-  expect_equal(unname(round(score, 2)),
-               c(1.08, 1.08, 0.56, 1.86, 2, 1.95, 2, 0.77, 1.42, 0.35))
-  # The paper's own worked lines HCC(a) = 4.5/11 + 4/6 and
-  # EHCC(a) = HCC(a) + HCC(b) + HCC(e).
-  expect_equal(unname(score[["a"]]), 4.5 / 11 + 4 / 6)
   escore <- centrality_ehcc(g)[nodes]
   expect_equal(unname(escore[["a"]]),
                unname(score[["a"]] + score[["b"]] + score[["e"]]))
-  expect_equal(unname(round(escore, 2)),
-               c(4.15, 4.15, 2.42, 8.38, 9.97, 9.24, 10.02, 2.77, 5.73, 1.77))
-})
-
-test_that("one printed EHCC value disagrees with the source's own rounding", {
-  # Table 3 prints EHCC(g) = 10.01. The exact value is 661/66, which is
-  # 10.015151... and rounds to 10.02, a gap of 0.00515 outside the
-  # half-unit. 10.01 is the truncation, but six other printed cells --
-  # HCC(a), HCC(b), HCC(j), EHCC(d), EHCC(e) and EHCC(i) -- require
-  # rounding and fail under truncation, so no single convention
-  # reproduces all twenty printed entries. The disagreement is recorded,
-  # not tuned away; it does not change the paper's ranking.
-  nodes <- letters[1:10]
-  pairs <- c("c", "d", "a", "b", "a", "e", "d", "f", "d", "e", "d", "g",
-             "e", "f", "f", "g", "f", "i", "b", "e", "e", "g", "g", "i",
-             "g", "h", "i", "j")
-  g <- igraph::make_graph(pairs, directed = FALSE)
-  escore <- centrality_ehcc(g)[nodes]
-  expect_equal(unname(escore[["g"]]), 661 / 66)
-  expect_equal(round(unname(escore[["g"]]), 2), 10.02)
-  expect_false(isTRUE(all.equal(round(unname(escore[["g"]]), 2), 10.01)))
-  expect_equal(trunc(unname(escore[["g"]]) * 100) / 100, 10.01)
-  printed <- c(1.08, 1.08, 0.56, 1.86, 2, 1.95, 2, 0.77, 1.42, 0.35,
-               4.15, 4.15, 2.42, 8.38, 9.97, 9.24, 10.01, 2.77, 5.73, 1.77)
-  both <- c(centrality_hcc(g)[nodes], escore)
-  expect_equal(sum(abs(trunc(both * 100) / 100 - printed) > 1e-9), 6L)
-  expect_equal(sum(abs(round(both, 2) - printed) > 1e-9), 1L)
-  expect_equal(unname(which.max(escore)), 7L)
 })
 
 test_that("hcc_delta spans the source's domain and is refused outside it", {

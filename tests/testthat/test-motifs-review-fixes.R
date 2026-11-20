@@ -163,8 +163,7 @@ test_that("edge_method = 'expected' handles a unit with no transitions", {
 
 # ---- triad_census() / motif_census() ---------------------------------------
 
-test_that("triad_census returns a tidy table equal to igraph", {
-  skip_if_not_installed("igraph")
+test_that("triad_census returns a tidy table", {
   m <- matrix(c(0, 1, 0, 1,
                 0, 0, 1, 0,
                 1, 0, 0, 1,
@@ -173,9 +172,7 @@ test_that("triad_census returns a tidy table equal to igraph", {
   expect_s3_class(tc, "data.frame")
   expect_identical(names(tc), c("type", "count"))
   expect_identical(nrow(tc), 16L)
-  expect_equal(tc$count,
-               as.numeric(igraph::triad_census(
-                 igraph::graph_from_adjacency_matrix(m))))
+  # The counts are compared with igraph in tests/equivalence/test-census.R.
   expect_equal(sum(tc$count), choose(4, 3))
 })
 
@@ -203,11 +200,8 @@ test_that("motif_census size 4 leaves the uncounted classes NA", {
   two_pairs[1, 2] <- two_pairs[2, 1] <- 1
   two_pairs[3, 4] <- two_pairs[4, 3] <- 1
   m4 <- motif_census(two_pairs, size = 4, n_random = 5, seed = 1)
-  reference <- igraph::motifs(
-    igraph::graph_from_adjacency_matrix(two_pairs, mode = "undirected"), 4)
-  expect_identical(is.na(m4$count), is.na(reference))
+  # The counts are compared with igraph::motifs() in tests/equivalence/test-census.R.
   expect_true(all(is.na(m4$p_value[is.na(m4$count)])))
-  expect_equal(m4$count[!is.na(m4$count)], reference[!is.na(reference)])
 })
 
 # ---- extract_motifs() wrapper ----------------------------------------------

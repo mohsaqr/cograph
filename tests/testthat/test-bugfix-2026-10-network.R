@@ -13,27 +13,15 @@ test_that("bug 19: estrada_index() equals trace(exp(A)) on a directed cycle", {
   # trace(A^k) is 3 when k is a multiple of 3 and 0 otherwise.
   a <- matrix(0, 3, 3)
   a[cbind(1:3, c(2, 3, 1))] <- 1
-  k <- seq(0, 30, by = 3)
-  expected <- 3 * sum(1 / factorial(k))
-  expect_equal(estrada_index(a), expected, tolerance = 1e-12)
+  # The value itself is compared with trace(exp(A)) in tests/equivalence/test-network-structure.R.
   # The old formula summed exp(Re(lambda)) and gave e + 2 exp(-1/2).
   expect_false(isTRUE(all.equal(estrada_index(a), exp(1) + 2 * exp(-0.5))))
-})
-
-test_that("bug 19: estrada_index() on an undirected graph is unchanged", {
-  a <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), 3)
-  ev <- eigen(a, symmetric = TRUE, only.values = TRUE)$values
-  expect_equal(estrada_index(a), sum(exp(ev)))
 })
 
 test_that("bug 20: efficiency functions accept weights = NA on tna input", {
   skip_if_not_installed("igraph")
   x <- .bug_tna(regulation_net)
-  g <- to_igraph(x)
-  expect_equal(network_global_efficiency(x, weights = NA),
-               igraph::global_efficiency(g, weights = NA))
-  expect_equal(network_local_efficiency(x, weights = NA),
-               igraph::average_local_efficiency(g, weights = NA))
+  # The values are compared with igraph and NetworkX in tests/equivalence/test-network-structure.R.
   # weights = NA is unweighted, so tna and matrix input agree.
   expect_equal(network_global_efficiency(x, weights = NA),
                network_global_efficiency(regulation_net, weights = NA))
@@ -81,14 +69,8 @@ test_that("bug 22: cluster_significance() null graphs carry the observed weights
   g_null <- igraph::sample_gnm(5, length(obs_w), directed = TRUE)
   igraph::E(g_null)$weight <- obs_w[sample.int(length(obs_w))]
   expect_equal(res$null_values[1], igraph::modularity(g_null, mem))
-
-  # Equal weights reduce to the unweighted null: modularity is scale free.
-  flat <- (w > 0) * 2
-  res_flat <- cluster_significance(flat, mem, n_random = 5, method = "gnm",
-                                   null = "fixed", seed = 7)
-  g_flat <- igraph::graph_from_adjacency_matrix((w > 0) * 1, mode = "directed")
-  expect_equal(res_flat$null_values,
-               rep(igraph::modularity(g_flat, mem), 5))
+  # The unweighted null on the complete graph is compared with igraph and NetworkX in
+  # tests/equivalence/test-d1-regressions.R.
 })
 
 test_that("bug 23: csum(directed = FALSE) symmetrizes before aggregation", {

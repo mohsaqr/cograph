@@ -3,9 +3,9 @@
 # `centrality()` did not: local efficiency, s-core, distance-weighted
 # fragmentation, the k-path census and the edge percolated component.
 #
-# Each measure is held to its defining paper through a hand-computed value
-# on a graph small enough to check by eye, to a brute-force reading of the
-# definition, and to the package whose gap it closes.
+# Unit tests: invariants, conventions and contracts. The comparisons with
+# hand-computed values, brute-force readings of the definitions and igraph
+# are declared in tests/equivalence/test-centrality-zoo-a-*.R.
 # ===========================================================================
 
 # A six-node graph: a triangle A-B-C, C-D, and a triangle D-E-F.
@@ -20,79 +20,11 @@ star5 <- star5 + t(star5)
 rownames(star5) <- colnames(star5) <- LETTERS[1:5]
 
 # ===========================================================================
-# Local efficiency
-# ===========================================================================
-
-test_that("local efficiency is the efficiency of the neighbour subgraph", {
-  eff <- centrality_local_efficiency(adj6)
-  # A's neighbours are B and C, which are adjacent: one pair at distance 1,
-  # so the mean of the two ordered inverse distances is 1.
-  expect_equal(unname(eff["A"]), 1)
-  # C's neighbours are A, B, D. A-B is an edge; D is isolated inside the
-  # subgraph. Two ordered pairs of six contribute 1 each.
-  expect_equal(unname(eff["C"]), 2 / 6)
-  # E's neighbours are D and F, adjacent, so 1 again.
-  expect_equal(unname(eff["E"]), 1)
-})
-
-test_that("a hub whose neighbours are unconnected has zero local efficiency", {
-  eff <- centrality_local_efficiency(star5)
-  expect_equal(unname(eff["A"]), 0)          # four neighbours, no edges
-  expect_true(all(eff == 0))                 # leaves have one neighbour
-})
-
-
-test_that("local efficiency is not igraph's local_efficiency", {
-  skip_if_not_installed("igraph")
-  # The four-cycle separates the two conventions: after deleting a node its
-  # two neighbours are two steps apart through the fourth node, which igraph
-  # counts and the induced subgraph does not.
-  c4 <- igraph::make_ring(4)
-  expect_equal(centrality(c4, measures = "local_efficiency")$local_efficiency_all,
-               rep(0, 4))
-  expect_equal(igraph::local_efficiency(c4, weights = NA), rep(0.5, 4))
-})
-
-# ===========================================================================
-# s-core
-# ===========================================================================
-
-test_that("the s-core reduces to the k-core when weights are absent", {
-  skip_if_not_installed("igraph")
-  g <- igraph::make_graph("Zachary")
-  expect_equal(centrality(g, measures = "s_core")$s_core,
-               unname(as.numeric(igraph::coreness(g))))
-})
-
-test_that("the s-core index is the largest surviving strength threshold", {
-  # A weighted triangle A-B-C with heavy edges plus a light pendant D.
-  w <- matrix(0, 4, 4)
-  w[1, 2] <- w[1, 3] <- w[2, 3] <- 5
-  w[3, 4] <- 1
-  w <- w + t(w)
-  rownames(w) <- colnames(w) <- LETTERS[1:4]
-  s <- centrality_s_core(w)
-  # D has strength 1 and leaves first; the triangle then has strength 10 each.
-  expect_equal(unname(s), c(10, 10, 10, 1))
-})
-
-test_that("isolates score zero and a single node is handled", {
-  m <- matrix(0, 3, 3)
-  m[1, 2] <- m[2, 1] <- 1
-  rownames(m) <- colnames(m) <- LETTERS[1:3]
-  expect_equal(unname(centrality_s_core(m)), c(1, 1, 0))
-})
-
-# ===========================================================================
 # Distance-weighted fragmentation
 # ===========================================================================
 
-test_that("fragmentation follows Borgatti's definition on the six-node graph", {
+test_that("fragmentation: a cut vertex scores higher, all within [0, 1]", {
   frag <- centrality_fragmentation(adj6)
-  # Deleting C cuts the graph into {A, B} and {D, E, F}. The surviving
-  # inverse distances are 2 (A-B both ways) and 6 (the D-E-F triangle),
-  # over the (n-1)(n-2) = 20 ordered pairs.
-  expect_equal(unname(frag["C"]), 1 - 8 / 20)
   # Deleting A leaves B-C-D-E-F connected, so the score is lower.
   expect_lt(unname(frag["A"]), unname(frag["C"]))
   expect_true(all(frag >= 0 & frag <= 1))
@@ -115,16 +47,6 @@ test_that("paths of length one reproduce degree", {
   expect_equal(unname(centrality_kpath(star5, kpath_len = 1)),
                c(4, 1, 1, 1, 1))
 })
-
-test_that("the k-path census counts each undirected path once", {
-  # A path A-B-C: one path of length 2 (A-B-C) and two of length 1.
-  p3 <- matrix(0, 3, 3)
-  p3[1, 2] <- p3[2, 3] <- 1
-  p3 <- p3 + t(p3)
-  rownames(p3) <- colnames(p3) <- LETTERS[1:3]
-  expect_equal(unname(centrality_kpath(p3, kpath_len = 2)), c(2, 3, 2))
-})
-
 
 test_that("direction is followed when mode is out", {
   skip_if_not_installed("igraph")

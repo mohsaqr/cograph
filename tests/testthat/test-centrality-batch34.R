@@ -2,40 +2,11 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("NINL reproduces every entry in Zhu and Wang's Table 1", {
-  edges <- c(1, 3, 2, 4, 3, 4, 3, 5, 3, 6, 4, 5, 4, 7, 4, 8, 4, 9,
-             5, 6, 5, 8, 6, 8, 8, 9, 9, 10, 9, 11, 9, 12,
-             10, 12, 11, 12, 12, 13)
-  g <- igraph::make_graph(edges, n = 13, directed = FALSE)
-  expected <- rbind(
-    c(29, 37, 37, 38, 37, 37, 37, 38, 38, 37, 37, 37, 24),
-    c(37, 38, 141, 224, 150, 112, 38, 150, 187, 75, 75, 136, 37),
-    c(141, 224, 523, 704, 627, 441, 224, 673, 660, 323, 323, 374, 136),
-    c(523, 704, 1913, 2931, 2341, 1823, 704, 2432, 2397,
-      1034, 1034, 1442, 374)
-  )
-  expect_equal(sum(igraph::distances(g)), 358)
-  for (p in 0:3) {
-    expect_equal(unname(centrality_ninl(g, ninl_order = p)), expected[p + 1, ])
-    expect_equal(centrality(g, measures = "ninl", ninl_order = p)$ninl,
-                 expected[p + 1, ])
-    expect_equal(unname(centrality_ninl(g, ninl_order = p, normalized = TRUE)),
-                 expected[p + 1, ] / max(expected[p + 1, ]))
-  }
-})
-
-test_that("NINL preserves finite walk parity and handles large powers", {
+test_that("NINL refuses a raw power beyond double precision", {
+  # The star's closed forms at every order are equivalence tests
+  # (tests/equivalence/test-centrality-zoo-b-ninl.R).
   g <- igraph::make_star(6, mode = "undirected")
-  for (p in c(0:5, 2048, 2049, 2^53 - 2, 2^53 - 1)) {
-    expected <- if (p %% 2 == 0) rep(1, 6) else c(1, rep(.2, 5))
-    expect_equal(unname(centrality_ninl(g, ninl_order = p, normalized = TRUE)),
-                 expected, tolerance = 1e-12)
-  }
   expect_error(centrality_ninl(g, ninl_order = 2048), "finite double")
-  expect_equal(unname(centrality_ninl(g, ninl_order = 0)), rep(10, 6))
-  expect_equal(unname(centrality_ninl(g, ninl_order = 1)), c(50, rep(10, 5)))
-  expect_equal(unname(centrality_ninl(g, ninl_order = 0, ninl_radius = 0)),
-               c(5, rep(1, 5)))
 })
 
 test_that("NINL radius and disconnected extensions are explicit", {
@@ -46,8 +17,6 @@ test_that("NINL radius and disconnected extensions are explicit", {
   g <- igraph::disjoint_union(
     path, igraph::make_empty_graph(1, directed = FALSE)
   )
-  # One unreachable pair makes the global automatic radius infinite.
-  expect_equal(unname(centrality_ninl(g, ninl_order = 0)), c(rep(12, 7), 0))
   for (radius in c(0:3, Inf)) {
     expect_equal(centrality_ninl(g, ninl_order = 0, ninl_radius = radius),
                  centrality_volume(g, volume_radius = radius))

@@ -2,38 +2,17 @@
 # file is skipped as a whole (the igraph-free proof is the golden and port tests).
 skip_if_not_installed("igraph")
 
-test_that("MCGM reproduces the primary paper's complete numerical example", {
+test_that("MCGM on the primary paper's example keeps its public contracts", {
   edges <- c(1, 2, 2, 3, 2, 7, 3, 4, 3, 7, 4, 5, 4, 6,
              4, 7, 5, 6, 5, 7, 5, 8, 6, 7, 6, 9)
   g <- igraph::make_graph(edges, directed = FALSE)
-  expected <- c(1.9679, 13.1293, 16.9320, 29.0955, 26.0652,
-                26.0652, 35.9099, 3.4704, 3.4704)
+  # Table 2 itself is an equivalence test
+  # (tests/equivalence/test-centrality-zoo-b-gravity.R).
   score <- centrality_mcgm(g)
-  expect_equal(round(unname(score), 4), expected)
   expect_equal(centrality(g, measures = "mcgm")$mcgm, unname(score))
   expect_equal(unname(centrality_mcgm(g, normalized = TRUE)),
                unname(score / max(score)))
   expect_false(isTRUE(all.equal(score, centrality_mcgm(g, mcgm_alpha = 1))))
-})
-
-test_that("MCGM agrees with analytic connected graph families", {
-  for (n in 3:8) {
-    expect_equal(unname(centrality_mcgm(igraph::make_full_graph(n))),
-                 rep(9 * (n - 1), n), tolerance = 1e-12)
-  }
-  for (n in 5:10) {
-    g <- igraph::make_ring(n)
-    expect_equal(unname(centrality_mcgm(g)), rep(22.5, n))
-    expect_equal(unname(centrality_mcgm(g, mcgm_radius = 1.9)), rep(18, n))
-    expect_equal(centrality_mcgm(g, mcgm_radius = NULL),
-                 centrality_mcgm(g, mcgm_radius = Inf))
-  }
-  g <- igraph::make_star(6, mode = "undirected")
-  alpha <- 1 / sqrt(5)
-  center <- 2 + alpha
-  leaf <- .2 + 2 * alpha
-  expect_equal(unname(centrality_mcgm(g)),
-               c(5 * center * leaf, rep(center * leaf + leaf^2, 5)))
 })
 
 test_that("MCGM handles disconnected spectra with a uniform projection", {

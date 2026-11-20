@@ -7,10 +7,9 @@ test_that("proximal roles follow Brandes and exclude endpoints", {
   score <- function(variant, g = path, ...) {
     unname(centrality_proximal_betweenness(g, variant, ...))
   }
-  expect_equal(score("source"), c(0, 1, 2, 0))
-  expect_equal(score("target"), c(0, 2, 1, 0))
-  expect_equal(score("sum"), c(0, 3, 3, 0))
-  expect_equal(score("union"), c(0, 2, 2, 0))
+  # The raw roles on paths, stars, tied paths and larger graphs are compared
+  # with NetworkX's all_shortest_paths() in
+  # tests/equivalence/test-centrality-zoo-b-brokerage.R.
   expect_equal(score("source", normalized = TRUE), c(0, .5, 1, 0))
   pair <- igraph::make_graph(c(1, 2), directed = TRUE)
   for (variant in c("source", "target", "sum", "union")) {
@@ -20,13 +19,6 @@ test_that("proximal roles follow Brandes and exclude endpoints", {
     expect_equal(score(variant, igraph::make_empty_graph(4),
                        normalized = TRUE), rep(0, 4))
   }
-  undirected <- igraph::as_undirected(path)
-  expect_equal(score("source", undirected), c(0, 3, 3, 0))
-  expect_equal(score("target", undirected), c(0, 3, 3, 0))
-  expect_equal(score("sum", undirected), c(0, 6, 6, 0))
-  expect_equal(score("union", undirected), c(0, 4, 4, 0))
-  expect_equal(score("source", igraph::make_star(5, mode = "undirected")),
-               c(12, 0, 0, 0, 0))
 })
 
 test_that("proximal ties receive fractions and preserve directed paths", {
@@ -34,10 +26,8 @@ test_that("proximal ties receive fractions and preserve directed paths", {
   # one uses penultimate 5. Other two-edge paths contribute as well.
   g <- igraph::make_graph(c(1, 2, 1, 3, 2, 4, 3, 4, 3, 5, 4, 6, 5, 6),
                           directed = TRUE)
-  source <- c(0, .5, 1.5, 13 / 6, 5 / 6, 0)
-  target <- c(0, 5 / 6, 13 / 6, 1.5, .5, 0)
-  expect_equal(unname(centrality_proximal_betweenness(g)), source)
-  expect_equal(unname(centrality_proximal_betweenness(g, "target")), target)
+  source <- unname(centrality_proximal_betweenness(g))
+  target <- unname(centrality_proximal_betweenness(g, "target"))
   a <- as.matrix(igraph::as_adjacency_matrix(g))
   expect_equal(unname(centrality_proximal_betweenness(t(a))), target)
   igraph::V(g)$name <- letters[1:6]

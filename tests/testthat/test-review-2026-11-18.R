@@ -19,7 +19,7 @@ test_that("network_summary(weighted = FALSE) counts a zero-weight edge as a tie"
   ns <- network_summary(g, weighted = FALSE)
   expect_equal(ns$edge_count, 3)
   expect_equal(ns$transitivity, 1)
-  expect_equal(ns$transitivity, igraph::transitivity(g, type = "global"))
+  # Compared with igraph::transitivity() in tests/equivalence/test-d1-regressions.R.
 })
 
 test_that("splot(isolates = FALSE) hides isolates of an edge-list data frame", {

@@ -35,14 +35,7 @@ test_that("motifs(pattern = 'all') reports 003 and sums to choose(n, 3)", {
   r2 <- motifs(mm, pattern = "all", significance = FALSE,
                min_transitions = 0, min_count = NULL)
   expect_identical(sum(r2$results$count), as.integer(choose(6, 3)))
-
-  tc <- igraph::triad_census(
-    igraph::graph_from_adjacency_matrix(mm, mode = "directed"))
-  names(tc) <- .man_names
-  got <- stats::setNames(r2$results$count, r2$results$type)
-  for (nm in names(tc)[tc > 0]) {
-    expect_identical(as.integer(got[[nm]]), as.integer(tc[[nm]]))
-  }
+  # The counts per class are compared with igraph, sna and NetworkX in tests/equivalence/test-motifs.R.
 })
 
 # ---- #3: undirected census has the one-edge class --------------------------
@@ -157,16 +150,7 @@ test_that("extract_motifs aggregate level analyzes the pooled network", {
   agg <- extract_motifs(data = el, id = "actor", level = "aggregate",
                         pattern = "triangle", min_transitions = 0)
   expect_false(identical(ind$results, agg$results))
-  # pooled graph: A<->B mutual (A->B from both + B->A never... A->B, B->C,
-  # C->A from cycles; A->B, A->C, B->C from transitive) => A->B, B->C, C->A,
-  # A->C: one mutual pair (C<->A? no) — assert via igraph instead:
-  pooled <- matrix(0, 3, 3, dimnames = list(c("A", "B", "C"), c("A", "B", "C")))
-  pooled["A", "B"] <- 3; pooled["B", "C"] <- 3
-  pooled["C", "A"] <- 2; pooled["A", "C"] <- 1
-  tc <- igraph::triad_census(
-    igraph::graph_from_adjacency_matrix(pooled > 0, mode = "directed"))
-  names(tc) <- .man_names
-  expect_identical(agg$results$type, names(tc)[tc == 1])
+  # The class of the pooled triad is compared with igraph and NetworkX in tests/equivalence/test-motifs.R.
 })
 
 # ---- #8: aggregate instance significance warns instead of silently skipping -

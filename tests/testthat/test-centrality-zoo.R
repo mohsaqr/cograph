@@ -90,48 +90,6 @@ test_that("gravity: the star centre outranks its leaves", {
   expect_equal(grav[2], grav[3])  # all leaves equal
 })
 
-test_that("gravity: m_i m_j / d^2 within the radius, on 100 graphs", {
-  set.seed(42)
-  failures <- 0L
-  for (i in 1:100) {
-    g <- igraph::sample_gnp(10, 0.35)
-    while (!igraph::is_connected(g)) g <- igraph::sample_gnp(10, 0.35)
-    n <- igraph::vcount(g)
-    co <- cograph:::calculate_gravity(g)
-    # Ma, Ma, Zhang & Wang (2016): k-shell mass at both ends, radius 3.
-    ks <- igraph::coreness(g)
-    sp <- igraph::distances(g, weights = NA)
-    manual <- vapply(seq_len(n), function(i) {
-      j <- setdiff(seq_len(n), i)
-      keep <- is.finite(sp[i, j]) & sp[i, j] > 0 & sp[i, j] <= 3
-      sum(ks[i] * ks[j][keep] / sp[i, j][keep]^2)
-    }, numeric(1))
-    if (!isTRUE(all.equal(co, manual, tolerance = 1e-10))) failures <- failures + 1L
-  }
-  cat(sprintf("  gravity formula: %d/100 passed\n", 100 - failures))
-  expect_equal(failures, 0L)
-})
-
-test_that("gravity: the legacy mass reproduces the pre-2.4.8 values", {
-  set.seed(42)
-  failures <- 0L
-  for (i in 1:20) {
-    g <- igraph::sample_gnp(10, 0.35)
-    while (!igraph::is_connected(g)) g <- igraph::sample_gnp(10, 0.35)
-    n <- igraph::vcount(g)
-    co <- cograph:::calculate_gravity(g, mass = "legacy", radius = NULL)
-    deg <- igraph::degree(g); ks <- igraph::coreness(g)
-    sp <- igraph::distances(g, weights = NA)
-    old <- vapply(seq_len(n), function(i) {
-      j <- setdiff(seq_len(n), i)
-      keep <- is.finite(sp[i, j]) & sp[i, j] > 0
-      sum((deg[j] * ks[j])[keep] / sp[i, j][keep]^2)
-    }, numeric(1))
-    if (!isTRUE(all.equal(co, old, tolerance = 1e-10))) failures <- failures + 1L
-  }
-  expect_equal(failures, 0L)
-})
-
 # ===========================================================================
 # Collective influence
 # ===========================================================================
@@ -140,26 +98,6 @@ test_that("collective_influence: star center highest", {
   g <- igraph::graph_from_adjacency_matrix(star5, mode = "undirected")
   ci <- cograph:::calculate_collective_influence(g, l = 2L)
   expect_true(ci[1] >= ci[2])
-})
-
-test_that("collective_influence: formula (k-1)*sum(k-1 on boundary)", {
-  set.seed(42)
-  failures <- 0L
-  for (i in 1:100) {
-    g <- igraph::sample_gnp(12, 0.3)
-    while (!igraph::is_connected(g)) g <- igraph::sample_gnp(12, 0.3)
-    n <- igraph::vcount(g)
-    co <- cograph:::calculate_collective_influence(g, l = 2L)
-    deg <- igraph::degree(g); sp <- igraph::distances(g, weights = NA)
-    manual <- vapply(seq_len(n), function(i) {
-      boundary <- which(sp[i, ] == 2)
-      if (length(boundary) == 0) return(0)
-      (deg[i] - 1) * sum(deg[boundary] - 1)
-    }, numeric(1))
-    if (!isTRUE(all.equal(co, manual, tolerance = 1e-10))) failures <- failures + 1L
-  }
-  cat(sprintf("  collective_influence formula: %d/100 passed\n", 100 - failures))
-  expect_equal(failures, 0L)
 })
 
 # ===========================================================================

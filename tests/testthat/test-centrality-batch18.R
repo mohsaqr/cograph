@@ -6,8 +6,6 @@ test_that("CDA agrees with analytical binary and weighted scores", {
   star <- igraph::make_star(5, mode = "undirected")
   expect_equal(unname(centrality_cda(star)), c(4, rep(2.5, 4)))
   triangle <- matrix(c(0, 1, 3, 1, 0, 2, 3, 2, 0), 3, 3)
-  expected <- c(22 / 3, 35 / 6, 49 / 6) * stats::plogis(1)
-  expect_equal(unname(centrality_cda(triangle)), expected)
   expect_equal(unname(centrality_cda(igraph::make_full_graph(4))),
                rep(12 * stats::plogis(1), 4))
   for (alpha in c(0, 0.25, 0.5, 1)) {

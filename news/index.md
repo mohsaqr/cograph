@@ -2,6 +2,8 @@
 
 ## cograph 2.7.17
 
+CRAN release: 2026-11-19
+
 ### Changes to results
 
 - [`triad_census()`](https://sonsoles.me/cograph/reference/triad_census.md)

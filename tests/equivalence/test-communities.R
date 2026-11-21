@@ -151,3 +151,119 @@ test_that("compare_communities() equals the definitions of VI, NMI, split-join, 
                    reference = "independent: partition indices from the contingency table, base R",
                    covers = "compare_communities()", quantity = "two membership vectors of 9 nodes", tolerance = exact)
 })
+
+# n_communities() on the result of every deterministic method, on several graphs: unweighted (karate club, a
+# random graph) and six-decimal weighted, connected and of two components. The count of the reference partition
+# is computed by the reference (NetworkX, or the base-R programs of helper-d2.R), never by cograph.
+#
+# Two inputs were tested for ties by jitter: the same graph with every weight multiplied by 1 + 1e-9 u,
+# u ~ U(0, 1) symmetric, seeds 1 to 10, both programs given the identical jittered weights.
+# - Unweighted fast greedy on ref_connected_graph(20, 0.15, seed = 33): igraph 4 communities (Q = 0.2575),
+#   NetworkX 3 (Q = 0.2627). Jittered, igraph and NetworkX return the same partition on 10 of 10 seeds, and the
+#   partition moves with the seed (3 communities, Q = 0.3109 on 5 seeds; 3, Q = 0.2627 on 1; 4, Q = 0.2728 on 3;
+#   4, Q = 0.3067 on 1). The algorithm leaves the order of equal merges undefined: not comparable, and the jittered
+#   counts are compared.
+# - Walktrap on the karate club: igraph 5 communities (Q = 0.3532), helper-d2 4 (Q = 0.4198). Jittered, both sides
+#   keep their partition on 10 of 10 seeds (5, Q = 0.3532 against 4, Q = 0.4198): not ties. Unexplained, so it is
+#   a plain comparison and fails until it is understood.
+# The stochastic methods (louvain, leiden, infomap, label propagation, spinglass, fluid, consensus) draw inside
+# igraph, and no second program can be given the draws.
+
+two_components <- function(first, second) {
+  n <- nrow(first) + nrow(second)
+  graph <- matrix(0, n, n)
+  graph[seq_len(nrow(first)), seq_len(nrow(first))] <- first
+  graph[nrow(first) + seq_len(nrow(second)), nrow(first) + seq_len(nrow(second))] <- second
+  dimnames(graph) <- list(paste0("N", seq_len(n)), paste0("N", seq_len(n)))
+  graph
+}
+plain <- ref_connected_graph(20, density = 0.15, seed = 33L)
+weighted_24 <- ref_connected_graph(24, density = 0.2, seed = 55L, weighted = TRUE, digits = 6L)
+split_weighted <- two_components(ref_connected_graph(9, 0.35, 41L, weighted = TRUE, digits = 6L),
+                                 ref_connected_graph(8, 0.4, 42L, weighted = TRUE, digits = 6L))
+split_plain <- two_components(ref_connected_graph(10, 0.3, 43L), ref_connected_graph(7, 0.4, 44L))
+small_split <- two_components(ref_connected_graph(5, 0.5, 45L, weighted = TRUE, digits = 6L),
+                              ref_connected_graph(4, 0.5, 46L, weighted = TRUE, digits = 6L))
+count_of <- \(graphs, method) vapply(graphs, \(graph) n_communities(method(graph)), integer(1))
+
+test_that("n_communities() of fast greedy equals the count of NetworkX's greedy_modularity_communities()", {
+  graphs <- list(karate = karate, weighted_16 = weighted, weighted_20 = weighted_large, weighted_24 = weighted_24,
+                 two_components_weighted = split_weighted, two_components_unweighted = split_plain)
+  nx <- vapply(graphs, \(graph) as.integer(ref_networkx(graph, c(count = sprintf(
+    "len(nx.community.greedy_modularity_communities(G, weight=%s))",
+    if (all(graph %in% c(0, 1))) "None" else "'weight'")))$count), integer(1))
+  expect_reference(count_of(graphs, community_fast_greedy), nx, reference = "networkx", covers = "n_communities()",
+                   quantity = "number of fast greedy communities", tolerance = 0)
+})
+
+test_that("n_communities() of edge betweenness equals the count of NetworkX's girvan_newman() level of highest modularity", {
+  # The candidates are the components of the whole graph (igraph's first level, which girvan_newman() does not
+  # yield) and every level girvan_newman() yields. On weighted graphs igraph reads the weights as lengths for
+  # betweenness and as weights for modularity; the NetworkX side is told the same.
+  level <- \(weight) sprintf(paste0(
+    "len(max([list(nx.connected_components(G))] + list(nx.community.girvan_newman(G%s)), ",
+    "key=lambda p: nx.community.modularity(G, p, weight=%s)))"),
+    if (is.null(weight)) "" else paste0(", most_valuable_edge=lambda H: max(nx.edge_betweenness_centrality(",
+                                        "H, weight='weight').items(), key=lambda kv: kv[1])[0]"),
+    if (is.null(weight)) "None" else "'weight'")
+  unweighted <- list(karate = karate, random_20 = plain, two_components = split_plain)
+  weighted_graphs <- list(weighted_16 = weighted, two_components = split_weighted)
+  nx_unweighted <- vapply(unweighted, \(graph) as.integer(ref_networkx(graph, c(count = level(NULL)))$count), integer(1))
+  nx_weighted <- vapply(weighted_graphs, \(graph) as.integer(ref_networkx(graph, c(count = level("weight")))$count),
+                        integer(1))
+  expect_reference(count_of(unweighted, community_edge_betweenness), nx_unweighted, reference = "networkx",
+                   covers = "n_communities()", quantity = "number of edge betweenness communities, unweighted",
+                   tolerance = 0)
+  expect_reference(count_of(weighted_graphs, community_edge_betweenness), nx_weighted, reference = "networkx",
+                   covers = "n_communities()", quantity = "number of edge betweenness communities, weighted",
+                   tolerance = 0)
+})
+
+test_that("n_communities() of leading eigenvector, walktrap and optimal equals the papers' algorithms", {
+  eigen_graphs <- list(karate = karate, random_20 = plain, weighted_16 = weighted, weighted_20 = weighted_large,
+                       two_components_weighted = split_weighted, two_components_unweighted = split_plain)
+  expect_reference(count_of(eigen_graphs, community_leading_eigenvector),
+                   vapply(eigen_graphs, \(graph) length(unique(ref_leading_eigenvector(graph))), integer(1)),
+                   reference = "independent: Newman (2006) leading-eigenvector division, base R eigen()",
+                   covers = "n_communities()", quantity = "number of leading eigenvector communities", tolerance = 0)
+  # ref_walktrap() needs a connected graph.
+  walk_graphs <- list(weighted_16 = weighted, weighted_20 = weighted_large, weighted_24 = weighted_24)
+  expect_reference(count_of(walk_graphs, community_walktrap),
+                   vapply(walk_graphs, \(graph) length(unique(ref_walktrap(graph)$membership)), integer(1)),
+                   reference = "independent: Pons and Latapy (2005) walktrap, t = 4, base R",
+                   covers = "n_communities()", quantity = "number of walktrap communities", tolerance = 0)
+  optimal_graphs <- list(weighted_9 = small_weighted, two_components_9 = small_split)
+  expect_reference(count_of(optimal_graphs, community_optimal),
+                   vapply(optimal_graphs, \(graph) length(unique(ref_optimal_modularity(graph)$membership)), integer(1)),
+                   reference = "independent: modularity of every partition of 9 nodes (Newman 2006), base R",
+                   covers = "n_communities()", quantity = "number of optimal communities", tolerance = 0)
+})
+
+jittered <- \(graph, seed) {
+  noise <- ref_with_seed(seed, matrix(1e-9 * stats::runif(length(graph)), nrow(graph)))
+  noise[lower.tri(noise)] <- t(noise)[lower.tri(noise)]
+  graph * (1 + noise)
+}
+
+test_that("n_communities() of unweighted fast greedy depends on the order of tied merges; jittered it equals NetworkX's", {
+  nx_count <- \(graph, weight) as.integer(ref_networkx(graph, c(count = sprintf(
+    "len(nx.community.greedy_modularity_communities(G, weight=%s))", weight)))$count)
+  expect_not_comparable(n_communities(community_fast_greedy(plain)), nx_count(plain, "None"), reference = "networkx",
+                        covers = "n_communities()", quantity = "number of fast greedy communities, unweighted random graph",
+                        reason = paste(
+                          "with equal weights many merges tie and the algorithm leaves their order undefined: igraph",
+                          "stops at 4 communities (Q = 0.2575), NetworkX at 3 (Q = 0.2627); with weights 1 + 1e-9 u",
+                          "(seeds 1 to 10) both return the same partition on 10 of 10 seeds, which moves with the seed",
+                          "(3 or 4 communities, Q 0.2627 to 0.3109)"))
+  graphs <- stats::setNames(lapply(1:10, \(seed) jittered(plain, seed)), sprintf("jitter seed %d", 1:10))
+  expect_reference(count_of(graphs, community_fast_greedy), vapply(graphs, nx_count, integer(1), weight = "'weight'"),
+                   reference = "networkx", covers = "n_communities()",
+                   quantity = "number of fast greedy communities, random graph with weights 1 + 1e-9 u", tolerance = 0)
+})
+
+test_that("n_communities() of walktrap on the unweighted karate club equals Pons and Latapy's (2005) agglomeration", {
+  # Jitter of 1e-9 (seeds 1 to 10) changes neither side: igraph 5, helper-d2 4 on every seed. Not a tie.
+  expect_reference(n_communities(community_walktrap(karate)), length(unique(ref_walktrap(karate)$membership)),
+                   reference = "independent: Pons and Latapy (2005) walktrap, t = 4, base R",
+                   covers = "n_communities()", quantity = "number of walktrap communities, karate club", tolerance = 0)
+})

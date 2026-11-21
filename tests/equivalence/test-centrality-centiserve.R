@@ -201,6 +201,13 @@ test_that("current-flow closeness equals centiserve's closeness.currentflow()", 
 
 test_that("communicability betweenness equals centiserve's communibet(normalized = TRUE)", {
   skip_without_reference(c("centiserve", "igraph", "expm"))
+  # centiserve 1.0.0 checks for expm with requireNamespace("expm", logical.return = TRUE), an argument
+  # loadNamespace() refuses. Before R 4.6 requireNamespace() returns TRUE early for a loaded namespace, so loading
+  # expm here makes the check pass alone as in the suite; from R 4.6 it calls loadNamespace() whenever it is given
+  # an extra argument, and communibet() cannot run at all. The skip runs centiserve's own check and says so.
+  loadNamespace("expm")
+  skip_if(!suppressWarnings(requireNamespace("expm", logical.return = TRUE, quietly = TRUE)),
+          "centiserve 1.0.0's own check for expm fails in this R (R >= 4.6), so communibet() refuses to run")
   # centiserve takes exp(A) from expm (Pade with scaling and squaring), cograph from an eigendecomposition: two
   # routes to the matrix exponential that agree to about 1e-12 relative on a 12-node graph, so 1e-9.
   expect_reference(centrality_communicability_betweenness(undirected),

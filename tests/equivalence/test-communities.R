@@ -164,8 +164,9 @@ test_that("compare_communities() equals the definitions of VI, NMI, split-join, 
 #   4, Q = 0.3067 on 1). The algorithm leaves the order of equal merges undefined: not comparable, and the jittered
 #   counts are compared.
 # - Walktrap on the karate club: igraph 5 communities (Q = 0.3532), helper-d2 4 (Q = 0.4198). Jittered, both sides
-#   keep their partition on 10 of 10 seeds (5, Q = 0.3532 against 4, Q = 0.4198): not ties. Unexplained, so it is
-#   a plain comparison and fails until it is understood.
+#   keep their partition on 10 of 10 seeds (5, Q = 0.3532 against 4, Q = 0.4198): not ties. Explained (2026-11-22):
+#   igraph runs the authors' program, whose lazy delta-sigma estimates do not always merge the pair of smallest
+#   delta sigma; written as ref_walktrap_program(), that rule gives igraph's partition (the last test of this file).
 # The stochastic methods (louvain, leiden, infomap, label propagation, spinglass, fluid, consensus) draw inside
 # igraph, and no second program can be given the draws.
 
@@ -261,9 +262,43 @@ test_that("n_communities() of unweighted fast greedy depends on the order of tie
                    quantity = "number of fast greedy communities, random graph with weights 1 + 1e-9 u", tolerance = 0)
 })
 
-test_that("n_communities() of walktrap on the unweighted karate club equals Pons and Latapy's (2005) agglomeration", {
-  # Jitter of 1e-9 (seeds 1 to 10) changes neither side: igraph 5, helper-d2 4 on every seed. Not a tie.
-  expect_reference(n_communities(community_walktrap(karate)), length(unique(ref_walktrap(karate)$membership)),
-                   reference = "independent: Pons and Latapy (2005) walktrap, t = 4, base R",
+test_that("walktrap on the unweighted karate club follows the merge rule of Pons and Latapy's program", {
+  # The exact-minimum agglomeration (ref_walktrap(), the paper's rule) and the program's lazy rule
+  # (ref_walktrap_program(), the authors' C++ code that igraph runs) part at the 21st merge of the karate club with
+  # weights 1 + 1e-3 u (seed 1): the program's stored estimate for {1, 20} with {3, 14} is above the exact delta sigma (1.80e-5), so it merges
+  # {5, 6, 7, 11} (2.03e-5) instead. Probe 2026-11-22: the program rule gave igraph's whole merge sequence on the
+  # karate club with weights 1 + 1e-9 u and 1 + 1e-3 u (seeds 1 to 10, 20 of 20) and on five random weighted graphs
+  # of 16 to 40 nodes (5 of 5); the exact rule on 0 of 20 and 4 of 5. Not ties: the 1e-3 jitter separates them.
+  program <- "independent: Pons and Latapy's walktrap program, its lazy delta-sigma merge rule, base R"
+  on_karate <- ref_walktrap_program(karate)
+  found <- community_walktrap(karate)
+  expect_reference(ref_canonical(membership(found)), ref_canonical(on_karate$membership), reference = program,
+                   covers = c("community_walktrap()", "com_wt()"), quantity = "walktrap partition, karate club",
+                   tolerance = 0)
+  expect_reference(n_communities(found), length(unique(on_karate$membership)), reference = program,
                    covers = "n_communities()", quantity = "number of walktrap communities, karate club", tolerance = 0)
+  expect_reference(attr(found, "modularity"), on_karate$modularity, reference = program,
+                   covers = "community_walktrap()", quantity = "walktrap modularity, karate club", tolerance = exact)
+  # Weights 1 + 1e-3 u: no two merges tie, the two rules still part.
+  graphs <- stats::setNames(lapply(1:5, \(seed) {
+    noise <- ref_with_seed(seed, matrix(1e-3 * stats::runif(length(karate)), nrow(karate)))
+    noise[lower.tri(noise)] <- t(noise)[lower.tri(noise)]
+    karate * (1 + noise)
+  }), sprintf("seed %d", 1:5))
+  lapply(names(graphs), \(name) {
+    expect_reference(ref_canonical(membership(com_wt(graphs[[name]]))),
+                     ref_canonical(ref_walktrap_program(graphs[[name]])$membership), reference = program,
+                     covers = c("com_wt()", "community_walktrap()"),
+                     quantity = sprintf("walktrap partition, karate club with weights 1 + 1e-3 u, %s", name), tolerance = 0)
+  })
+  expect_known_difference(n_communities(found), length(unique(ref_walktrap(karate)$membership)),
+                          reference = "independent: Pons and Latapy (2005) walktrap, t = 4, base R",
+                          covers = "n_communities()", quantity = "number of walktrap communities, karate club, exact rule",
+                          tolerance = 0, agrees_with = "the merge rule of the authors' program (ref_walktrap_program())",
+                          reason = paste(
+                            "igraph runs the authors' program, which after a merge stores an estimate of delta sigma for a",
+                            "community adjacent to only one of the two merged and makes it exact only when it is the",
+                            "smallest; an estimate above the exact value keeps a pair from merging. On the karate club with",
+                            "weights 1 + 1e-3 u (seed 1) the program merges {5, 6, 7, 11} (2.03e-5) at step 21 where the exact minimum is {1, 20} with",
+                            "{3, 14} (1.80e-5); unweighted, 5 communities (Q = 0.3532) against 4 (Q = 0.4198)"))
 })

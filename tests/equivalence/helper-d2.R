@@ -194,6 +194,93 @@ ref_walktrap <- function(graph, steps = 4L) {
   list(membership = stats::setNames(membership, nodes), modularity = max(scores))
 }
 
+#' The walktrap of Pons and Latapy's program: the paper's distances with the program's lazy merge rule
+#'
+#' Written from the authors' C++ program as igraph ships it (src/community/walktrap/walktrap_communities.cpp,
+#' Communities::merge_communities() and merge_nearest_communities()); no code is shared. The loops, the walk and
+#' delta sigma are those of `ref_walktrap()`. After C1 and C2 merge, the delta sigma of the new community with a
+#' neighbour C3 adjacent to both is the exact Lance-Williams update
+#' ((|C1|+|C3|) ds13 + (|C2|+|C3|) ds23 - |C3| ds12) / (|C1|+|C2|+|C3|); with a neighbour adjacent to only C1 it is
+#' the estimate ((|C1|+|C3|) ds13 + |C2| ds12) / (|C1|+|C2|+|C3|) (C2 alone: the mirror), marked inexact. Each
+#' merge takes the smallest stored delta sigma; while that one is inexact it is replaced by the exact value and
+#' the smallest is taken again. An estimate above the exact value can keep a pair out of reach, so the program
+#' does not always merge the pair of smallest delta sigma that `ref_walktrap()` merges.
+#'
+#' @inheritParams ref_walktrap
+#' @return A list: `membership` (community numbers named by node), `modularity`, and `merges` (the node sets
+#'   formed, in order, each as a comma-separated string of node positions).
+ref_walktrap_program <- function(graph, steps = 4L) {
+  nodes <- rownames(graph)
+  n <- length(nodes)
+  neighbours <- rowSums(graph != 0)
+  looped <- graph + diag(ifelse(neighbours > 0, rowSums(graph) / pmax(neighbours, 1), 1), n)
+  strength <- rowSums(looped)
+  walk <- Reduce(`%*%`, replicate(steps, looped / strength, simplify = FALSE))
+  slots <- 2L * n - 1L
+  exact_of <- \(state, a, b) {
+    size_a <- state$size[[a]]
+    size_b <- state$size[[b]]
+    size_a * size_b / (size_a + size_b) * sum((state$profile[a, ] - state$profile[b, ])^2 / strength) / n
+  }
+  # stored delta sigma (NA where two communities are not adjacent) and whether it is exact
+  edges <- which(graph != 0 & upper.tri(graph), arr.ind = TRUE)
+  start <- list(size = c(rep(1, n), rep(0, n - 1L)), profile = rbind(walk, matrix(0, n - 1L, n)),
+                members = c(as.list(seq_len(n)), vector("list", n - 1L)),
+                stored = matrix(NA_real_, slots, slots), exact = matrix(FALSE, slots, slots))
+  values <- vapply(seq_len(nrow(edges)), \(e) exact_of(start, edges[e, 1L], edges[e, 2L]), numeric(1))
+  start$stored[edges] <- values
+  start$stored[edges[, 2:1, drop = FALSE]] <- values
+  start$exact[edges] <- TRUE
+  start$exact[edges[, 2:1, drop = FALSE]] <- TRUE
+  # the smallest stored value, made exact first when it is not
+  nearest <- function(state) {
+    open <- which(!is.na(state$stored) & upper.tri(state$stored), arr.ind = TRUE)
+    top <- open[which.min(state$stored[open]), ]
+    if (state$exact[top[[1L]], top[[2L]]]) return(list(state = state, pair = top))
+    value <- exact_of(state, top[[1L]], top[[2L]])
+    state$stored[top[[1L]], top[[2L]]] <- state$stored[top[[2L]], top[[1L]]] <- value
+    state$exact[top[[1L]], top[[2L]]] <- state$exact[top[[2L]], top[[1L]]] <- TRUE
+    nearest(state)
+  }
+  final <- Reduce(\(state, step) {
+    found <- nearest(state)
+    state <- found$state
+    c1 <- found$pair[[1L]]
+    c2 <- found$pair[[2L]]
+    formed <- n + step
+    s1 <- state$size[[c1]]
+    s2 <- state$size[[c2]]
+    d12 <- state$stored[c1, c2]
+    state$members[[formed]] <- sort(c(state$members[[c1]], state$members[[c2]]))
+    state$size[[formed]] <- s1 + s2
+    state$profile[formed, ] <- (s1 * state$profile[c1, ] + s2 * state$profile[c2, ]) / (s1 + s2)
+    others <- setdiff(which(!is.na(state$stored[c1, ]) | !is.na(state$stored[c2, ])), c(c1, c2))
+    updated <- vapply(others, \(c3) {
+      s3 <- state$size[[c3]]
+      d13 <- state$stored[c1, c3]
+      d23 <- state$stored[c2, c3]
+      if (!is.na(d13) && !is.na(d23)) return(((s1 + s3) * d13 + (s2 + s3) * d23 - s3 * d12) / (s1 + s2 + s3))
+      if (!is.na(d13)) return(((s1 + s3) * d13 + s2 * d12) / (s1 + s2 + s3))
+      (s1 * d12 + (s2 + s3) * d23) / (s1 + s2 + s3)
+    }, numeric(1))
+    both_exact <- vapply(others, \(c3) !is.na(state$stored[c1, c3]) && !is.na(state$stored[c2, c3]) &&
+                           state$exact[c1, c3] && state$exact[c2, c3], logical(1))
+    state$stored[c(c1, c2), ] <- NA_real_
+    state$stored[, c(c1, c2)] <- NA_real_
+    state$stored[formed, others] <- state$stored[others, formed] <- updated
+    state$exact[formed, others] <- state$exact[others, formed] <- both_exact
+    state
+  }, seq_len(n - 1L), start)
+  # the partition after each number of merges, and its modularity on the graph without the added loops
+  formed_sets <- final$members[n + seq_len(n - 1L)]
+  partitions <- Reduce(\(label, members) { label[members] <- min(members); label }, formed_sets, seq_len(n),
+                       accumulate = TRUE)
+  scores <- vapply(partitions, \(label) ref_modularity(graph, stats::setNames(label, nodes)), numeric(1))
+  best <- partitions[[which.max(scores)]]
+  list(membership = stats::setNames(as.integer(factor(best, levels = unique(best))), nodes),
+       modularity = max(scores), merges = vapply(formed_sets, paste, character(1), collapse = ","))
+}
+
 #' Every partition of `n` items, as restricted growth strings (one row per partition)
 #'
 #' @param n Number of items (the Bell number B(n) of rows: 21147 for 9).

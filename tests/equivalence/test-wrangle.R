@@ -253,24 +253,19 @@ test_that("select_bridges() keeps the edges NetworkX and igraph find to be bridg
 
 test_that("select_bridges() on a network whose edge table is ordered unlike igraph's edge list", {
   # cograph stores the edges of a matrix column by column; igraph lists them row by row. On this graph the two
-  # orders differ, and the bridge flags, computed in igraph's order, are applied to cograph's edge table.
+  # orders differ; cograph 2.7.18 and earlier applied bridge flags computed in igraph's order to cograph's edge table
+  # (kept N2-N6 and N2-N8, missed N4-N6 and N1-N8); since 2.7.19 the flags are computed on cograph's own table.
   shuffled <- ref_graph(8, density = 0.35, seed = 4L, weighted = TRUE)
   nx <- ref_networkx(shuffled, c(bridges = "[[u, v] for u, v in nx.bridges(G)]"))
   ends <- vapply(nx$bridges, \(edge) c(edge[[1L]], edge[[2L]]), character(2))
   kept <- as.data.frame(select_bridges(shuffled))
   expect_reference(ref_edge_flags(shuffled, kept$from, kept$to), ref_edge_flags(shuffled, ends[1L, ], ends[2L, ]),
                    reference = "networkx", covers = "select_bridges()",
-                   quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge",
-                   defect = paste("cograph select_bridges() flags edges by igraph's edge order but selects from cograph's edge",
-                                  "table (ref_graph(8, 0.35, seed = 4): keeps N2-N6 and N2-N8, misses N4-N6 and N1-N8);",
-                                  "NetworkX and igraph::bridges() agree with each other; FINDINGS.md"))
+                   quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge")
   skip_without_reference("igraph")
   graph <- ref_igraph(shuffled)
   bridge_ends <- igraph::ends(graph, igraph::bridges(graph))
   expect_reference(ref_edge_flags(shuffled, kept$from, kept$to),
                    ref_edge_flags(shuffled, bridge_ends[, 1L], bridge_ends[, 2L]), reference = "igraph",
-                   covers = "select_bridges()", quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge",
-                   defect = paste("cograph select_bridges() flags edges by igraph's edge order but selects from cograph's edge",
-                                  "table (ref_graph(8, 0.35, seed = 4): keeps N2-N6 and N2-N8, misses N4-N6 and N1-N8);",
-                                  "NetworkX and igraph::bridges() agree with each other; FINDINGS.md"))
+                   covers = "select_bridges()", quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge")
 })

@@ -191,13 +191,11 @@ test_that("network_summary() girth and radius on regulation_net equal NetworkX",
   skip_without_reference("igraph")
   summary <- network_summary(regulation_net, digits = NULL, extended = TRUE)
   nx <- ref_networkx(regulation_net, c(girth = "nx.girth(G.to_undirected())", radius = "nx.radius(G, weight='weight')"))
-  # The girth is the shortest cycle of the simple undirected graph (igraph::girth() ignores directions); a
-  # reciprocated pair is one edge there, not a cycle of length 2.
+  # The girth is the shortest cycle of the simple undirected graph; a reciprocated pair is one edge there, not a
+  # cycle of length 2. cograph 2.7.18 and earlier reported 2 (igraph::girth() of the simplified directed graph);
+  # since 2.7.19 network_girth() takes the simple undirected skeleton first.
   expect_reference(summary$girth, nx$girth, reference = "networkx", covers = "network_summary()",
-                   quantity = "girth, regulation_net", tolerance = exact,
-                   defect = paste("cograph network_summary(extended = TRUE) reports girth 2 on regulation_net:",
-                                  "igraph::girth() of the simplified directed graph counts a reciprocated pair as a",
-                                  "2-cycle; NetworkX gives 3, as cograph's own network_girth() does; FINDINGS.md"))
+                   quantity = "girth, regulation_net", tolerance = exact)
   # Out-eccentricity on the weighted arcs: NetworkX's eccentricity on a DiGraph is the largest distance FROM a node.
   expect_reference(summary$radius, nx$radius, reference = "networkx", covers = "network_summary()",
                    quantity = "radius, regulation_net", tolerance = exact)

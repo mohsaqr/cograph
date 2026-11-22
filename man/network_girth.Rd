@@ -17,11 +17,11 @@ Numeric scalar: the length of the shortest cycle, or Inf if the
 graph has no cycle.
 }
 \description{
-Computes the girth of a network, the length of its shortest cycle. Edge
-direction, self-loops and repeated undirected edges are ignored. A pair of
-reciprocal directed edges counts as a cycle of length 2, so a directed
-network with any mutual tie has girth 2. An undirected forest has girth
-Inf.
+Computes the girth of a network, the length of its shortest cycle, on its
+simple undirected skeleton. Edge direction, self-loops and repeated edges
+are ignored, so a pair of reciprocal directed edges is one edge, not a
+cycle of length 2 (as \code{networkx.girth()} of the undirected graph). An
+undirected forest has girth Inf.
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}

@@ -490,11 +490,11 @@ degree_distribution <- function(x,
 
 #' Network Girth (Shortest Cycle Length)
 #'
-#' Computes the girth of a network, the length of its shortest cycle. Edge
-#' direction, self-loops and repeated undirected edges are ignored. A pair of
-#' reciprocal directed edges counts as a cycle of length 2, so a directed
-#' network with any mutual tie has girth 2. An undirected forest has girth
-#' Inf.
+#' Computes the girth of a network, the length of its shortest cycle, on its
+#' simple undirected skeleton. Edge direction, self-loops and repeated edges
+#' are ignored, so a pair of reciprocal directed edges is one edge, not a
+#' cycle of length 2 (as \code{networkx.girth()} of the undirected graph). An
+#' undirected forest has girth Inf.
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param ... Passed to \code{\link{to_igraph}}, whose only other argument
@@ -512,8 +512,14 @@ network_girth <- function(x, ...) {
   } else {
     g <- to_igraph(x, ...)
   }
-  girth_result <- igraph::girth(g)
-  girth_result$girth
+  # igraph::girth() ignores directions, but on a graph that simplify() has
+  # marked simple it counts a reciprocated pair as a 2-cycle (network_summary()
+  # reported 2 where the shortest cycle has length 3). Collapsing to the
+  # simple undirected skeleton first gives one answer for every input.
+  skeleton <- igraph::simplify(
+    igraph::as_undirected(g, mode = "collapse", edge.attr.comb = "ignore"),
+    remove.multiple = TRUE, remove.loops = TRUE, edge.attr.comb = "ignore")
+  igraph::girth(skeleton)$girth
 }
 
 

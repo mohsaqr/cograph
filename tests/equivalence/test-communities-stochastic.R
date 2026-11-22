@@ -18,7 +18,8 @@
 # Louvain, Leiden and Infomap (label propagation 37, spinglass 38, fluid 26: not used), every Leiden community was
 # connected 40 of 40 times on both graphs, fluid gave 3 communities 40 of 40 times, consensus recovered the ring
 # 10 of 10 times for each method, and the reported modularity equalled the partition's within 3e-16 on 20 of 20
-# seeds for every algorithm except spinglass on a weighted graph (the declared defect below).
+# seeds for every algorithm except spinglass on a weighted graph (cograph 2.7.18 reported igraph's Potts-model
+# value there; corrected in 2.7.19).
 
 karate <- ref_karate()
 weighted <- ref_connected_graph(16, density = 0.3, seed = 21L, weighted = TRUE, digits = 6L)
@@ -88,11 +89,7 @@ test_that("the modularity spinglass reports is that of its partition", {
     found <- com_sg(weighted, seed = seed)
     expect_reference(attr(found, "modularity"), nx_modularity(weighted, found), reference = "networkx",
                      covers = c("com_sg()", "community_spinglass()"),
-                     quantity = sprintf("reported modularity, spinglass, weighted, seed %d", seed), tolerance = exact,
-                     defect = paste("cograph community_spinglass() on a weighted network reports igraph's",
-                                    "cluster_spinglass() $modularity, which is not the modularity of the partition it",
-                                    "returns (seed 1: 0.0528 against 0.2809); NetworkX's modularity of that partition",
-                                    "agrees with igraph::modularity(); FINDINGS.md"))
+                     quantity = sprintf("reported modularity, spinglass, weighted, seed %d", seed), tolerance = exact)
   })
 })
 

@@ -770,7 +770,17 @@ summarize_clusters <- function(x,
     .build_mcml_sequence(.decode_tna_data(orig_data), cluster_members,
                           method, type, directed, compute_within) # nocov end
   } else {
-    # No data: reconstruct from weight matrices
+    # No data: the within-cluster blocks come from the per-cluster models,
+    # but they hold no between-cluster transitions, so the macro level must
+    # come from the group's own macro model. Rebuilding it from the blocks
+    # alone gives the identity matrix.
+    if (!("macro" %in% nms) || is.null(x[["macro"]]$weights)) {
+      stop(errorCondition(paste0(
+        "This node-level group_tna has neither sequence data nor a `macro` ",
+        "model, so its between-cluster transitions are unknown. Build it with ",
+        "as_tna() of a cluster summary, or pass the sequence data."),
+        class = "cograph_bad_input", call = NULL))
+    }
     all_nodes <- unlist(cluster_members, use.names = FALSE)
     n <- length(all_nodes)
     mat <- matrix(0, n, n, dimnames = list(all_nodes, all_nodes))
@@ -779,10 +789,36 @@ summarize_clusters <- function(x,
       labs <- x[[nm]]$labels
       mat[labs, labs] <<- w
     })
-    .as_mcml(cluster_summary(mat, cluster_members, method = method,
-                              type = type, directed = directed,
-                              compute_within = compute_within))
+    result <- .as_mcml(cluster_summary(mat, cluster_members, method = method,
+                                       type = type, directed = directed,
+                                       compute_within = compute_within))
+    result$macro <- .macro_from_group_tna(x[["macro"]], result$macro$labels)
+    result
   }
+}
+
+#' Macro level of an mcml taken from a group_tna's `macro` model
+#'
+#' @param macro The `macro` element of a node-level group_tna (a tna whose
+#'   states are the clusters).
+#' @param labels Cluster names, in the order of the mcml's clusters.
+#' @return A list with `weights`, `inits`, `labels` and `data` (NULL).
+#' @keywords internal
+#' @noRd
+.macro_from_group_tna <- function(macro, labels) {
+  known <- macro$labels %||% rownames(macro$weights)
+  weights <- matrix(as.numeric(macro$weights), nrow(macro$weights))
+  stopifnot(
+    "the `macro` model must name every cluster" =
+      !is.null(known) && setequal(known, labels) && length(known) == length(labels)
+  )
+  dimnames(weights) <- list(known, known)
+  inits <- macro$inits
+  if (!is.null(inits)) {
+    inits <- stats::setNames(as.numeric(inits), names(inits) %||% known)[labels]
+  }
+  list(weights = weights[labels, labels, drop = FALSE], inits = inits,
+       labels = labels, data = NULL)
 }
 
 #' Detect input type for summarize_clusters
@@ -1465,6 +1501,12 @@ as_mcml.cluster_summary <- function(x, ...) {
 #' @return An \code{mcml} object. When \code{clusters} is provided,
 #'   \code{macro$data} contains the cluster assignments and \code{macro$weights}
 #'   is \code{NULL}.
+#' @details For a node-level \code{group_tna} without sequence data (as made
+#'   by \code{as_tna()} of a cluster summary), the within-cluster models are
+#'   taken from the groups and the macro (between-cluster) model from the
+#'   group's \code{macro} element, since the within-cluster blocks carry no
+#'   between-cluster transitions. Without a \code{macro} element such an
+#'   input raises an error of class \code{cograph_bad_input}.
 #' @export
 as_mcml.group_tna <- function(x, clusters = NULL, method = "sum",
                                type = "tna", directed = TRUE, ...) {

@@ -51,6 +51,14 @@ The input \code{mcml} object unchanged.
 Converts an object to the \code{mcml} class, a representation of a
 multi-cluster network that does not depend on the tna package.
 }
+\details{
+For a node-level \code{group_tna} without sequence data (as made
+by \code{as_tna()} of a cluster summary), the within-cluster models are
+taken from the groups and the macro (between-cluster) model from the
+group's \code{macro} element, since the within-cluster blocks carry no
+between-cluster transitions. Without a \code{macro} element such an
+input raises an error of class \code{cograph_bad_input}.
+}
 \examples{
 clusters <- list(C1 = c("Explore", "Reflect", "Discuss"),
                  C2 = c("Plan", "Create", "Share"),

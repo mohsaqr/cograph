@@ -79,7 +79,11 @@ is \code{directed}; anything else raises an "unused argument" error.}
 \value{
 A \code{cograph_communities} data frame with columns
 \code{node} and \code{community}. See \code{\link{communities}} for its
-attributes.
+attributes. The \code{modularity} attribute is the modularity of the
+returned partition, \code{igraph::modularity()} with the weights the run
+used (not the Potts-model value \code{igraph::cluster_spinglass()}
+reports, which differs on weighted networks); it is \code{NA} when a
+weight is negative.
 }
 \description{
 Community detection based on the spinglass model of statistical

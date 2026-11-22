@@ -28,6 +28,24 @@
 * `centrality_load()` gives 1 to the single node of a one-node graph, as
   `sna::loadcent()` (load counts the end points); it gave 0.
 
+## Other corrections
+
+* `as_mcml()` of a node-level `group_tna` without sequence data (as made by
+  `as_tna()` of a cluster summary) takes the macro model from the group's
+  `macro` element. It rebuilt the macro matrix from the within-cluster
+  blocks alone, which gave the identity (A to A 1 instead of 0.4301). Without
+  a `macro` element such input raises a `cograph_bad_input` error.
+* `community_spinglass()` / `com_sg()` report the modularity of the returned
+  partition (`igraph::modularity()` with the run's weights), as `?communities`
+  documents, instead of igraph's Potts-model value (weighted network, seed 1:
+  0.2809 instead of 0.0528).
+* `network_girth()`, and so `network_summary(extended = TRUE)`, take the girth
+  of the simple undirected skeleton: a reciprocated pair is not a 2-cycle.
+  `network_summary()` reported 2 on `regulation_net`, where the girth is 3.
+* `select_bridges()` computes the bridge flags on the network's own edge
+  table. They were computed in igraph's edge order and applied to cograph's,
+  which differs for matrix input (4 edges wrong on an 8-node graph).
+
 # cograph 2.7.17
 
 ## Changes to results

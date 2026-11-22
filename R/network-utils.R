@@ -1907,7 +1907,7 @@ select_edges <- function(x, ...,
 
   # Mode 3: Bridges only
   if (bridges_only) {
-    bridge_match <- .select_edges_bridges(g, n_total)
+    bridge_match <- .select_edges_bridges(g, edges)
     selected <- selected & bridge_match
   }
 
@@ -1986,14 +1986,18 @@ select_edges <- function(x, ...,
 }
 
 #' Select bridge edges
+#'
+#' The flags are computed on the network's own edge table, row for row, so
+#' they line up with the edges they select (the context's edge list can be
+#' in another order: cograph stores a matrix's edges column by column).
+#' @param g A `cg_graph` context. @param edges The network's edge table
+#'   (`from`, `to` as node indices).
+#' @return Logical vector, one entry per row of `edges`.
 #' @noRd
-.select_edges_bridges <- function(g, n_edges) {
+.select_edges_bridges <- function(g, edges) {
+  if (nrow(edges) == 0) return(logical(0))
   cg <- .cg_as_context(g)
-  rows <- .cg_edge_rows(g)
-  if (nrow(rows) == 0) {
-    return(rep(FALSE, n_edges))
-  }
-  seq_len(n_edges) %in% which(.cg_bridges(cg$b, rows))
+  .cg_bridges(cg$b, cbind(edges$from, edges$to))
 }
 
 #' Select mutual (reciprocated) edges

@@ -671,7 +671,11 @@ community_leading_eigenvector <- function(x,
 #'
 #' @return A \code{cograph_communities} data frame with columns
 #'   \code{node} and \code{community}. See \code{\link{communities}} for its
-#'   attributes.
+#'   attributes. The \code{modularity} attribute is the modularity of the
+#'   returned partition, \code{igraph::modularity()} with the weights the run
+#'   used (not the Potts-model value \code{igraph::cluster_spinglass()}
+#'   reports, which differs on weighted networks); it is \code{NA} when a
+#'   weight is negative.
 #'
 #' @references
 #' Reichardt, J., & Bornholdt, S. (2006).
@@ -730,7 +734,21 @@ community_spinglass <- function(x,
     implementation = implementation,
     gamma.minus = gamma.minus
   )
-  .wrap_communities(result, "spinglass", g, network = x)
+  found <- .wrap_communities(result, "spinglass", g, network = x)
+  # igraph's $modularity of a spinglass run is the Potts-model value, not the
+  # modularity of the partition (they differ on weighted networks); report the
+  # partition's modularity with the weights the run used, as for the other
+  # algorithms.
+  # Modularity is not defined for negative weights (implementation "neg"),
+  # and single-community mode (`vertex`) returns no partition: NA then.
+  if (is.null(vertex)) {
+    attr(found, "modularity") <- if (any(w < 0)) {
+      NA_real_
+    } else {
+      igraph::modularity(g, result$membership, weights = w)
+    }
+  }
+  found
 }
 
 

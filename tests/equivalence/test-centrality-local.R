@@ -73,13 +73,16 @@ test_that("transitivity_type = 'onnela' is the Zhang-Horvath coefficient of W + 
                    quantity = "transitivity, onnela, directed weighted", tolerance = exact)
   # On an undirected network W is already symmetric, so W + t(W) = 2 W, and the coefficient (cubic over
   # quadratic in the weights) doubles: a triangle of unit weights scores 2.
-  expect_reference(centrality_transitivity(undirected_weighted, transitivity_type = "onnela"),
-                   zhang_horvath(undirected_weighted),
-                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Zhang-Horvath (2005) coefficient of W + t(W), base R",
-                   covers = c("centrality()", "centrality_transitivity()"),
-                   quantity = "transitivity, onnela, undirected weighted", tolerance = exact,
-                   defect = paste("transitivity_type = 'onnela' doubles the Zhang-Horvath coefficient on undirected",
-                                  "input (W + t(W) of a symmetric W; a unit triangle scores 2); FINDINGS.md"))
+  # Owner, 2026-11-22: a decision, not a defect. tna's Clustering is the same formula and doubles the same way.
+  expect_known_difference(centrality_transitivity(undirected_weighted, transitivity_type = "onnela"),
+                          zhang_horvath(undirected_weighted),
+                          reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Zhang-Horvath (2005) coefficient of W + t(W), base R",
+                          covers = c("centrality()", "centrality_transitivity()"),
+                          quantity = "transitivity, onnela, undirected weighted", tolerance = exact,
+                          reason = paste("transitivity_type = 'onnela' is documented as the form tna uses: Zhang-Horvath",
+                                         "(2005) on W + t(W), which is 2 W for a symmetric W, so the coefficient is twice",
+                                         "Zhang-Horvath of W; a unit triangle scores 2, as in tna 1.5.7's Clustering."),
+                          agrees_with = "tna")
   nx <- ref_networkx(undirected_weighted, c(clustering = "nx.clustering(G, weight='weight')"))
   expect_known_difference(centrality_transitivity(undirected_weighted, transitivity_type = "onnela"), nx$clustering,
                           reference = "networkx", covers = c("centrality()", "centrality_transitivity()"),

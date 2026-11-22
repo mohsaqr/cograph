@@ -145,9 +145,11 @@ test_that("neighbourhood measures with a direction equal centiserve, mode out", 
   expect_reference(centrality_mnc(directed, mode = "out"), centiserve::mnc(graph, mode = "out"),
                    reference = "centiserve", covers = c("centrality()", "centrality_mnc()"),
                    quantity = "mnc, mode out, directed", tolerance = exact,
-                   defect = paste("mnc on a directed graph takes the largest weakly connected component of the",
-                                  "neighbourhood, where centiserve::mnc() and cograph's own dmnc take the largest",
-                                  "strongly connected one; FINDINGS.md"))
+                   defect = paste("cograph centrality_mnc() on a directed graph takes the largest weakly connected",
+                                  "component of the neighbourhood; MNC must use the largest strongly connected one",
+                                  "(owner, 2026-11-22), as centiserve::mnc() (clusters(mode = 'strong')) and cograph's",
+                                  "own dmnc do (N1 3 against 1, N4 5 against 1). centiserve agrees with the definition;",
+                                  "FINDINGS.md"))
 })
 
 test_that("Markov centrality equals centiserve's markovcent()", {
@@ -244,6 +246,8 @@ test_that("centroid value equals its definition (Wuchty and Stadler 2003)", {
                    reference = "independent: centroid value from its definition, Wuchty and Stadler 2003, base R",
                    covers = c("centrality()", "centrality_centroid()"), quantity = "centroid, undirected",
                    tolerance = exact,
-                   defect = paste("centroid takes the minimum of f(v, i) with i = v included (f(v, v) = 0), copying a",
-                                  "loop bug of centiserve::centroid(), so no score exceeds 0; FINDINGS.md"))
+                   defect = paste("cograph centrality_centroid() takes the minimum of f(v, i) with i = v included",
+                                  "(f(v, v) = 0), copying a loop bug of centiserve::centroid(), so no score exceeds 0;",
+                                  "the definition of Wuchty and Stadler (2003) takes i != v (computed here in base R);",
+                                  "FINDINGS.md"))
 })

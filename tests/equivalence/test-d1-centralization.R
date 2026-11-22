@@ -77,15 +77,17 @@ test_that("centralization(measure = 'degree') of in + out degree exceeds 1 on a 
                    reference = "independent: Freeman degree centralization, in + out degree, maximum 2 (n - 1)(n - 2)",
                    covers = "centralization()", quantity = "degree centralization, mode all, directed",
                    tolerance = exact,
-                   defect = paste("centralization(measure = 'degree', mode = 'all') on a directed network divides the",
-                                  "in + out degree gaps by (n - 1)^2 instead of 2 (n - 1)(n - 2): a reciprocated star",
-                                  "scores 1.6; FINDINGS.md"))
+                   defect = paste("cograph centralization(measure = 'degree', mode = 'all') on a directed network divides",
+                                  "the in + out degree gaps by (n - 1)^2 instead of 2 (n - 1)(n - 2): a reciprocated",
+                                  "star scores 1.6 against 1; Freeman's maximum (and igraph centr_degree(loops = FALSE))",
+                                  "gives 1; FINDINGS.md"))
   expect_reference(centralization(mutual_star, "degree", directed = TRUE),
                    igraph::centr_degree(ref_igraph(mutual_star, directed = TRUE), mode = "all", loops = FALSE)$centralization,
                    reference = "igraph", covers = "centralization()",
                    quantity = "degree centralization, mode all, reciprocated star", tolerance = exact,
-                   defect = paste("centralization(measure = 'degree', mode = 'all') on a directed network divides by",
-                                  "(n - 1)^2 instead of 2 (n - 1)(n - 2); FINDINGS.md"))
+                   defect = paste("cograph centralization(measure = 'degree', mode = 'all') on a directed network divides",
+                                  "by (n - 1)^2 instead of 2 (n - 1)(n - 2) (a random 12-node digraph: 0.1983 against",
+                                  "0.1091); igraph centr_degree(loops = FALSE) agrees with Freeman; FINDINGS.md"))
 })
 
 test_that("centralization(measure = 'eigenvector') divides by n - 1 on an undirected network", {

@@ -89,9 +89,10 @@ test_that("the modularity spinglass reports is that of its partition", {
     expect_reference(attr(found, "modularity"), nx_modularity(weighted, found), reference = "networkx",
                      covers = c("com_sg()", "community_spinglass()"),
                      quantity = sprintf("reported modularity, spinglass, weighted, seed %d", seed), tolerance = exact,
-                     defect = paste("community_spinglass() on a weighted network reports igraph's cluster_spinglass()",
-                                    "$modularity, which is not the modularity of the partition it returns",
-                                    "(seed 1: 0.0528 against 0.2809); FINDINGS.md"))
+                     defect = paste("cograph community_spinglass() on a weighted network reports igraph's",
+                                    "cluster_spinglass() $modularity, which is not the modularity of the partition it",
+                                    "returns (seed 1: 0.0528 against 0.2809); NetworkX's modularity of that partition",
+                                    "agrees with igraph::modularity(); FINDINGS.md"))
   })
 })
 

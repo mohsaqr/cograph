@@ -96,9 +96,9 @@ test_that("flow betweenness differs from sna's flowbet() where maximum flows are
   expect_reference(centrality_flow_betweenness(undirected), ref_named(sna::flowbet(undirected, gmode = "graph"), undirected),
                    reference = "sna", covers = c("centrality()", "centrality_flow_betweenness()"),
                    quantity = "flow betweenness, undirected", tolerance = exact, measure = "scaled",
-                   defect = paste("flow_betweenness reads the flow through a node from igraph's one max-flow solution,",
-                                  "which is not unique; Freeman et al. (1991) / sna count the max flow lost when the",
-                                  "node is removed; FINDINGS.md"))
+                   defect = paste("cograph centrality_flow_betweenness() reads the flow through a node from igraph's one",
+                                  "max-flow solution, which is not unique; sna::flowbet() agrees with Freeman et al.",
+                                  "(1991): the max flow lost when the node is removed; FINDINGS.md"))
 })
 
 test_that("flow betweenness on a tree equals netrankr's network-flow dependencies", {

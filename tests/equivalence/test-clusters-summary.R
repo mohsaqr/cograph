@@ -146,7 +146,9 @@ test_that("as_mcml() of the group_tna made from a summary keeps the summary's pr
   expect_reference(rebuilt$macro$weights, row_share(summed), reference = reference,
                    covers = c("as_mcml.group_tna()", "as_mcml()"),
                    quantity = "macro transition probabilities after as_tna()", tolerance = exact,
-                   defect = paste("as_mcml() of a node-level group_tna without data rebuilds the macro matrix from the",
-                                  "within-cluster blocks only and ignores the group's macro model: the macro transitions",
-                                  "become the identity; FINDINGS.md"))
+                   defect = paste("cograph as_mcml() of a node-level group_tna without data rebuilds the macro matrix from",
+                                  "the within-cluster blocks only and ignores the group's macro model: the macro",
+                                  "transitions become the identity (A,A 1 against 0.4301); the row shares of the summed",
+                                  "transitions (the reference here) give the macro model, as as_mcml() of the summary",
+                                  "itself does; FINDINGS.md"))
 })

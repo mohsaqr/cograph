@@ -195,9 +195,9 @@ test_that("network_summary() girth and radius on regulation_net equal NetworkX",
   # reciprocated pair is one edge there, not a cycle of length 2.
   expect_reference(summary$girth, nx$girth, reference = "networkx", covers = "network_summary()",
                    quantity = "girth, regulation_net", tolerance = exact,
-                   defect = paste("network_summary(extended = TRUE) reports girth 2 on regulation_net: igraph::girth()",
-                                  "of the simplified directed graph counts a reciprocated pair as a 2-cycle;",
-                                  "network_girth() gives 3; FINDINGS.md"))
+                   defect = paste("cograph network_summary(extended = TRUE) reports girth 2 on regulation_net:",
+                                  "igraph::girth() of the simplified directed graph counts a reciprocated pair as a",
+                                  "2-cycle; NetworkX gives 3, as cograph's own network_girth() does; FINDINGS.md"))
   # Out-eccentricity on the weighted arcs: NetworkX's eccentricity on a DiGraph is the largest distance FROM a node.
   expect_reference(summary$radius, nx$radius, reference = "networkx", covers = "network_summary()",
                    quantity = "radius, regulation_net", tolerance = exact)

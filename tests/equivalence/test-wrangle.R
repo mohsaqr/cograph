@@ -261,12 +261,16 @@ test_that("select_bridges() on a network whose edge table is ordered unlike igra
   expect_reference(ref_edge_flags(shuffled, kept$from, kept$to), ref_edge_flags(shuffled, ends[1L, ], ends[2L, ]),
                    reference = "networkx", covers = "select_bridges()",
                    quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge",
-                   defect = "select_bridges() flags edges by igraph's edge order but selects from cograph's edge table; FINDINGS.md")
+                   defect = paste("cograph select_bridges() flags edges by igraph's edge order but selects from cograph's edge",
+                                  "table (ref_graph(8, 0.35, seed = 4): keeps N2-N6 and N2-N8, misses N4-N6 and N1-N8);",
+                                  "NetworkX and igraph::bridges() agree with each other; FINDINGS.md"))
   skip_without_reference("igraph")
   graph <- ref_igraph(shuffled)
   bridge_ends <- igraph::ends(graph, igraph::bridges(graph))
   expect_reference(ref_edge_flags(shuffled, kept$from, kept$to),
                    ref_edge_flags(shuffled, bridge_ends[, 1L], bridge_ends[, 2L]), reference = "igraph",
                    covers = "select_bridges()", quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge",
-                   defect = "select_bridges() flags edges by igraph's edge order but selects from cograph's edge table; FINDINGS.md")
+                   defect = paste("cograph select_bridges() flags edges by igraph's edge order but selects from cograph's edge",
+                                  "table (ref_graph(8, 0.35, seed = 4): keeps N2-N6 and N2-N8, misses N4-N6 and N1-N8);",
+                                  "NetworkX and igraph::bridges() agree with each other; FINDINGS.md"))
 })

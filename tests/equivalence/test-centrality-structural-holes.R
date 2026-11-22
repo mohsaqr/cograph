@@ -87,8 +87,9 @@ test_that("flow betweenness equals sna's flowbet()", {
   # through the node from the one maximum flow igraph::max_flow() returns; a maximum flow is not unique, so that
   # number depends on the solver. On this graph the removal formula, computed with igraph::max_flow(),
   # reproduces sna's values.
-  defect <- paste("flow_betweenness reads the flow through a node from igraph's one max-flow solution, which is",
-                  "not unique; Freeman et al. (1991) / sna count the max flow lost when the node is removed; FINDINGS.md")
+  defect <- paste("cograph centrality_flow_betweenness() reads the flow through a node from igraph's one max-flow",
+                  "solution, which is not unique (N1 42 against 19, N3 43 against 21 undirected); sna::flowbet()",
+                  "agrees with Freeman et al. (1991): the max flow lost when the node is removed; FINDINGS.md")
   expect_reference(centrality_flow_betweenness(undirected), ref_named(sna::flowbet(undirected, gmode = "graph"), undirected),
                    reference = "sna", covers = c("centrality()", "centrality_flow_betweenness()"),
                    quantity = "flow_betweenness, undirected", tolerance = exact, measure = "scaled", defect = defect)

@@ -545,7 +545,9 @@
 #'   \item{random_walk}{Random walk centrality. Inverse sum of random walk
 #'     distances (requires connected graph).}
 #'   \item{stress}{Stress centrality. Number of shortest paths through node.}
-#'   \item{flow_betweenness}{Flow betweenness. Max-flow based betweenness.}
+#'   \item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
+#'     1991). Summed loss of maximum flow between other pairs when the node
+#'     is removed, as \code{sna::flowbet()}.}
 #'   \item{lobby}{Lobby index (h-index of neighborhood).}
 #'   \item{entropy}{Graph entropy centrality. Entropy change on node removal.}
 #'   \item{semilocal}{Semi-local centrality. Triple-nested neighborhood sum.}
@@ -553,8 +555,10 @@
 #'     degree sum.}
 #'   \item{bottleneck}{Bottleneck centrality. Count of shortest path trees where
 #'     node is critical.}
-#'   \item{centroid}{Centroid value. Minimum f(v,i) across all nodes.}
-#'   \item{mnc}{Maximum Neighborhood Component size.}
+#'   \item{centroid}{Centroid value (Wuchty and Stadler 2003). Minimum
+#'     f(v, u) over the other nodes u.}
+#'   \item{mnc}{Maximum Neighborhood Component size (strongly connected
+#'     component on directed networks).}
 #'   \item{dmnc}{Density of Maximum Neighborhood Component.}
 #'   \item{topological_coefficient}{Topological coefficient. Shared neighbor
 #'     ratio.}
@@ -567,6 +571,14 @@
 #'     distribution.}
 #'   \item{cross_clique}{Cross-clique connectivity. Count of cliques containing
 #'     node.}
+#'   \item{second_order}{Second-order centrality (Kermarrec et al. 2011).
+#'     Standard deviation of the return times to the node of a random walk
+#'     made uniform by self-loops, \eqn{\sqrt{2 \sum_i m_{ij} - n(n + 1)}}{
+#'     sqrt(2 sum_i m_ij - n (n + 1))} with \eqn{m_{ij}}{m_ij} the mean
+#'     first-passage times, as NetworkX's \code{second_order_centrality()}.
+#'     Lower values mark more central nodes. Edge weights are ignored.
+#'     Defined on connected undirected networks; otherwise \code{NA} with a
+#'     \code{cograph_undefined_measure} warning.}
 #'   \item{markov}{Markov centrality. Inverse mean first passage time
 #'     (requires connected graph).}
 #'   \item{integration}{Integration centrality. Distance-based influence.}
@@ -1420,7 +1432,9 @@ calculate_load <- function(cg, weights = NULL, directed = TRUE) {
   cg <- .cg_context(cg)
   n <- cg$n
   if (n == 0) return(numeric(0))
-  if (n == 1) return(0)
+  # The one node is the end point of its own (empty) path, and load counts
+  # end points, as sna::loadcent() does: it scores 1.
+  if (n == 1) return(1)
 
   # Unweighted unless weights are given (NULL never falls back to the
   # graph's own weights here), and reversed first on a directed graph,
@@ -2906,7 +2920,8 @@ centrality_laplacian <- function(x, ...) {
 #' distance \eqn{1/w^\alpha}{1/w^alpha}. Paths follow edge direction on a
 #' directed network. The values equal \code{sna::loadcent()}, which credits
 #' the endpoints of each path as well as the intermediate nodes, so the
-#' scores are larger than betweenness.
+#' scores are larger than betweenness. For the same reason the single node
+#' of a one-node graph scores 1, as in \code{sna::loadcent()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}. The measure uses
@@ -3737,17 +3752,20 @@ centrality_bottleneck <- function(x, mode = "all", ...) {
 
 #' Centroid Value
 #'
-#' The centroid value (Koschuetzki et al. 2005) compares a node with every
-#' other node by the number of nodes each one is closer to. With
-#' \eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes strictly closer to
-#' \eqn{v} than to \eqn{u},
-#' \deqn{CV(v) = \min_{u} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
-#'   CV(v) = min_u [gamma(v, u) - gamma(u, v)].}
-#' The minimum includes \eqn{u = v}, so the score is at most 0, and values
-#' closer to 0 mark more central nodes.
+#' The centroid value (Wuchty and Stadler 2003; Koschuetzki et al. 2005)
+#' compares a node with every other node by the number of nodes each one is
+#' closer to. With \eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes
+#' strictly closer to \eqn{v} than to \eqn{u},
+#' \deqn{CV(v) = \min_{u \neq v} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
+#'   CV(v) = min_{u != v} [gamma(v, u) - gamma(u, v)].}
+#' Higher values mark more central nodes. A positive score means the node is
+#' closer to more nodes than every other node is (a graph centroid).
 #'
 #' @details
-#' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+#' The minimum runs over the other nodes only. Up to cograph 2.7.18 it
+#' included \eqn{u = v} (where the difference is 0), as
+#' \code{centiserve::centroid()} does, which capped every score at 0. A
+#' one-node graph scores 0. Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
 #' \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
 #' counts hops. \code{mode} sets the direction of the paths.
 #'
@@ -3762,6 +3780,10 @@ centrality_bottleneck <- function(x, mode = "all", ...) {
 #' @return A named numeric vector with one score per node, in input node
 #'   order.
 #' @references
+#' Wuchty, S., & Stadler, P. F. (2003). Centers of complex networks. Journal
+#'   of Theoretical Biology, 223(1), 45-53.
+#'   \doi{10.1016/S0022-5193(03)00071-7}.
+#'
 #' Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
 #'   D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
 #'   Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.
@@ -3784,9 +3806,12 @@ centrality_centroid <- function(x, mode = "all", ...) {
 #' neighbors of a node.
 #'
 #' @details
-#' Edge weights are ignored and the neighbor subgraph is read as undirected.
-#' \code{mode} selects the neighbors. An isolated node scores 0. On
-#' undirected networks the values equal \code{centiserve::mnc()}.
+#' Edge weights are ignored and \code{mode} selects the neighbors. On a
+#' directed network the component is the largest \emph{strongly} connected
+#' component of the neighbor subgraph, as in \code{centiserve::mnc()} and
+#' \code{\link{centrality_dmnc}} (up to cograph 2.7.18 it was the largest
+#' weakly connected one). An isolated node scores 0. The values equal
+#' \code{centiserve::mnc()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -4049,16 +4074,23 @@ centrality_stress <- function(x, ...) {
 #' Flow Betweenness
 #'
 #' Flow betweenness (Freeman, Borgatti and White 1991) sums, over pairs of
-#' other nodes \eqn{s} and \eqn{t}, the flow that passes through the node
-#' when a maximum flow is sent from \eqn{s} to \eqn{t} with the edge weights
-#' as capacities.
+#' other nodes \eqn{s} and \eqn{t}, the part of the maximum flow from
+#' \eqn{s} to \eqn{t} that must pass through the node, with the edge
+#' weights as capacities:
+#' \deqn{FB(v) = \sum_{s \neq t \neq v} \left[ f_{st}(G) - f_{st}(G - v)
+#'   \right],}{FB(v) = sum_{s != t != v} [f_st(G) - f_st(G - v)],}
+#' where \eqn{f_{st}(G - v)}{f_st(G - v)} is the maximum flow once \eqn{v} is
+#' removed.
 #'
 #' @details
 #' The measure requires the igraph package and raises an error of class
-#' \code{cograph_needs_igraph} without it. The flow through a node is read
-#' from the maximum flow that \code{igraph::max_flow()} returns. On a
-#' directed network the sum runs over ordered pairs along the edge direction,
-#' and on an undirected network over unordered pairs. \code{weighted = FALSE}
+#' \code{cograph_needs_igraph} without it. Only maximum-flow values enter
+#' (\code{igraph::max_flow()}), which are unique, so the result does not
+#' depend on the solver. The values equal \code{sna::flowbet()} with its
+#' default \code{cmode = "rawflow"}. Up to cograph 2.7.18 the flow through a
+#' node was read from the one maximum flow igraph returned, which is not
+#' unique. On a directed network the sum runs over ordered pairs along the
+#' edge direction, and on an undirected network over unordered pairs. \code{weighted = FALSE}
 #' gives every edge capacity one, and \code{invert_weights = TRUE} uses
 #' \eqn{1/w^\alpha}{1/w^alpha} as the capacity.
 #'

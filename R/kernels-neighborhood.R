@@ -117,20 +117,28 @@
 }
 
 #' Maximum neighborhood component
+#'
+#' The size of the largest component of the subgraph the neighbors of a
+#' vertex induce. On a directed graph the component is strongly connected
+#' (as `centiserve::mnc()`, `clusters(mode = "strong")`), on an undirected
+#' one connected.
+#'
 #' @param b Binary adjacency matrix. @param nbrs Neighbor lists.
-#' @return Numeric vector: the largest connected component among a vertex's
-#'   neighbors.
+#' @param directed Whether the graph is directed.
+#' @return Numeric vector: the largest component among a vertex's neighbors.
 #' @keywords internal
 #' @noRd
-.cg_mnc <- function(b, nbrs) {
+.cg_mnc <- function(b, nbrs, directed = FALSE) {
   u <- ((b + t(b)) != 0) * 1
   diag(u) <- 0
   vapply(nbrs, function(raw) {
     nodes <- unique(raw)
     if (length(nodes) == 0L) return(0)
     if (length(nodes) == 1L) return(1)
-    sub <- u[nodes, nodes, drop = FALSE]
-    .cg_largest_component(sub)
+    if (directed) {
+      return(max(lengths(.cg_strong_components(b[nodes, nodes, drop = FALSE]))))
+    }
+    .cg_largest_component(u[nodes, nodes, drop = FALSE])
   }, numeric(1L))
 }
 

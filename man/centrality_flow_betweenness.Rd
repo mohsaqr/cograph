@@ -20,16 +20,23 @@ order.
 }
 \description{
 Flow betweenness (Freeman, Borgatti and White 1991) sums, over pairs of
-other nodes \eqn{s} and \eqn{t}, the flow that passes through the node
-when a maximum flow is sent from \eqn{s} to \eqn{t} with the edge weights
-as capacities.
+other nodes \eqn{s} and \eqn{t}, the part of the maximum flow from
+\eqn{s} to \eqn{t} that must pass through the node, with the edge
+weights as capacities:
+\deqn{FB(v) = \sum_{s \neq t \neq v} \left[ f_{st}(G) - f_{st}(G - v)
+  \right],}{FB(v) = sum_{s != t != v} [f_st(G) - f_st(G - v)],}
+where \eqn{f_{st}(G - v)}{f_st(G - v)} is the maximum flow once \eqn{v} is
+removed.
 }
 \details{
 The measure requires the igraph package and raises an error of class
-\code{cograph_needs_igraph} without it. The flow through a node is read
-from the maximum flow that \code{igraph::max_flow()} returns. On a
-directed network the sum runs over ordered pairs along the edge direction,
-and on an undirected network over unordered pairs. \code{weighted = FALSE}
+\code{cograph_needs_igraph} without it. Only maximum-flow values enter
+(\code{igraph::max_flow()}), which are unique, so the result does not
+depend on the solver. The values equal \code{sna::flowbet()} with its
+default \code{cmode = "rawflow"}. Up to cograph 2.7.18 the flow through a
+node was read from the one maximum flow igraph returned, which is not
+unique. On a directed network the sum runs over ordered pairs along the
+edge direction, and on an undirected network over unordered pairs. \code{weighted = FALSE}
 gives every edge capacity one, and \code{invert_weights = TRUE} uses
 \eqn{1/w^\alpha}{1/w^alpha} as the capacity.
 }

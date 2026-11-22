@@ -187,11 +187,7 @@ test_that("second-order centrality against NetworkX's second_order_centrality()"
   nx <- ref_networkx(undirected, c(second_order = "nx.second_order_centrality(G, weight=None)"))
   expect_reference(centrality(undirected, measures = "second_order"), ref_nodes(second_order = nx$second_order),
                    reference = "networkx", covers = "centrality()", quantity = "second_order, undirected",
-                   tolerance = exact, measure = "relative", key = "node",
-                   defect = paste("cograph second_order returns the sample SD of the simple walk's mean first-passage",
-                                  "times into the node, not Kermarrec et al.'s (2011) SD of return times on the",
-                                  "degree-balanced walk (N1 2.10 against 21.41); NetworkX agrees with the paper;",
-                                  "FINDINGS.md"))
+                   tolerance = exact, measure = "relative", key = "node")
 })
 
 test_that("trophic level equals NetworkX's trophic_levels() and Levine's (1980) system", {

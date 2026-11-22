@@ -82,12 +82,22 @@
   rowSums(ifelse(ok, 1 / d, 0)) / (n - 1)
 }
 
+#' Centroid value (Wuchty and Stadler 2003)
+#'
+#' `f(v, u)` is the number of nodes closer to `v` than to `u` less the number
+#' closer to `u` than to `v`; the score is its minimum over the nodes
+#' `u != v`. (Taking `u = v` as well, where `f = 0`, would cap every score
+#' at 0.)
+#'
+#' @param d Distance matrix. @param n Vertex count.
+#' @return Numeric vector; 0 for a one-node graph.
 #' @keywords internal
 #' @noRd
 .cg_centroid <- function(d, n) {
   if (n <= 1L) return(rep(0, n))
   vapply(seq_len(n), function(v) {
     dv <- d[v, ]
-    min(rowSums(sweep(d, 2L, dv, ">")) - rowSums(sweep(d, 2L, dv, "<")))
+    f <- rowSums(sweep(d, 2L, dv, ">")) - rowSums(sweep(d, 2L, dv, "<"))
+    min(f[seq_len(n) != v])
   }, numeric(1L))
 }

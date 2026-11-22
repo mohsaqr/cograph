@@ -193,22 +193,11 @@
 }
 
 # ---------------------------------------------------------------------------
-# flow_betweenness (Freeman 1991) is deliberately NOT ported. It keeps its
-# igraph route in calculate_flow_betweenness().
-#
-# It CAN be matched -- that was established, not assumed. igraph's max_flow is
-# Goldberg-Tarjan push-relabel, and the decomposition is fixed by a cleanup
-# phase after the preflow converges: excess is returned to the source, then
-# directed flow cycles are cancelled by DFS. Transcribing that reproduced all
-# 99 fixtures bit-exactly. An Edmonds-Karp kernel agrees on every max-flow
-# VALUE and still differs on ~40% of decompositions, because the value is
-# invariant and the assignment is not.
-#
-# It is not kept because the price is wrong: ~510 lines, 18% of this entire
-# kernel corpus, for 1 of 89 measures -- and unlike every other kernel here it
-# transcribes another library's C internals, resting on two arc-ordering
-# constants. It is the only component that could break silently on an igraph
-# upgrade.
+# flow_betweenness (Freeman, Borgatti and White 1991) keeps its igraph route
+# in calculate_flow_betweenness(). Since 2.7.19 it reads only max-flow VALUES
+# (the flow lost when the node is removed, as sna::flowbet()), which are
+# unique, so it no longer depends on igraph's flow decomposition. A base-R
+# max-flow kernel would remove the igraph requirement; it is not written yet.
 #
 # For a flow-based betweenness this package computes from scratch, use
 # current_flow_betweenness (.cg_current_flow_betweenness, ~40 lines): it is a

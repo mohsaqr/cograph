@@ -272,13 +272,14 @@ ref_a2_extended_coreness <- function(graph) {
                                          \(j) sum(core[which(adjacency[j, ] != 0)]), numeric(1))))
 }
 
-#' Centroid value (Koschuetzki et al. 2005): min over u of gamma(v, u) - gamma(u, v), with gamma(v, u) the number
-#' of nodes strictly closer to v than to u; u ranges over every node, v included
+#' Centroid value (Wuchty and Stadler 2003; Koschuetzki et al. 2005): min over u != v of gamma(v, u) - gamma(u, v),
+#' with gamma(v, u) the number of nodes strictly closer to v than to u. (Until 2026-11-22 this helper let u range
+#' over v as well, where the difference is 0, copying cograph's old reading; the definition excludes u = v.)
 #'
 #' @param distances A distance matrix.
 #' @return One value per node.
 ref_a2_centroid <- function(distances) {
   n <- nrow(distances)
   closer <- \(v, u) sum(distances[v, ] < distances[u, ])
-  ref_a2_per_node(distances, \(v) min(vapply(seq_len(n), \(u) closer(v, u) - closer(u, v), numeric(1))))
+  ref_a2_per_node(distances, \(v) min(vapply(setdiff(seq_len(n), v), \(u) closer(v, u) - closer(u, v), numeric(1))))
 }

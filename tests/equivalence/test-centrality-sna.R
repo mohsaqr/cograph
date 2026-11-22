@@ -87,18 +87,14 @@ test_that("flow betweenness equals sna's flowbet() where maximum flows are uniqu
                    quantity = "flow betweenness, tree", tolerance = exact, measure = "scaled")
 })
 
-test_that("flow betweenness differs from sna's flowbet() where maximum flows are not unique", {
+test_that("flow betweenness equals sna's flowbet() where maximum flows are not unique", {
   skip_without_reference("sna")
-  # Declared as a defect, as in test-centrality-structural-holes.R: cograph sums the flow through a node in the
-  # one maximum flow igraph::max_flow() returns, which is not unique, so the value depends on the solver; sna
-  # (Freeman, Borgatti and White 1991) sums the drop in maximum flow when the node is removed. They agree where
-  # every maximum flow is unique (a tree, above).
+  # sna (Freeman, Borgatti and White 1991) sums the drop in maximum flow when the node is removed, as cograph does
+  # since 2.7.19. cograph 2.7.18 and earlier read the flow through a node from the one maximum flow
+  # igraph::max_flow() returns, which is not unique; that agreed only where every maximum flow is unique (a tree).
   expect_reference(centrality_flow_betweenness(undirected), ref_named(sna::flowbet(undirected, gmode = "graph"), undirected),
                    reference = "sna", covers = c("centrality()", "centrality_flow_betweenness()"),
-                   quantity = "flow betweenness, undirected", tolerance = exact, measure = "scaled",
-                   defect = paste("cograph centrality_flow_betweenness() reads the flow through a node from igraph's one",
-                                  "max-flow solution, which is not unique; sna::flowbet() agrees with Freeman et al.",
-                                  "(1991): the max flow lost when the node is removed; FINDINGS.md"))
+                   quantity = "flow betweenness, undirected", tolerance = exact, measure = "scaled")
 })
 
 test_that("flow betweenness on a tree equals netrankr's network-flow dependencies", {

@@ -140,16 +140,12 @@ test_that("neighbourhood measures with a direction equal centiserve, mode out", 
   expect_reference(centrality_diffusion(directed, mode = "out"), centiserve::diffusion.degree(graph, mode = "out"),
                    reference = "centiserve", covers = c("centrality()", "centrality_diffusion()"),
                    quantity = "diffusion degree, mode out, directed", tolerance = exact)
-  # Seen in the first run and reproduced from the definition: cograph's MNC takes the largest weakly connected
-  # component of the out-neighbourhood, centiserve (and cograph's own DMNC) the largest strongly connected one.
+  # MNC on a directed graph takes the largest strongly connected component of the neighbourhood (owner,
+  # 2026-11-22), as centiserve::mnc() (clusters(mode = 'strong')) and cograph's own DMNC do; cograph 2.7.18 and
+  # earlier took the weakly connected one (N1 3 against 1, N4 5 against 1), corrected in 2.7.19.
   expect_reference(centrality_mnc(directed, mode = "out"), centiserve::mnc(graph, mode = "out"),
                    reference = "centiserve", covers = c("centrality()", "centrality_mnc()"),
-                   quantity = "mnc, mode out, directed", tolerance = exact,
-                   defect = paste("cograph centrality_mnc() on a directed graph takes the largest weakly connected",
-                                  "component of the neighbourhood; MNC must use the largest strongly connected one",
-                                  "(owner, 2026-11-22), as centiserve::mnc() (clusters(mode = 'strong')) and cograph's",
-                                  "own dmnc do (N1 3 against 1, N4 5 against 1). centiserve agrees with the definition;",
-                                  "FINDINGS.md"))
+                   quantity = "mnc, mode out, directed", tolerance = exact)
 })
 
 test_that("Markov centrality equals centiserve's markovcent()", {
@@ -240,14 +236,10 @@ test_that("SALSA authority scores equal the in-degree identity of Lempel and Mor
 })
 
 test_that("centroid value equals its definition (Wuchty and Stadler 2003)", {
-  # cograph takes the minimum of f(v, i) over every node i, v included, where f(v, v) = 0; the definition takes it
-  # over i != v. The two differ wherever a node is closer to more nodes than every other node is (N4 here).
+  # The definition takes the minimum of f(v, i) over i != v. cograph 2.7.18 and earlier included i = v (f(v, v) = 0,
+  # a loop bug of centiserve::centroid()), which capped the scores at 0 (N4 here); corrected in 2.7.19.
   expect_reference(centrality_centroid(undirected), ref_centroid(undirected),
                    reference = "independent: centroid value from its definition, Wuchty and Stadler 2003, base R",
                    covers = c("centrality()", "centrality_centroid()"), quantity = "centroid, undirected",
-                   tolerance = exact,
-                   defect = paste("cograph centrality_centroid() takes the minimum of f(v, i) with i = v included",
-                                  "(f(v, v) = 0), copying a loop bug of centiserve::centroid(), so no score exceeds 0;",
-                                  "the definition of Wuchty and Stadler (2003) takes i != v (computed here in base R);",
-                                  "FINDINGS.md"))
+                   tolerance = exact)
 })

@@ -23,17 +23,20 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-The centroid value (Koschuetzki et al. 2005) compares a node with every
-other node by the number of nodes each one is closer to. With
-\eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes strictly closer to
-\eqn{v} than to \eqn{u},
-\deqn{CV(v) = \min_{u} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
-  CV(v) = min_u [gamma(v, u) - gamma(u, v)].}
-The minimum includes \eqn{u = v}, so the score is at most 0, and values
-closer to 0 mark more central nodes.
+The centroid value (Wuchty and Stadler 2003; Koschuetzki et al. 2005)
+compares a node with every other node by the number of nodes each one is
+closer to. With \eqn{\gamma(v, u)}{gamma(v, u)} the number of nodes
+strictly closer to \eqn{v} than to \eqn{u},
+\deqn{CV(v) = \min_{u \neq v} \left[ \gamma(v, u) - \gamma(u, v) \right].}{
+  CV(v) = min_{u != v} [gamma(v, u) - gamma(u, v)].}
+Higher values mark more central nodes. A positive score means the node is
+closer to more nodes than every other node is (a graph centroid).
 }
 \details{
-Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
+The minimum runs over the other nodes only. Up to cograph 2.7.18 it
+included \eqn{u = v} (where the difference is 0), as
+\code{centiserve::centroid()} does, which capped every score at 0. A
+one-node graph scores 0. Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
 \eqn{1/w^\alpha}{1/w^alpha} as the length, and \code{weighted = FALSE}
 counts hops. \code{mode} sets the direction of the paths.
 }
@@ -41,6 +44,10 @@ counts hops. \code{mode} sets the direction of the paths.
 centrality_centroid(regulation_net)
 }
 \references{
+Wuchty, S., & Stadler, P. F. (2003). Centers of complex networks. Journal
+of Theoretical Biology, 223(1), 45-53.
+\doi{10.1016/S0022-5193(03)00071-7}.
+
 Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S., Tenfelde-Podehl,
 D., & Zlotowski, O. (2005). Centrality indices. In U. Brandes & T.
 Erlebach (Eds.), Network Analysis: Methodological Foundations (pp.

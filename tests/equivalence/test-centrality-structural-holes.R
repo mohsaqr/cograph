@@ -83,19 +83,15 @@ test_that("bridging centrality, the bridging coefficient and local bridging equa
 test_that("flow betweenness equals sna's flowbet()", {
   skip_without_reference("sna")
   # Freeman, Borgatti and White (1991) as sna computes it (cmode = "rawflow"): over the pairs s, t, the maximum
-  # flow from s to t less the maximum flow once the node is removed. cograph instead reads the flow passing
-  # through the node from the one maximum flow igraph::max_flow() returns; a maximum flow is not unique, so that
-  # number depends on the solver. On this graph the removal formula, computed with igraph::max_flow(),
-  # reproduces sna's values.
-  defect <- paste("cograph centrality_flow_betweenness() reads the flow through a node from igraph's one max-flow",
-                  "solution, which is not unique (N1 42 against 19, N3 43 against 21 undirected); sna::flowbet()",
-                  "agrees with Freeman et al. (1991): the max flow lost when the node is removed; FINDINGS.md")
+  # flow from s to t less the maximum flow once the node is removed, as cograph does since 2.7.19. cograph 2.7.18
+  # and earlier read the flow passing through the node from the one maximum flow igraph::max_flow() returns, which
+  # is not unique (N1 42 against 19, N3 43 against 21 undirected).
   expect_reference(centrality_flow_betweenness(undirected), ref_named(sna::flowbet(undirected, gmode = "graph"), undirected),
                    reference = "sna", covers = c("centrality()", "centrality_flow_betweenness()"),
-                   quantity = "flow_betweenness, undirected", tolerance = exact, measure = "scaled", defect = defect)
+                   quantity = "flow_betweenness, undirected", tolerance = exact, measure = "scaled")
   expect_reference(centrality_flow_betweenness(directed), ref_named(sna::flowbet(directed, gmode = "digraph"), directed),
                    reference = "sna", covers = c("centrality()", "centrality_flow_betweenness()"),
-                   quantity = "flow_betweenness, directed", tolerance = exact, measure = "scaled", defect = defect)
+                   quantity = "flow_betweenness, directed", tolerance = exact, measure = "scaled")
 })
 
 test_that("the five Gould-Fernandez brokerage roles equal sna's brokerage()", {

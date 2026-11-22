@@ -24,9 +24,12 @@ nodes in the largest connected component of the subgraph induced by the
 neighbors of a node.
 }
 \details{
-Edge weights are ignored and the neighbor subgraph is read as undirected.
-\code{mode} selects the neighbors. An isolated node scores 0. On
-undirected networks the values equal \code{centiserve::mnc()}.
+Edge weights are ignored and \code{mode} selects the neighbors. On a
+directed network the component is the largest \emph{strongly} connected
+component of the neighbor subgraph, as in \code{centiserve::mnc()} and
+\code{\link{centrality_dmnc}} (up to cograph 2.7.18 it was the largest
+weakly connected one). An isolated node scores 0. The values equal
+\code{centiserve::mnc()}.
 }
 \examples{
 centrality_mnc(regulation_net)

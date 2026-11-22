@@ -1,3 +1,33 @@
+# cograph 2.7.19
+
+## Corrected centrality results
+
+* `centrality_centroid()` takes the minimum over the other nodes only
+  (Wuchty and Stadler 2003). It included the node itself, where the
+  difference is 0, so no score could exceed 0.
+* `centrality_flow_betweenness()` follows Freeman, Borgatti and White (1991)
+  and equals `sna::flowbet()`: for each pair of other nodes, the maximum flow
+  less the maximum flow once the node is removed. It read the flow through
+  the node from the one maximum flow igraph returned, which is not unique
+  (12-node graph: 42 against sna's 19).
+* `centrality(measures = "second_order")` is Kermarrec et al.'s (2011)
+  standard deviation of return times on the degree-balanced walk,
+  `sqrt(2 sum_i m_ij - n (n + 1))`, as NetworkX's
+  `second_order_centrality()`. It was the sample SD of the simple walk's
+  mean first-passage times. Directed input now gives `NA` with a
+  `cograph_undefined_measure` warning, as disconnected input already did.
+* `centralization(measure = "degree")` on a directed network divides in + out
+  degree (`mode = "all"`) by Freeman's maximum 2 (n - 1)(n - 2) and in- or
+  out-degree by (n - 1)^2, as `igraph::centr_degree(loops = FALSE)`; a
+  reciprocated star scored 1.6 instead of 1. `measure = "closeness"` with
+  `mode = "in"` or `"out"` on a directed network divides by
+  (n - 1)^2 / n, as `igraph::centr_clo()`.
+* `centrality_mnc()` on a directed network takes the largest strongly
+  connected component of the neighbourhood, as `centiserve::mnc()` and
+  `centrality_dmnc()` do; it took the weakly connected one.
+* `centrality_load()` gives 1 to the single node of a one-node graph, as
+  `sna::loadcent()` (load counts the end points); it gave 0.
+
 # cograph 2.7.17
 
 ## Changes to results

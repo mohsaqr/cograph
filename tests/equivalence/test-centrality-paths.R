@@ -201,8 +201,5 @@ test_that("load of the single node of a one-node graph equals sna's loadcent()",
   one_node <- matrix(0, 1, 1, dimnames = list("N1", "N1"))
   expect_reference(centrality_load(one_node), ref_named(sna::loadcent(one_node, gmode = "graph"), one_node),
                    reference = "sna", covers = c("centrality()", "centrality_load()"), quantity = "load, one-node graph",
-                   tolerance = exact,
-                   defect = paste("cograph centrality_load() gives 0 to the single node of a one-node graph;",
-                                  "sna::loadcent() gives 1 (load counts the end points, cograph's own stated",
-                                  "convention, and snajs also gives 1); FINDINGS.md"))
+                   tolerance = exact)
 })

@@ -30,7 +30,8 @@ counts, and \code{invert_weights = TRUE} converts a weight \eqn{w} to the
 distance \eqn{1/w^\alpha}{1/w^alpha}. Paths follow edge direction on a
 directed network. The values equal \code{sna::loadcent()}, which credits
 the endpoints of each path as well as the intermediate nodes, so the
-scores are larger than betweenness.
+scores are larger than betweenness. For the same reason the single node
+of a one-node graph scores 1, as in \code{sna::loadcent()}.
 }
 \examples{
 centrality_load(regulation_net)

@@ -457,10 +457,15 @@ calculate_stress <- function(cg, weights = NULL, directed = TRUE) {
 }
 
 
-#' Flow betweenness (sna-compatible)
+#' Flow betweenness (Freeman, Borgatti and White 1991)
 #'
-#' Max-flow based betweenness using igraph::max_flow. Deliberately left on
-#' igraph (see R/kernels-final.R): parity needs igraph's flow decomposition.
+#' For every pair `s, t` of other nodes, the part of the maximum `s`-`t` flow
+#' that must pass through the node: the maximum flow less the maximum flow
+#' once the node is removed (`sna::flowbet()`, `cmode = "rawflow"`). Ordered
+#' pairs on a directed graph, unordered on an undirected one; the edge
+#' weights are the capacities (unit capacities without weights). Only the
+#' max-flow VALUES enter, which are unique, so the result does not depend on
+#' which maximum flow igraph's solver returns.
 #' @keywords internal
 #' @noRd
 calculate_flow_betweenness <- function(cg, weights = NULL, directed = TRUE) {
@@ -471,37 +476,31 @@ calculate_flow_betweenness <- function(cg, weights = NULL, directed = TRUE) {
   if (n <= 2) return(rep(0, n))
 
   is_dir <- directed && igraph::is_directed(g)
-  flow_bet <- numeric(n)
-  el <- igraph::as_edgelist(g, names = FALSE)
-
-  for (s in seq_len(n)) {
-    targets <- if (is_dir) setdiff(seq_len(n), s) else {
-      if (s < n) seq(s + 1L, n) else integer(0)
-    }
-    for (t_node in targets) {
-      mf <- igraph::max_flow(g, source = s, target = t_node,
-                             capacity = if (is.null(weights)) NULL else weights)
-      if (mf$value == 0) next
-
-      # Compute net inflow at each node from edge flows
-      # For each edge, positive flow = src→dst, negative = dst→src
-      inflow <- numeric(n)
-      for (e_idx in seq_len(nrow(el))) {
-        f <- mf$flow[e_idx]
-        u <- el[e_idx, 1]; w <- el[e_idx, 2]
-        if (f > 1e-12) {
-          inflow[w] <- inflow[w] + f   # u→w: w receives
-        } else if (f < -1e-12) {
-          inflow[u] <- inflow[u] - f   # w→u: u receives
-        }
-      }
-      # Zero out source/target
-      inflow[s] <- 0; inflow[t_node] <- 0
-      flow_bet <- flow_bet + inflow
-    }
+  # The capacities travel with the edges when a vertex is deleted.
+  igraph::E(g)$capacity <- weights %||% rep(1, igraph::ecount(g))
+  flow_value <- function(graph, source, target) {
+    vapply(seq_along(source), function(k) {
+      igraph::max_flow(graph, source = source[k], target = target[k])$value
+    }, numeric(1L))
   }
 
-  flow_bet
+  ids <- seq_len(n)
+  pairs <- which(outer(ids, ids, if (is_dir) `!=` else `<`), arr.ind = TRUE)
+  full <- flow_value(g, pairs[, 1L], pairs[, 2L])
+  # A pair without flow loses none when a node is removed (sna skips it too).
+  carried <- full > 0
+  pairs <- pairs[carried, , drop = FALSE]
+  full <- full[carried]
+
+  vapply(ids, function(v) {
+    others <- pairs[, 1L] != v & pairs[, 2L] != v
+    if (!any(others)) return(0)
+    reduced <- igraph::delete_vertices(g, v)
+    source <- pairs[others, 1L]
+    target <- pairs[others, 2L]
+    sum(full[others] - flow_value(reduced, source - (source > v),
+                                  target - (target > v)))
+  }, numeric(1L))
 }
 
 
@@ -861,11 +860,11 @@ calculate_bottleneck <- function(cg, mode = "all") {
 }
 
 
-#' Centroid value (centiserve-compatible)
+#' Centroid value (Wuchty and Stadler 2003)
 #'
 #' For each pair `(u, v)`, `gamma[u, v]` = count of nodes `w` where
 #' `d(u, w) < d(v, w)`. `f[u, v] = gamma[u, v] - gamma[v, u]`.
-#' `Centroid(v) = min f[v, i]` over all `i`.
+#' `Centroid(v) = min f[v, i]` over all `i != v`.
 #' @keywords internal
 #' @noRd
 calculate_centroid <- function(cg, mode = "all", weights = NULL,
@@ -877,18 +876,20 @@ calculate_centroid <- function(cg, mode = "all", weights = NULL,
   if (is.null(dist_mat)) {
     dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  # Include self (f[v,v]=0), matching centiserve convention
   .cg_centroid(dist_mat, n)
 }
 
 
 #' Maximum Neighborhood Component (centiserve-compatible)
+#'
+#' On a directed graph the component is the largest strongly connected one
+#' of the neighbourhood, as `centiserve::mnc()` and cograph's DMNC take it.
 #' @keywords internal
 #' @noRd
 calculate_mnc <- function(cg, mode = "all") {
   cg <- .ext_context(cg)
   if (cg$n == 0) return(integer(0))
-  as.integer(.cg_mnc(cg$b, .ext_adjlist(cg, mode)))
+  as.integer(.cg_mnc(cg$b, .ext_adjlist(cg, mode), cg$directed))
 }
 
 
@@ -1361,6 +1362,24 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
 #'   exceed 1. Nodes whose score is \code{NA} or \code{NaN} are dropped from
 #'   the sum. The value is 0 when the network has two or fewer nodes.
 #'
+#' @details
+#' The theoretical maxima (Freeman 1979) are those of
+#' \code{igraph::centr_degree_tmax(loops = FALSE)},
+#' \code{igraph::centr_betw_tmax()} and \code{igraph::centr_clo_tmax()}.
+#' Degree: \eqn{(n - 1)(n - 2)} on an undirected network; on a directed one
+#' \eqn{(n - 1)^2} for in- or out-degree and \eqn{2(n - 1)(n - 2)} for
+#' in + out degree (\code{mode = "all"}, reached by a star with reciprocated
+#' arcs). Betweenness: \eqn{(n - 1)^2 (n - 2) / 2} undirected and
+#' \eqn{(n - 1)^2 (n - 2)} directed. Closeness: \eqn{(n - 1)(n - 2) / (2n - 3)},
+#' and \eqn{(n - 1)^2 / n} for \code{mode = "in"} or \code{"out"} on a
+#' directed network. Eigenvector: \eqn{n - 1} (igraph uses \eqn{n - 2} on an
+#' undirected network).
+#'
+#' @references
+#' Freeman, L. C. (1979). Centrality in social networks: Conceptual
+#'   clarification. Social Networks, 1(3), 215-239.
+#'   \doi{10.1016/0378-8733(78)90021-7}.
+#'
 #' @export
 #' @examples
 #' cograph::centralization(regulation_net, measure = "degree")
@@ -1368,6 +1387,7 @@ centralization <- function(x, measure = c("degree", "betweenness",
                                           "closeness", "eigenvector"),
                            directed = NULL, mode = "all", ...) {
   measure <- match.arg(measure)
+  mode <- match.arg(mode, c("all", "in", "out"))
 
   cg <- .cg_graph(x, directed = directed)
   n <- cg$n
@@ -1382,7 +1402,16 @@ centralization <- function(x, measure = c("degree", "betweenness",
   switch(measure,
     "degree" = {
       scores <- .cg_degree(cg$b, is_dir, mode)
-      theo_max <- if (is_dir) (n - 1)^2 else (n - 1) * (n - 2)
+      # Freeman's maxima without self-loops, as igraph centr_degree_tmax():
+      # in + out degree of a directed star with reciprocated arcs has
+      # 2 (n - 1)(n - 2), one direction alone (n - 1)^2.
+      theo_max <- if (!is_dir) {
+        (n - 1) * (n - 2)
+      } else if (identical(mode, "all")) {
+        2 * (n - 1) * (n - 2)
+      } else {
+        (n - 1)^2
+      }
       .freeman_centralization(scores, theo_max)
     },
     "betweenness" = {
@@ -1398,7 +1427,13 @@ centralization <- function(x, measure = c("degree", "betweenness",
       reach <- rowSums(ok)
       total <- rowSums(ifelse(ok, d, 0))
       scores <- ifelse(reach > 0, reach / total, NaN)
-      theo_max <- (n - 2) * (n - 1) / (2 * n - 3)
+      # As igraph centr_clo_tmax(): one direction of a directed network has
+      # (n - 1)(1 - 1/n), otherwise the undirected star's value.
+      theo_max <- if (is_dir && !identical(mode, "all")) {
+        (n - 1)^2 / n
+      } else {
+        (n - 2) * (n - 1) / (2 * n - 3)
+      }
       .freeman_centralization(scores, theo_max)
     },
     "eigenvector" = {
@@ -1435,9 +1470,14 @@ calculate_onion <- function(cg) {
 
 #' Second-order centrality (Kermarrec et al. 2011)
 #'
-#' Standard deviation of return times in a random walk. Low values indicate
-#' central nodes with regular return times; high values indicate peripheral.
-#' Requires a connected graph.
+#' The standard deviation of the return times to a node of a random walk made
+#' uniform by self-loops: every node gets a loop of weight d_max - d_i, so the
+#' walk is regular and its stationary distribution uniform. With m_ij the mean
+#' first-passage time from i to j (m_jj the mean return time), the score is
+#' sqrt(2 sum_i m_ij - n (n + 1)) (the paper's eq. 6, as NetworkX's
+#' second_order_centrality()). Edge weights do not enter. Defined on connected
+#' undirected graphs; a directed or disconnected graph gives NA with a
+#' `cograph_undefined_measure` warning.
 #' @keywords internal
 #' @noRd
 calculate_second_order <- function(cg) {
@@ -1445,23 +1485,31 @@ calculate_second_order <- function(cg) {
   n <- cg$n
   if (n <= 1) return(rep(NA_real_, n))
 
+  if (cg$directed) {
+    .cg_warn_undefined("second_order is defined on undirected networks ",
+                       "(Kermarrec et al. 2011); returning NA")
+    return(rep(NA_real_, n))
+  }
   if (.cg_n_components(cg$b) > 1L) {
     .cg_warn_undefined("second_order requires a connected graph; returning NA")
     return(rep(NA_real_, n))
   }
 
-  mfpt <- .ext_mfpt(cg)
-  if (is.null(mfpt)) return(rep(NA_real_, n))
-
-  # Mean return time for node j = m_jj = 1/pi_j
-  # Second-order centrality = SD of return times from all other nodes
-  # Following Kermarrec: for each node j, compute SD of {m_ij} over all i != j
-  vapply(seq_len(n), function(j) {
-    times <- mfpt[-j, j]
-    times <- times[times > 0]
-    if (length(times) < 2) return(NA_real_)
-    stats::sd(times)
-  }, numeric(1))
+  # Degree-balanced walk: a self-loop already present counts once in the
+  # degree, and the added loop weight tops each node up to the largest degree.
+  a <- (unname(cg$b) != 0) * 1
+  deg <- colSums(a)
+  a <- a + diag(max(deg) - deg, n, n)
+  p <- a / rowSums(a)
+  ones <- rep(1, n)
+  # m_.j solves (I - Q_j) m = 1, with Q_j the walk whose column j is zeroed
+  # (first passage into j; the j-th entry is the mean return time).
+  passage_sum <- vapply(seq_len(n), function(j) {
+    q <- p
+    q[, j] <- 0
+    sum(solve(diag(1, n, n) - q, ones))
+  }, numeric(1L))
+  sqrt(2 * passage_sum - n * (n + 1))
 }
 
 

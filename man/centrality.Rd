@@ -759,7 +759,9 @@ communicability through each node.}
 \item{random_walk}{Random walk centrality. Inverse sum of random walk
 distances (requires connected graph).}
 \item{stress}{Stress centrality. Number of shortest paths through node.}
-\item{flow_betweenness}{Flow betweenness. Max-flow based betweenness.}
+\item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
+1991). Summed loss of maximum flow between other pairs when the node
+is removed, as \code{sna::flowbet()}.}
 \item{lobby}{Lobby index (h-index of neighborhood).}
 \item{entropy}{Graph entropy centrality. Entropy change on node removal.}
 \item{semilocal}{Semi-local centrality. Triple-nested neighborhood sum.}
@@ -767,8 +769,10 @@ distances (requires connected graph).}
 degree sum.}
 \item{bottleneck}{Bottleneck centrality. Count of shortest path trees where
 node is critical.}
-\item{centroid}{Centroid value. Minimum f(v,i) across all nodes.}
-\item{mnc}{Maximum Neighborhood Component size.}
+\item{centroid}{Centroid value (Wuchty and Stadler 2003). Minimum
+f(v, u) over the other nodes u.}
+\item{mnc}{Maximum Neighborhood Component size (strongly connected
+component on directed networks).}
 \item{dmnc}{Density of Maximum Neighborhood Component.}
 \item{topological_coefficient}{Topological coefficient. Shared neighbor
 ratio.}
@@ -781,6 +785,14 @@ coefficient.}
 distribution.}
 \item{cross_clique}{Cross-clique connectivity. Count of cliques containing
 node.}
+\item{second_order}{Second-order centrality (Kermarrec et al. 2011).
+Standard deviation of the return times to the node of a random walk
+made uniform by self-loops, \eqn{\sqrt{2 \sum_i m_{ij} - n(n + 1)}}{
+    sqrt(2 sum_i m_ij - n (n + 1))} with \eqn{m_{ij}}{m_ij} the mean
+first-passage times, as NetworkX's \code{second_order_centrality()}.
+Lower values mark more central nodes. Edge weights are ignored.
+Defined on connected undirected networks; otherwise \code{NA} with a
+\code{cograph_undefined_measure} warning.}
 \item{markov}{Markov centrality. Inverse mean first passage time
 (requires connected graph).}
 \item{integration}{Integration centrality. Distance-based influence.}

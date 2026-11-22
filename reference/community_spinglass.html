@@ -15,7 +15,7 @@ has one row per node of that component."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -170,7 +170,11 @@ is <code>directed</code>; anything else raises an "unused argument" error.</p></
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>cograph_communities</code> data frame with columns
 <code>node</code> and <code>community</code>. See <code><a href="communities.html">communities</a></code> for its
-attributes.</p>
+attributes. The <code>modularity</code> attribute is the modularity of the
+returned partition, <code><a href="https://r.igraph.org/reference/modularity.igraph.html" class="external-link">igraph::modularity()</a></code> with the weights the run
+used (not the Potts-model value <code><a href="https://r.igraph.org/reference/cluster_spinglass.html" class="external-link">igraph::cluster_spinglass()</a></code>
+reports, which differs on weighted networks); it is <code>NA</code> when a
+weight is negative.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -183,7 +187,7 @@ Statistical mechanics of community detection.
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">community_spinglass</span><span class="op">(</span><span class="va">regulation_net</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Community structure (spinglass)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 10  | Communities: 2  | Modularity: -3.7742 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes: 10  | Communities: 2  | Modularity: 0.2033 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sizes: 5, 5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        node community</span>

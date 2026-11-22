@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,15 +97,15 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">strong</span> <span class="op">&lt;-</span> <span class="fu"><a href="filter_edges.html">filter_edges</a></span><span class="op">(</span><span class="va">regulation_net</span>, <span class="va">weight</span> <span class="op">&gt;</span> <span class="fl">0.3</span>, keep_isolates <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">select_bridges</span><span class="op">(</span><span class="va">strong</span>, keep_isolates <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 6 nodes, 3 edges ( directed )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Cograph network: 4 nodes, 3 edges ( directed )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Source: matrix </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (6): Plan, Monitor, Reflect, Discuss, Synthesize, Evaluate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 30 (density: 10.0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.330, 0.420]  |  mean: 0.383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes (4): Explore, Reflect, Discuss, Synthesize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges: 3 / 12 (density: 25.0%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weights: [0.350, 0.420]  |  mean: 0.373</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Strongest edges:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Synthesize -&gt; Reflect  0.420</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Plan -&gt; Discuss  0.400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Evaluate -&gt; Monitor  0.330</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Explore -&gt; Reflect  0.350</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Discuss -&gt; Reflect  0.350</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Layout: none </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.</span>
 </code></pre></div>

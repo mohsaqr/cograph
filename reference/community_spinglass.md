@@ -116,7 +116,13 @@ com_sg(
 A `cograph_communities` data frame with columns `node` and `community`.
 See
 [`communities`](https://sonsoles.me/cograph/reference/communities.md)
-for its attributes.
+for its attributes. The `modularity` attribute is the modularity of the
+returned partition,
+[`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html)
+with the weights the run used (not the Potts-model value
+[`igraph::cluster_spinglass()`](https://r.igraph.org/reference/cluster_spinglass.html)
+reports, which differs on weighted networks); it is `NA` when a weight
+is negative.
 
 ## References
 
@@ -128,7 +134,7 @@ community detection. *Physical Review E*, 74, 016110.
 ``` r
 community_spinglass(regulation_net, seed = 1)
 #> Community structure (spinglass)
-#>   Nodes: 10  | Communities: 2  | Modularity: -3.7742 
+#>   Nodes: 10  | Communities: 2  | Modularity: 0.2033 
 #>   Sizes: 5, 5 
 #> 
 #>        node community

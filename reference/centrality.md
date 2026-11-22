@@ -1146,7 +1146,9 @@ The following centrality measures are available:
 
 - flow_betweenness:
 
-  Flow betweenness. Max-flow based betweenness.
+  Flow betweenness (Freeman, Borgatti and White 1991). Summed loss of
+  maximum flow between other pairs when the node is removed, as
+  [`sna::flowbet()`](https://rdrr.io/pkg/sna/man/flowbet.html).
 
 - lobby:
 
@@ -1171,11 +1173,13 @@ The following centrality measures are available:
 
 - centroid:
 
-  Centroid value. Minimum f(v,i) across all nodes.
+  Centroid value (Wuchty and Stadler 2003). Minimum f(v, u) over the
+  other nodes u.
 
 - mnc:
 
-  Maximum Neighborhood Component size.
+  Maximum Neighborhood Component size (strongly connected component on
+  directed networks).
 
 - dmnc:
 
@@ -1204,6 +1208,16 @@ The following centrality measures are available:
 - cross_clique:
 
   Cross-clique connectivity. Count of cliques containing node.
+
+- second_order:
+
+  Second-order centrality (Kermarrec et al. 2011). Standard deviation of
+  the return times to the node of a random walk made uniform by
+  self-loops, \\\sqrt{2 \sum_i m\_{ij} - n(n + 1)}\\ with \\m\_{ij}\\
+  the mean first-passage times, as NetworkX's
+  `second_order_centrality()`. Lower values mark more central nodes.
+  Edge weights are ignored. Defined on connected undirected networks;
+  otherwise `NA` with a `cograph_undefined_measure` warning.
 
 - markov:
 

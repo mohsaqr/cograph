@@ -60,9 +60,29 @@ fewer nodes.
 A weighted input carries its weights into betweenness, closeness and
 eigenvector centrality; degree centralization ignores them.
 
+The theoretical maxima (Freeman 1979) are those of
+`igraph::centr_degree_tmax(loops = FALSE)`,
+[`igraph::centr_betw_tmax()`](https://r.igraph.org/reference/centr_betw_tmax.html)
+and
+[`igraph::centr_clo_tmax()`](https://r.igraph.org/reference/centr_clo_tmax.html).
+Degree: \\(n - 1)(n - 2)\\ on an undirected network; on a directed one
+\\(n - 1)^2\\ for in- or out-degree and \\2(n - 1)(n - 2)\\ for in + out
+degree (`mode = "all"`, reached by a star with reciprocated arcs).
+Betweenness: \\(n - 1)^2 (n - 2) / 2\\ undirected and \\(n - 1)^2 (n -
+2)\\ directed. Closeness: \\(n - 1)(n - 2) / (2n - 3)\\, and \\(n - 1)^2
+/ n\\ for `mode = "in"` or `"out"` on a directed network. Eigenvector:
+\\n - 1\\ (igraph uses \\n - 2\\ on an undirected network).
+
+## References
+
+Freeman, L. C. (1979). Centrality in social networks: Conceptual
+clarification. Social Networks, 1(3), 215-239.
+[doi:10.1016/0378-8733(78)90021-7](https://doi.org/10.1016/0378-8733%2878%2990021-7)
+.
+
 ## Examples
 
 ``` r
 cograph::centralization(regulation_net, measure = "degree")
-#> [1] 0.2469136
+#> [1] 0.1388889
 ```

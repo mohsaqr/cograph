@@ -64,6 +64,16 @@ cluster assignments and `macro$weights` is `NULL`.
 
 The input `mcml` object unchanged.
 
+## Details
+
+For a node-level `group_tna` without sequence data (as made by
+[`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) of a
+cluster summary), the within-cluster models are taken from the groups
+and the macro (between-cluster) model from the group's `macro` element,
+since the within-cluster blocks carry no between-cluster transitions.
+Without a `macro` element such an input raises an error of class
+`cograph_bad_input`.
+
 ## See also
 
 [`summarize_clusters`](https://sonsoles.me/cograph/reference/summarize_clusters.md),

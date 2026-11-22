@@ -50,15 +50,15 @@ A cograph_network with bridge edges only.
 ``` r
 strong <- filter_edges(regulation_net, weight > 0.3, keep_isolates = FALSE)
 select_bridges(strong, keep_isolates = FALSE)
-#> Cograph network: 6 nodes, 3 edges ( directed )
+#> Cograph network: 4 nodes, 3 edges ( directed )
 #> Source: matrix 
-#>   Nodes (6): Plan, Monitor, Reflect, Discuss, Synthesize, Evaluate
-#>   Edges: 3 / 30 (density: 10.0%)
-#>   Weights: [0.330, 0.420]  |  mean: 0.383
+#>   Nodes (4): Explore, Reflect, Discuss, Synthesize
+#>   Edges: 3 / 12 (density: 25.0%)
+#>   Weights: [0.350, 0.420]  |  mean: 0.373
 #>   Strongest edges:
 #>     Synthesize -> Reflect  0.420
-#>     Plan -> Discuss  0.400
-#>     Evaluate -> Monitor  0.330
+#>     Explore -> Reflect  0.350
+#>     Discuss -> Reflect  0.350
 #> Layout: none 
 #>   Use as.data.frame() for the edge table, as.data.frame(what = "nodes") for the nodes.
 ```

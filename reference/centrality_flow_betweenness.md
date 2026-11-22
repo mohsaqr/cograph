@@ -1,9 +1,11 @@
 # Flow Betweenness
 
 Flow betweenness (Freeman, Borgatti and White 1991) sums, over pairs of
-other nodes \\s\\ and \\t\\, the flow that passes through the node when
-a maximum flow is sent from \\s\\ to \\t\\ with the edge weights as
-capacities.
+other nodes \\s\\ and \\t\\, the part of the maximum flow from \\s\\ to
+\\t\\ that must pass through the node, with the edge weights as
+capacities: \$\$FB(v) = \sum\_{s \neq t \neq v} \left\[ f\_{st}(G) -
+f\_{st}(G - v) \right\],\$\$ where \\f\_{st}(G - v)\\ is the maximum
+flow once \\v\\ is removed.
 
 ## Usage
 
@@ -33,10 +35,14 @@ A named numeric vector with one score per node, in input node order.
 ## Details
 
 The measure requires the igraph package and raises an error of class
-`cograph_needs_igraph` without it. The flow through a node is read from
-the maximum flow that
-[`igraph::max_flow()`](https://r.igraph.org/reference/max_flow.html)
-returns. On a directed network the sum runs over ordered pairs along the
+`cograph_needs_igraph` without it. Only maximum-flow values enter
+([`igraph::max_flow()`](https://r.igraph.org/reference/max_flow.html)),
+which are unique, so the result does not depend on the solver. The
+values equal
+[`sna::flowbet()`](https://rdrr.io/pkg/sna/man/flowbet.html) with its
+default `cmode = "rawflow"`. Up to cograph 2.7.18 the flow through a
+node was read from the one maximum flow igraph returned, which is not
+unique. On a directed network the sum runs over ordered pairs along the
 edge direction, and on an undirected network over unordered pairs.
 `weighted = FALSE` gives every edge capacity one, and
 `invert_weights = TRUE` uses \\1/w^\alpha\\ as the capacity.
@@ -60,7 +66,7 @@ Networks, 13(2), 141-154.
 ``` r
 centrality_flow_betweenness(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>       9.52       6.33      13.60      16.27       6.66       8.19       4.67 
+#>       6.51       5.32       9.18      10.47       4.50       4.85       3.38 
 #>   Evaluate     Create      Share 
-#>       7.26      12.18      12.88 
+#>       3.04       7.39       8.71 
 ```

@@ -11,7 +11,7 @@ neighbors of a node."><meta property="og:image" content="https://sonsoles.me/cog
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,9 +84,12 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are ignored and the neighbor subgraph is read as undirected.
-<code>mode</code> selects the neighbors. An isolated node scores 0. On
-undirected networks the values equal <code><a href="https://rdrr.io/pkg/centiserve/man/mnc.html" class="external-link">centiserve::mnc()</a></code>.</p>
+    <p>Edge weights are ignored and <code>mode</code> selects the neighbors. On a
+directed network the component is the largest <em>strongly</em> connected
+component of the neighbor subgraph, as in <code><a href="https://rdrr.io/pkg/centiserve/man/mnc.html" class="external-link">centiserve::mnc()</a></code> and
+<code><a href="centrality_dmnc.html">centrality_dmnc</a></code> (up to cograph 2.7.18 it was the largest
+weakly connected one). An isolated node scores 0. The values equal
+<code><a href="https://rdrr.io/pkg/centiserve/man/mnc.html" class="external-link">centiserve::mnc()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -106,9 +109,9 @@ W438-W443. <a href="https://doi.org/10.1093/nar/gkn257" class="external-link">do
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_mnc</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          5          6          7          6          3          5          4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          4          4          6          1          1          2          1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          5          6          5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          2          4          2 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

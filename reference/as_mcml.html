@@ -9,7 +9,7 @@ multi-cluster network that does not depend on the tna package."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,6 +110,15 @@ Required when the <code>group_tna</code> has the same labels across all groups
 <code>macro$data</code> contains the cluster assignments and <code>macro$weights</code>
 is <code>NULL</code>.</p>
 <p>The input <code>mcml</code> object unchanged.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For a node-level <code>group_tna</code> without sequence data (as made
+by <code><a href="as_tna.html">as_tna()</a></code> of a cluster summary), the within-cluster models are
+taken from the groups and the macro (between-cluster) model from the
+group's <code>macro</code> element, since the within-cluster blocks carry no
+between-cluster transitions. Without a <code>macro</code> element such an
+input raises an error of class <code>cograph_bad_input</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

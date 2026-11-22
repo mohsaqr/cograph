@@ -1,11 +1,12 @@
 # Centroid Value
 
-The centroid value (Koschuetzki et al. 2005) compares a node with every
-other node by the number of nodes each one is closer to. With
-\\\gamma(v, u)\\ the number of nodes strictly closer to \\v\\ than to
-\\u\\, \$\$CV(v) = \min\_{u} \left\[ \gamma(v, u) - \gamma(u, v)
-\right\].\$\$ The minimum includes \\u = v\\, so the score is at most 0,
-and values closer to 0 mark more central nodes.
+The centroid value (Wuchty and Stadler 2003; Koschuetzki et al. 2005)
+compares a node with every other node by the number of nodes each one is
+closer to. With \\\gamma(v, u)\\ the number of nodes strictly closer to
+\\v\\ than to \\u\\, \$\$CV(v) = \min\_{u \neq v} \left\[ \gamma(v, u) -
+\gamma(u, v) \right\].\$\$ Higher values mark more central nodes. A
+positive score means the node is closer to more nodes than every other
+node is (a graph centroid).
 
 ## Usage
 
@@ -39,11 +40,20 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are read as path lengths. `invert_weights = TRUE` uses
+The minimum runs over the other nodes only. Up to cograph 2.7.18 it
+included \\u = v\\ (where the difference is 0), as
+[`centiserve::centroid()`](https://rdrr.io/pkg/centiserve/man/centroid.html)
+does, which capped every score at 0. A one-node graph scores 0. Edge
+weights are read as path lengths. `invert_weights = TRUE` uses
 \\1/w^\alpha\\ as the length, and `weighted = FALSE` counts hops. `mode`
 sets the direction of the paths.
 
 ## References
+
+Wuchty, S., & Stadler, P. F. (2003). Centers of complex networks.
+Journal of Theoretical Biology, 223(1), 45-53.
+[doi:10.1016/S0022-5193(03)00071-7](https://doi.org/10.1016/S0022-5193%2803%2900071-7)
+.
 
 Koschuetzki, D., Lehmann, K. A., Peeters, L., Richter, S.,
 Tenfelde-Podehl, D., & Zlotowski, O. (2005). Centrality indices. In U.

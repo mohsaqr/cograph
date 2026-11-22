@@ -1,5 +1,73 @@
 # Changelog
 
+## cograph 2.7.19
+
+### Corrected centrality results
+
+- [`centrality_centroid()`](https://sonsoles.me/cograph/reference/centrality_centroid.md)
+  takes the minimum over the other nodes only (Wuchty and Stadler 2003).
+  It included the node itself, where the difference is 0, so no score
+  could exceed 0.
+- [`centrality_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_flow_betweenness.md)
+  follows Freeman, Borgatti and White (1991) and equals
+  [`sna::flowbet()`](https://rdrr.io/pkg/sna/man/flowbet.html): for each
+  pair of other nodes, the maximum flow less the maximum flow once the
+  node is removed. It read the flow through the node from the one
+  maximum flow igraph returned, which is not unique (12-node graph: 42
+  against sna’s 19).
+- `centrality(measures = "second_order")` is Kermarrec et al.’s (2011)
+  standard deviation of return times on the degree-balanced walk,
+  `sqrt(2 sum_i m_ij - n (n + 1))`, as NetworkX’s
+  `second_order_centrality()`. It was the sample SD of the simple walk’s
+  mean first-passage times. Directed input now gives `NA` with a
+  `cograph_undefined_measure` warning, as disconnected input already
+  did.
+- `centralization(measure = "degree")` on a directed network divides
+  in + out degree (`mode = "all"`) by Freeman’s maximum 2 (n - 1)(n - 2)
+  and in- or out-degree by (n - 1)^2, as
+  `igraph::centr_degree(loops = FALSE)`; a reciprocated star scored 1.6
+  instead of 1. `measure = "closeness"` with `mode = "in"` or `"out"` on
+  a directed network divides by (n - 1)^2 / n, as
+  [`igraph::centr_clo()`](https://r.igraph.org/reference/centr_clo.html).
+- [`centrality_mnc()`](https://sonsoles.me/cograph/reference/centrality_mnc.md)
+  on a directed network takes the largest strongly connected component
+  of the neighbourhood, as
+  [`centiserve::mnc()`](https://rdrr.io/pkg/centiserve/man/mnc.html) and
+  [`centrality_dmnc()`](https://sonsoles.me/cograph/reference/centrality_dmnc.md)
+  do; it took the weakly connected one.
+- [`centrality_load()`](https://sonsoles.me/cograph/reference/centrality_load.md)
+  gives 1 to the single node of a one-node graph, as
+  [`sna::loadcent()`](https://rdrr.io/pkg/sna/man/loadcent.html) (load
+  counts the end points); it gave 0.
+
+### Other corrections
+
+- [`as_mcml()`](https://sonsoles.me/cograph/reference/as_mcml.md) of a
+  node-level `group_tna` without sequence data (as made by
+  [`as_tna()`](https://sonsoles.me/cograph/reference/as_tna.md) of a
+  cluster summary) takes the macro model from the group’s `macro`
+  element. It rebuilt the macro matrix from the within-cluster blocks
+  alone, which gave the identity (A to A 1 instead of 0.4301). Without a
+  `macro` element such input raises a `cograph_bad_input` error.
+- [`community_spinglass()`](https://sonsoles.me/cograph/reference/community_spinglass.md)
+  /
+  [`com_sg()`](https://sonsoles.me/cograph/reference/community_spinglass.md)
+  report the modularity of the returned partition
+  ([`igraph::modularity()`](https://r.igraph.org/reference/modularity.igraph.html)
+  with the run’s weights), as
+  [`?communities`](https://sonsoles.me/cograph/reference/communities.md)
+  documents, instead of igraph’s Potts-model value (weighted network,
+  seed 1: 0.2809 instead of 0.0528).
+- [`network_girth()`](https://sonsoles.me/cograph/reference/network_girth.md),
+  and so `network_summary(extended = TRUE)`, take the girth of the
+  simple undirected skeleton: a reciprocated pair is not a 2-cycle.
+  [`network_summary()`](https://sonsoles.me/cograph/reference/network_summary.md)
+  reported 2 on `regulation_net`, where the girth is 3.
+- [`select_bridges()`](https://sonsoles.me/cograph/reference/select_bridges.md)
+  computes the bridge flags on the network’s own edge table. They were
+  computed in igraph’s edge order and applied to cograph’s, which
+  differs for matrix input (4 edges wrong on an 8-node graph).
+
 ## cograph 2.7.17
 
 CRAN release: 2026-11-19

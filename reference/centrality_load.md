@@ -38,7 +38,9 @@ and `invert_weights = TRUE` converts a weight \\w\\ to the distance
 values equal
 [`sna::loadcent()`](https://rdrr.io/pkg/sna/man/loadcent.html), which
 credits the endpoints of each path as well as the intermediate nodes, so
-the scores are larger than betweenness.
+the scores are larger than betweenness. For the same reason the single
+node of a one-node graph scores 1, as in
+[`sna::loadcent()`](https://rdrr.io/pkg/sna/man/loadcent.html).
 
 ## References
 

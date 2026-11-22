@@ -32,9 +32,13 @@ A named integer vector with one size per node, in input node order.
 
 ## Details
 
-Edge weights are ignored and the neighbor subgraph is read as
-undirected. `mode` selects the neighbors. An isolated node scores 0. On
-undirected networks the values equal
+Edge weights are ignored and `mode` selects the neighbors. On a directed
+network the component is the largest *strongly* connected component of
+the neighbor subgraph, as in
+[`centiserve::mnc()`](https://rdrr.io/pkg/centiserve/man/mnc.html) and
+[`centrality_dmnc`](https://sonsoles.me/cograph/reference/centrality_dmnc.md)
+(up to cograph 2.7.18 it was the largest weakly connected one). An
+isolated node scores 0. The values equal
 [`centiserve::mnc()`](https://rdrr.io/pkg/centiserve/man/mnc.html).
 
 ## References
@@ -56,7 +60,7 @@ W438-W443. [doi:10.1093/nar/gkn257](https://doi.org/10.1093/nar/gkn257)
 ``` r
 centrality_mnc(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>          5          6          7          6          3          5          4 
+#>          4          4          6          1          1          2          1 
 #>   Evaluate     Create      Share 
-#>          5          6          5 
+#>          2          4          2 
 ```

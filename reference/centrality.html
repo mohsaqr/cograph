@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1131,7 +1131,9 @@ distances (requires connected graph).</p></dd>
 <dd><p>Stress centrality. Number of shortest paths through node.</p></dd>
 
 <dt>flow_betweenness</dt>
-<dd><p>Flow betweenness. Max-flow based betweenness.</p></dd>
+<dd><p>Flow betweenness (Freeman, Borgatti and White
+1991). Summed loss of maximum flow between other pairs when the node
+is removed, as <code><a href="https://rdrr.io/pkg/sna/man/flowbet.html" class="external-link">sna::flowbet()</a></code>.</p></dd>
 
 <dt>lobby</dt>
 <dd><p>Lobby index (h-index of neighborhood).</p></dd>
@@ -1151,10 +1153,12 @@ degree sum.</p></dd>
 node is critical.</p></dd>
 
 <dt>centroid</dt>
-<dd><p>Centroid value. Minimum f(v,i) across all nodes.</p></dd>
+<dd><p>Centroid value (Wuchty and Stadler 2003). Minimum
+f(v, u) over the other nodes u.</p></dd>
 
 <dt>mnc</dt>
-<dd><p>Maximum Neighborhood Component size.</p></dd>
+<dd><p>Maximum Neighborhood Component size (strongly connected
+component on directed networks).</p></dd>
 
 <dt>dmnc</dt>
 <dd><p>Density of Maximum Neighborhood Component.</p></dd>
@@ -1181,6 +1185,15 @@ distribution.</p></dd>
 <dt>cross_clique</dt>
 <dd><p>Cross-clique connectivity. Count of cliques containing
 node.</p></dd>
+
+<dt>second_order</dt>
+<dd><p>Second-order centrality (Kermarrec et al. 2011).
+Standard deviation of the return times to the node of a random walk
+made uniform by self-loops, \(\sqrt{2 \sum_i m_{ij} - n(n + 1)}\) with \(m_{ij}\) the mean
+first-passage times, as NetworkX's <code>second_order_centrality()</code>.
+Lower values mark more central nodes. Edge weights are ignored.
+Defined on connected undirected networks; otherwise <code>NA</code> with a
+<code>cograph_undefined_measure</code> warning.</p></dd>
 
 <dt>markov</dt>
 <dd><p>Markov centrality. Inverse mean first passage time

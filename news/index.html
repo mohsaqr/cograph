@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,35 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.19" id="cograph-2719">cograph 2.7.19<a class="anchor" aria-label="anchor" href="#cograph-2719"></a></h2>
+<div class="section level3">
+<h3 id="corrected-centrality-results-2-7-19">Corrected centrality results<a class="anchor" aria-label="anchor" href="#corrected-centrality-results-2-7-19"></a></h3>
+<ul><li>
+<code><a href="../reference/centrality_centroid.html">centrality_centroid()</a></code> takes the minimum over the other nodes only (Wuchty and Stadler 2003). It included the node itself, where the difference is 0, so no score could exceed 0.</li>
+<li>
+<code><a href="../reference/centrality_flow_betweenness.html">centrality_flow_betweenness()</a></code> follows Freeman, Borgatti and White (1991) and equals <code><a href="https://rdrr.io/pkg/sna/man/flowbet.html" class="external-link">sna::flowbet()</a></code>: for each pair of other nodes, the maximum flow less the maximum flow once the node is removed. It read the flow through the node from the one maximum flow igraph returned, which is not unique (12-node graph: 42 against sna’s 19).</li>
+<li>
+<code>centrality(measures = "second_order")</code> is Kermarrec et al.’s (2011) standard deviation of return times on the degree-balanced walk, <code>sqrt(2 sum_i m_ij - n (n + 1))</code>, as NetworkX’s <code>second_order_centrality()</code>. It was the sample SD of the simple walk’s mean first-passage times. Directed input now gives <code>NA</code> with a <code>cograph_undefined_measure</code> warning, as disconnected input already did.</li>
+<li>
+<code>centralization(measure = "degree")</code> on a directed network divides in + out degree (<code>mode = "all"</code>) by Freeman’s maximum 2 (n - 1)(n - 2) and in- or out-degree by (n - 1)^2, as <code>igraph::centr_degree(loops = FALSE)</code>; a reciprocated star scored 1.6 instead of 1. <code>measure = "closeness"</code> with <code>mode = "in"</code> or <code>"out"</code> on a directed network divides by (n - 1)^2 / n, as <code><a href="https://r.igraph.org/reference/centr_clo.html" class="external-link">igraph::centr_clo()</a></code>.</li>
+<li>
+<code><a href="../reference/centrality_mnc.html">centrality_mnc()</a></code> on a directed network takes the largest strongly connected component of the neighbourhood, as <code><a href="https://rdrr.io/pkg/centiserve/man/mnc.html" class="external-link">centiserve::mnc()</a></code> and <code><a href="../reference/centrality_dmnc.html">centrality_dmnc()</a></code> do; it took the weakly connected one.</li>
+<li>
+<code><a href="../reference/centrality_load.html">centrality_load()</a></code> gives 1 to the single node of a one-node graph, as <code><a href="https://rdrr.io/pkg/sna/man/loadcent.html" class="external-link">sna::loadcent()</a></code> (load counts the end points); it gave 0.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-corrections-2-7-19">Other corrections<a class="anchor" aria-label="anchor" href="#other-corrections-2-7-19"></a></h3>
+<ul><li>
+<code><a href="../reference/as_mcml.html">as_mcml()</a></code> of a node-level <code>group_tna</code> without sequence data (as made by <code><a href="../reference/as_tna.html">as_tna()</a></code> of a cluster summary) takes the macro model from the group’s <code>macro</code> element. It rebuilt the macro matrix from the within-cluster blocks alone, which gave the identity (A to A 1 instead of 0.4301). Without a <code>macro</code> element such input raises a <code>cograph_bad_input</code> error.</li>
+<li>
+<code><a href="../reference/community_spinglass.html">community_spinglass()</a></code> / <code><a href="../reference/community_spinglass.html">com_sg()</a></code> report the modularity of the returned partition (<code><a href="https://r.igraph.org/reference/modularity.igraph.html" class="external-link">igraph::modularity()</a></code> with the run’s weights), as <code><a href="../reference/communities.html">?communities</a></code> documents, instead of igraph’s Potts-model value (weighted network, seed 1: 0.2809 instead of 0.0528).</li>
+<li>
+<code><a href="../reference/network_girth.html">network_girth()</a></code>, and so <code>network_summary(extended = TRUE)</code>, take the girth of the simple undirected skeleton: a reciprocated pair is not a 2-cycle. <code><a href="../reference/network_summary.html">network_summary()</a></code> reported 2 on <code>regulation_net</code>, where the girth is 3.</li>
+<li>
+<code><a href="../reference/select_bridges.html">select_bridges()</a></code> computes the bridge flags on the network’s own edge table. They were computed in igraph’s edge order and applied to cograph’s, which differs for matrix input (4 edges wrong on an 8-node graph).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.17" id="cograph-2717">cograph 2.7.17<a class="anchor" aria-label="anchor" href="#cograph-2717"></a></h2><p class="text-muted">CRAN release: 2026-11-19</p>
 <div class="section level3">

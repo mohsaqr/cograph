@@ -13,7 +13,7 @@ node is the total load that passes through it."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.18</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,8 @@ counts, and <code>invert_weights = TRUE</code> converts a weight \(w\) to the
 distance \(1/w^\alpha\). Paths follow edge direction on a
 directed network. The values equal <code><a href="https://rdrr.io/pkg/sna/man/loadcent.html" class="external-link">sna::loadcent()</a></code>, which credits
 the endpoints of each path as well as the intermediate nodes, so the
-scores are larger than betweenness.</p>
+scores are larger than betweenness. For the same reason the single node
+of a one-node graph scores 1, as in <code><a href="https://rdrr.io/pkg/sna/man/loadcent.html" class="external-link">sna::loadcent()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

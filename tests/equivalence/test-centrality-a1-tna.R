@@ -1,5 +1,6 @@
-# centrality() on tna objects against tna::centralities(). tna is the owner's package and cograph converts its
-# objects, so these comparisons are internal: they are shown and are never counted as independent evidence.
+# centrality() on tna objects against tna::centralities(). tna is the owner's package, but by the owner's ruling
+# (2026-11-21, verify.json `references`) it is the gold standard and counts as open-source: cograph converts its
+# objects and does not call it for these computations, so the comparisons are counted as outside evidence.
 # Moved from tests/testthat/test-centrality.R.
 #
 # tna_network (auto for a tna object) switches cograph to tna's conventions: diffusion by the power series of

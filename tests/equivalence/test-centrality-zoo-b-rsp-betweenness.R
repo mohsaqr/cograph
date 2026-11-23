@@ -3,8 +3,8 @@
 # a single edge, a directed cycle and the complete graph; equation (15) as printed on strongly connected graphs; and
 # the double sum of equations (8) and (14), with the zero rule for an unreachable pair (below equation (9)), on
 # graphs that are not strongly connected. cograph evaluates the collapsed form, so the double sum is a separate
-# route to the same number. No other package implements this measure (NetworkToolbox::rspbc is not installed on the
-# ci machine).
+# route to the same number. NetworkToolbox::rspbc() implements the measure too, but reports it rounded to whole
+# numbers and shifted so that its minimum is 1; it is compared at that resolution (last test).
 #
 # Graphs are built in base R by helper-zoo-b.R and helper-reference.R. Costs are the default rsp_cost = "inverse"
 # (C = 1 / w), unit costs on these 0/1 graphs.
@@ -120,5 +120,26 @@ test_that("rsp_betweenness equals the double sum of equations (8) and (14)", {
                      covers = c("centrality()", "centrality_rsp_betweenness()"),
                      quantity = sprintf("rsp_betweenness, double sum, %s, beta %g", graph, beta), tolerance = exact,
                      measure = "scaled")
+  }, cases$graph, cases$beta)
+})
+
+test_that("rsp_betweenness equals NetworkToolbox's rspbc() at its resolution, on strongly connected graphs", {
+  skip_without_reference("NetworkToolbox")
+  # rspbc() evaluates the same equations (read from its source in the batch-47 study), then rounds to zero decimals and adds
+  # 1 - min so that its smallest score is 1: post-processing that is not in the paper. cograph's score is shifted by
+  # the same whole number (1 - its own rounded minimum) and compared within half a unit of rspbc()'s rounding.
+  # Strongly connected graphs only: there the two definitions coincide (no unreachable pairs).
+  half_unit <- 0.5 # rspbc() reports whole numbers
+  shifted <- \(score) score - (min(round(score)) - 1)
+  graphs <- list(kite = zoob_kite(), `ring n = 8` = zoob_ring(8),
+                 `directed, ring added` = (ref_connected_graph(9, density = 0.3, seed = 41L, directed = TRUE) != 0) * 1)
+  cases <- expand.grid(graph = names(graphs), beta = c(0.01, 1), stringsAsFactors = FALSE)
+  mapply(\(graph, beta) {
+    adjacency <- graphs[[graph]]
+    expect_reference(shifted(centrality_rsp_betweenness(adjacency, rsp_beta = beta)),
+                     ref_named(NetworkToolbox::rspbc(unname(adjacency), beta = beta), adjacency),
+                     reference = "NetworkToolbox", covers = c("centrality()", "centrality_rsp_betweenness()"),
+                     quantity = sprintf("rsp_betweenness, shifted to minimum 1, %s, beta %g", graph, beta),
+                     tolerance = half_unit)
   }, cases$graph, cases$beta)
 })

@@ -98,3 +98,40 @@ test_that("x_degree equals equation 3.15 of Torres et al. written out", {
                      tolerance = exact)
   })
 })
+
+# The authors' own x_degree() from the code the paper links (github.com/leotrs/inbox, inbox.py, pinned commit
+# 401bf028b56886ce67b15b2c5eacd7a28dbb4a48, MIT licence), copied verbatim, docstring included, and run by Python
+# with NetworkX and NumPy on the same graphs.
+authors_x_degree <- r"---(def x_degree(graph):
+    """Return the X-degree centrality of each node.
+
+    Params
+    ------
+
+    graph (nx.Graph): the graph.
+
+    Returns
+    -------
+
+    centralities (dict): dictionary of {node: centrality} items.
+
+    """
+    degrees = graph.degree()
+    agg = lambda arr: arr.sum()**2 - (arr**2).sum()
+    return {node: agg(np.array([degrees[n] - 1 for n in graph.neighbors(node)]))
+            for node in graph}
+)---"
+
+test_that("x_degree equals the authors' x_degree() of Torres et al. (2021)", {
+  call <- sprintf("(lambda scope: exec(%s, scope) or scope['x_degree'](G))({'np': np})",
+                  jsonlite::toJSON(authors_x_degree, auto_unbox = TRUE))
+  graphs <- list(path5 = zoob_path(5), triangle_leaf = zoob_graph(4, c(1, 2, 2, 3, 3, 1, 1, 4)),
+                 ring6 = zoob_ring(6), star5 = zoob_star(5), complete6 = zoob_complete(6), karate = karate)
+  lapply(names(graphs), \(name) {
+    authors <- ref_networkx(graphs[[name]], c(x_degree = call))
+    expect_reference(centrality_x_degree(graphs[[name]]), authors$x_degree,
+                     reference = "published: Torres et al. 2021, the authors' x_degree() (leotrs/inbox@401bf02), run in Python",
+                     covers = c("centrality()", "centrality_x_degree()"), quantity = paste0("x_degree, ", name),
+                     tolerance = exact)
+  })
+})

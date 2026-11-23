@@ -47,7 +47,8 @@ test_that("random-walk centrality equals netrankr's hitting times weighted by th
   expect_reference(centrality_random_walk(undirected), ref_named(1 / as.vector(hitting %*% stationary), undirected),
                    reference = "netrankr", covers = c("centrality()", "centrality_random_walk()"),
                    quantity = "random walk, stationary-weighted passage times into the node, undirected",
-                   tolerance = 1e-9, measure = "relative")
+                   tolerance = 1e-9, measure = "relative",
+                   note = "chained: netrankr's hitting times, weighted in the test by the stationary distribution (Noh and Rieger 2004, Eq. 4 and 10-11)")
   expect_known_difference(centrality_random_walk(undirected),
                           ref_named(netrankr::aggregate_positions(hitting, type = "invsum"), undirected),
                           reference = "netrankr", covers = c("centrality()", "centrality_random_walk()"),

@@ -269,3 +269,35 @@ test_that("select_bridges() on a network whose edge table is ordered unlike igra
                    ref_edge_flags(shuffled, bridge_ends[, 1L], bridge_ends[, 2L]), reference = "igraph",
                    covers = "select_bridges()", quantity = "bridges, edge table not in igraph's order", tolerance = 0, key = "edge")
 })
+
+test_that("mutate_edges() edge betweenness, endpoint degrees and strengths equal igraph's", {
+  # mutate_edges() evaluates its expressions with edge metrics cograph computes natively (base R): edge betweenness
+  # with the weights read as lengths (igraph's edge_betweenness(weights =)), and each endpoint's degree and strength
+  # over all its ties (igraph's degree()/strength(mode = "all")). Each edge is keyed by cograph's own from/to; the
+  # values come from igraph, matched by node name and by the unordered (undirected) or ordered (directed) pair.
+  skip_without_reference("igraph")
+  edge_metrics <- \(graph, directed) {
+    measured <- as.data.frame(mutate_edges(graph, betweenness = edge_betweenness, from_deg = from_degree,
+                                           to_deg = to_degree, from_str = from_strength, to_str = to_strength,
+                                           directed = directed))
+    reference_graph <- ref_igraph(graph, directed = directed, weighted = TRUE)
+    ends <- igraph::as_edgelist(reference_graph)
+    pair <- \(from, to) if (directed) paste(from, to, sep = "->") else paste(pmin(from, to), pmax(from, to), sep = "--")
+    betweenness <- stats::setNames(igraph::edge_betweenness(reference_graph, directed = directed,
+                                                            weights = igraph::E(reference_graph)$weight),
+                                   pair(ends[, 1L], ends[, 2L]))
+    degree <- igraph::degree(reference_graph, mode = "all")
+    strength <- igraph::strength(reference_graph, mode = "all")
+    list(measured = measured[c("from", "to", "betweenness", "from_deg", "to_deg", "from_str", "to_str")],
+         expected = data.frame(from = measured$from, to = measured$to,
+                               betweenness = unname(betweenness[pair(measured$from, measured$to)]),
+                               from_deg = unname(degree[measured$from]), to_deg = unname(degree[measured$to]),
+                               from_str = unname(strength[measured$from]), to_str = unname(strength[measured$to])))
+  }
+  on_undirected <- edge_metrics(undirected, directed = FALSE)
+  expect_reference(on_undirected$measured, on_undirected$expected, reference = "igraph", covers = "mutate_edges()",
+                   quantity = "edge metrics, undirected weighted", tolerance = exact, key = c("from", "to"))
+  on_directed <- edge_metrics(directed, directed = TRUE)
+  expect_reference(on_directed$measured, on_directed$expected, reference = "igraph", covers = "mutate_edges()",
+                   quantity = "edge metrics, directed weighted", tolerance = exact, key = c("from", "to"))
+})

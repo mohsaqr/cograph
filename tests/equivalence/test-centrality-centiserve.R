@@ -143,18 +143,28 @@ test_that("neighbourhood measures equal centiserve", {
   graph <- ref_igraph(undirected)
   # Lobby index (Korn, Schubert and Telcs 2009, Definition 1): the h-index of the neighbours' degrees. centiserve
   # takes neighborhood(order = 1), which holds the node itself (cograph <= 2.7.19 did the same).
-  lobby_definition <- \(adjacency) {
+  h_index <- \(values) {
+    values <- sort(values, decreasing = TRUE)
+    sum(values >= seq_along(values))
+  }
+  lobby_definition <- \(adjacency, closed = FALSE) {
     degree <- rowSums(adjacency != 0 | t(adjacency) != 0)
     vapply(seq_len(nrow(adjacency)), \(i) {
-      values <- sort(degree[which(adjacency[i, ] != 0 | adjacency[, i] != 0)], decreasing = TRUE)
-      sum(values >= seq_along(values))
+      h_index(degree[c(if (closed) i, which(adjacency[i, ] != 0 | adjacency[, i] != 0))])
     }, numeric(1))
   }
   expect_reference(centrality_lobby(undirected), ref_named(lobby_definition(undirected), undirected),
                    reference = "independent: the lobby index from Korn, Schubert and Telcs (2009), Definition 1, base R",
                    covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, undirected", tolerance = exact)
-  expect_known_difference(centrality_lobby(undirected), centiserve::lobby(graph), reference = "centiserve",
-                          covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, undirected",
+  # centiserve is compared on the nodes where its closed neighbourhood changes the index, chosen from the graph by
+  # the two definitions above (not from either program's numbers). On the other nodes the two conventions give the
+  # same number by construction, so centiserve's value there is no evidence about the definition cograph follows
+  # and is not recorded as agreement with it (audit A3, 2026-11-23).
+  differs <- lobby_definition(undirected, closed = TRUE) != lobby_definition(undirected)
+  expect_known_difference(centrality_lobby(undirected)[differs], centiserve::lobby(graph)[differs],
+                          reference = "centiserve",
+                          covers = c("centrality()", "centrality_lobby()"),
+                          quantity = "lobby, undirected, nodes where the node's own degree changes the index",
                           tolerance = exact,
                           reason = paste("centiserve::lobby() takes the h-index over neighborhood(order = 1), which holds",
                                          "the node itself; Korn et al. (2009) count the node's neighbours only."),
@@ -209,16 +219,21 @@ test_that("neighbourhood measures with a direction equal centiserve, mode out", 
   skip_without_reference(c("centiserve", "igraph"))
   graph <- ref_igraph(directed)
   out_degree <- rowSums(directed != 0)
-  lobby_out <- vapply(seq_len(nrow(directed)), \(i) {
-    values <- sort(out_degree[which(directed[i, ] != 0)], decreasing = TRUE)
+  lobby_out <- \(closed = FALSE) vapply(seq_len(nrow(directed)), \(i) {
+    values <- sort(out_degree[c(if (closed) i, which(directed[i, ] != 0))], decreasing = TRUE)
     sum(values >= seq_along(values))
   }, numeric(1))
-  expect_reference(centrality_lobby(directed, mode = "out"), ref_named(lobby_out, directed),
+  expect_reference(centrality_lobby(directed, mode = "out"), ref_named(lobby_out(), directed),
                    reference = "independent: the lobby index from Korn, Schubert and Telcs (2009), Definition 1, base R",
                    covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, mode out, directed", tolerance = exact)
-  expect_known_difference(centrality_lobby(directed, mode = "out"), centiserve::lobby(graph, mode = "out"),
+  # As on the undirected graph: centiserve on the nodes where its closed neighbourhood changes the index, chosen
+  # from the graph by the two definitions.
+  differs <- lobby_out(closed = TRUE) != lobby_out()
+  expect_known_difference(centrality_lobby(directed, mode = "out")[differs],
+                          centiserve::lobby(graph, mode = "out")[differs],
                           reference = "centiserve", covers = c("centrality()", "centrality_lobby()"),
-                          quantity = "lobby, mode out, directed", tolerance = exact,
+                          quantity = "lobby, mode out, directed, nodes where the node's own degree changes the index",
+                          tolerance = exact,
                           reason = paste("centiserve::lobby() takes the h-index over neighborhood(order = 1), which holds",
                                          "the node itself; Korn et al. (2009) count the node's neighbours only."),
                           agrees_with = "the h-index over the closed neighbourhood")
@@ -281,10 +296,12 @@ test_that("Markov centrality equals centiserve's markovcent()", {
 test_that("LeaderRank equals centiserve's leaderrank()", {
   skip_without_reference(c("centiserve", "igraph"))
   # centiserve iterates the walk until the mean relative change of one step falls below 2e-5 and returns that
-  # iterate; the error left at that stopping rule is of the order of 1e-4 of each score, so 1e-3 relative.
+  # iterate. cograph runs the same power iteration from the same start (1 per node, 0 at the ground node) with the
+  # same stopping rule, so the two iterates agree to rounding (difference 0 in run 20261123-104021); 1e-10 relative.
+  # (Was 1e-3, the distance of either iterate from the limit; tightened 2026-11-23, audit.)
   expect_reference(centrality_leaderrank(directed), centiserve::leaderrank(ref_igraph(directed)),
                    reference = "centiserve", covers = c("centrality()", "centrality_leaderrank()"),
-                   quantity = "leaderrank, directed", tolerance = 1e-3, measure = "relative")
+                   quantity = "leaderrank, directed", tolerance = 1e-10, measure = "relative")
 })
 
 test_that("Hubbell and Katz centrality equal centiserve's hubbell() and katzcent()", {

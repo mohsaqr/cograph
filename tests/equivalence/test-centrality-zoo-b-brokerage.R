@@ -93,11 +93,11 @@ test_that("localized bridging reproduces Macker's Table I", {
   two_hop <- c(11.5, 3, 0, 3, 12, 6.5, 1, 1, 0.5, 3.5, 0)
   coefficient <- bridging_coefficient(macker)
   expect_reference(centrality_localized_bridging(macker), one_hop * coefficient,
-                   reference = "published: Macker 2016, Fig. 1 and Table I",
+                   reference = "published: Macker 2016, Fig. 1 and Table I, chained with the equation 3 coefficient computed in the test",
                    covers = c("centrality()", "centrality_localized_bridging()"),
                    quantity = "localized_bridging, Macker Figure 1", tolerance = 0.05)
   expect_reference(centrality_extended_local_bridging(macker), two_hop * coefficient,
-                   reference = "published: Macker 2016, Fig. 1 and Table I",
+                   reference = "published: Macker 2016, Fig. 1 and Table I, chained with the equation 3 coefficient computed in the test",
                    covers = c("centrality()", "centrality_extended_local_bridging()"),
                    quantity = "extended_local_bridging, Macker Figure 1", tolerance = 0.05)
 })

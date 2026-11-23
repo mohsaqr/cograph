@@ -37,7 +37,8 @@ test_that("trust_pagerank reproduces Table 5's top ten of the kite", {
   score <- centrality_trust_pagerank(tpr_paper_kite())
   expect_reference(rank(-round(score, 12), ties.method = "min")[names(printed)], printed, reference = table_5,
                    covers = c("centrality()", "centrality_trust_pagerank()"),
-                   quantity = "trust_pagerank, rank position, kite", tolerance = rank_half_unit)
+                   quantity = "trust_pagerank, rank position, kite", tolerance = rank_half_unit,
+                   note = "chained: the table's positions within each tied pair are re-assigned in the test (the better of the two)")
 })
 
 test_that("trust_pagerank is uniform where symmetry forces it", {

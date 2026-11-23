@@ -209,6 +209,89 @@ test_that("communicability betweenness equals NetworkX's communicability_between
                    quantity = "communicability betweenness, undirected weighted", tolerance = exact, measure = "scaled")
 })
 
+# Two disconnected graphs of the snajs fixtures (graphs 0093 and 0075 of cograph-centralities-all, the 0/1
+# skeleton): 22 nodes in 8 components and 15 nodes in 3. cograph 2.7.21 reads the zeros of exp(A) as entries
+# below 1e-15; its eigen-decomposition leaves up to 3.6e-15 between components, and those ratios of rounding errors
+# enter the sum (node A of the first 0.12513 for 0.08745; audit A5, 2026-11-23). Declared as a defect, the fix being
+# the owner's decision. And a sparse directed graph
+# without the ring, so that some nodes cannot reach others.
+disconnected_graph <- \(nodes, from, to) {
+  adjacency <- matrix(0, length(nodes), length(nodes), dimnames = list(nodes, nodes))
+  adjacency[cbind(from, to)] <- 1
+  adjacency[cbind(to, from)] <- 1
+  adjacency
+}
+eight_components <- disconnected_graph(LETTERS[1:22],
+  from = c("A", "A", "A", "B", "E", "E", "H", "H", "H", "I", "K", "L", "M", "N", "O", "P"),
+  to = c("B", "N", "V", "I", "R", "U", "I", "P", "V", "T", "V", "M", "U", "Q", "S", "V"))
+three_components <- disconnected_graph(LETTERS[1:15],
+  from = c("A", "C", "E", "F", "G", "G", "G", "G", "I", "J", "J", "K", "L"),
+  to = c("G", "M", "L", "J", "H", "K", "L", "O", "K", "K", "L", "N", "M"))
+directed_sparse <- ref_graph(12, density = 0.15, seed = 35L, directed = TRUE)
+
+test_that("communicability betweenness of a disconnected graph equals the definition, exp(A) by its Taylor series", {
+  # Estrada, Higham and Hatano (2009) sum over the pairs that communicate (G_st > 0). exp(A) of the 0/1 adjacency
+  # by its Taylor series: every term is nonnegative, so nothing cancels and the entries between components are
+  # exactly 0 (cograph takes an eigen-decomposition or a Pade approximant, and the reachability closure). 120
+  # terms: the remainder is below 1e-100 for the largest degree here.
+  taylor_exp <- \(a) Reduce(\(acc, k) {
+    term <- acc$term %*% a / k
+    list(term = term, sum = acc$sum + term)
+  }, seq_len(120L), init = list(term = diag(nrow(a)), sum = diag(nrow(a))))$sum
+  definition <- \(adjacency) {
+    a <- (adjacency != 0) * 1
+    n <- nrow(a)
+    g <- taylor_exp(a)
+    scores <- vapply(seq_len(n), \(r) {
+      reduced <- a
+      reduced[r, ] <- 0
+      reduced[, r] <- 0
+      g_r <- taylor_exp(reduced)
+      keep <- g > 0 & row(g) != col(g) & row(g) != r & col(g) != r
+      sum((g[keep] - g_r[keep]) / g[keep])
+    }, numeric(1))
+    ref_named(scores / ((n - 1) * (n - 2)), adjacency)
+  }
+  reference <- "independent: Estrada, Higham and Hatano (2009), exp(A) by its Taylor series, base R"
+  covers <- c("centrality()", "centrality_communicability_betweenness()")
+  expect_reference(centrality_communicability_betweenness(eight_components, directed = FALSE),
+                   definition(eight_components), reference = reference, covers = covers,
+                   quantity = "communicability betweenness, 8 components", tolerance = exact, measure = "scaled",
+                   defect = "cograph sums ratios of rounding errors between components of a disconnected graph (zeros of exp(A) read as entries below 1e-15); owner decision pending, FINDINGS.md")
+  expect_reference(centrality_communicability_betweenness(three_components, directed = FALSE),
+                   definition(three_components), reference = reference, covers = covers,
+                   quantity = "communicability betweenness, 3 components", tolerance = exact, measure = "scaled",
+                   defect = "cograph sums ratios of rounding errors between components of a disconnected graph (zeros of exp(A) read as entries below 1e-15); owner decision pending, FINDINGS.md")
+  expect_reference(centrality_communicability_betweenness(directed_sparse, directed = TRUE), definition(directed_sparse),
+                   reference = reference, covers = covers,
+                   quantity = "communicability betweenness, sparse directed", tolerance = exact, measure = "scaled")
+})
+
+test_that("communicability betweenness of a disconnected graph equals NetworkX's, component by component", {
+  # NetworkX divides by G_st itself and gives NaN on a disconnected graph, so it is run on each connected
+  # component, whose scores it normalises by (n_c - 1)(n_c - 2); the test multiplies that back and divides by
+  # (n - 1)(n - 2), n of the whole graph: the definition's sum has no term across components. The split and the
+  # rescaling are the test's own steps, so the comparison is declared `independent`, not as NetworkX.
+  call <- paste("{v: s * (len(c) - 1) * (len(c) - 2) for c in nx.connected_components(G) for v, s in",
+                "nx.communicability_betweenness_centrality(G.subgraph(c)).items()}")
+  per_component <- \(graph) {
+    n <- nrow(graph)
+    ref_networkx(graph, c(cbc = call))$cbc[rownames(graph)] / ((n - 1) * (n - 2))
+  }
+  reference <- "independent: NetworkX communicability_betweenness_centrality() per component, rescaled in the test"
+  covers <- c("centrality()", "centrality_communicability_betweenness()")
+  expect_reference(centrality_communicability_betweenness(eight_components, directed = FALSE),
+                   per_component(eight_components), reference = reference, covers = covers,
+                   quantity = "communicability betweenness, 8 components, NetworkX per component",
+                   tolerance = exact, measure = "scaled",
+                   defect = "cograph sums ratios of rounding errors between components of a disconnected graph (zeros of exp(A) read as entries below 1e-15); owner decision pending, FINDINGS.md")
+  expect_reference(centrality_communicability_betweenness(three_components, directed = FALSE),
+                   per_component(three_components), reference = reference, covers = covers,
+                   quantity = "communicability betweenness, 3 components, NetworkX per component",
+                   tolerance = exact, measure = "scaled",
+                   defect = "cograph sums ratios of rounding errors between components of a disconnected graph (zeros of exp(A) read as entries below 1e-15); owner decision pending, FINDINGS.md")
+})
+
 test_that("laplacian equals NetworkX's laplacian_centrality(normalized = False) and centiserve's laplacian()", {
   # Qi et al. (2012): the drop in Laplacian energy when the node is removed.
   nx <- ref_networkx(undirected, c(laplacian = "nx.laplacian_centrality(G, normalized=False, weight=None)"))

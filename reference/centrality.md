@@ -1137,8 +1137,8 @@ The following centrality measures are available:
 
 - random_walk:
 
-  Random walk centrality. Inverse sum of random walk distances (requires
-  connected graph).
+  Random walk centrality (Noh and Rieger 2004). Stationary probability
+  over relaxation time, \\\pi_i / \tau_i\\ (requires connected graph).
 
 - stress:
 

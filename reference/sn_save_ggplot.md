@@ -56,5 +56,5 @@ The output `filename`, invisibly.
 ``` r
 sn_save_ggplot(cograph(regulation_net),
   filename = file.path(tempdir(), "network.pdf"))
-#> Saved to: /tmp/RtmpvoNR3Y/network.pdf
+#> Saved to: /tmp/RtmpSTifdL/network.pdf
 ```

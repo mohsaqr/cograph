@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -2306,15 +2306,23 @@ removed.</p>
 <div class="section level3">
 <h3 id="cent-random_walk">Random Walk Centrality<a class="anchor" aria-label="anchor" href="#cent-random_walk"></a>
 </h3>
-<p>Random walk centrality uses expected random-walk access times as
-distances.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>R</mi><mi>W</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><munder><mo>∑</mo><mrow><mi>u</mi><mo>≠</mo><mi>v</mi></mrow></munder><msub><mover><mi>m</mi><mo accent="true">̃</mo></mover><mrow><mi>v</mi><mi>u</mi></mrow></msub></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mover><mi>m</mi><mo accent="true">̃</mo></mover><mrow><mi>v</mi><mi>u</mi></mrow></msub><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mrow><mi>v</mi><mi>u</mi></mrow></msub><mo>+</mo><msub><mi>m</mi><mrow><mi>u</mi><mi>v</mi></mrow></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
-C_{RW}(v) = \frac{1}{\sum_{u \ne v} \tilde{m}_{vu}}, \quad \tilde{m}_{vu} = \tfrac{1}{2}\bigl( m_{vu} + m_{uv} \bigr)
+<p>Random walk centrality (Noh and Rieger 2004) is a node’s stationary
+probability over its relaxation time.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>R</mi><mi>W</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><msub><mi>π</mi><mi>v</mi></msub><msub><mi>τ</mi><mi>v</mi></msub></mfrac><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>τ</mi><mi>v</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>t</mi><mo>≥</mo><mn>0</mn></mrow></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>P</mi><mrow><mi>v</mi><mi>v</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>π</mi><mi>v</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mfrac><mn>1</mn><mrow><msub><mi>C</mi><mrow><mi>R</mi><mi>W</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><munder><mo>∑</mo><mi>u</mi></munder><msub><mi>π</mi><mi>u</mi></msub><msub><mi>m</mi><mrow><mi>u</mi><mi>v</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
+C_{RW}(v) = \frac{\pi_v}{\tau_v}, \quad \tau_v = \sum_{t \ge 0} \bigl( P_{vv}(t) - \pi_v \bigr), \quad \frac{1}{C_{RW}(v)} = \sum_{u} \pi_u m_{uv}
 </annotation></semantics></math></p>
-<p><strong>Meaning.</strong> A high value indicates that the node is
-reached efficiently under a random-walk process.
+<p><strong>Meaning.</strong> A high value indicates a node that a random
+walker reaches quickly from anywhere in the network.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>v</mi></msub><annotation encoding="application/x-tex">\pi_v</annotation></semantics></math>
+is the stationary probability,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>v</mi><mi>v</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_{vv}(t)</annotation></semantics></math>
+the probability of being back at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+steps and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mrow><mi>u</mi><mi>v</mi></mrow></msub><annotation encoding="application/x-tex">m_{uv}</annotation></semantics></math>
-is the mean first-passage time.</p>
+the mean first-passage time.</p>
 <div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/centrality_random_walk.html">centrality_random_walk</a></span><span class="op">(</span><span class="va">student_interactions</span><span class="op">)</span></span></code></pre></div>
 </div>

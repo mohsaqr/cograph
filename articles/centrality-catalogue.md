@@ -2766,15 +2766,17 @@ centrality_communicability_betweenness(student_interactions)
 
 ### Random Walk Centrality
 
-Random walk centrality uses expected random-walk access times as
-distances.
+Random walk centrality (Noh and Rieger 2004) is a node’s stationary
+probability over its relaxation time.
 
 ``` math
-C_{RW}(v) = \frac{1}{\sum_{u \ne v} \tilde{m}_{vu}}, \quad \tilde{m}_{vu} = \tfrac{1}{2}\bigl( m_{vu} + m_{uv} \bigr)
+C_{RW}(v) = \frac{\pi_v}{\tau_v}, \quad \tau_v = \sum_{t \ge 0} \bigl( P_{vv}(t) - \pi_v \bigr), \quad \frac{1}{C_{RW}(v)} = \sum_{u} \pi_u m_{uv}
 ```
 
-**Meaning.** A high value indicates that the node is reached efficiently
-under a random-walk process. $`m_{uv}`$ is the mean first-passage time.
+**Meaning.** A high value indicates a node that a random walker reaches
+quickly from anywhere in the network. $`\pi_v`$ is the stationary
+probability, $`P_{vv}(t)`$ the probability of being back at $`v`$ after
+$`t`$ steps and $`m_{uv}`$ the mean first-passage time.
 
 ``` r
 

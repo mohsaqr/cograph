@@ -36,22 +36,26 @@ test_that("current-flow closeness equals n - 1 over netrankr's resistance distan
                    quantity = "current-flow closeness, undirected", tolerance = 1e-9, measure = "relative")
 })
 
-test_that("random-walk centrality equals netrankr's hitting times, averaged over the two directions", {
+test_that("random-walk centrality equals netrankr's hitting times weighted by the stationary distribution", {
   skip_without_reference(c("netrankr", "igraph"))
-  # netrankr's relation holds h(i -> j) in row j. cograph's random-walk distance of i and j is the mean of the two
-  # passage times, (h(i -> j) + h(j -> i)) / 2, so its score is 2 / (row sum + column sum).
+  # netrankr's relation holds h(i -> j) in row j. Noh and Rieger (2004), Eq. 10-11 with Eq. 4 (pi_i = K_i / sum K):
+  # 1 / C_j = tau_j / pi_j = sum_i pi_i h(i -> j), the passage time into j from the stationary start, so the score is
+  # 1 / (hitting %*% pi), the degrees read from the graph.
   hitting <- netrankr::indirect_relations(ref_igraph(undirected), type = "dist_rwalk")
+  stationary <- rowSums(undirected != 0) / sum(undirected != 0)
   # Passage times from an inverted Laplacian on one side and a fundamental matrix of the walk on the other: 1e-9.
-  expect_reference(centrality_random_walk(undirected), ref_named(2 / (rowSums(hitting) + colSums(hitting)), undirected),
+  expect_reference(centrality_random_walk(undirected), ref_named(1 / as.vector(hitting %*% stationary), undirected),
                    reference = "netrankr", covers = c("centrality()", "centrality_random_walk()"),
-                   quantity = "random walk, symmetrised passage times, undirected", tolerance = 1e-9, measure = "relative")
+                   quantity = "random walk, stationary-weighted passage times into the node, undirected",
+                   tolerance = 1e-9, measure = "relative")
   expect_known_difference(centrality_random_walk(undirected),
                           ref_named(netrankr::aggregate_positions(hitting, type = "invsum"), undirected),
                           reference = "netrankr", covers = c("centrality()", "centrality_random_walk()"),
                           quantity = "random walk, passage times into the node (netrankr invsum)", tolerance = 1e-9,
                           measure = "relative",
-                          reason = paste("netrankr's (and tidygraph's) random-walk closeness inverts the sum of the",
-                                         "mean first passage times into the node, sum_i h(i -> j); cograph inverts",
-                                         "the sum of the symmetrised distances (h(i -> j) + h(j -> i)) / 2. The",
-                                         "two differ on any graph that is not vertex-transitive."))
+                          reason = paste("netrankr's (and tidygraph's) random-walk closeness inverts the unweighted sum",
+                                         "of the mean first passage times into the node, sum_i h(i -> j); cograph",
+                                         "follows Noh and Rieger (2004) Eq. 10-11, 1 / sum_i pi_i h(i -> j), each",
+                                         "source weighted by its stationary probability. The two are not",
+                                         "proportional on a graph whose degrees differ."))
 })

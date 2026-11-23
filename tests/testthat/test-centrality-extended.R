@@ -163,6 +163,32 @@ test_that("random_walk on connected graph returns finite", {
   expect_true(all(is.finite(rw)))
 })
 
+test_that("random_walk is Noh and Rieger's (2004) pi_i / tau_i, hand-computed on a kite", {
+  # Triangle A-B-C with the tail C-D-E. Degrees 2, 2, 3, 2, 1 over 2|E| = 10,
+  # so pi = (.2, .2, .3, .2, .1) (Eq. 4). Eq. 10-11 give
+  # 1 / C_j = tau_j / pi_j = sum_i pi_i m_ij, the passage time into j from
+  # the stationary start. Into C: m_AC = m_BC = 2 (1 + m_BC / 2), m_DC = 3,
+  # m_EC = 4, so 1 / C_C = .2 * 2 + .2 * 2 + .2 * 3 + .1 * 4 = 9 / 5.
+  # Likewise 1 / C_A = 67 / 15, 1 / C_D = 29 / 5, 1 / C_E = 69 / 5.
+  kite <- matrix(0, 5, 5, dimnames = list(LETTERS[1:5], LETTERS[1:5]))
+  ties <- rbind(c(1, 2), c(1, 3), c(2, 3), c(3, 4), c(4, 5))
+  kite[ties] <- 1
+  kite[ties[, 2:1]] <- 1
+  expected <- c(A = 15 / 67, B = 15 / 67, C = 5 / 9, D = 5 / 29, E = 5 / 69)
+  expect_equal(centrality_random_walk(kite), expected, tolerance = 1e-12)
+  # The symmetrised commute-time form of 2.7.20 and earlier gave
+  # 1 / sum_j (m_ij + m_ji) / 2 = 0.0353, 0.0353, 0.0462, 0.0375, 0.0240.
+  old_form <- c(0.03529412, 0.03529412, 0.04615385, 0.03750000, 0.02400000)
+  expect_false(isTRUE(all.equal(unname(centrality_random_walk(kite)),
+                                old_form, tolerance = 1e-3)))
+  # Eq. 9: m_ij - m_ji = 1 / C_j - 1 / C_i. Solving the hitting equations by
+  # hand, m_AE = 18 (m_D = 9, m_C = 16, m_A = 18 towards E) and m_EA = 26 / 3
+  # (m_C = 14 / 3, m_D = 23 / 3, m_E = 26 / 3 towards A).
+  rw <- centrality_random_walk(kite)
+  expect_equal(unname(1 / rw["E"] - 1 / rw["A"]), 18 - 26 / 3,
+               tolerance = 1e-12)
+})
+
 test_that("random_walk warns on disconnected graph", {
   disc <- matrix(0, 4, 4)
   disc[1, 2] <- disc[2, 1] <- 1

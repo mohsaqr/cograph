@@ -757,8 +757,9 @@ node removed.}
 \item{communicability}{Total communicability. Row sums of matrix exponential.}
 \item{communicability_betweenness}{Communicability betweenness. Fraction of
 communicability through each node.}
-\item{random_walk}{Random walk centrality. Inverse sum of random walk
-distances (requires connected graph).}
+\item{random_walk}{Random walk centrality (Noh and Rieger 2004).
+Stationary probability over relaxation time, \eqn{\pi_i / \tau_i}
+(requires connected graph).}
 \item{stress}{Stress centrality. Number of shortest paths through node.}
 \item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
 1991). Summed loss of maximum flow between other pairs when the node

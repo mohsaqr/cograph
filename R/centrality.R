@@ -543,8 +543,9 @@
 #'   \item{communicability}{Total communicability. Row sums of matrix exponential.}
 #'   \item{communicability_betweenness}{Communicability betweenness. Fraction of
 #'     communicability through each node.}
-#'   \item{random_walk}{Random walk centrality. Inverse sum of random walk
-#'     distances (requires connected graph).}
+#'   \item{random_walk}{Random walk centrality (Noh and Rieger 2004).
+#'     Stationary probability over relaxation time, \eqn{\pi_i / \tau_i}
+#'     (requires connected graph).}
 #'   \item{stress}{Stress centrality. Number of shortest paths through node.}
 #'   \item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
 #'     1991). Summed loss of maximum flow between other pairs when the node
@@ -4040,21 +4041,51 @@ centrality_communicability_betweenness <- function(x, ...) {
 
 #' Random Walk Centrality
 #'
-#' Random walk centrality is the inverse of the summed random-walk distances
-#' from a node to the others:
-#' \deqn{RW(i) = \left(\sum_{j} \frac{m_{ij} + m_{ji}}{2}\right)^{-1},}{
-#'   RW(i) = 1 / sum_j (m_ij + m_ji) / 2,}
-#' where \eqn{m_{ij}}{m_ij} is the mean first passage time from \eqn{i} to
-#' \eqn{j} of a walk that moves to each out-neighbor with equal probability.
+#' Random walk centrality of Noh and Rieger (2004), the stationary probability
+#' of a node over its characteristic relaxation time (their Eq. 10 and 11):
+#' \deqn{C_i = \frac{P_i^\infty}{\tau_i}, \qquad
+#'   \tau_i = \sum_{t = 0}^{\infty} \left(P_{ii}(t) - P_i^\infty\right),}{
+#'   C_i = P_i^inf / tau_i,  tau_i = sum_t (P_ii(t) - P_i^inf),}
+#' where \eqn{P_{ii}(t)}{P_ii(t)} is the probability that a walk started at
+#' \eqn{i} is back at \eqn{i} after \eqn{t} steps of a walk that moves to each
+#' out-neighbor with equal probability, and \eqn{P_i^\infty}{P_i^inf} its
+#' stationary probability (\eqn{K_i / \sum_j K_j}{K_i / sum_j K_j} on an
+#' undirected network, Eq. 4).
 #'
 #' @details
-#' Edge weights are ignored. The measure is defined for connected undirected
-#' and strongly connected directed networks. On any other network every
-#' score is \code{NA}, with a \code{cograph_undefined_measure} warning,
-#' because some passage times are infinite. The passage times are
-#' symmetrized before
-#' the sum, so the values differ from
-#' \code{tidygraph::centrality_random_walk()}, which sums them unsymmetrized.
+#' The relaxation time is computed as \eqn{\tau_i = Z_{ii} - P_i^\infty}{
+#' tau_i = Z_ii - P_i^inf} from the fundamental matrix
+#' \eqn{Z = (I - P + W)^{-1}}{Z = (I - P + W)^-1} (Kemeny and Snell 1960),
+#' which is the series of Eq. 11 where it converges and its limit in the mean
+#' on a bipartite network, where the return probabilities oscillate. The
+#' reciprocal \eqn{1 / C_j = \sum_i P_i^\infty m_{ij}}{
+#' 1 / C_j = sum_i P_i^inf m_ij} is the mean first passage time into
+#' \eqn{j} from a start drawn from the stationary distribution, so differences
+#' of the reciprocals give the asymmetry of passage times,
+#' \eqn{m_{ij} - m_{ji} = C_j^{-1} - C_i^{-1}}{m_ij - m_ji = 1/C_j - 1/C_i}
+#' (Eq. 9).
+#'
+#' Edge weights are ignored, as in the paper. The paper treats undirected
+#' networks; on a strongly connected directed network the same Eq. 10 and 11
+#' are evaluated with the stationary distribution of the directed walk. On any
+#' other network every score is \code{NA}, with a
+#' \code{cograph_undefined_measure} warning, because some passage times are
+#' infinite. \code{tidygraph::centrality_random_walk()} and
+#' \code{netrankr}'s \code{"dist_rwalk"} with \code{"invsum"} report
+#' \eqn{1 / \sum_i m_{ij}}{1 / sum_i m_ij}, the unweighted sum of passage times
+#' into the node, which is not proportional to \eqn{C_j}.
+#'
+#' Before cograph 2.7.21 the score was
+#' \eqn{1 / \sum_j (m_{ij} + m_{ji}) / 2}{1 / sum_j (m_ij + m_ji) / 2}, which has
+#' no published source.
+#'
+#' @references
+#' Noh, J. D. and Rieger, H. (2004). Random walks on complex networks.
+#' \emph{Physical Review Letters}, 92(11), 118701.
+#' \doi{10.1103/PhysRevLett.92.118701}
+#'
+#' Kemeny, J. G. and Snell, J. L. (1960). \emph{Finite Markov Chains}.
+#' Van Nostrand.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}.

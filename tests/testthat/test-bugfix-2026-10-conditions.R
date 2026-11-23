@@ -71,11 +71,12 @@ test_that("bug 10: disconnected random_walk and markov warn by class", {
 
 test_that("bug 10: strongly connected input keeps its random-walk values", {
   # Directed 3-cycle: m_ij is 1 to the next node and 2 to the one after,
-  # so every random-walk distance sum is (1 + 2) / 2 * 2 = 3.
+  # and the stationary distribution is uniform, so the Noh and Rieger (2004)
+  # centrality 1 / sum_i pi_i m_ij is 1 / ((0 + 1 + 2) / 3) = 1.
   cyc <- .labelled(matrix(0, 3, 3))
   cyc[1, 2] <- cyc[2, 3] <- cyc[3, 1] <- 1
   expect_no_warning(rw <- centrality_random_walk(cyc))
-  expect_equal(unname(rw), rep(1 / 3, 3))
+  expect_equal(unname(rw), rep(1, 3))
   expect_no_warning(mk <- centrality_markov(cyc))
   expect_equal(unname(mk), rep(1, 3))
 })

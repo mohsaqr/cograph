@@ -154,18 +154,21 @@
   }, numeric(1))
 }
 
-#' Mean first-passage-time matrix of the simple random walk
+#' Stationary distribution and fundamental matrix of the simple random walk
 #'
 #' Shared by markov, random_walk and second_order. The walk steps along the
 #' binary adjacency, a self-loop included once in the row sum, as the
-#' reference implementations do. Returns `NULL` when the fundamental matrix
-#' is singular; callers report that as `NA` and guard connectivity first.
+#' reference implementations do. The fundamental matrix is
+#' Z = (I - P + W)^-1 (Kemeny and Snell 1960), W the matrix whose rows are the
+#' stationary distribution. Returns `NULL` when it is singular; callers report
+#' that as `NA` and guard connectivity first.
 #'
 #' @param cg A `cg_graph` context.
-#' @return An n x n numeric matrix with a zero diagonal, or `NULL`.
+#' @return A list with `pi` (stationary distribution, length n) and `z` (the
+#'   n x n fundamental matrix), or `NULL`.
 #' @keywords internal
 #' @noRd
-.ext_mfpt <- function(cg) {
+.ext_walk_fundamental <- function(cg) {
   n <- cg$n
   A <- unname(cg$b)
   deg <- rowSums(A)
@@ -186,6 +189,24 @@
   W <- matrix(pi_stat, n, n, byrow = TRUE)
   Z <- tryCatch(solve(diag(n) - P + W), error = function(e) NULL)
   if (is.null(Z)) return(NULL)
+  list(pi = pi_stat, z = Z)
+}
+
+#' Mean first-passage-time matrix of the simple random walk
+#'
+#' m_ij = (Z_jj - Z_ij) / pi_j from [.ext_walk_fundamental()].
+#'
+#' @param cg A `cg_graph` context.
+#' @return An n x n numeric matrix with a zero diagonal, or `NULL` when the
+#'   fundamental matrix is singular.
+#' @keywords internal
+#' @noRd
+.ext_mfpt <- function(cg) {
+  fundamental <- .ext_walk_fundamental(cg)
+  if (is.null(fundamental)) return(NULL)
+  n <- cg$n
+  pi_stat <- fundamental$pi
+  Z <- fundamental$z
 
   # Mean first passage time: m_ij = (Z_jj - Z_ij) / pi_j, 0 where pi_j ~ 0
   pi_row <- matrix(pi_stat, n, n, byrow = TRUE)
@@ -757,10 +778,14 @@ calculate_communicability_betweenness <- function(cg) {
 }
 
 
-#' Random walk centrality (tidygraph-compatible)
+#' Random walk centrality (Noh and Rieger 2004)
 #'
-#' Based on random walk distance: d_rw(i,j) = mean first passage times.
-#' Returns 1/sum(d_rw) per node (inverse sum aggregation).
+#' C_i = P_i^inf / tau_i (Eq. 10) with tau_i = sum_t (P_ii(t) - P_i^inf)
+#' (Eq. 11). The sum is the diagonal of the fundamental matrix less the
+#' stationary probability, tau_i = Z_ii - pi_i, which also gives it its value
+#' on a periodic (bipartite) walk, where the series itself oscillates.
+#' Equivalently 1 / C_j = sum_i pi_i m_ij, the mean passage time into j from
+#' the stationary distribution.
 #' @keywords internal
 #' @noRd
 calculate_random_walk <- function(cg) {
@@ -783,20 +808,17 @@ calculate_random_walk <- function(cg) {
     return(rep(NA_real_, n))
   }
 
-  mfpt <- .ext_mfpt(cg)
-  if (is.null(mfpt)) {
+  fundamental <- .ext_walk_fundamental(cg)
+  if (is.null(fundamental)) {
     .cg_warn_undefined("Random walk centrality undefined: the fundamental ",
                        "matrix of the walk is singular; returning NA")
     return(rep(NA_real_, n))
   }
 
-  # Random walk distance: d_rw(i,j) = (m_ij + m_ji) / 2 for symmetry
-  rw_dist <- (mfpt + t(mfpt)) / 2
-  diag(rw_dist) <- 0
-
-  # Inverse sum aggregation (matches tidygraph)
-  rs <- rowSums(rw_dist)
-  ifelse(rs > 0, 1 / rs, NA_real_)
+  # Noh and Rieger (2004) Eq. 10-11: C_i = pi_i / tau_i, tau_i = Z_ii - pi_i.
+  stationary <- fundamental$pi
+  relaxation <- diag(fundamental$z) - stationary
+  ifelse(relaxation > 0, stationary / relaxation, NA_real_)
 }
 
 

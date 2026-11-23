@@ -35,8 +35,9 @@
 #' @param directed Whether directed.
 #' @return A list with `markov`, `random_walk` and `second_order`. All three
 #'   are `NaN` throughout when the graph is disconnected or the fundamental
-#'   matrix cannot be formed; `markov` and `random_walk` carry `NA` at an
-#'   individual vertex whose passage-time sum is not positive.
+#'   matrix cannot be formed; `markov` carries `NA` at an individual vertex
+#'   whose passage-time sum is not positive, `random_walk` (Noh and Rieger
+#'   2004) where its relaxation time is not positive.
 #' @keywords internal
 #' @noRd
 .cg_mfpt <- function(w, n, directed) {
@@ -59,10 +60,9 @@
   mfpt <- (zjj - z) / matrix(pi_v, n, n, byrow = TRUE)
   mfpt[matrix(pi_v, n, n, byrow = TRUE) <= 1e-15] <- 0
   diag(mfpt) <- 0
-  rw_dist <- (mfpt + t(mfpt)) / 2
-  diag(rw_dist) <- 0
-  rs <- rowSums(rw_dist)
-  random_walk <- ifelse(rs > 0, 1 / rs, NA_real_)
+  # Noh and Rieger (2004) Eq. 10-11: C_i = pi_i / tau_i, tau_i = Z_ii - pi_i.
+  relaxation <- diag(z) - pi_v
+  random_walk <- ifelse(relaxation > 0, pi_v / relaxation, NA_real_)
   col_means <- colMeans(mfpt)
   markov <- ifelse(col_means > 0, 1 / col_means, NA_real_)
   second_order <- vapply(seq_len(n), function(j) {

@@ -1,3 +1,16 @@
+# cograph 2.7.21
+
+* `centrality_random_walk()` (and `centrality(measures = "random_walk")`) is
+  Noh and Rieger's (2004) random walk centrality, the stationary probability
+  over the characteristic relaxation time, C_i = P_i^inf / tau_i (Eq. 10-11),
+  equivalently 1 / sum_i pi_i m_ij, the mean first passage time into the node
+  from the stationary start. It was 1 / sum_j (m_ij + m_ji) / 2, a symmetrised
+  commute-time form with no published source. Numbers and scale change; the
+  ranking can change. The score still ignores weights and is `NA` with a
+  `cograph_undefined_measure` warning on a disconnected network or a directed
+  one that is not strongly connected. It is not tidygraph's / netrankr's
+  `1 / sum_i m_ij`, which weights every source equally.
+
 # cograph 2.7.20
 
 ## Measures brought back to their papers

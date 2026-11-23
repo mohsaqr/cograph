@@ -138,35 +138,64 @@ test_that("salsa authority equals the in-degree share of Lempel and Moran (2001)
                    covers = c("centrality()", "centrality_salsa()"), quantity = "salsa, directed", tolerance = exact)
 })
 
-test_that("random walk centrality equals the inverse sum of symmetrised passage times", {
-  # cograph's definition (as tidygraph's centrality_random_walk()): d(i, j) = (m_ij + m_ji) / 2 with m the mean
-  # first-passage times of the simple random walk; the score is 1 / sum_j d(i, j).
-  random_walk <- \(graph) {
-    passage <- ref_mfpt(graph)
-    1 / rowSums((passage + t(passage)) / 2)
+test_that("random walk centrality equals Noh and Rieger's (2004) stationary probability over relaxation time", {
+  # Noh and Rieger (2004), Eq. 10 and 11: C_i = P_i^inf / tau_i with tau_i = sum_{t >= 0} (P_ii(t) - P_i^inf), the
+  # walk stepping to a uniformly chosen neighbour (A_ij / K_i). Written here as the paper states it: P^inf as the
+  # limit of the t-step transition matrix and tau as the series itself, summed for 4000 steps by matrix powers
+  # (no fundamental matrix, no eigen-decomposition). Both test graphs are aperiodic, with second eigenvalue modulus
+  # 0.77 (undirected) and 0.53 (directed), so the series has converged far below the tolerance after 4000 steps.
+  # The paper treats undirected networks; the directed comparison evaluates the same Eq. 10 and 11 on the directed
+  # walk.
+  noh_rieger <- \(graph, steps = 4000L) {
+    adjacency <- (graph != 0) * 1
+    diag(adjacency) <- 0
+    transition <- adjacency / rowSums(adjacency)
+    limit <- Reduce(\(power, step) power %*% transition, seq_len(steps), diag(nrow(graph)))
+    stationary <- colMeans(limit)
+    walk <- Reduce(\(state, step) list(power = state$power %*% transition,
+                                       tau = state$tau + diag(state$power) - stationary),
+                   seq_len(steps), list(power = diag(nrow(graph)), tau = numeric(nrow(graph))))
+    stationary / walk$tau
   }
-  expect_reference(centrality_random_walk(undirected), random_walk(undirected),
-                   reference = "independent: the walk definitions written in base R (each named in its note)", note = "hitting-time equations (Kemeny and Snell 1960) solved per target in base R",
+  expect_reference(centrality_random_walk(undirected), noh_rieger(undirected),
+                   reference = "independent: the walk definitions written in base R (each named in its note)",
+                   note = "Noh and Rieger (2004) Eq. 10-11, return-probability series summed by matrix powers in base R",
                    covers = c("centrality()", "centrality_random_walk()"), quantity = "random walk, undirected",
                    tolerance = exact, measure = "relative")
-  expect_reference(centrality_random_walk(directed), random_walk(directed),
-                   reference = "independent: the walk definitions written in base R (each named in its note)", note = "hitting-time equations (Kemeny and Snell 1960) solved per target in base R",
+  expect_reference(centrality_random_walk(directed), noh_rieger(directed),
+                   reference = "independent: the walk definitions written in base R (each named in its note)",
+                   note = "Noh and Rieger (2004) Eq. 10-11, return-probability series summed by matrix powers in base R",
                    covers = c("centrality()", "centrality_random_walk()"), quantity = "random walk, directed",
                    tolerance = exact, measure = "relative")
+})
+
+test_that("random walk centrality satisfies Noh and Rieger's (2004) passage-time asymmetry", {
+  # Noh and Rieger (2004), Eq. 9: m_ij - m_ji = 1 / C_j - 1 / C_i for every pair on an undirected network, with the
+  # passage times solved one target at a time from the hitting-time equations (Kemeny and Snell 1960). Absolute
+  # tolerance, because the diagonal differences are zero; the passage times are below 25 on this graph.
+  passage <- ref_mfpt(undirected)
+  inverse <- 1 / centrality_random_walk(undirected)
+  expect_reference(as.vector(outer(inverse, inverse, \(i, j) j - i)), as.vector(passage - t(passage)),
+                   reference = "independent: the walk definitions written in base R (each named in its note)",
+                   note = "Noh and Rieger (2004) Eq. 9 against hitting-time equations (Kemeny and Snell 1960) in base R",
+                   covers = c("centrality()", "centrality_random_walk()"),
+                   quantity = "random walk, passage-time asymmetry, undirected", tolerance = 1e-9)
 })
 
 test_that("random walk centrality differs from netrankr's inverse sum of random-walk distances", {
   skip_without_reference(c("netrankr", "igraph"))
   distances <- netrankr::indirect_relations(ref_igraph(undirected), type = "dist_rwalk")
-  # Established after the first run from netrankr 2.0.0's dist_rwalk_fct(): its invsum is 1 / sum_i m_ij, the
-  # passage times INTO the node (Noh and Rieger 2004); it equals 1 / colSums(ref_mfpt()) on this graph.
+  # Established from netrankr 2.0.0's dist_rwalk_fct(): its invsum is 1 / sum_i m_ij, the passage times INTO the
+  # node with every source weighted equally. Noh and Rieger's C_j is 1 / sum_i pi_i m_ij, the same passage times
+  # weighted by the stationary distribution, so the two differ by a node-dependent factor (0.079 to 0.086 here).
   expect_known_difference(centrality_random_walk(undirected),
                           ref_named(netrankr::aggregate_positions(distances, type = "invsum"), undirected),
                           reference = "netrankr", covers = c("centrality()", "centrality_random_walk()"),
                           quantity = "random walk, undirected", tolerance = exact, measure = "relative",
-                          reason = paste("cograph sums the symmetrised distance (m_ij + m_ji) / 2 over j; netrankr's",
-                                         "dist_rwalk with invsum (tidygraph's centrality_random_walk()) sums only the",
-                                         "passage times into the node, 1 / sum_i m_ij (Noh and Rieger 2004)."))
+                          reason = paste("cograph follows Noh and Rieger (2004) Eq. 10-11, C_j = pi_j / tau_j =",
+                                         "1 / sum_i pi_i m_ij (passage times into j from the stationary start);",
+                                         "netrankr's dist_rwalk with invsum (tidygraph's centrality_random_walk())",
+                                         "is 1 / sum_i m_ij, an unweighted sum, not proportional to C_j."))
 })
 
 test_that("markov centrality equals centiserve's markovcent() and n over the passage times into the node", {

@@ -11,7 +11,7 @@ centralization, transitivity, reciprocity and degree assortativity."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -166,7 +166,9 @@ The basic measures are always computed:</p><dl><dt>node_count</dt>
 network. Edge weights are not used.</p></dd>
 
 <dt>centralization_degree</dt>
-<dd><p>Degree centralization over all ties (0-1)</p></dd>
+<dd><p>Degree centralization over all ties (0-1),
+Freeman (1979): self-loops left out of the degrees and of the maximum
+(<code>igraph::centr_degree(loops = FALSE)</code>)</p></dd>
 
 <dt>centralization_in_degree</dt>
 <dd><p>In-degree centralization (directed only)</p></dd>
@@ -251,7 +253,7 @@ network. Edge weights are not used.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   node_count edge_count density component_count diameter mean_distance min_cut</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         10         30   0.333               1     0.97         0.435       1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   centralization_degree centralization_in_degree centralization_out_degree</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 0.123                    0.333                     0.222</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 0.139                     0.37                     0.247</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   centralization_betweenness centralization_closeness centralization_eigen</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                      0.149                    0.238                0.479</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   transitivity reciprocity assortativity_degree</span>

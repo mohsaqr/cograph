@@ -33,9 +33,10 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are ignored. `mode` selects the neighbors, and with
-`mode = "all"` on a directed network a reciprocated tie counts twice. An
-isolated node scores 0. On undirected networks the values equal
+Edge weights are ignored. `mode` selects the neighbors, each neighbor
+counted once (with `mode = "all"` on a directed network a reciprocated
+tie is one neighbor; cograph 2.7.19 and earlier counted it twice). An
+isolated node scores 0. The values equal
 [`centiserve::semilocal()`](https://rdrr.io/pkg/centiserve/man/semilocal.html).
 
 ## References
@@ -57,7 +58,7 @@ Identifying influential nodes in complex networks. Physica A, 391(4),
 ``` r
 centrality_semilocal(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>        324        369        432        306        306        288        243 
+#>        243        288        333        279        234        252        216 
 #>   Evaluate     Create      Share 
-#>        306        405        369 
+#>        270        297        270 
 ```

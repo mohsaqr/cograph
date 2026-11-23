@@ -13,7 +13,7 @@ $$C_L(v) = \sum_{u \in \Gamma(v)} \sum_{w \in \Gamma(u)} N(w).$$"><meta property
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,10 +87,10 @@ order.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Edge weights are ignored. <code>mode</code> selects the neighbors, and with
-<code>mode = "all"</code> on a directed network a reciprocated tie counts twice.
-An isolated node scores 0. On undirected networks the values equal
-<code><a href="https://rdrr.io/pkg/centiserve/man/semilocal.html" class="external-link">centiserve::semilocal()</a></code>.</p>
+    <p>Edge weights are ignored. <code>mode</code> selects the neighbors, each neighbor
+counted once (with <code>mode = "all"</code> on a directed network a reciprocated
+tie is one neighbor; cograph 2.7.19 and earlier counted it twice). An
+isolated node scores 0. The values equal <code><a href="https://rdrr.io/pkg/centiserve/man/semilocal.html" class="external-link">centiserve::semilocal()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -109,9 +109,9 @@ Identifying influential nodes in complex networks. Physica A, 391(4),
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">centrality_semilocal</span><span class="op">(</span><span class="va">regulation_net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        324        369        432        306        306        288        243 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        243        288        333        279        234        252        216 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Evaluate     Create      Share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        306        405        369 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        270        297        270 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -49,11 +49,12 @@ every other node, divided by a theoretical maximum. For degree,
 betweenness and closeness the maximum is the value of an unweighted
 star, so unweighted input gives 0 for a perfectly even network and 1 for
 an undirected star. For eigenvector centrality, whose scores are scaled
-to a maximum of 1, the divisor is \\n - 1\\, and a star gives a value
-below 1. Weighted closeness scales with the inverse of the edge weights,
-so its centralization can exceed 1. Nodes whose score is `NA` or `NaN`
-are dropped from the sum. The value is 0 when the network has two or
-fewer nodes.
+to a maximum of 1, the divisor is the largest possible sum, \\n - 2\\ on
+an undirected network and \\n - 1\\ on a directed one, and a star gives
+a value below 1. Weighted closeness scales with the inverse of the edge
+weights, so its centralization can exceed 1. Nodes whose score is `NA`
+or `NaN` are dropped from the sum. The value is 0 when the network has
+two or fewer nodes.
 
 ## Details
 
@@ -71,7 +72,9 @@ degree (`mode = "all"`, reached by a star with reciprocated arcs).
 Betweenness: \\(n - 1)^2 (n - 2) / 2\\ undirected and \\(n - 1)^2 (n -
 2)\\ directed. Closeness: \\(n - 1)(n - 2) / (2n - 3)\\, and \\(n - 1)^2
 / n\\ for `mode = "in"` or `"out"` on a directed network. Eigenvector:
-\\n - 1\\ (igraph uses \\n - 2\\ on an undirected network).
+\\n - 2\\ undirected and \\n - 1\\ directed, as
+[`igraph::centr_eigen_tmax()`](https://r.igraph.org/reference/centr_eigen_tmax.html)
+(before 2.7.20 cograph divided by \\n - 1\\ on every network).
 
 ## References
 

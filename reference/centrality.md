@@ -1047,9 +1047,9 @@ The following centrality measures are available:
 
 - laplacian:
 
-  Laplacian centrality with the local formula of Qi et al. (2012).
-  Matches NetworkX and
-  [`centiserve::laplacian()`](https://rdrr.io/pkg/centiserve/man/laplacian.html)
+  Laplacian centrality (Qi et al. 2012): the drop in Laplacian energy
+  when the node leaves, on the weights of a weighted undirected network.
+  Matches NetworkX
 
 - load:
 
@@ -1080,8 +1080,8 @@ The following centrality measures are available:
 
 - radiality:
 
-  Radiality centrality (centiserve). Sum of (diam + 1 - d) normalized by
-  n-1.
+  Radiality (Valente and Foreman 1998). Sum of (diam + 1 - d) over the
+  other nodes, over n - 1.
 
 - lin:
 
@@ -1094,8 +1094,8 @@ The following centrality measures are available:
 
 - residual_closeness:
 
-  Residual closeness. Sum of \\1/2^d\\ over all nodes, the node itself
-  included.
+  Residual closeness (Dangalchev 2006). Sum of \\1/2^d\\ over the other
+  nodes.
 
 - dangalchev:
 
@@ -1112,7 +1112,7 @@ The following centrality measures are available:
 
 - average_distance:
 
-  Average distance (centiserve). Sum of distances / (n+1).
+  Average distance. Sum of distances to the other nodes / (n - 1).
 
 - barycenter:
 
@@ -1152,7 +1152,7 @@ The following centrality measures are available:
 
 - lobby:
 
-  Lobby index (h-index of neighborhood).
+  Lobby index (Korn et al. 2009): h-index of the neighbors' degrees.
 
 - entropy:
 
@@ -1164,7 +1164,8 @@ The following centrality measures are available:
 
 - clusterrank:
 
-  ClusterRank. Clustering coefficient times neighbor degree sum.
+  ClusterRank (Chen et al. 2013). \\10^{-c}\\ times the neighbors'
+  (followers') degree + 1 sum.
 
 - bottleneck:
 
@@ -1234,7 +1235,7 @@ The following centrality measures are available:
 
 - gilschmidt:
 
-  Gil-Schmidt power index. Sum of 1/d normalized by n-1.
+  Gil-Schmidt power index. Mean of 1/d over the nodes reached.
 
 - salsa:
 

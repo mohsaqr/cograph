@@ -1,14 +1,15 @@
 # Local Efficiency
 
-Computes the average local efficiency across all nodes with
-[`igraph::average_local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html).
-For each node, igraph removes the node and measures the distances
-between its neighbors through the rest of the network. The value can
-therefore exceed the Latora and Marchiori (2001) form, which restricts
-those distances to the subgraph induced on the neighbors.
-`centrality(x, measures = "local_efficiency")` reports the
-induced-subgraph form. The two agree when the neighbors have no path
-outside their induced subgraph.
+Computes the average local efficiency across all nodes (Latora and
+Marchiori 2001): the mean over the nodes of the efficiency of the
+subgraph induced on each node's neighbors (in- and out-neighbors on a
+directed network), the distances measured inside that subgraph; a node
+with fewer than two neighbors contributes 0. This is
+`networkx::local_efficiency()` and the mean of
+`centrality(x, measures = "local_efficiency")`.
+[`igraph::average_local_efficiency()`](https://r.igraph.org/reference/global_efficiency.html)
+instead measures the neighbors' distances in the network without the
+node, which can be shorter (cograph reported that form before 2.7.20).
 
 ## Usage
 
@@ -68,5 +69,5 @@ networks. *Physical Review Letters*, 87(19), 198701.
 
 ``` r
 network_local_efficiency(regulation_net)
-#> [1] 2.918765
+#> [1] 1.931587
 ```

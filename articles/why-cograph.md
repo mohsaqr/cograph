@@ -408,7 +408,7 @@ network_summary(net, digits = 3)
 #>   node_count edge_count density component_count diameter mean_distance min_cut
 #> 1          5         18     0.9               1      0.8          0.35       3
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                 0.125                      0.1                       0.1
+#> 1                 0.167                    0.125                     0.125
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.028                        0                0.097
 #>   transitivity reciprocity assortativity_degree

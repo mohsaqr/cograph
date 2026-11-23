@@ -1,8 +1,10 @@
 # Laplacian Centrality
 
 Laplacian centrality (Qi et al. 2012) is the drop in the Laplacian
-energy of a network when a node is removed. Without edge weights the
-drop is \$\$L(v) = k_v^2 + k_v + 2 \sum\_{u \in N(v)} k_u.\$\$
+energy of a network when a node is removed. On a weighted undirected
+network, with strengths \\x\\, the drop is \$\$L(v) = x_v^2 + \sum\_{u}
+w\_{uv}^2 + 2 \sum\_{u} x_u w\_{uv};\$\$ without edge weights it is
+\$\$L(v) = k_v^2 + k_v + 2 \sum\_{u \in N(v)} k_u.\$\$
 
 ## Usage
 
@@ -29,10 +31,13 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Edge weights are ignored, so the score is the unweighted case of the
-weighted measure of Qi et al. (2012). On a directed network \\k\\ is the
-total degree, in plus out, and the neighbor sum runs over out-neighbors.
-A self-loop adds 2 to the degree. On undirected networks the values
+On a weighted undirected network the weights are read as in Qi et al.
+(2012) and the values equal `networkx::laplacian_centrality(weight =)`
+(cograph 2.7.19 and earlier ignored the weights); self-loops cancel in
+the Laplacian. `weighted = FALSE` gives the unweighted formula, where a
+self-loop adds 2 to the degree. On a directed network the weights are
+ignored, \\k\\ is the total degree, in plus out, and the neighbor sum
+runs over out-neighbors. On unweighted undirected networks the values
 equal
 [`centiserve::laplacian()`](https://rdrr.io/pkg/centiserve/man/laplacian.html).
 `normalized = TRUE` divides the scores by their maximum.

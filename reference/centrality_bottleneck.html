@@ -3,11 +3,17 @@
 shortest-path trees in which a node is a bottleneck. For each source
 \(s\), every shortest path from \(s\) to every reachable node is
 enumerated, and a node \(v \ne s\) scores one for that source
-when it lies on more than \(n/4\) of these paths."><meta property="og:description" content="Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
+when it lies on more than \(|T_s|/4\) of these paths, \(|T_s|\) the
+number of nodes \(s\) reaches, itself included (cograph 2.7.19 and
+earlier used \(n/4\), which differs where \(s\) does not reach every
+node)."><meta property="og:description" content="Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
 shortest-path trees in which a node is a bottleneck. For each source
 \(s\), every shortest path from \(s\) to every reachable node is
 enumerated, and a node \(v \ne s\) scores one for that source
-when it lies on more than \(n/4\) of these paths."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
+when it lies on more than \(|T_s|/4\) of these paths, \(|T_s|\) the
+number of nodes \(s\) reaches, itself included (cograph 2.7.19 and
+earlier used \(n/4\), which differs where \(s\) does not reach every
+node)."><meta property="og:image" content="https://sonsoles.me/cograph/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +21,7 @@ when it lies on more than \(n/4\) of these paths."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +64,10 @@ when it lies on more than \(n/4\) of these paths."><meta property="og:image" con
 shortest-path trees in which a node is a bottleneck. For each source
 \(s\), every shortest path from \(s\) to every reachable node is
 enumerated, and a node \(v \ne s\) scores one for that source
-when it lies on more than \(n/4\) of these paths.</p>
+when it lies on more than \(|T_s|/4\) of these paths, \(|T_s|\) the
+number of nodes \(s\) reaches, itself included (cograph 2.7.19 and
+earlier used \(n/4\), which differs where \(s\) does not reach every
+node).</p>
     </div>
 
     <div class="section level2">

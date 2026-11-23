@@ -1,9 +1,8 @@
 # Lobby Index
 
-The lobby index (Korn et al. 2009) is the h-index of the degrees in the
-closed neighborhood of a node. It is the largest \\k\\ such that the
-node and its neighbors include at least \\k\\ nodes of degree \\k\\ or
-more.
+The lobby index (Korn, Schubert and Telcs 2009, Definition 1) is the
+largest \\k\\ such that the node has at least \\k\\ neighbors of degree
+\\k\\ or more: the h-index of its neighbors' degrees.
 
 ## Usage
 
@@ -35,9 +34,11 @@ A named integer vector with one index per node, in input node order.
 
 Edge weights are ignored. `mode` selects both the degree and the
 neighbors, and with `mode = "all"` on a directed network the degree is
-in plus out. An isolated node scores 0. On undirected networks the
-values equal
-[`centiserve::lobby()`](https://rdrr.io/pkg/centiserve/man/lobby.html).
+in plus out while a neighbor tied in both directions counts once. An
+isolated node scores 0.
+[`centiserve::lobby()`](https://rdrr.io/pkg/centiserve/man/lobby.html)
+(and cograph 2.7.19 and earlier) take the closed neighborhood, the
+node's own degree included, which can raise the index by one.
 
 ## References
 
@@ -57,7 +58,7 @@ Physica A, 388(11), 2221-2226.
 ``` r
 centrality_lobby(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>          6          5          6          5          5          5          4 
+#>          5          5          5          5          4          5          4 
 #>   Evaluate     Create      Share 
-#>          5          6          6 
+#>          5          5          5 
 ```

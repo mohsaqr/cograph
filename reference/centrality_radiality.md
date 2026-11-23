@@ -1,9 +1,9 @@
 # Radiality Centrality
 
 Radiality (Valente and Foreman 1998) reverses each distance against the
-diameter \\D\\ and averages over the network: \$\$R(i) = \frac{1}{n - 1}
-\sum\_{j:\\ d\_{ij} \< \infty} (D + 1 - d\_{ij}).\$\$ Nodes close to the
-others score high.
+diameter \\D\\ and averages over the other nodes: \$\$R(i) =
+\frac{1}{n - 1} \sum\_{j \ne i:\\ d\_{ij} \< \infty} (D + 1 -
+d\_{ij}).\$\$ Nodes close to the others score high.
 
 ## Usage
 
@@ -37,17 +37,18 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-The sum includes the node itself, which contributes \\D + 1\\, and the
-values equal
+The sum runs over the other nodes, as Valente and Foreman (1998) define
+it;
 [`centiserve::radiality()`](https://rdrr.io/pkg/centiserve/man/radiality.html)
-on undirected networks. Unreachable nodes contribute 0. Edge weights are
+(and cograph 2.7.19 and earlier) also sum the node itself, which adds
+\\(D + 1)/(n - 1)\\. Unreachable nodes contribute 0. Edge weights are
 read as distances; `weighted = FALSE` uses hop counts, and
 `invert_weights = TRUE` converts a weight \\w\\ to the distance
 \\1/w^\alpha\\. `mode = "all"` treats edges as undirected, `"out"` uses
-distances from the node and `"in"` distances to it. The diameter is
-taken on the stored edge weights in the direction of the network,
-whatever `mode` and `invert_weights` are. A single-node network gives
-`NA`.
+distances from the node and `"in"` distances to it. The diameter \\D\\
+is the largest finite distance of the same distances (before 2.7.20 it
+was taken on the stored weights in the direction of the network). A
+single-node network gives `NA`.
 
 ## References
 
@@ -68,7 +69,7 @@ in a network. Social Networks, 20(1), 89-105.
 ``` r
 centrality_radiality(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>   1.973333   1.941111   1.994444   1.895556   1.975556   1.867778   1.958889 
+#>   1.184444   1.152222   1.205556   1.106667   1.186667   1.078889   1.170000 
 #>   Evaluate     Create      Share 
-#>   1.913333   1.977778   1.873333 
+#>   1.124444   1.188889   1.084444 
 ```

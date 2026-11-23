@@ -9,7 +9,7 @@ or eigenvector centrality."><meta property="og:image" content="https://sonsoles.
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,8 +99,9 @@ and every other node, divided by a theoretical maximum. For degree,
 betweenness and closeness the maximum is the value of an unweighted
 star, so unweighted input gives 0 for a perfectly even network and 1 for
 an undirected star. For eigenvector centrality, whose scores are scaled to
-a maximum of 1, the divisor is \(n - 1\), and a star gives a value
-below 1. Weighted closeness
+a maximum of 1, the divisor is the largest possible sum, \(n - 2\) on
+an undirected network and \(n - 1\) on a directed one, and a star
+gives a value below 1. Weighted closeness
 scales with the inverse of the edge weights, so its centralization can
 exceed 1. Nodes whose score is <code>NA</code> or <code>NaN</code> are dropped from
 the sum. The value is 0 when the network has two or fewer nodes.</p>
@@ -118,8 +119,9 @@ in + out degree (<code>mode = "all"</code>, reached by a star with reciprocated
 arcs). Betweenness: \((n - 1)^2 (n - 2) / 2\) undirected and
 \((n - 1)^2 (n - 2)\) directed. Closeness: \((n - 1)(n - 2) / (2n - 3)\),
 and \((n - 1)^2 / n\) for <code>mode = "in"</code> or <code>"out"</code> on a
-directed network. Eigenvector: \(n - 1\) (igraph uses \(n - 2\) on an
-undirected network).</p>
+directed network. Eigenvector: \(n - 2\) undirected and \(n - 1\)
+directed, as <code><a href="https://r.igraph.org/reference/centr_eigen_tmax.html" class="external-link">igraph::centr_eigen_tmax()</a></code> (before 2.7.20 cograph
+divided by \(n - 1\) on every network).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

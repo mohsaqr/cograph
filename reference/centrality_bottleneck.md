@@ -4,7 +4,9 @@ Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
 shortest-path trees in which a node is a bottleneck. For each source
 \\s\\, every shortest path from \\s\\ to every reachable node is
 enumerated, and a node \\v \ne s\\ scores one for that source when it
-lies on more than \\n/4\\ of these paths.
+lies on more than \\\|T_s\|/4\\ of these paths, \\\|T_s\|\\ the number
+of nodes \\s\\ reaches, itself included (cograph 2.7.19 and earlier used
+\\n/4\\, which differs where \\s\\ does not reach every node).
 
 ## Usage
 

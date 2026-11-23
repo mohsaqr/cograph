@@ -535,7 +535,7 @@ network_summary(regulation_net)
 #>   node_count edge_count density component_count diameter mean_distance min_cut
 #> 1         10         30   0.333               1     0.97         0.435       1
 #>   centralization_degree centralization_in_degree centralization_out_degree
-#> 1                 0.123                    0.333                     0.222
+#> 1                 0.139                     0.37                     0.247
 #>   centralization_betweenness centralization_closeness centralization_eigen
 #> 1                      0.149                    0.238                0.479
 #>   transitivity reciprocity assortativity_degree

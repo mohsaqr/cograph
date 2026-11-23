@@ -1,9 +1,9 @@
 # Integration Centrality
 
-Integration centrality (Valente and Foreman 1998) scores each distance
-against the diameter \\D\\, the largest finite hop distance, and sums:
-\$\$I(i) = \sum\_{j} \left(1 - \frac{d\_{ij} - 1}{D}\right),\$\$ where
-an unreachable node contributes 0.
+Integration centrality (Valente and Foreman 1998) reverses the distance
+from each other node against the diameter \\D\\, the largest finite hop
+distance, and averages: \$\$I(i) = \frac{1}{n - 1} \sum\_{j \ne i} (D +
+1 - d\_{ji}),\$\$ where a node that does not reach \\i\\ contributes 0.
 
 ## Usage
 
@@ -33,13 +33,14 @@ A named numeric vector with one score per node, in input node order.
 
 ## Details
 
-Distances are hop counts, so edge weights are ignored. The sum includes
-the node itself, which contributes \\1 + 1/D\\, and is not divided by
-\\n - 1\\; the values equal
-[`tidygraph::centrality_integration()`](https://tidygraph.data-imaginist.com/reference/centrality.html).
-`mode = "all"` treats edges as undirected, `"out"` uses distances from
-the node and `"in"` distances to it. On a network without edges every
-node scores \\n\\.
+Distances are hop counts, so edge weights are ignored. Integration reads
+the paths into the node (radiality reads the paths out of it); with
+`mode = "all"` the two are the same. `mode = "out"` follows the ties'
+direction along those paths and `"in"` reverses it. On a network without
+edges every node scores 0. cograph 2.7.19 and earlier returned
+[`tidygraph::centrality_integration()`](https://tidygraph.data-imaginist.com/reference/centrality.html),
+which sums \\1 - (d - 1)/D\\ over every node, the node itself included,
+without dividing by \\n - 1\\.
 
 ## References
 
@@ -60,7 +61,7 @@ in a network. Social Networks, 20(1), 89-105.
 ``` r
 centrality_integration(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>        8.5        9.0        9.5        9.0        8.5        8.5        8.0 
+#>   1.555556   1.666667   1.777778   1.666667   1.555556   1.555556   1.444444 
 #>   Evaluate     Create      Share 
-#>        8.5        9.0        8.5 
+#>   1.555556   1.666667   1.555556 
 ```

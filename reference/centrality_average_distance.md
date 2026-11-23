@@ -1,9 +1,10 @@
 # Average Distance
 
-Average distance is the sum of the shortest-path distances from a node
-to every node, divided by \\n + 1\\ as in the centiserve package:
-\$\$AD(v) = \frac{1}{n + 1} \sum\_{w} d(v, w).\$\$ Lower values mark
-more central nodes.
+Average distance is the mean shortest-path distance from a node to the
+other nodes, the definition the centiserve package states: \$\$AD(v) =
+\frac{1}{n - 1} \sum\_{w \ne v} d(v, w).\$\$ (centiserve's code, and
+cograph 2.7.19 and earlier, divide by \\n + 1\\.) Lower values mark more
+central nodes.
 
 ## Usage
 
@@ -53,7 +54,7 @@ node scores `Inf`, so on a disconnected network every score is `Inf`.
 ``` r
 centrality_average_distance(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>  0.1763636  0.2027273  0.1590909  0.2400000  0.1745455  0.2627273  0.1881818 
+#>  0.2155556  0.2477778  0.1944444  0.2933333  0.2133333  0.3211111  0.2300000 
 #>   Evaluate     Create      Share 
-#>  0.2254545  0.1727273  0.2581818 
+#>  0.2755556  0.2111111  0.3155556 
 ```

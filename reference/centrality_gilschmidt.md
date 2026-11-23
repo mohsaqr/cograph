@@ -1,10 +1,10 @@
 # Gil-Schmidt Power Index
 
-The Gil-Schmidt power index sums the reciprocal hop distances from a
-node to the nodes it reaches and divides by \\n - 1\\: \$\$GS(v) =
-\frac{1}{n - 1} \sum\_{w \ne v} \frac{1}{d(v, w)}.\$\$ Unreachable nodes
-contribute 0, so the score lies between 0 and 1, and a node adjacent to
-every other node scores 1.
+The Gil-Schmidt power index (Gil and Schmidt 1996) is the mean
+reciprocal hop distance from a node to the nodes it reaches, \\R(v)\\:
+\$\$GS(v) = \frac{1}{\|R(v)\|} \sum\_{w \in R(v)} \frac{1}{d(v, w)}.\$\$
+The score lies between 0 and 1; a node adjacent to every node it reaches
+scores 1, and a node that reaches none scores 0.
 
 ## Usage
 
@@ -39,7 +39,9 @@ Distances are hop counts, so edge weights are ignored and
 `invert_weights` has no effect. `mode` sets the direction of the paths.
 With `mode = "out"` the values match
 [`sna::gilschmidt()`](https://rdrr.io/pkg/sna/man/gilschmidt.html) with
-its default settings.
+its default settings (`normalize = TRUE`). cograph 2.7.19 and earlier
+divided by \\n - 1\\, which differs wherever a node does not reach every
+other node.
 
 ## See also
 

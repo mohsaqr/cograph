@@ -2,9 +2,9 @@
 
 Dangalchev closeness, the residual closeness of Dangalchev (2006), sums
 an exponentially decaying function of the distance to every node:
-\$\$D(v) = \sum\_{w} 2^{-d(v, w)}.\$\$ The sum includes the node itself,
-which adds one to every score, as in the centiserve package. Unreachable
-nodes contribute 0.
+\$\$D(v) = \sum\_{w \ne v} 2^{-d(v, w)}.\$\$ The sum runs over the other
+nodes (cograph 2.7.19 and earlier, as the centiserve code, added the
+node itself). Unreachable nodes contribute 0.
 
 ## Usage
 
@@ -64,7 +64,7 @@ Dangalchev, C. (2006). Residual closeness in networks. Physica A,
 ``` r
 centrality_dangalchev(regulation_net)
 #>    Explore       Plan    Monitor      Adapt    Reflect    Discuss Synthesize 
-#>   8.765551   8.592851   8.877387   8.354837   8.781835   8.213449   8.690109 
+#>   7.765551   7.592851   7.877387   7.354837   7.781835   7.213449   7.690109 
 #>   Evaluate     Create      Share 
-#>   8.458391   8.781042   8.238714 
+#>   7.458391   7.781042   7.238714 
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,37 @@
       <small>Source: <a href="https://github.com/sonsoleslp/cograph/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.20" id="cograph-2720">cograph 2.7.20<a class="anchor" aria-label="anchor" href="#cograph-2720"></a></h2>
+<div class="section level3">
+<h3 id="measures-brought-back-to-their-papers-2-7-20">Measures brought back to their papers<a class="anchor" aria-label="anchor" href="#measures-brought-back-to-their-papers-2-7-20"></a></h3>
+<p>Where cograph followed another package’s departure from the published definition, it now follows the paper (owner rule, 2026-11-22). Numbers change for these measures:</p>
+<ul><li>
+<code><a href="../reference/centrality_clusterrank.html">centrality_clusterrank()</a></code> is Chen, Gao, Lu and Zhou’s (2013) ClusterRank: the neighbours’ sum of k + 1 damped by <code>10^-c</code> (Eq. 3-4), not multiplied by <code>c</code> as in centiserve. On a directed network it is the paper’s directed form (Eq. 1): the followers (out-neighbours), their out-degrees and the directed clustering coefficient, instead of the undirected skeleton.</li>
+<li>
+<code><a href="../reference/centrality_lobby.html">centrality_lobby()</a></code> is Korn, Schubert and Telcs’s (2009) Definition 1, the h-index of the neighbours’ degrees; the node’s own degree is no longer in the list (centiserve’s closed neighbourhood). <code>hindex_strength</code> likewise. On a directed network with <code>mode = "all"</code> a neighbour tied both ways counts once in the lobby index, the strength h-index and <code><a href="../reference/centrality_semilocal.html">centrality_semilocal()</a></code>.</li>
+<li>
+<code><a href="../reference/centrality_gilschmidt.html">centrality_gilschmidt()</a></code> divides by the number of nodes reached, as Gil and Schmidt (1996) and <code><a href="https://rdrr.io/pkg/sna/man/gilschmidt.html" class="external-link">sna::gilschmidt()</a></code>; it divided by n - 1.</li>
+<li>
+<code><a href="../reference/centrality_effective_size.html">centrality_effective_size()</a></code> on a directed network is Burt’s (1992) effective size with mutual weights, as <code>networkx::effective_size()</code>; it applied Borgatti’s undirected form with a reciprocated neighbour counted twice. Undirected values are unchanged.</li>
+<li>
+<code><a href="../reference/centrality_voterank.html">centrality_voterank()</a></code> on a directed network is the paper’s directed version (Zhang et al. 2016, as <code>networkx::voterank()</code>): a node votes for its in-neighbours, the elected node’s out-neighbours lose ability, and <code>&lt;k&gt;</code> is the mean out-degree.</li>
+<li>
+<code><a href="../reference/centrality_radiality.html">centrality_radiality()</a></code>, <code><a href="../reference/centrality_residual_closeness.html">centrality_residual_closeness()</a></code>, <code><a href="../reference/centrality_dangalchev.html">centrality_dangalchev()</a></code> and <code><a href="../reference/centrality_average_distance.html">centrality_average_distance()</a></code> sum over the other nodes (Valente and Foreman 1998; Dangalchev 2006; the mean distance, n - 1), where centiserve’s code also sums the node itself or divides by n + 1. Radiality takes the diameter of the distances it reverses.</li>
+<li>
+<code><a href="../reference/centrality_integration.html">centrality_integration()</a></code> is Valente and Foreman’s (1998) integration, the reverse distances from the other nodes over n - 1, instead of tidygraph’s sum over every node.</li>
+<li>
+<code><a href="../reference/centrality_laplacian.html">centrality_laplacian()</a></code> reads the weights of a weighted undirected network (Qi et al. 2012, “a new centrality measure for weighted networks”), as <code>networkx::laplacian_centrality(weight = )</code>.</li>
+<li>
+<code><a href="../reference/centrality_bottleneck.html">centrality_bottleneck()</a></code> compares with a quarter of the nodes the source reaches, |T_s| / 4 (Przulj, Wigle and Jurisica 2004), not n / 4.</li>
+<li>
+<code><a href="../reference/network_local_efficiency.html">network_local_efficiency()</a></code> measures the neighbours’ distances inside the subgraph they induce (Latora and Marchiori 2001, <code>networkx::local_efficiency()</code>), as <code>centrality(measures = "local_efficiency")</code> already did, instead of igraph’s form in the network without the node.</li>
+<li>
+<code>centralization(measure = "eigenvector")</code> divides by n - 2 on an undirected network (Freeman’s largest possible sum, igraph’s <code>centr_eigen_tmax()</code>).</li>
+<li>
+<code><a href="../reference/network_summary.html">network_summary()</a></code> degree centralizations use Freeman’s maxima without self-loops (<code>igraph::centr_degree(loops = FALSE)</code>).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.19" id="cograph-2719">cograph 2.7.19<a class="anchor" aria-label="anchor" href="#cograph-2719"></a></h2>
 <div class="section level3">

@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1050,8 +1050,9 @@ to other influential nodes (supports mode: in/out/all)</p></dd>
 with shorter walks weighted more heavily</p></dd>
 
 <dt>laplacian</dt>
-<dd><p>Laplacian centrality with the local formula of Qi et
-al. (2012). Matches NetworkX and <code><a href="https://rdrr.io/pkg/centiserve/man/laplacian.html" class="external-link">centiserve::laplacian()</a></code></p></dd>
+<dd><p>Laplacian centrality (Qi et al. 2012): the drop in
+Laplacian energy when the node leaves, on the weights of a weighted
+undirected network. Matches NetworkX</p></dd>
 
 <dt>load</dt>
 <dd><p>Load centrality. Share of shortest-path load passing
@@ -1076,8 +1077,8 @@ weighted by the node states in <code>states</code>. With equal states it is
 betweenness divided by \((n-1)(n-2)\)</p></dd>
 
 <dt>radiality</dt>
-<dd><p>Radiality centrality (centiserve). Sum of (diam + 1 - d)
-normalized by n-1.</p></dd>
+<dd><p>Radiality (Valente and Foreman 1998). Sum of
+(diam + 1 - d) over the other nodes, over n - 1.</p></dd>
 
 <dt>lin</dt>
 <dd><p>Lin's centrality. Reachable nodes squared divided by sum of
@@ -1088,8 +1089,8 @@ distances.</p></dd>
 the node itself included, with \(\delta\) = <code>decay_parameter</code>.</p></dd>
 
 <dt>residual_closeness</dt>
-<dd><p>Residual closeness. Sum of \(1/2^d\) over
-all nodes, the node itself included.</p></dd>
+<dd><p>Residual closeness (Dangalchev 2006). Sum of
+\(1/2^d\) over the other nodes.</p></dd>
 
 <dt>dangalchev</dt>
 <dd><p>Dangalchev closeness. Same values as
@@ -1103,8 +1104,8 @@ all nodes, the node itself included.</p></dd>
 <dd><p>Harary centrality. Sum of 1/d^2 for all reachable pairs.</p></dd>
 
 <dt>average_distance</dt>
-<dd><p>Average distance (centiserve). Sum of distances /
-(n+1).</p></dd>
+<dd><p>Average distance. Sum of distances to the other
+nodes / (n - 1).</p></dd>
 
 <dt>barycenter</dt>
 <dd><p>Barycenter centrality. 1 / sum of distances.</p></dd>
@@ -1136,7 +1137,8 @@ distances (requires connected graph).</p></dd>
 is removed, as <code><a href="https://rdrr.io/pkg/sna/man/flowbet.html" class="external-link">sna::flowbet()</a></code>.</p></dd>
 
 <dt>lobby</dt>
-<dd><p>Lobby index (h-index of neighborhood).</p></dd>
+<dd><p>Lobby index (Korn et al. 2009): h-index of the neighbors'
+degrees.</p></dd>
 
 <dt>entropy</dt>
 <dd><p>Graph entropy centrality. Entropy change on node removal.</p></dd>
@@ -1145,8 +1147,8 @@ is removed, as <code><a href="https://rdrr.io/pkg/sna/man/flowbet.html" class="e
 <dd><p>Semi-local centrality. Triple-nested neighborhood sum.</p></dd>
 
 <dt>clusterrank</dt>
-<dd><p>ClusterRank. Clustering coefficient times neighbor
-degree sum.</p></dd>
+<dd><p>ClusterRank (Chen et al. 2013). \(10^{-c}\) times
+the neighbors' (followers') degree + 1 sum.</p></dd>
 
 <dt>bottleneck</dt>
 <dd><p>Bottleneck centrality. Count of shortest path trees where
@@ -1206,7 +1208,7 @@ Defined on connected undirected networks; otherwise <code>NA</code> with a
 <dd><p>Expected centrality. Sum of neighbor degrees.</p></dd>
 
 <dt>gilschmidt</dt>
-<dd><p>Gil-Schmidt power index. Sum of 1/d normalized by n-1.</p></dd>
+<dd><p>Gil-Schmidt power index. Mean of 1/d over the nodes reached.</p></dd>
 
 <dt>salsa</dt>
 <dd><p>SALSA authority scores (directed graphs only).</p></dd>

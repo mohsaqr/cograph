@@ -133,7 +133,7 @@ cograph::ego_networks(regulation_net, nodes = "Plan")
 #> Ego Networks (order = 1, mode = all)
 #> ================================================== 
 #>  node size ego_ties ego_density alter_ties alter_density effective_size
-#>  Plan    6       15   0.3571429          8     0.2666667       4.714286
+#>  Plan    6       15   0.3571429          8     0.2666667       4.428571
 #>  constraint
 #>   0.3609471
 ```

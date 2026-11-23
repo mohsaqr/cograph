@@ -143,7 +143,7 @@ test_that("network_summary() eigenvector centralization: directed = TRUE, agains
                           agrees_with = "igraph::centr_eigen(directed = TRUE)")
 })
 
-test_that("network_summary() degree centralization uses igraph's maximum for a graph with self-loops", {
+test_that("network_summary() degree centralization is Freeman's, the maximum of a star without loops", {
   skip_without_reference("igraph")
   on_undirected <- network_summary(undirected, digits = NULL)
   on_directed <- network_summary(directed, digits = NULL)
@@ -151,26 +151,23 @@ test_that("network_summary() degree centralization uses igraph's maximum for a g
   degree_u <- rowSums(undirected)
   degree_all <- rowSums(directed) + colSums(directed)
   # Freeman (1979): the maximum is a star without self-loops: (n - 1)(n - 2) undirected, 2 (n - 1)(n - 2) for
-  # in + out degree, (n - 1)^2 for in- or out-degree.
+  # in + out degree, (n - 1)^2 for in- or out-degree. cograph 2.7.19 and earlier called igraph::centr_degree() with
+  # its default loops = TRUE, whose maximum counts self-loops (n (n - 1)).
   freeman <- c(undirected = d1_freeman(degree_u, (n - 1) * (n - 2)),
                all = d1_freeman(degree_all, 2 * (n - 1) * (n - 2)),
                `in` = d1_freeman(colSums(directed), (n - 1)^2), out = d1_freeman(rowSums(directed), (n - 1)^2))
   reported <- c(undirected = on_undirected$centralization_degree, all = on_directed$centralization_degree,
                 `in` = on_directed$centralization_in_degree, out = on_directed$centralization_out_degree)
-  expect_known_difference(reported, freeman,
-                          reference = "independent: Freeman degree centralization, maximum of a star without loops",
-                          covers = "network_summary()", quantity = "degree centralization", tolerance = exact,
-                          reason = paste("network_summary() calls igraph::centr_degree() with its default loops = TRUE,",
-                                         "whose maximum counts self-loops: n (n - 1) undirected and for in/out,",
-                                         "2 (n - 1)^2 for in + out."),
-                          agrees_with = "igraph::centr_degree(loops = TRUE)")
+  expect_reference(reported, freeman,
+                   reference = "independent: Freeman degree centralization, maximum of a star without loops",
+                   covers = "network_summary()", quantity = "degree centralization", tolerance = exact)
   expect_reference(reported,
-                   c(undirected = igraph::centr_degree(ref_igraph(undirected))$centralization,
-                     all = igraph::centr_degree(ref_igraph(directed), mode = "all")$centralization,
-                     `in` = igraph::centr_degree(ref_igraph(directed), mode = "in")$centralization,
-                     out = igraph::centr_degree(ref_igraph(directed), mode = "out")$centralization),
+                   c(undirected = igraph::centr_degree(ref_igraph(undirected), loops = FALSE)$centralization,
+                     all = igraph::centr_degree(ref_igraph(directed), mode = "all", loops = FALSE)$centralization,
+                     `in` = igraph::centr_degree(ref_igraph(directed), mode = "in", loops = FALSE)$centralization,
+                     out = igraph::centr_degree(ref_igraph(directed), mode = "out", loops = FALSE)$centralization),
                    reference = "igraph, called by cograph", covers = "network_summary()",
-                   quantity = "degree centralization, loops = TRUE", tolerance = exact)
+                   quantity = "degree centralization, loops = FALSE", tolerance = exact)
 })
 
 test_that("network_summary() reciprocity is the dyadic ratio of sna, not NetworkX's edgewise reciprocity", {

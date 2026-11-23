@@ -62,6 +62,17 @@
   .cg_path_matrix(cg, .ext_weights(cg, weights))
 }
 
+#' The 0/1 adjacency of a context without self-loops
+#' @param cg A `cg_graph` context.
+#' @return A numeric 0/1 matrix without dimnames, zero diagonal.
+#' @keywords internal
+#' @noRd
+.ext_binary <- function(cg) {
+  b <- (unname(cg$b) != 0) * 1
+  diag(b) <- 0
+  b
+}
+
 #' Neighbor lists with igraph's `as_adj_list()` / `neighbors()` semantics
 #'
 #' Sorted by neighbor id. On a directed graph `mode = "all"` lists a
@@ -504,31 +515,26 @@ calculate_flow_betweenness <- function(cg, weights = NULL, directed = TRUE) {
 }
 
 
-#' Lobby index / h-index (centiserve-compatible)
+#' Lobby index (Korn, Schubert and Telcs 2009, Definition 1)
 #'
-#' Largest k such that node has at least k nodes in its CLOSED neighborhood
-#' with degree >= k. Uses closed neighborhood (includes node itself).
+#' The largest k such that the node has at least k neighbors with a degree of
+#' at least k: the h-index of the degrees of its neighbors, each neighbor once
+#' (a neighbor tied in both directions is one neighbor) and the node itself
+#' not among them. Degrees are taken at `mode`.
 #' @keywords internal
 #' @noRd
 calculate_lobby <- function(cg, mode = "all") {
   cg <- .ext_context(cg)
   n <- cg$n
   if (n == 0) return(integer(0))
-
-  deg <- .cg_degree(cg$b, cg$directed, mode)
-  adj <- .ext_adjlist(cg, mode)
-
-  # Closed neighborhood: node + its neighbors
-  vapply(seq_len(n), function(i) {
-    as.integer(.cg_hindex(c(deg[i], deg[adj[[i]]])))
-  }, integer(1))
+  as.integer(.cg_lobby(cg$b, cg$directed, mode))
 }
 
 
-#' Radiality centrality (centiserve-compatible)
+#' Radiality centrality (Valente and Foreman 1998)
 #'
-#' sum(diam + 1 - d(v,w)) for ALL w (including self, where d=0),
-#' divided by (n - 1).
+#' sum(diam + 1 - d(v,w)) over the other nodes w that v reaches, divided by
+#' (n - 1); diam is the diameter of the same distances.
 #' @keywords internal
 #' @noRd
 calculate_radiality <- function(cg, mode = "all", weights = NULL,
@@ -540,13 +546,9 @@ calculate_radiality <- function(cg, mode = "all", weights = NULL,
   if (is.null(dist_mat)) {
     dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  # The diameter follows the graph's own direction, not `mode`, and when
-  # weights are in force it is taken on the raw weight attribute (igraph's
-  # `weights = NULL` default), not on the path weights.
-  diam_m <- if (is.null(weights)) unname(cg$b) else .ext_default_weights(cg)
-  diam <- .cg_diameter(.cg_distances(diam_m, if (cg$directed) "out" else "all"))
-
-  .cg_radiality(dist_mat, n, diam)
+  # The diameter is that of the distances the reverse distances are built on
+  # (Valente and Foreman 1998), so every reverse distance is at least 1.
+  .cg_radiality(dist_mat, n)
 }
 
 
@@ -585,22 +587,21 @@ calculate_decay <- function(cg, mode = "all", weights = NULL,
 }
 
 
-#' Residual closeness (centiserve-compatible)
+#' Residual closeness (Dangalchev 2006)
 #'
-#' sum(1/2^d) including self = sum(2^(-d)). Self contributes 1.
+#' sum(2^-d(i, j)) over the other nodes j != i; an unreached node contributes 0.
 #' @keywords internal
 #' @noRd
 calculate_residual_closeness <- function(cg, mode = "all", weights = NULL,
                                          dist_mat = NULL) {
   cg <- .ext_context(cg)
   n <- cg$n
-  if (n <= 1) return(rep(1, n))
+  if (n <= 1) return(rep(0, n))
 
   if (is.null(dist_mat)) {
     dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
-  # 1/2^sp including self; Inf distances contribute 0
-  rowSums(1 / (2^dist_mat))
+  .cg_residual_closeness(dist_mat, n)
 }
 
 
@@ -646,9 +647,10 @@ calculate_harary <- function(cg, mode = "all", weights = NULL,
 }
 
 
-#' Average distance centrality (centiserve-compatible)
+#' Average distance centrality
 #'
-#' sum(d(v,w)) / (n + 1). Note: centiserve divides by vcount+1.
+#' sum(d(v,w)) over the other nodes / (n - 1), the definition centiserve
+#' states (its code divides by n + 1).
 #' @keywords internal
 #' @noRd
 calculate_average_distance <- function(cg, mode = "all", weights = NULL,
@@ -661,8 +663,7 @@ calculate_average_distance <- function(cg, mode = "all", weights = NULL,
     dist_mat <- .cg_distances(.ext_path_matrix(cg, weights), mode)
   }
 
-  # centiserve divides by n+1 (including self which has dist 0)
-  rowSums(dist_mat) / (n + 1)
+  .cg_average_distance(dist_mat, n)
 }
 
 
@@ -814,7 +815,7 @@ calculate_entropy <- function(cg, mode = "all") {
   if (cg$n == 0) return(numeric(0))
   .cg_entropy(cg$b, mode)
 }
-
+#' Semi-local centrality (Chen et al. 2012; equals centiserve::semilocal())
 
 #' Semi-local centrality (centiserve-compatible)
 #'
@@ -825,31 +826,33 @@ calculate_entropy <- function(cg, mode = "all") {
 calculate_semilocal <- function(cg, mode = "all") {
   cg <- .ext_context(cg)
   if (cg$n == 0) return(numeric(0))
-  .cg_semilocal(.ext_adjlist(cg, mode))
+  # Chen et al. (2012) sum over the neighbor SETS: a neighbor tied in both
+  # directions is one neighbor
+  .cg_semilocal(.cg_adj_distinct(.ext_binary(cg), mode))
 }
 
 
-#' ClusterRank (centiserve-compatible)
+#' ClusterRank (Chen, Gao, Lu and Zhou 2013, Eq. 1-4)
 #'
-#' `cc[v] * sum(degree(w) + 1)` for neighbors `w`. Uses clustering coefficient
-#' directly, not `10^(-cc)`.
+#' `10^(-c_v) * sum(k_w + 1)` over the neighbors `w` of `v`. On a directed
+#' graph the neighbors are the followers (the out-neighbors; the in-neighbors
+#' for `mode = "in"`), `k_w` their out-degrees, and `c_v` the directed
+#' clustering coefficient of Eq. 1.
 #' @keywords internal
 #' @noRd
 calculate_clusterrank <- function(cg, mode = "all") {
   cg <- .ext_context(cg)
-  n <- cg$n
-  if (n == 0) return(numeric(0))
-
-  deg <- .cg_degree(cg$b, cg$directed, mode)
-  cc <- .cg_local_transitivity(cg$b, n, cg$directed)
-  .cg_clusterrank(cc, .ext_adjlist(cg, mode), deg)
+  if (cg$n == 0) return(numeric(0))
+  b <- .ext_binary(cg)
+  .cg_clusterrank(if (cg$directed && identical(mode, "in")) t(b) else b, cg$directed)
 }
 
 
-#' Bottleneck centrality (centiserve-compatible)
+#' Bottleneck centrality (Przulj, Wigle and Jurisica 2004)
 #'
-#' For each source, compute ALL shortest paths. A node v gets +1 if it
-#' appears in more than n/4 of those paths.
+#' For each source s, compute ALL shortest paths. A node v gets +1 if it
+#' appears in more than |T_s|/4 of those paths, |T_s| the nodes s reaches
+#' (itself included).
 #' @keywords internal
 #' @noRd
 calculate_bottleneck <- function(cg, mode = "all") {
@@ -1003,27 +1006,18 @@ calculate_local_bridging <- function(cg) {
 }
 
 
-#' Effective network size (influenceR-compatible)
+#' Effective network size (Burt 1992)
 #'
-#' Burt's effective size: degree minus redundancy.
+#' Burt's effective size on the 0/1 ties, as `networkx::effective_size()`:
+#' the neighbors (in or out) less their redundancy, ties weighed by the
+#' mutual weight a_ij + a_ji. On an undirected graph it equals Borgatti's
+#' (1997) form k - 2t/k (influenceR).
 #' @keywords internal
 #' @noRd
 calculate_effective_size <- function(cg) {
   cg <- .ext_context(cg)
-  n <- cg$n
-  if (n == 0) return(numeric(0))
-
-  adj <- .ext_adjlist(cg, "all", loops = "once")
-
-  vapply(seq_len(n), function(v) {
-    nbs <- adj[[v]]
-    k <- length(nbs)
-    if (k == 0) return(0)
-
-    shared <- vapply(nbs, function(j) length(intersect(nbs, adj[[j]])),
-                     numeric(1))
-    k - sum(shared) / k
-  }, numeric(1))
+  if (cg$n == 0) return(numeric(0))
+  .cg_effective_size(.ext_binary(cg), cg$directed)
 }
 
 
@@ -1120,9 +1114,10 @@ calculate_markov <- function(cg) {
 }
 
 
-#' Integration centrality (tidygraph-compatible)
+#' Integration centrality (Valente and Foreman 1998)
 #'
-#' For each node, compute distances, then 1 - (d-1)/max(d), sum over all j.
+#' The reverse distances D + 1 - d(j, i) from the other nodes j that reach
+#' the node, summed and divided by n - 1.
 #' @keywords internal
 #' @noRd
 calculate_integration <- function(cg, mode = "all") {
@@ -1154,9 +1149,9 @@ calculate_expected <- function(cg, mode = "all") {
 }
 
 
-#' Gil-Schmidt power index (sna-compatible)
+#' Gil-Schmidt power index (Gil and Schmidt 1996, as sna)
 #'
-#' sum(1/d(v,w)) / (n-1) for all reachable w.
+#' sum(1/d(v,w)) over the nodes w that v reaches, divided by their number.
 #' @keywords internal
 #' @noRd
 calculate_gilschmidt <- function(cg, mode = "all") {
@@ -1356,8 +1351,9 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
 #'   betweenness and closeness the maximum is the value of an unweighted
 #'   star, so unweighted input gives 0 for a perfectly even network and 1 for
 #'   an undirected star. For eigenvector centrality, whose scores are scaled to
-#'   a maximum of 1, the divisor is \eqn{n - 1}, and a star gives a value
-#'   below 1. Weighted closeness
+#'   a maximum of 1, the divisor is the largest possible sum, \eqn{n - 2} on
+#'   an undirected network and \eqn{n - 1} on a directed one, and a star
+#'   gives a value below 1. Weighted closeness
 #'   scales with the inverse of the edge weights, so its centralization can
 #'   exceed 1. Nodes whose score is \code{NA} or \code{NaN} are dropped from
 #'   the sum. The value is 0 when the network has two or fewer nodes.
@@ -1372,8 +1368,9 @@ calculate_gateway <- function(cg, membership = NULL, mode = "all") {
 #' arcs). Betweenness: \eqn{(n - 1)^2 (n - 2) / 2} undirected and
 #' \eqn{(n - 1)^2 (n - 2)} directed. Closeness: \eqn{(n - 1)(n - 2) / (2n - 3)},
 #' and \eqn{(n - 1)^2 / n} for \code{mode = "in"} or \code{"out"} on a
-#' directed network. Eigenvector: \eqn{n - 1} (igraph uses \eqn{n - 2} on an
-#' undirected network).
+#' directed network. Eigenvector: \eqn{n - 2} undirected and \eqn{n - 1}
+#' directed, as \code{igraph::centr_eigen_tmax()} (before 2.7.20 cograph
+#' divided by \eqn{n - 1} on every network).
 #'
 #' @references
 #' Freeman, L. C. (1979). Centrality in social networks: Conceptual
@@ -1438,7 +1435,11 @@ centralization <- function(x, measure = c("degree", "betweenness",
     },
     "eigenvector" = {
       scores <- .cg_eigenvector(w, n)
-      theo_max <- n - 1
+      # Freeman (1979): the largest possible sum of gaps among graphs of n
+      # nodes. Scores scaled to a maximum of 1 reach n - 2 on an undirected
+      # graph (one edge and isolates) and n - 1 on a directed one, igraph's
+      # centr_eigen_tmax().
+      theo_max <- if (is_dir) n - 1 else n - 2
       .freeman_centralization(scores, theo_max)
     }
   )
@@ -1726,8 +1727,9 @@ calculate_trophic_level <- function(cg) {
 
 #' H-index strength (extended h-index with weighted edges)
 #'
-#' Like the lobby index but uses strength (weighted degree) of closed
-#' neighborhood members instead of unweighted degree.
+#' The lobby index (Korn et al. 2009) with strength (weighted degree) in place
+#' of degree: the h-index of the strengths of the node's neighbors, each
+#' neighbor once and the node itself not among them.
 #' @keywords internal
 #' @noRd
 calculate_hindex_strength <- function(cg, mode = "all") {
@@ -1738,7 +1740,7 @@ calculate_hindex_strength <- function(cg, mode = "all") {
   # Strength on the graph's own weights (igraph's default), degree when the
   # input carried none
   str <- .cg_strength(.ext_default_weights(cg), cg$directed, mode)
-  as.integer(.cg_hindex_strength(.ext_adjlist(cg, mode), str))
+  as.integer(.cg_hindex_strength(.cg_adj_distinct(.ext_binary(cg), mode), str))
 }
 
 

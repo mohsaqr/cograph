@@ -172,14 +172,14 @@ ref_a2_local_efficiency <- function(graph) {
   })
 }
 
-#' Strength h-index: the h-index of the strengths of the node and its neighbours (the lobby index of Korn et al.
-#' 2009 with strength in place of degree)
+#' Strength h-index: the h-index of the strengths of the node's neighbours (the lobby index of Korn et al. 2009,
+#' Definition 1, with strength in place of degree; the node itself is not among them)
 #'
 #' @param graph A symmetric weight matrix.
 #' @return One value per node.
 ref_a2_hindex_strength <- function(graph) {
   strength <- rowSums(graph * (row(graph) != col(graph)))
-  ref_a2_per_node(graph, \(i) ref_a2_hindex(strength[c(i, setdiff(which(graph[i, ] != 0), i))]))
+  ref_a2_per_node(graph, \(i) ref_a2_hindex(strength[setdiff(which(graph[i, ] != 0), i)]))
 }
 
 #' Weighted h-index (Gao et al. 2019, eq. 3): the h-index of the multiset in which each neighbour j contributes

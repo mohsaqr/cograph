@@ -151,12 +151,12 @@ test_that("the strength h-index and the weighted h-index equal their definitions
   heavy <- ceiling(5 * undirected_weighted)
   expect_reference(centrality(heavy, measures = "hindex_strength"),
                    ref_nodes(hindex_strength_all = ref_a2_hindex_strength(heavy)),
-                   reference = "independent: the core and h-index definitions written in base R (each named in its note)", note = "h-index of the strengths of the closed neighbourhood, base R",
+                   reference = "independent: the core and h-index definitions written in base R (each named in its note)", note = "h-index of the neighbours' strengths (Korn et al. 2009), base R",
                    covers = "centrality()", quantity = "hindex_strength, undirected, weights 1 to 5",
                    tolerance = exact, key = "node")
   expect_reference(centrality(karate, measures = "hindex_strength"),
                    ref_nodes(hindex_strength_all = ref_a2_hindex_strength(karate)),
-                   reference = "independent: the core and h-index definitions written in base R (each named in its note)", note = "h-index of the strengths of the closed neighbourhood, base R",
+                   reference = "independent: the core and h-index definitions written in base R (each named in its note)", note = "h-index of the neighbours' strengths (Korn et al. 2009), base R",
                    covers = "centrality()", quantity = "hindex_strength, karate, unit weights",
                    tolerance = exact, key = "node")
   expect_reference(centrality_weighted_h_index(undirected), ref_a2_weighted_h_index(undirected),

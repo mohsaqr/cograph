@@ -20,19 +20,24 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-ClusterRank (Chen et al. 2013) combines the local clustering coefficient
-\eqn{c_v} of a node with the degrees of its neighbors:
-\deqn{CR(v) = c_v \sum_{u \in N(v)} (k_u + 1).}{
-  CR(v) = c_v sum_{u in N(v)} (k_u + 1).}
+ClusterRank (Chen et al. 2013, Eq. 3-4) damps the degrees of a node's
+neighbors by its local clustering coefficient \eqn{c_v}:
+\deqn{CR(v) = 10^{-c_v} \sum_{u \in \Gamma(v)} (k_u + 1).}{
+  CR(v) = 10^(-c_v) sum_{u in Gamma(v)} (k_u + 1).}
 }
 \details{
-Edge weights are ignored. \code{mode} sets both the neighbor set and the
-degrees, and on a directed network a reciprocated neighbor enters the sum
-twice under \code{mode = "all"}. The clustering coefficient ignores edge
-direction. A node with fewer than two neighbors has no clustering
-coefficient and returns \code{NaN}. Chen et al. weight the sum by
-\eqn{10^{-c_v}}{10^(-c_v)}, and the measure here multiplies by \eqn{c_v}
-itself, as the centiserve package does.
+Edge weights are ignored. On an undirected network \eqn{\Gamma(v)} holds
+the neighbors, \eqn{k} is the degree and \eqn{c_v} the local clustering
+coefficient. On a directed network the paper's directed form applies
+(Eq. 1): a link \eqn{v \to u}{v -> u} makes \eqn{u} a follower of
+\eqn{v}, \eqn{\Gamma(v)} holds the followers (out-neighbors), \eqn{k}
+is the out-degree, and \eqn{c_v} is the number of links among the
+followers over \eqn{k_v(k_v - 1)}, a reciprocated pair counting as two;
+\code{mode = "in"} reads the links the other way round. A node with fewer
+than two neighbors has no clustering coefficient and returns \code{NaN}.
+\code{centiserve::clusterrank()} (and cograph 2.7.19 and earlier, which on
+a directed network also took the undirected skeleton) multiply by
+\eqn{c_v} itself instead of \eqn{10^{-c_v}}{10^(-c_v)}.
 }
 \examples{
 centrality_clusterrank(regulation_net)

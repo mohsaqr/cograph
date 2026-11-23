@@ -19,19 +19,22 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-Integration centrality (Valente and Foreman 1998) scores each distance
-against the diameter \eqn{D}, the largest finite hop distance, and sums:
-\deqn{I(i) = \sum_{j} \left(1 - \frac{d_{ij} - 1}{D}\right),}{
-  I(i) = sum_j (1 - (d_ij - 1) / D),}
-where an unreachable node contributes 0.
+Integration centrality (Valente and Foreman 1998) reverses the distance
+from each other node against the diameter \eqn{D}, the largest finite hop
+distance, and averages:
+\deqn{I(i) = \frac{1}{n - 1} \sum_{j \ne i} (D + 1 - d_{ji}),}{
+  I(i) = sum_{j != i} (D + 1 - d_ji) / (n - 1),}
+where a node that does not reach \eqn{i} contributes 0.
 }
 \details{
-Distances are hop counts, so edge weights are ignored. The sum includes
-the node itself, which contributes \eqn{1 + 1/D}, and is not divided by
-\eqn{n - 1}; the values equal \code{tidygraph::centrality_integration()}.
-\code{mode = "all"} treats edges as undirected, \code{"out"} uses
-distances from the node and \code{"in"} distances to it. On a network
-without edges every node scores \eqn{n}.
+Distances are hop counts, so edge weights are ignored. Integration reads
+the paths into the node (radiality reads the paths out of it); with
+\code{mode = "all"} the two are the same. \code{mode = "out"} follows the
+ties' direction along those paths and \code{"in"} reverses it. On a
+network without edges every node scores 0. cograph 2.7.19 and earlier
+returned \code{tidygraph::centrality_integration()}, which sums
+\eqn{1 - (d - 1)/D} over every node, the node itself included, without
+dividing by \eqn{n - 1}.
 }
 \examples{
 centrality_integration(regulation_net)

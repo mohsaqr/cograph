@@ -73,7 +73,9 @@ The basic measures are always computed:
 \item{mean_distance}{Average shortest path length}
 \item{min_cut}{Minimum number of edges whose removal disconnects the
 network. Edge weights are not used.}
-\item{centralization_degree}{Degree centralization over all ties (0-1)}
+\item{centralization_degree}{Degree centralization over all ties (0-1),
+Freeman (1979): self-loops left out of the degrees and of the maximum
+(\code{igraph::centr_degree(loops = FALSE)})}
 \item{centralization_in_degree}{In-degree centralization (directed only)}
 \item{centralization_out_degree}{Out-degree centralization (directed only)}
 \item{centralization_betweenness}{Betweenness centralization (0-1)}

@@ -35,14 +35,15 @@ graph with fewer than two nodes. For unweighted simple graphs it lies in
 \eqn{[0, 1]}. Weighted graphs can exceed 1 when edge distances are below 1.
 }
 \description{
-Computes the average local efficiency across all nodes with
-\code{igraph::average_local_efficiency()}. For each node, igraph removes
-the node and measures the distances between its neighbors through the rest
-of the network. The value can therefore exceed the Latora and Marchiori
-(2001) form, which restricts those distances to the subgraph induced on the
-neighbors. \code{centrality(x, measures = "local_efficiency")} reports the
-induced-subgraph form. The two agree when the neighbors have no path
-outside their induced subgraph.
+Computes the average local efficiency across all nodes (Latora and
+Marchiori 2001): the mean over the nodes of the efficiency of the subgraph
+induced on each node's neighbors (in- and out-neighbors on a directed
+network), the distances measured inside that subgraph; a node with fewer
+than two neighbors contributes 0. This is \code{networkx::local_efficiency()}
+and the mean of \code{centrality(x, measures = "local_efficiency")}.
+\code{igraph::average_local_efficiency()} instead measures the neighbors'
+distances in the network without the node, which can be shorter (cograph
+reported that form before 2.7.20).
 }
 \examples{
 \dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}

@@ -138,7 +138,7 @@ d1_py_global_efficiency <- paste0(
   "(lambda d: sum(1 / x for s in d.values() for x in s.values() if x > 0) / (len(G) * (len(G) - 1)))",
   "(dict(nx.all_pairs_dijkstra_path_length(G, weight='weight')))")
 d1_py_local_efficiency <- paste0(
-  "(lambda eff, nbrs: float(np.mean([eff(nbrs(v) - {v}, G.subgraph(set(G) - {v})) for v in G])))(",
+  "(lambda eff, nbrs: float(np.mean([eff(nbrs(v) - {v}, G.subgraph(nbrs(v) - {v})) for v in G])))(",
   "lambda N, H: 0.0 if len(N) < 2 else sum(1 / x for s in N ",
   "for t, x in nx.single_source_dijkstra_path_length(H, s, weight='weight').items() if t in N and t != s)",
   " / (len(N) * (len(N) - 1)), ",

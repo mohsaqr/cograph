@@ -344,44 +344,29 @@ test_that("the distance sums equal their definitions on weighted shortest distan
                    reference = definition, note = "Koschuetzki et al. (2005) centroid value, on Floyd-Warshall distances",
                    covers = c("centrality()", "centrality_centroid()"), quantity = "centroid, undirected weighted",
                    tolerance = exact)
-  # Dangalchev (2006) sums 2^-d over the OTHER nodes; cograph, as centiserve, adds the node itself (2^0 = 1).
+  # Dangalchev (2006) sums 2^-d over the OTHER nodes (cograph <= 2.7.19, as centiserve, added the node itself).
   dangalchev <- rowSums(ifelse(off, 2^-distances, 0))
-  expect_reference(centrality_dangalchev(undirected_weighted), dangalchev + 1,
-                   reference = definition, note = "Dangalchev (2006) residual closeness plus the node's own term, on Floyd-Warshall distances",
+  expect_reference(centrality_dangalchev(undirected_weighted), dangalchev,
+                   reference = definition, note = "Dangalchev (2006) residual closeness, on Floyd-Warshall distances",
                    covers = c("centrality()", "centrality_dangalchev()"), quantity = "dangalchev, undirected weighted",
                    tolerance = exact)
-  expect_reference(centrality_residual_closeness(undirected_weighted), dangalchev + 1,
-                   reference = definition, note = "Dangalchev (2006) residual closeness plus the node's own term, on Floyd-Warshall distances",
+  expect_reference(centrality_residual_closeness(undirected_weighted), dangalchev,
+                   reference = definition, note = "Dangalchev (2006) residual closeness, on Floyd-Warshall distances",
                    covers = c("centrality()", "centrality_residual_closeness()"),
                    quantity = "residual_closeness, undirected weighted", tolerance = exact)
-  expect_known_difference(centrality_residual_closeness(undirected_weighted), dangalchev,
-                          reference = definition, note = "Dangalchev (2006) residual closeness, on Floyd-Warshall distances",
-                          covers = c("centrality()", "centrality_residual_closeness()"),
-                          quantity = "residual_closeness, published sum over the other nodes", tolerance = exact,
-                          reason = "cograph, as centiserve, includes the node itself in the sum, adding 1 to every score.")
-  # Average distance: the mean over the other nodes is sum / (n - 1); cograph, as centiserve, divides by n + 1.
-  expect_reference(centrality_average_distance(undirected_weighted), rowSums(distances) / (n + 1),
-                   reference = definition, note = "sum of distances over n + 1 (centiserve's average distance), on Floyd-Warshall distances",
+  # Average distance: the mean over the other nodes, sum / (n - 1) (cograph <= 2.7.19 divided by n + 1).
+  expect_reference(centrality_average_distance(undirected_weighted), rowSums(distances) / (n - 1),
+                   reference = definition, note = "mean distance to the other nodes, on Floyd-Warshall distances",
                    covers = c("centrality()", "centrality_average_distance()"),
                    quantity = "average_distance, undirected weighted", tolerance = exact)
-  expect_known_difference(centrality_average_distance(undirected_weighted), rowSums(distances) / (n - 1),
-                          reference = definition, note = "mean distance to the other nodes, on Floyd-Warshall distances",
-                          covers = c("centrality()", "centrality_average_distance()"),
-                          quantity = "average_distance, mean over the other nodes", tolerance = exact,
-                          reason = "cograph follows centiserve and divides the sum of distances by n + 1, not n - 1.")
-  # Radiality (Valente and Foreman 1998): sum over the other nodes of (D + 1 - d) / (n - 1), D the diameter.
-  # cograph, as centiserve, also sums the node itself, adding (D + 1) / (n - 1).
+  # Radiality (Valente and Foreman 1998): sum over the other nodes of (D + 1 - d) / (n - 1), D the diameter
+  # (cograph <= 2.7.19 also summed the node itself, adding (D + 1) / (n - 1)).
   diameter <- max(distances)
   radiality <- rowSums(ifelse(off, diameter + 1 - distances, 0)) / (n - 1)
-  expect_reference(centrality_radiality(undirected_weighted), radiality + (diameter + 1) / (n - 1),
-                   reference = definition, note = "Valente and Foreman (1998) radiality plus the node's own term, on Floyd-Warshall distances",
+  expect_reference(centrality_radiality(undirected_weighted), radiality,
+                   reference = definition, note = "Valente and Foreman (1998) radiality, on Floyd-Warshall distances",
                    covers = c("centrality()", "centrality_radiality()"), quantity = "radiality, undirected weighted",
                    tolerance = exact)
-  expect_known_difference(centrality_radiality(undirected_weighted), radiality,
-                          reference = definition, note = "Valente and Foreman (1998) radiality, on Floyd-Warshall distances",
-                          covers = c("centrality()", "centrality_radiality()"),
-                          quantity = "radiality, published sum over the other nodes", tolerance = exact,
-                          reason = "cograph follows centiserve and includes the node itself, adding (D + 1) / (n - 1).")
 })
 
 test_that("integration and the Gil-Schmidt index equal their definitions and sna's gilschmidt()", {
@@ -389,27 +374,37 @@ test_that("integration and the Gil-Schmidt index equal their definitions and sna
   hops <- ref_a2_hops(undirected)
   n <- nrow(hops)
   diameter <- max(hops)
-  # Integration as tidygraph computes it: sum over every node, itself included, of 1 - (d - 1) / D.
-  expect_reference(centrality_integration(undirected), rowSums(1 - (hops - 1) / diameter),
-                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "integration, sum of 1 - (d - 1) / D over every node (tidygraph), base R",
+  # Valente and Foreman (1998): the reverse distances D + 1 - d(j, i) from the other nodes, over n - 1 (cograph
+  # <= 2.7.19 followed tidygraph, 1 - (d - 1) / D summed over every node, the node itself included).
+  expect_reference(centrality_integration(undirected),
+                   rowSums(ifelse(row(hops) != col(hops), diameter + 1 - hops, 0)) / (n - 1),
+                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Valente and Foreman (1998) integration, base R",
                    covers = c("centrality()", "centrality_integration()"), quantity = "integration, undirected",
                    tolerance = exact)
-  # Valente and Foreman (1998): sum over the other nodes of (D + 1 - d) / (n - 1).
-  expect_known_difference(centrality_integration(undirected),
-                          rowSums(ifelse(row(hops) != col(hops), diameter + 1 - hops, 0)) / (n - 1),
-                          reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Valente and Foreman (1998) integration, base R",
-                          covers = c("centrality()", "centrality_integration()"),
-                          quantity = "integration, Valente and Foreman", tolerance = exact,
-                          reason = paste("cograph follows tidygraph: (D + 1 - d) / D summed over every node, the node",
-                                         "itself included, instead of over the other nodes divided by n - 1."))
+  # On a directed graph integration reads the incoming paths, d(j, i); an unreached pair contributes 0.
+  sparse_directed <- ref_graph(12, density = 0.15, seed = 24L, directed = TRUE)
+  in_hops <- ref_hop_distances(sparse_directed)
+  in_diameter <- max(in_hops[is.finite(in_hops)])
+  expect_reference(centrality_integration(sparse_directed, mode = "out"),
+                   colSums(ifelse(row(in_hops) != col(in_hops) & is.finite(in_hops), in_diameter + 1 - in_hops, 0)) /
+                     (nrow(in_hops) - 1),
+                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Valente and Foreman (1998) integration over the paths into the node, base R",
+                   covers = c("centrality()", "centrality_integration()"),
+                   quantity = "integration, mode out, directed, not strongly connected", tolerance = exact)
   expect_reference(centrality_gilschmidt(undirected), ref_named(sna::gilschmidt(undirected, gmode = "graph"), undirected),
                    reference = "sna", covers = c("centrality()", "centrality_gilschmidt()"),
                    quantity = "gilschmidt, undirected", tolerance = exact)
   expect_reference(centrality_gilschmidt(directed, mode = "out"), ref_named(sna::gilschmidt(directed), directed),
                    reference = "sna", covers = c("centrality()", "centrality_gilschmidt()"),
                    quantity = "gilschmidt, mode out, directed", tolerance = exact)
+  # Gil and Schmidt (1996): the mean of 1 / d over the nodes reached, |R(v)| (cograph <= 2.7.19 divided by n - 1,
+  # which differs wherever a node does not reach every other).
+  expect_reference(centrality_gilschmidt(sparse_directed, mode = "out"),
+                   ref_named(sna::gilschmidt(sparse_directed, gmode = "digraph"), sparse_directed),
+                   reference = "sna", covers = c("centrality()", "centrality_gilschmidt()"),
+                   quantity = "gilschmidt, mode out, directed, not strongly connected", tolerance = exact)
   expect_reference(centrality_gilschmidt(undirected), rowSums(ifelse(hops > 0, 1 / hops, 0)) / (n - 1),
-                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Gil and Schmidt (1996) power index, base R",
+                   reference = "independent: the local and distance measures written from their definitions in base R (each named in its note)", note = "Gil and Schmidt (1996) power index (every node reached), base R",
                    covers = c("centrality()", "centrality_gilschmidt()"), quantity = "gilschmidt, undirected",
                    tolerance = exact)
 })

@@ -194,6 +194,7 @@
     "fragmentation", "generalized_closeness", "graph_regularization",
     "harary", "harmonic",
     "hindex_strength", "hub", "hubbell", "information", "katz", "kreach",
+    "laplacian",
     "length_scaled_betweenness", "lin", "load", "local_efficiency",
     "modularity_vitality", "pagerank", "random_walk_decay", "linerank",
     "coleman_theil",

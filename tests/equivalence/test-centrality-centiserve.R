@@ -27,16 +27,48 @@ biconnected <- ref_connected_graph(12, density = 0.45, seed = 31L)
 # Integer counts, or a few additions and one division of integers: agreement to the last bits is expected.
 exact <- 1e-10
 
+# ClusterRank from Chen, Gao, Lu and Zhou (2013): Eq. 4 s_i = f(c_i) sum_{j in Gamma_i} (k_j + 1), Eq. 3
+# f(c) = 10^-c, Eq. 1 c_i = (arcs among Gamma_i) / (k_i (k_i - 1)). Gamma_i: the out-neighbours (followers) on a
+# directed graph, the neighbours on an undirected one; k the out-degree (the degree); NaN below two neighbours.
+clusterrank_definition <- function(adjacency) {
+  ties <- (adjacency != 0) * 1
+  diag(ties) <- 0
+  k <- rowSums(ties)
+  vapply(seq_len(nrow(ties)), \(i) {
+    gamma <- which(ties[i, ] == 1)
+    if (length(gamma) < 2) return(NaN)
+    10^-(sum(ties[gamma, gamma]) / (k[i] * (k[i] - 1))) * sum(k[gamma] + 1)
+  }, numeric(1))
+}
+
 test_that("distance-based closeness variants equal centiserve", {
   skip_without_reference(c("centiserve", "igraph"))
   graph <- ref_igraph(undirected)
   graph_directed <- ref_igraph(directed)
-  expect_reference(centrality_radiality(undirected), centiserve::radiality(graph), reference = "centiserve",
-                   covers = c("centrality()", "centrality_radiality()"), quantity = "radiality, undirected",
-                   tolerance = exact)
-  expect_reference(centrality_radiality(directed, mode = "out"), centiserve::radiality(graph_directed, mode = "out"),
+  # Radiality, residual (Dangalchev) closeness and average distance follow their papers since cograph 2.7.20
+  # (owner, 2026-11-22: the literature wins): a sum over the other nodes j != i. centiserve's code also sums the
+  # node itself (radiality: + (D + 1) / (n - 1); residual closeness: + 2^0 = 1) and divides the average distance by
+  # n + 1, although its help states n - 1. Compared as stated differences, and with centiserve's value less the
+  # self term (both graphs are strongly connected, so D is igraph::diameter() of the graph centiserve reads).
+  n_nodes <- nrow(undirected)
+  self_term <- \(graph) (igraph::diameter(graph) + 1) / (n_nodes - 1)
+  radiality_reason <- paste("centiserve::radiality() sums D + 1 - d(v, w) over every w, v itself included, which",
+                            "adds (D + 1) / (n - 1); Valente and Foreman (1998) sum over the other nodes.")
+  expect_known_difference(centrality_radiality(undirected), centiserve::radiality(graph), reference = "centiserve",
+                          covers = c("centrality()", "centrality_radiality()"), quantity = "radiality, undirected",
+                          tolerance = exact, reason = radiality_reason,
+                          agrees_with = "centiserve::radiality() less (D + 1) / (n - 1)")
+  expect_reference(centrality_radiality(undirected), centiserve::radiality(graph) - self_term(graph),
                    reference = "centiserve", covers = c("centrality()", "centrality_radiality()"),
-                   quantity = "radiality, mode out, directed", tolerance = exact)
+                   quantity = "radiality, undirected, centiserve less its self term", tolerance = exact)
+  expect_known_difference(centrality_radiality(directed, mode = "out"), centiserve::radiality(graph_directed, mode = "out"),
+                          reference = "centiserve", covers = c("centrality()", "centrality_radiality()"),
+                          quantity = "radiality, mode out, directed", tolerance = exact, reason = radiality_reason,
+                          agrees_with = "centiserve::radiality() less (D + 1) / (n - 1)")
+  expect_reference(centrality_radiality(directed, mode = "out"),
+                   centiserve::radiality(graph_directed, mode = "out") - self_term(graph_directed),
+                   reference = "centiserve", covers = c("centrality()", "centrality_radiality()"),
+                   quantity = "radiality, mode out, directed, centiserve less its self term", tolerance = exact)
   expect_reference(centrality_lin(undirected), centiserve::lincent(graph), reference = "centiserve",
                    covers = c("centrality()", "centrality_lin()"), quantity = "lin, undirected", tolerance = exact)
   expect_reference(centrality_lin(directed, mode = "in"), centiserve::lincent(graph_directed, mode = "in"),
@@ -53,27 +85,39 @@ test_that("distance-based closeness variants equal centiserve", {
   expect_reference(centrality_generalized_closeness(undirected, decay_parameter = 0.7), centiserve::decay(graph, decay = 0.7),
                    reference = "centiserve", covers = c("centrality()", "centrality_generalized_closeness()"),
                    quantity = "generalized closeness 0.7, undirected", tolerance = exact)
-  expect_reference(centrality_residual_closeness(undirected), centiserve::closeness.residual(graph),
+  residual_reason <- paste("centiserve::closeness.residual() sums 2^-d(i, j) over every j, i itself included (+1),",
+                           "although its help states j != i, Dangalchev's (2006) definition.")
+  expect_known_difference(centrality_residual_closeness(undirected), centiserve::closeness.residual(graph),
+                          reference = "centiserve", covers = c("centrality()", "centrality_residual_closeness()"),
+                          quantity = "residual closeness, undirected", tolerance = exact, reason = residual_reason,
+                          agrees_with = "centiserve::closeness.residual() less 1")
+  expect_reference(centrality_residual_closeness(undirected), centiserve::closeness.residual(graph) - 1,
                    reference = "centiserve", covers = c("centrality()", "centrality_residual_closeness()"),
-                   quantity = "residual closeness, undirected", tolerance = exact)
+                   quantity = "residual closeness, undirected, centiserve less its self term", tolerance = exact)
   expect_reference(centrality_residual_closeness(directed, mode = "out"),
-                   centiserve::closeness.residual(graph_directed, mode = "out"), reference = "centiserve",
+                   centiserve::closeness.residual(graph_directed, mode = "out") - 1, reference = "centiserve",
                    covers = c("centrality()", "centrality_residual_closeness()"),
-                   quantity = "residual closeness, mode out, directed", tolerance = exact)
+                   quantity = "residual closeness, mode out, directed, centiserve less its self term", tolerance = exact)
   # Dangalchev's closeness is the same quantity as residual closeness under a second name.
-  expect_reference(centrality_dangalchev(undirected), centiserve::closeness.residual(graph), reference = "centiserve",
-                   covers = c("centrality()", "centrality_dangalchev()"), quantity = "dangalchev, undirected",
-                   tolerance = exact)
+  expect_reference(centrality_dangalchev(undirected), centiserve::closeness.residual(graph) - 1, reference = "centiserve",
+                   covers = c("centrality()", "centrality_dangalchev()"),
+                   quantity = "dangalchev, undirected, centiserve less its self term", tolerance = exact)
   expect_reference(centrality_barycenter(undirected), centiserve::barycenter(graph), reference = "centiserve",
                    covers = c("centrality()", "centrality_barycenter()"), quantity = "barycenter, undirected",
                    tolerance = exact)
-  expect_reference(centrality_average_distance(undirected), centiserve::averagedis(graph), reference = "centiserve",
-                   covers = c("centrality()", "centrality_average_distance()"), quantity = "average distance, undirected",
-                   tolerance = exact)
+  expect_known_difference(centrality_average_distance(undirected), centiserve::averagedis(graph), reference = "centiserve",
+                          covers = c("centrality()", "centrality_average_distance()"), quantity = "average distance, undirected",
+                          tolerance = exact,
+                          reason = paste("centiserve::averagedis() divides the sum of distances by n + 1 although its help",
+                                         "states sum(dis(u, w) / (n - 1)), the mean over the other nodes."),
+                          agrees_with = "centiserve::averagedis() times (n + 1) / (n - 1)")
+  expect_reference(centrality_average_distance(undirected), centiserve::averagedis(graph) * (n_nodes + 1) / (n_nodes - 1),
+                   reference = "centiserve", covers = c("centrality()", "centrality_average_distance()"),
+                   quantity = "average distance, undirected, centiserve's sum over n - 1", tolerance = exact)
   expect_reference(centrality_average_distance(directed, mode = "out"),
-                   centiserve::averagedis(graph_directed, mode = "out"), reference = "centiserve",
-                   covers = c("centrality()", "centrality_average_distance()"),
-                   quantity = "average distance, mode out, directed", tolerance = exact)
+                   centiserve::averagedis(graph_directed, mode = "out") * (n_nodes + 1) / (n_nodes - 1),
+                   reference = "centiserve", covers = c("centrality()", "centrality_average_distance()"),
+                   quantity = "average distance, mode out, directed, centiserve's sum over n - 1", tolerance = exact)
   expect_reference(centrality_closeness_vitality(biconnected), centiserve::closeness.vitality(ref_igraph(biconnected)),
                    reference = "centiserve", covers = c("centrality()", "centrality_closeness_vitality()"),
                    quantity = "closeness vitality, undirected, no cut vertex", tolerance = exact, measure = "scaled")
@@ -97,8 +141,24 @@ test_that("k-reach equals centiserve's geokpath()", {
 test_that("neighbourhood measures equal centiserve", {
   skip_without_reference(c("centiserve", "igraph"))
   graph <- ref_igraph(undirected)
-  expect_reference(centrality_lobby(undirected), centiserve::lobby(graph), reference = "centiserve",
+  # Lobby index (Korn, Schubert and Telcs 2009, Definition 1): the h-index of the neighbours' degrees. centiserve
+  # takes neighborhood(order = 1), which holds the node itself (cograph <= 2.7.19 did the same).
+  lobby_definition <- \(adjacency) {
+    degree <- rowSums(adjacency != 0 | t(adjacency) != 0)
+    vapply(seq_len(nrow(adjacency)), \(i) {
+      values <- sort(degree[which(adjacency[i, ] != 0 | adjacency[, i] != 0)], decreasing = TRUE)
+      sum(values >= seq_along(values))
+    }, numeric(1))
+  }
+  expect_reference(centrality_lobby(undirected), ref_named(lobby_definition(undirected), undirected),
+                   reference = "independent: the lobby index from Korn, Schubert and Telcs (2009), Definition 1, base R",
                    covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, undirected", tolerance = exact)
+  expect_known_difference(centrality_lobby(undirected), centiserve::lobby(graph), reference = "centiserve",
+                          covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, undirected",
+                          tolerance = exact,
+                          reason = paste("centiserve::lobby() takes the h-index over neighborhood(order = 1), which holds",
+                                         "the node itself; Korn et al. (2009) count the node's neighbours only."),
+                          agrees_with = "the h-index over the closed neighbourhood")
   expect_reference(centrality_bottleneck(undirected), centiserve::bottleneck(graph), reference = "centiserve",
                    covers = c("centrality()", "centrality_bottleneck()"), quantity = "bottleneck, undirected",
                    tolerance = exact)
@@ -110,9 +170,26 @@ test_that("neighbourhood measures equal centiserve", {
   expect_reference(centrality_semilocal(undirected), centiserve::semilocal(graph), reference = "centiserve",
                    covers = c("centrality()", "centrality_semilocal()"), quantity = "semilocal, undirected",
                    tolerance = exact)
-  expect_reference(centrality_clusterrank(undirected), centiserve::clusterrank(graph), reference = "centiserve",
+  # ClusterRank (Chen, Gao, Lu and Zhou 2013, Eq. 3-4): 10^-c_i times the sum of k_j + 1 over the neighbours.
+  # centiserve multiplies by c_i itself (cograph <= 2.7.19 did the same).
+  expect_reference(centrality_clusterrank(undirected), ref_named(clusterrank_definition(undirected), undirected),
+                   reference = "independent: ClusterRank from Chen, Gao, Lu and Zhou (2013), Eq. 1-4, base R",
                    covers = c("centrality()", "centrality_clusterrank()"), quantity = "clusterrank, undirected",
                    tolerance = exact)
+  # centiserve's own sum, damped as the paper says: its value over its own c_i (igraph transitivity()) times
+  # 10^-c_i, where c_i > 0 (every node of this graph).
+  clustering <- igraph::transitivity(graph, type = "local")
+  expect_reference(centrality_clusterrank(undirected),
+                   ref_named(centiserve::clusterrank(graph) / clustering * 10^-clustering, undirected),
+                   reference = "centiserve", covers = c("centrality()", "centrality_clusterrank()"),
+                   quantity = "clusterrank, undirected, centiserve's sum damped by 10^-c (Chen et al. 2013, Eq. 3)",
+                   tolerance = exact)
+  expect_known_difference(centrality_clusterrank(undirected), centiserve::clusterrank(graph), reference = "centiserve",
+                          covers = c("centrality()", "centrality_clusterrank()"), quantity = "clusterrank, undirected",
+                          tolerance = exact,
+                          reason = paste("centiserve::clusterrank() multiplies the neighbours' sum by the clustering",
+                                         "coefficient c_i; Chen et al. (2013), Eq. 3, damp it by f(c_i) = 10^-c_i."),
+                          agrees_with = "centiserve::clusterrank() / c_i * 10^-c_i")
   expect_reference(centrality_entropy(undirected), centiserve::entropy(graph), reference = "centiserve",
                    covers = c("centrality()", "centrality_entropy()"), quantity = "entropy, undirected", tolerance = exact)
   expect_reference(centrality_topological_coefficient(undirected), centiserve::topocoefficient(graph),
@@ -131,9 +208,54 @@ test_that("neighbourhood measures equal centiserve", {
 test_that("neighbourhood measures with a direction equal centiserve, mode out", {
   skip_without_reference(c("centiserve", "igraph"))
   graph <- ref_igraph(directed)
-  expect_reference(centrality_lobby(directed, mode = "out"), centiserve::lobby(graph, mode = "out"),
-                   reference = "centiserve", covers = c("centrality()", "centrality_lobby()"),
-                   quantity = "lobby, mode out, directed", tolerance = exact)
+  out_degree <- rowSums(directed != 0)
+  lobby_out <- vapply(seq_len(nrow(directed)), \(i) {
+    values <- sort(out_degree[which(directed[i, ] != 0)], decreasing = TRUE)
+    sum(values >= seq_along(values))
+  }, numeric(1))
+  expect_reference(centrality_lobby(directed, mode = "out"), ref_named(lobby_out, directed),
+                   reference = "independent: the lobby index from Korn, Schubert and Telcs (2009), Definition 1, base R",
+                   covers = c("centrality()", "centrality_lobby()"), quantity = "lobby, mode out, directed", tolerance = exact)
+  expect_known_difference(centrality_lobby(directed, mode = "out"), centiserve::lobby(graph, mode = "out"),
+                          reference = "centiserve", covers = c("centrality()", "centrality_lobby()"),
+                          quantity = "lobby, mode out, directed", tolerance = exact,
+                          reason = paste("centiserve::lobby() takes the h-index over neighborhood(order = 1), which holds",
+                                         "the node itself; Korn et al. (2009) count the node's neighbours only."),
+                          agrees_with = "the h-index over the closed neighbourhood")
+  # Semi-local centrality on a directed graph with mode "all" (Chen et al. 2012): neighbour sets, a node tied in
+  # both directions one neighbour, as centiserve's neighborhood() (cograph 2.7.19 and earlier listed it twice).
+  expect_reference(centrality_semilocal(directed), centiserve::semilocal(graph, mode = "all"),
+                   reference = "centiserve", covers = c("centrality()", "centrality_semilocal()"),
+                   quantity = "semilocal, mode all, directed", tolerance = exact)
+  # ClusterRank on a directed graph (Chen et al. 2013, Eq. 1): a link i -> j makes j a follower of i; the sum runs
+  # over the followers (out-neighbours) of their out-degrees + 1, and c_i counts the arcs among the followers over
+  # k_i (k_i - 1). centiserve::clusterrank(directed = TRUE) takes the same followers, out-degrees and coefficient
+  # and multiplies by c_i instead of 10^-c_i.
+  expect_reference(centrality_clusterrank(directed), ref_named(clusterrank_definition(directed), directed),
+                   reference = "independent: ClusterRank from Chen, Gao, Lu and Zhou (2013), Eq. 1-4, base R",
+                   covers = c("centrality()", "centrality_clusterrank()"), quantity = "clusterrank, directed",
+                   tolerance = exact)
+  # centiserve's own followers' sum, damped as the paper says, where its coefficient c_i (its
+  # .cs.transitivity.directed()) is above 0; where c_i = 0 centiserve's value is 0 and gives no sum.
+  directed_clustering <- centiserve:::.cs.transitivity.directed(graph)
+  damped <- ref_named(centiserve::clusterrank(graph) / directed_clustering * 10^-directed_clustering, directed)
+  positive <- directed_clustering > 0
+  expect_reference(centrality_clusterrank(directed)[positive], damped[positive],
+                   reference = "centiserve", covers = c("centrality()", "centrality_clusterrank()"),
+                   quantity = "clusterrank, directed, centiserve's sum damped by 10^-c, nodes with c > 0",
+                   tolerance = exact)
+  expect_not_comparable(centrality_clusterrank(directed)[!positive], damped[!positive],
+                        reference = "centiserve", covers = c("centrality()", "centrality_clusterrank()"),
+                        quantity = "clusterrank, directed, centiserve's sum damped by 10^-c, nodes with c = 0",
+                        reason = paste("centiserve::clusterrank() is 0 at a node whose clustering coefficient is 0,",
+                                       "so its neighbours' sum, and the paper's value, cannot be read from it."))
+  expect_known_difference(centrality_clusterrank(directed), centiserve::clusterrank(graph), reference = "centiserve",
+                          covers = c("centrality()", "centrality_clusterrank()"), quantity = "clusterrank, directed",
+                          tolerance = exact,
+                          reason = paste("centiserve::clusterrank(directed = TRUE) multiplies the followers' sum by the",
+                                         "directed clustering coefficient c_i; Chen et al. (2013), Eq. 3, damp it by",
+                                         "f(c_i) = 10^-c_i."),
+                          agrees_with = "centiserve::clusterrank() / c_i * 10^-c_i")
   expect_reference(centrality_leverage(directed, mode = "out"), centiserve::leverage(graph, mode = "out"),
                    reference = "centiserve", covers = c("centrality()", "centrality_leverage()"),
                    quantity = "leverage, mode out, directed", tolerance = exact)

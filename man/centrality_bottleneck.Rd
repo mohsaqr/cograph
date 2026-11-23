@@ -24,7 +24,10 @@ Bottleneck centrality (Przulj, Wigle and Jurisica 2004) counts the
 shortest-path trees in which a node is a bottleneck. For each source
 \eqn{s}, every shortest path from \eqn{s} to every reachable node is
 enumerated, and a node \eqn{v \ne s}{v != s} scores one for that source
-when it lies on more than \eqn{n/4} of these paths.
+when it lies on more than \eqn{|T_s|/4} of these paths, \eqn{|T_s|} the
+number of nodes \eqn{s} reaches, itself included (cograph 2.7.19 and
+earlier used \eqn{n/4}, which differs where \eqn{s} does not reach every
+node).
 }
 \details{
 Distances are hop counts, so edge weights are ignored. \code{mode} sets the

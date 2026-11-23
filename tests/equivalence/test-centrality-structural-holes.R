@@ -44,6 +44,15 @@ test_that("effective size equals NetworkX's effective_size(), and redundancy its
   expect_reference(centrality_effective_size(karate), on_karate$size, reference = "networkx",
                    covers = c("centrality()", "centrality_effective_size()"), quantity = "effective_size, karate",
                    tolerance = exact)
+  # Burt (1992) on a directed network (cograph 2.7.20; before, Borgatti's undirected form with a reciprocated
+  # neighbour counted twice): the in- and out-neighbours, ties weighed by the mutual weight a_ij + a_ji, the formula
+  # NetworkX documents and computes node by node (effective_size(G, nodes=...), its redundancy() path). Its default
+  # call (nodes=None) takes a sparse-matrix path that gives other values for a node with a reciprocated tie
+  # (verify run of snajs, 2026-11-22: directed node A 2.8 against 2.7 from the same NetworkX's node-by-node path).
+  on_directed <- ref_networkx(directed, c(size = "nx.effective_size(G, nodes=list(G))"))
+  expect_reference(centrality_effective_size(directed), on_directed$size, reference = "networkx",
+                   covers = c("centrality()", "centrality_effective_size()"),
+                   quantity = "effective_size, directed (NetworkX's node-by-node Burt formula)", tolerance = exact)
   # Borgatti (1997): redundancy = degree - effective size on a binary network.
   expect_reference(centrality_redundancy(undirected), on_undirected$redundancy, reference = "networkx",
                    covers = c("centrality()", "centrality_redundancy()"),

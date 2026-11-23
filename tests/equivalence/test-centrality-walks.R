@@ -227,4 +227,12 @@ test_that("voterank's order of election equals NetworkX's voterank()", {
   expect_reference(centrality_voterank(undirected)[elected], expected, reference = "networkx",
                    covers = c("centrality()", "centrality_voterank()"),
                    quantity = "voterank, order of election, undirected", tolerance = exact)
+  # The directed version of Zhang et al. (2016): a node votes for its in-neighbours, only the elected node's
+  # out-neighbours lose voting ability, and <k> is the mean out-degree (cograph 2.7.20; before, a node voted for its
+  # out-neighbours and <k> was the mean in + out degree).
+  elected_directed <- unlist(ref_networkx(directed, c(voterank = "nx.voterank(G)"))$voterank)
+  expected_directed <- stats::setNames((n + 1 - seq_along(elected_directed)) / n, elected_directed)
+  expect_reference(centrality_voterank(directed)[elected_directed], expected_directed, reference = "networkx",
+                   covers = c("centrality()", "centrality_voterank()"),
+                   quantity = "voterank, order of election, directed", tolerance = exact)
 })

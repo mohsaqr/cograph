@@ -17,19 +17,22 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-Burt's effective size is the number of a node's contacts minus their
-redundancy, the average number of ties each contact has to the other
-contacts:
-\deqn{ES(v) = k_v - \frac{1}{k_v} \sum_{j \in N(v)} |N(v) \cap N(j)|.}{
-  ES(v) = k_v - (1 / k_v) sum_{j in N(v)} |N(v) & N(j)|.}
-On an undirected network this is \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
+Burt's (1992) effective size is the number of a node's contacts minus
+their redundancy:
+\deqn{ES(v) = \sum_{j \in N(v)} \left(1 - \sum_{q} p_{vq} m_{jq}\right),}{
+  ES(v) = sum_{j in N(v)} (1 - sum_q p_vq m_jq),}
+where \eqn{p_{vq}}{p_vq} is v's share of its ties going to q and
+\eqn{m_{jq}}{m_jq} j's tie to q over j's strongest tie, every tie weighed
+by its mutual weight \eqn{a_{vq} + a_{qv}}{a_vq + a_qv}. On an undirected
+network this is Borgatti's (1997) \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
 with \eqn{t_v}{t_v} the number of ties among the contacts.
 }
 \details{
-Edge weights are ignored. On a directed network each reciprocated neighbor
-enters the neighbor list twice, so \eqn{k_v}{k_v} counts it twice and the
-result differs from that of the undirected skeleton. An isolated node
-scores 0.
+Edge weights are ignored (each tie is 0/1). On a directed network
+\eqn{N(v)} holds the in- and out-neighbors, each once, and a reciprocated
+tie has mutual weight 2, as in \code{networkx::effective_size()}; cograph
+2.7.19 and earlier applied Borgatti's form with a reciprocated neighbor
+counted twice. An isolated node scores 0.
 }
 \examples{
 centrality_effective_size(regulation_net)

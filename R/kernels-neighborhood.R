@@ -67,9 +67,11 @@
   as.numeric(d + adj %*% d)
 }
 
-#' Lobby index: h-index over the closed neighborhood's degrees
+#' Lobby index: h-index over the neighbors' degrees (Korn et al. 2009)
 #'
-#' The neighborhood is *closed* -- the vertex counts itself -- and both the
+#' Definition 1 of Korn, Schubert and Telcs: the largest k such that the
+#' vertex has at least k neighbors of degree at least k. The neighborhood is
+#' open (the vertex does not count itself) and each neighbor counts once; the
 #' degrees and the neighbor set are taken at `mode`.
 #'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
@@ -82,37 +84,43 @@
   bb <- (b != 0) * 1
   diag(bb) <- 0
   deg <- .cg_degree(bb, directed, mode)
-  nbrs <- .cg_adjlist(bb, directed, mode)
-  vapply(seq_along(nbrs), function(i)
-    .cg_hindex(c(deg[i], deg[nbrs[[i]]])), numeric(1L))
+  nbrs <- .cg_adj_distinct(bb, mode)
+  vapply(nbrs, function(js) .cg_hindex(deg[js]), numeric(1L))
 }
 
-#' h-index over strengths rather than degrees
-#' @param nbrs Neighbor lists. @param strength Strength vector.
+#' h-index over the neighbors' strengths rather than degrees
+#' @param nbrs Distinct neighbor lists. @param strength Strength vector.
 #' @return Numeric vector.
 #' @keywords internal
 #' @noRd
 .cg_hindex_strength <- function(nbrs, strength) {
-  vapply(seq_along(nbrs), function(i)
-    .cg_hindex(c(strength[i], strength[nbrs[[i]]])), numeric(1L))
+  vapply(nbrs, function(js) .cg_hindex(strength[js]), numeric(1L))
 }
 
-#' ClusterRank (Chen et al. 2013), cograph's formulation
+#' ClusterRank (Chen, Gao, Lu and Zhou 2013)
 #'
-#' `c_v * sum_{u in N(v)} (k_u + 1)`. Chen et al. damp by `f(c_v) = 10^-c_v`
-#' rather than by `c_v` itself; cograph multiplies by the raw coefficient,
-#' which is what `centrality()` documents as "Clustering coefficient times
-#' neighbor degree sum".
+#' Eq. 4: `s_i = f(c_i) sum_{j in Gamma_i} (k_j + 1)` with Eq. 3
+#' `f(c) = 10^-c`. On an undirected graph `Gamma_i` is the neighbor set, `k_j`
+#' the degree and `c_i` the local clustering coefficient. On a directed graph
+#' (Eq. 1) a link i -> j makes j a follower of i: `Gamma_i` holds the
+#' out-neighbors, `k_j` is the out-degree, and
+#' `c_i = |{j -> k : j, k in Gamma_i}| / (k_i (k_i - 1))`, a reciprocated pair
+#' of followers counting as two links.
 #'
-#' @param clust Local transitivity. @param adj Neighbor lists (with multiplicity).
-#' @param deg Degree vector.
-#' @return Numeric vector; `NaN` wherever local transitivity is undefined.
+#' @param b Binary adjacency matrix without self-loops (transpose it to follow
+#'   in-ties). @param directed Whether the graph is directed.
+#' @return Numeric vector; `NaN` below two neighbors, where `c_i` is undefined.
 #' @keywords internal
 #' @noRd
-.cg_clusterrank <- function(clust, adj, deg) {
-  vapply(seq_along(adj), function(i) {
-    if (is.nan(clust[i])) return(NaN)
-    clust[i] * sum(deg[adj[[i]]] + 1)
+.cg_clusterrank <- function(b, directed) {
+  if (!directed) b <- ((b + t(b)) != 0) * 1
+  k <- rowSums(b)
+  vapply(seq_len(nrow(b)), function(i) {
+    if (k[i] < 2) return(NaN)
+    followers <- which(b[i, ] != 0)
+    links <- sum(b[followers, followers])
+    clustering <- links / (k[i] * (k[i] - 1))
+    10^(-clustering) * sum(k[followers] + 1)
   }, numeric(1L))
 }
 

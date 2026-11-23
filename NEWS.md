@@ -1,3 +1,53 @@
+# cograph 2.7.20
+
+## Measures brought back to their papers
+
+Where cograph followed another package's departure from the published
+definition, it now follows the paper (owner rule, 2026-11-22). Numbers change
+for these measures:
+
+* `centrality_clusterrank()` is Chen, Gao, Lu and Zhou's (2013) ClusterRank:
+  the neighbours' sum of k + 1 damped by `10^-c` (Eq. 3-4), not multiplied by
+  `c` as in centiserve. On a directed network it is the paper's directed form
+  (Eq. 1): the followers (out-neighbours), their out-degrees and the directed
+  clustering coefficient, instead of the undirected skeleton.
+* `centrality_lobby()` is Korn, Schubert and Telcs's (2009) Definition 1, the
+  h-index of the neighbours' degrees; the node's own degree is no longer in
+  the list (centiserve's closed neighbourhood). `hindex_strength` likewise.
+  On a directed network with `mode = "all"` a neighbour tied both ways counts
+  once in the lobby index, the strength h-index and `centrality_semilocal()`.
+* `centrality_gilschmidt()` divides by the number of nodes reached, as Gil and
+  Schmidt (1996) and `sna::gilschmidt()`; it divided by n - 1.
+* `centrality_effective_size()` on a directed network is Burt's (1992)
+  effective size with mutual weights, as `networkx::effective_size()`; it
+  applied Borgatti's undirected form with a reciprocated neighbour counted
+  twice. Undirected values are unchanged.
+* `centrality_voterank()` on a directed network is the paper's directed
+  version (Zhang et al. 2016, as `networkx::voterank()`): a node votes for its
+  in-neighbours, the elected node's out-neighbours lose ability, and `<k>` is
+  the mean out-degree.
+* `centrality_radiality()`, `centrality_residual_closeness()`,
+  `centrality_dangalchev()` and `centrality_average_distance()` sum over the
+  other nodes (Valente and Foreman 1998; Dangalchev 2006; the mean distance,
+  n - 1), where centiserve's code also sums the node itself or divides by
+  n + 1. Radiality takes the diameter of the distances it reverses.
+* `centrality_integration()` is Valente and Foreman's (1998) integration,
+  the reverse distances from the other nodes over n - 1, instead of
+  tidygraph's sum over every node.
+* `centrality_laplacian()` reads the weights of a weighted undirected network
+  (Qi et al. 2012, "a new centrality measure for weighted networks"), as
+  `networkx::laplacian_centrality(weight = )`.
+* `centrality_bottleneck()` compares with a quarter of the nodes the source
+  reaches, |T_s| / 4 (Przulj, Wigle and Jurisica 2004), not n / 4.
+* `network_local_efficiency()` measures the neighbours' distances inside the
+  subgraph they induce (Latora and Marchiori 2001, `networkx::local_efficiency()`),
+  as `centrality(measures = "local_efficiency")` already did, instead of igraph's
+  form in the network without the node.
+* `centralization(measure = "eigenvector")` divides by n - 2 on an undirected
+  network (Freeman's largest possible sum, igraph's `centr_eigen_tmax()`).
+* `network_summary()` degree centralizations use Freeman's maxima without
+  self-loops (`igraph::centr_degree(loops = FALSE)`).
+
 # cograph 2.7.19
 
 ## Corrected centrality results

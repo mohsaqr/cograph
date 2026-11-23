@@ -26,10 +26,10 @@ of a node and the neighbors \eqn{w} of each \eqn{u}, the number
   C_L(v) = sum_{u in N(v)} sum_{w in N(u)} N(w).}
 }
 \details{
-Edge weights are ignored. \code{mode} selects the neighbors, and with
-\code{mode = "all"} on a directed network a reciprocated tie counts twice.
-An isolated node scores 0. On undirected networks the values equal
-\code{centiserve::semilocal()}.
+Edge weights are ignored. \code{mode} selects the neighbors, each neighbor
+counted once (with \code{mode = "all"} on a directed network a reciprocated
+tie is one neighbor; cograph 2.7.19 and earlier counted it twice). An
+isolated node scores 0. The values equal \code{centiserve::semilocal()}.
 }
 \examples{
 centrality_semilocal(regulation_net)

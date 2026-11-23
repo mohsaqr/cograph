@@ -139,6 +139,14 @@
 }
 
 #' VoteRank (Zhang et al. 2016)
+#'
+#' Each round elects the unelected vertex with the most votes, a vote being a
+#' neighbor's voting ability; the elected vertex stops voting and its voters
+#' lose 1 / <k>. On a directed graph (the paper's directed version, as
+#' NetworkX) a vertex votes for its in-neighbors, so the votes of v come from
+#' its out-neighbors, the elected vertex's out-neighbors are weakened, and
+#' <k> is the mean out-degree.
+#'
 #' @param b Binary adjacency matrix. @param directed Whether directed.
 #' @return Numeric vector, rescaled so the first-elected vertex scores 1.
 #' @keywords internal
@@ -146,8 +154,15 @@
 .cg_voterank <- function(b, directed) {
   n <- nrow(b)
   if (n == 0L) return(numeric(0))
-  avg <- max(1, sum(.cg_degree(b, directed, "all")) / n)
-  ability <- rep(1, n)
+  # Abilities are kept exact: with D the degree sum (out-degree sum on a
+  # directed graph) and <k> = max(1, D / n), an ability after h hits is
+  # 1 - h / <k> = (D - h n) / D when D >= n (else 1 - h), so the votes are
+  # compared as sums of integers. Summed in floating point, two equal totals
+  # can round apart and elect the wrong node of a tie (2.7.19 and earlier).
+  total <- sum(.cg_degree(b, directed, if (directed) "out" else "all"))
+  full <- if (total >= n) total else 1
+  step <- if (total >= n) n else 1
+  hits <- numeric(n)
   selected <- rep(FALSE, n)
   rank <- numeric(n)
   # Each election depends on the previous winner's suppression of its
@@ -155,9 +170,9 @@
   for (r in seq_len(n)) {
     votes <- vapply(seq_len(n), function(v) {
       if (selected[v]) return(-1)
-      voters <- if (directed) which(!selected & b[, v] != 0)
+      voters <- if (directed) which(!selected & b[v, ] != 0)
                 else which(!selected & (b[, v] != 0 | b[v, ] != 0))
-      sum(ability[voters])
+      sum(pmax(0, full - hits[voters] * step))
     }, numeric(1L))
     if (all(votes < 0)) break
     best <- which.max(votes)
@@ -165,7 +180,7 @@
     rank[best] <- r
     hit <- if (directed) which(b[best, ] != 0)
            else which(b[best, ] != 0 | b[, best] != 0)
-    ability[hit] <- pmax(0, ability[hit] - 1 / avg)
+    hits[hit] <- hits[hit] + 1
   }
   mx <- max(rank)
   if (mx == 0) rep(0, n) else (mx + 1 - rank) / mx

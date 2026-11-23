@@ -20,14 +20,19 @@ VoteRank (Zhang et al. 2016) elects spreaders one at a time. Every node
 votes for its neighbors with a voting ability that starts at 1, the node
 with the most votes is elected, and each neighbor of the elected node
 loses \eqn{1/\langle k \rangle}{1/<k>} of its ability, where
-\eqn{\langle k \rangle}{<k>} is the mean degree. A node elected in round
+\eqn{\langle k \rangle}{<k>} is the mean degree (the mean out-degree on a
+directed network). A node elected in round
 \eqn{r} of \eqn{m} rounds scores \eqn{(m + 1 - r)/m}{(m + 1 - r) / m}, so
 the first node elected scores 1.
 }
 \details{
-Edge weights are ignored. On a directed network a node receives the votes
-of its in-neighbors, the election reduces the ability of the out-neighbors
-of the elected node, and the mean degree counts in-ties and out-ties.
+Edge weights are ignored. On a directed network the paper's directed
+version applies, as in \code{networkx::voterank()}: a node votes for its
+in-neighbors (so it receives the votes of its out-neighbors), the election
+reduces the ability of the out-neighbors of the elected node, its voters,
+and \eqn{\langle k \rangle}{<k>} is the mean out-degree. cograph 2.7.19
+and earlier had a node vote for its out-neighbors and took the mean in +
+out degree.
 Every node is elected in turn, so on \eqn{n} nodes the scores are
 \eqn{1/n, 2/n, \ldots, 1}{1/n, 2/n, ..., 1}. A tie in votes goes to the
 node listed first.

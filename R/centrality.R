@@ -506,8 +506,9 @@
 #'     to other influential nodes (supports mode: in/out/all)}
 #'   \item{subgraph}{Subgraph centrality. Participation in closed walks,
 #'     with shorter walks weighted more heavily}
-#'   \item{laplacian}{Laplacian centrality with the local formula of Qi et
-#'     al. (2012). Matches NetworkX and \code{centiserve::laplacian()}}
+#'   \item{laplacian}{Laplacian centrality (Qi et al. 2012): the drop in
+#'     Laplacian energy when the node leaves, on the weights of a weighted
+#'     undirected network. Matches NetworkX}
 #'   \item{load}{Load centrality. Share of shortest-path load passing
 #'     through the node, with load split evenly at each branching point}
 #'   \item{current_flow_closeness}{Information centrality. Closeness based on
@@ -520,21 +521,21 @@
 #'   \item{percolation}{Percolation centrality. Shortest-path betweenness
 #'     weighted by the node states in \code{states}. With equal states it is
 #'     betweenness divided by \eqn{(n-1)(n-2)}}
-#'   \item{radiality}{Radiality centrality (centiserve). Sum of (diam + 1 - d)
-#'     normalized by n-1.}
+#'   \item{radiality}{Radiality (Valente and Foreman 1998). Sum of
+#'     (diam + 1 - d) over the other nodes, over n - 1.}
 #'   \item{lin}{Lin's centrality. Reachable nodes squared divided by sum of
 #'     distances.}
 #'   \item{decay}{Decay centrality. Sum of \eqn{\delta^d}{delta^d} over all nodes,
 #'     the node itself included, with \eqn{\delta}{delta} = \code{decay_parameter}.}
-#'   \item{residual_closeness}{Residual closeness. Sum of \eqn{1/2^d} over
-#'     all nodes, the node itself included.}
+#'   \item{residual_closeness}{Residual closeness (Dangalchev 2006). Sum of
+#'     \eqn{1/2^d} over the other nodes.}
 #'   \item{dangalchev}{Dangalchev closeness. Same values as
 #'     \code{residual_closeness}.}
 #'   \item{generalized_closeness}{Generalized closeness. Same formula as
 #'     \code{decay}, using \code{decay_parameter}.}
 #'   \item{harary}{Harary centrality. Sum of 1/d^2 for all reachable pairs.}
-#'   \item{average_distance}{Average distance (centiserve). Sum of distances /
-#'     (n+1).}
+#'   \item{average_distance}{Average distance. Sum of distances to the other
+#'     nodes / (n - 1).}
 #'   \item{barycenter}{Barycenter centrality. 1 / sum of distances.}
 #'   \item{wiener}{Wiener index. Total sum of shortest path distances from node.}
 #'   \item{closeness_vitality}{Closeness vitality. Drop in Wiener index when
@@ -548,11 +549,12 @@
 #'   \item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
 #'     1991). Summed loss of maximum flow between other pairs when the node
 #'     is removed, as \code{sna::flowbet()}.}
-#'   \item{lobby}{Lobby index (h-index of neighborhood).}
+#'   \item{lobby}{Lobby index (Korn et al. 2009): h-index of the neighbors'
+#'     degrees.}
 #'   \item{entropy}{Graph entropy centrality. Entropy change on node removal.}
 #'   \item{semilocal}{Semi-local centrality. Triple-nested neighborhood sum.}
-#'   \item{clusterrank}{ClusterRank. Clustering coefficient times neighbor
-#'     degree sum.}
+#'   \item{clusterrank}{ClusterRank (Chen et al. 2013). \eqn{10^{-c}} times
+#'     the neighbors' (followers') degree + 1 sum.}
 #'   \item{bottleneck}{Bottleneck centrality. Count of shortest path trees where
 #'     node is critical.}
 #'   \item{centroid}{Centroid value (Wuchty and Stadler 2003). Minimum
@@ -583,7 +585,7 @@
 #'     (requires connected graph).}
 #'   \item{integration}{Integration centrality. Distance-based influence.}
 #'   \item{expected}{Expected centrality. Sum of neighbor degrees.}
-#'   \item{gilschmidt}{Gil-Schmidt power index. Sum of 1/d normalized by n-1.}
+#'   \item{gilschmidt}{Gil-Schmidt power index. Mean of 1/d over the nodes reached.}
 #'   \item{salsa}{SALSA authority scores (directed graphs only).}
 #'   \item{leaderrank}{LeaderRank. PageRank with ground node
 #'     (directed graphs only).}
@@ -1395,11 +1397,22 @@ calculate_kreach <- function(cg, mode = "all", weights = NULL, k = 3) {
 #' @noRd
 calculate_laplacian <- function(cg, weights = NULL, normalized = FALSE) {
   cg <- .cg_context(cg)
-  # Qi et al. (2012) local formula: deg² + deg + 2 * Σ(neighbor_degrees)
-  # Matches NetworkX and centiserve::laplacian()
+  # Qi et al. (2012): the drop in Laplacian energy when the node leaves. On a
+  # weighted undirected network (the paper's setting) that is
+  # x_v^2 + sum_u w_uv^2 + 2 sum_u x_u w_uv, x the strengths (loops cancel in
+  # the Laplacian); unweighted it is deg^2 + deg + 2 * sum(neighbor degrees).
+  # Matches NetworkX laplacian_centrality(normalized = False, weight = ...).
   n <- cg$n
   if (n == 0) return(numeric(0))
   if (n == 1) return(0)
+  if (isTRUE(cg$weighted) && !cg$directed) {
+    w <- unname(.ext_default_weights(cg))
+    diag(w) <- 0
+    x <- rowSums(w)
+    result <- x^2 + rowSums(w^2) + 2 * as.numeric(w %*% x)
+    if (normalized && max(result) > 0) result <- result / max(result)
+    return(result)
+  }
 
   # Degrees count a loop twice (igraph's convention), and the neighbor
   # list igraph reported includes the vertex itself for a loop -- once on
@@ -2876,15 +2889,22 @@ centrality_subgraph <- function(x, ...) {
 #' Laplacian Centrality
 #'
 #' Laplacian centrality (Qi et al. 2012) is the drop in the Laplacian energy
-#' of a network when a node is removed. Without edge weights the drop is
+#' of a network when a node is removed. On a weighted undirected network,
+#' with strengths \eqn{x}, the drop is
+#' \deqn{L(v) = x_v^2 + \sum_{u} w_{uv}^2 + 2 \sum_{u} x_u w_{uv};}{
+#'   L(v) = x_v^2 + sum_u w_uv^2 + 2 sum_u x_u w_uv;}
+#' without edge weights it is
 #' \deqn{L(v) = k_v^2 + k_v + 2 \sum_{u \in N(v)} k_u.}{
 #'   L(v) = k_v^2 + k_v + 2 sum_{u in N(v)} k_u.}
 #'
 #' @details
-#' Edge weights are ignored, so the score is the unweighted case of the
-#' weighted measure of Qi et al. (2012). On a directed network \eqn{k} is the
-#' total degree, in plus out, and the neighbor sum runs over out-neighbors.
-#' A self-loop adds 2 to the degree. On undirected networks the values equal
+#' On a weighted undirected network the weights are read as in Qi et al.
+#' (2012) and the values equal \code{networkx::laplacian_centrality(weight =)}
+#' (cograph 2.7.19 and earlier ignored the weights); self-loops cancel in the
+#' Laplacian. \code{weighted = FALSE} gives the unweighted formula, where a
+#' self-loop adds 2 to the degree. On a directed network the weights are
+#' ignored, \eqn{k} is the total degree, in plus out, and the neighbor sum
+#' runs over out-neighbors. On unweighted undirected networks the values equal
 #' \code{centiserve::laplacian()}. \code{normalized = TRUE} divides the
 #' scores by their maximum.
 #'
@@ -3043,14 +3063,19 @@ centrality_current_flow_betweenness <- function(x, ...) {
 #' votes for its neighbors with a voting ability that starts at 1, the node
 #' with the most votes is elected, and each neighbor of the elected node
 #' loses \eqn{1/\langle k \rangle}{1/<k>} of its ability, where
-#' \eqn{\langle k \rangle}{<k>} is the mean degree. A node elected in round
+#' \eqn{\langle k \rangle}{<k>} is the mean degree (the mean out-degree on a
+#' directed network). A node elected in round
 #' \eqn{r} of \eqn{m} rounds scores \eqn{(m + 1 - r)/m}{(m + 1 - r) / m}, so
 #' the first node elected scores 1.
 #'
 #' @details
-#' Edge weights are ignored. On a directed network a node receives the votes
-#' of its in-neighbors, the election reduces the ability of the out-neighbors
-#' of the elected node, and the mean degree counts in-ties and out-ties.
+#' Edge weights are ignored. On a directed network the paper's directed
+#' version applies, as in \code{networkx::voterank()}: a node votes for its
+#' in-neighbors (so it receives the votes of its out-neighbors), the election
+#' reduces the ability of the out-neighbors of the elected node, its voters,
+#' and \eqn{\langle k \rangle}{<k>} is the mean out-degree. cograph 2.7.19
+#' and earlier had a node vote for its out-neighbors and took the mean in +
+#' out degree.
 #' Every node is elected in turn, so on \eqn{n} nodes the scores are
 #' \eqn{1/n, 2/n, \ldots, 1}{1/n, 2/n, ..., 1}. A tie in votes goes to the
 #' node listed first.
@@ -3125,21 +3150,22 @@ centrality_percolation <- function(x, states = NULL, ...) {
 #' Radiality Centrality
 #'
 #' Radiality (Valente and Foreman 1998) reverses each distance against the
-#' diameter \eqn{D} and averages over the network:
-#' \deqn{R(i) = \frac{1}{n - 1} \sum_{j:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
-#'   R(i) = sum_{j: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
+#' diameter \eqn{D} and averages over the other nodes:
+#' \deqn{R(i) = \frac{1}{n - 1} \sum_{j \ne i:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
+#'   R(i) = sum_{j != i: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
 #' Nodes close to the others score high.
 #'
 #' @details
-#' The sum includes the node itself, which contributes \eqn{D + 1}, and the
-#' values equal \code{centiserve::radiality()} on undirected networks.
+#' The sum runs over the other nodes, as Valente and Foreman (1998) define
+#' it; \code{centiserve::radiality()} (and cograph 2.7.19 and earlier) also
+#' sum the node itself, which adds \eqn{(D + 1)/(n - 1)}.
 #' Unreachable nodes contribute 0. Edge weights are read as distances;
 #' \code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
 #' converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
 #' \code{mode = "all"} treats edges as undirected, \code{"out"} uses
-#' distances from the node and \code{"in"} distances to it. The diameter is
-#' taken on the stored edge weights in the direction of the network,
-#' whatever \code{mode} and \code{invert_weights} are. A single-node network
+#' distances from the node and \code{"in"} distances to it. The diameter \eqn{D} is the
+#' largest finite distance of the same distances (before 2.7.20 it was taken
+#' on the stored weights in the direction of the network). A single-node network
 #' gives \code{NA}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
@@ -3252,13 +3278,14 @@ centrality_decay <- function(x, mode = "all", decay_parameter = 0.5, ...) {
 #'
 #' Residual closeness (Dangalchev 2006) sums distances that decay by half
 #' with every step:
-#' \deqn{C(i) = \sum_{j} 2^{-d_{ij}},}{C(i) = sum_j 2^(-d_ij),}
+#' \deqn{C(i) = \sum_{j \ne i} 2^{-d_{ij}},}{C(i) = sum_{j != i} 2^(-d_ij),}
 #' with \eqn{2^{-\infty} = 0}{2^(-Inf) = 0}, so the score is defined on
 #' disconnected networks.
 #'
 #' @details
-#' The sum includes the node itself, which adds 1, and the values equal
-#' \code{centiserve::closeness.residual()} on undirected networks. Edge
+#' The sum runs over the other nodes, as Dangalchev (2006) and the help of
+#' \code{centiserve::closeness.residual()} state; centiserve's code (and
+#' cograph 2.7.19 and earlier) add the node itself, 1 more. Edge
 #' weights are read as distances; \code{weighted = FALSE} uses hop counts,
 #' and \code{invert_weights = TRUE} converts a weight \eqn{w} to the distance
 #' \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as
@@ -3294,9 +3321,9 @@ centrality_residual_closeness <- function(x, mode = "all", ...) {
 #'
 #' Dangalchev closeness, the residual closeness of Dangalchev (2006), sums an
 #' exponentially decaying function of the distance to every node:
-#' \deqn{D(v) = \sum_{w} 2^{-d(v, w)}.}{D(v) = sum_w 2^(-d(v, w)).}
-#' The sum includes the node itself, which adds one to every score, as in the
-#' centiserve package. Unreachable nodes contribute 0.
+#' \deqn{D(v) = \sum_{w \ne v} 2^{-d(v, w)}.}{D(v) = sum_{w != v} 2^(-d(v, w)).}
+#' The sum runs over the other nodes (cograph 2.7.19 and earlier, as the
+#' centiserve code, added the node itself). Unreachable nodes contribute 0.
 #'
 #' @details
 #' Edge weights are read as path lengths. \code{invert_weights = TRUE} uses
@@ -3417,10 +3444,12 @@ centrality_harary <- function(x, mode = "all", ...) {
 
 #' Average Distance
 #'
-#' Average distance is the sum of the shortest-path distances from a node to
-#' every node, divided by \eqn{n + 1} as in the centiserve package:
-#' \deqn{AD(v) = \frac{1}{n + 1} \sum_{w} d(v, w).}{
-#'   AD(v) = sum_w d(v, w) / (n + 1).}
+#' Average distance is the mean shortest-path distance from a node to the
+#' other nodes, the definition the centiserve package states:
+#' \deqn{AD(v) = \frac{1}{n - 1} \sum_{w \ne v} d(v, w).}{
+#'   AD(v) = sum_{w != v} d(v, w) / (n - 1).}
+#' (centiserve's code, and cograph 2.7.19 and earlier, divide by
+#' \eqn{n + 1}.)
 #' Lower values mark more central nodes.
 #'
 #' @details
@@ -3576,16 +3605,17 @@ centrality_closeness_vitality <- function(x, mode = "all", ...) {
 
 #' Lobby Index
 #'
-#' The lobby index (Korn et al. 2009) is the h-index of the degrees in the
-#' closed neighborhood of a node. It is the largest \eqn{k} such that the
-#' node and its neighbors include at least \eqn{k} nodes of degree \eqn{k}
-#' or more.
+#' The lobby index (Korn, Schubert and Telcs 2009, Definition 1) is the
+#' largest \eqn{k} such that the node has at least \eqn{k} neighbors of
+#' degree \eqn{k} or more: the h-index of its neighbors' degrees.
 #'
 #' @details
 #' Edge weights are ignored. \code{mode} selects both the degree and the
 #' neighbors, and with \code{mode = "all"} on a directed network the degree
-#' is in plus out. An isolated node scores 0. On undirected networks the
-#' values equal \code{centiserve::lobby()}.
+#' is in plus out while a neighbor tied in both directions counts once. An
+#' isolated node scores 0. \code{centiserve::lobby()} (and cograph 2.7.19 and
+#' earlier) take the closed neighborhood, the node's own degree included,
+#' which can raise the index by one.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -3650,10 +3680,10 @@ centrality_entropy <- function(x, mode = "all", ...) {
 #'   C_L(v) = sum_{u in N(v)} sum_{w in N(u)} N(w).}
 #'
 #' @details
-#' Edge weights are ignored. \code{mode} selects the neighbors, and with
-#' \code{mode = "all"} on a directed network a reciprocated tie counts twice.
-#' An isolated node scores 0. On undirected networks the values equal
-#' \code{centiserve::semilocal()}.
+#' Edge weights are ignored. \code{mode} selects the neighbors, each neighbor
+#' counted once (with \code{mode = "all"} on a directed network a reciprocated
+#' tie is one neighbor; cograph 2.7.19 and earlier counted it twice). An
+#' isolated node scores 0. The values equal \code{centiserve::semilocal()}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -3678,19 +3708,24 @@ centrality_semilocal <- function(x, mode = "all", ...) {
 
 #' ClusterRank
 #'
-#' ClusterRank (Chen et al. 2013) combines the local clustering coefficient
-#' \eqn{c_v} of a node with the degrees of its neighbors:
-#' \deqn{CR(v) = c_v \sum_{u \in N(v)} (k_u + 1).}{
-#'   CR(v) = c_v sum_{u in N(v)} (k_u + 1).}
+#' ClusterRank (Chen et al. 2013, Eq. 3-4) damps the degrees of a node's
+#' neighbors by its local clustering coefficient \eqn{c_v}:
+#' \deqn{CR(v) = 10^{-c_v} \sum_{u \in \Gamma(v)} (k_u + 1).}{
+#'   CR(v) = 10^(-c_v) sum_{u in Gamma(v)} (k_u + 1).}
 #'
 #' @details
-#' Edge weights are ignored. \code{mode} sets both the neighbor set and the
-#' degrees, and on a directed network a reciprocated neighbor enters the sum
-#' twice under \code{mode = "all"}. The clustering coefficient ignores edge
-#' direction. A node with fewer than two neighbors has no clustering
-#' coefficient and returns \code{NaN}. Chen et al. weight the sum by
-#' \eqn{10^{-c_v}}{10^(-c_v)}, and the measure here multiplies by \eqn{c_v}
-#' itself, as the centiserve package does.
+#' Edge weights are ignored. On an undirected network \eqn{\Gamma(v)} holds
+#' the neighbors, \eqn{k} is the degree and \eqn{c_v} the local clustering
+#' coefficient. On a directed network the paper's directed form applies
+#' (Eq. 1): a link \eqn{v \to u}{v -> u} makes \eqn{u} a follower of
+#' \eqn{v}, \eqn{\Gamma(v)} holds the followers (out-neighbors), \eqn{k}
+#' is the out-degree, and \eqn{c_v} is the number of links among the
+#' followers over \eqn{k_v(k_v - 1)}, a reciprocated pair counting as two;
+#' \code{mode = "in"} reads the links the other way round. A node with fewer
+#' than two neighbors has no clustering coefficient and returns \code{NaN}.
+#' \code{centiserve::clusterrank()} (and cograph 2.7.19 and earlier, which on
+#' a directed network also took the undirected skeleton) multiply by
+#' \eqn{c_v} itself instead of \eqn{10^{-c_v}}{10^(-c_v)}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"} or
@@ -3720,7 +3755,10 @@ centrality_clusterrank <- function(x, mode = "all", ...) {
 #' shortest-path trees in which a node is a bottleneck. For each source
 #' \eqn{s}, every shortest path from \eqn{s} to every reachable node is
 #' enumerated, and a node \eqn{v \ne s}{v != s} scores one for that source
-#' when it lies on more than \eqn{n/4} of these paths.
+#' when it lies on more than \eqn{|T_s|/4} of these paths, \eqn{|T_s|} the
+#' number of nodes \eqn{s} reaches, itself included (cograph 2.7.19 and
+#' earlier used \eqn{n/4}, which differs where \eqn{s} does not reach every
+#' node).
 #'
 #' @details
 #' Distances are hop counts, so edge weights are ignored. \code{mode} sets the
@@ -4294,19 +4332,22 @@ centrality_local_bridging <- function(x, ...) {
 
 #' Effective Size
 #'
-#' Burt's effective size is the number of a node's contacts minus their
-#' redundancy, the average number of ties each contact has to the other
-#' contacts:
-#' \deqn{ES(v) = k_v - \frac{1}{k_v} \sum_{j \in N(v)} |N(v) \cap N(j)|.}{
-#'   ES(v) = k_v - (1 / k_v) sum_{j in N(v)} |N(v) & N(j)|.}
-#' On an undirected network this is \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
+#' Burt's (1992) effective size is the number of a node's contacts minus
+#' their redundancy:
+#' \deqn{ES(v) = \sum_{j \in N(v)} \left(1 - \sum_{q} p_{vq} m_{jq}\right),}{
+#'   ES(v) = sum_{j in N(v)} (1 - sum_q p_vq m_jq),}
+#' where \eqn{p_{vq}}{p_vq} is v's share of its ties going to q and
+#' \eqn{m_{jq}}{m_jq} j's tie to q over j's strongest tie, every tie weighed
+#' by its mutual weight \eqn{a_{vq} + a_{qv}}{a_vq + a_qv}. On an undirected
+#' network this is Borgatti's (1997) \eqn{k_v - 2 t_v / k_v}{k_v - 2 t_v / k_v},
 #' with \eqn{t_v}{t_v} the number of ties among the contacts.
 #'
 #' @details
-#' Edge weights are ignored. On a directed network each reciprocated neighbor
-#' enters the neighbor list twice, so \eqn{k_v}{k_v} counts it twice and the
-#' result differs from that of the undirected skeleton. An isolated node
-#' scores 0.
+#' Edge weights are ignored (each tie is 0/1). On a directed network
+#' \eqn{N(v)} holds the in- and out-neighbors, each once, and a reciprocated
+#' tie has mutual weight 2, as in \code{networkx::effective_size()}; cograph
+#' 2.7.19 and earlier applied Borgatti's form with a reciprocated neighbor
+#' counted twice. An isolated node scores 0.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param ... Further arguments to \code{\link{centrality}}, such as
@@ -4429,19 +4470,22 @@ centrality_markov <- function(x, ...) {
 
 #' Integration Centrality
 #'
-#' Integration centrality (Valente and Foreman 1998) scores each distance
-#' against the diameter \eqn{D}, the largest finite hop distance, and sums:
-#' \deqn{I(i) = \sum_{j} \left(1 - \frac{d_{ij} - 1}{D}\right),}{
-#'   I(i) = sum_j (1 - (d_ij - 1) / D),}
-#' where an unreachable node contributes 0.
+#' Integration centrality (Valente and Foreman 1998) reverses the distance
+#' from each other node against the diameter \eqn{D}, the largest finite hop
+#' distance, and averages:
+#' \deqn{I(i) = \frac{1}{n - 1} \sum_{j \ne i} (D + 1 - d_{ji}),}{
+#'   I(i) = sum_{j != i} (D + 1 - d_ji) / (n - 1),}
+#' where a node that does not reach \eqn{i} contributes 0.
 #'
 #' @details
-#' Distances are hop counts, so edge weights are ignored. The sum includes
-#' the node itself, which contributes \eqn{1 + 1/D}, and is not divided by
-#' \eqn{n - 1}; the values equal \code{tidygraph::centrality_integration()}.
-#' \code{mode = "all"} treats edges as undirected, \code{"out"} uses
-#' distances from the node and \code{"in"} distances to it. On a network
-#' without edges every node scores \eqn{n}.
+#' Distances are hop counts, so edge weights are ignored. Integration reads
+#' the paths into the node (radiality reads the paths out of it); with
+#' \code{mode = "all"} the two are the same. \code{mode = "out"} follows the
+#' ties' direction along those paths and \code{"in"} reverses it. On a
+#' network without edges every node scores 0. cograph 2.7.19 and earlier
+#' returned \code{tidygraph::centrality_integration()}, which sums
+#' \eqn{1 - (d - 1)/D} over every node, the node itself included, without
+#' dividing by \eqn{n - 1}.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode Direction for directed networks: \code{"all"} (default),
@@ -4497,18 +4541,20 @@ centrality_expected <- function(x, mode = "all", ...) {
 
 #' Gil-Schmidt Power Index
 #'
-#' The Gil-Schmidt power index sums the reciprocal hop distances from a node
-#' to the nodes it reaches and divides by \eqn{n - 1}:
-#' \deqn{GS(v) = \frac{1}{n - 1} \sum_{w \ne v} \frac{1}{d(v, w)}.}{
-#'   GS(v) = sum_{w != v} 1 / d(v, w) / (n - 1).}
-#' Unreachable nodes contribute 0, so the score lies between 0 and 1, and a
-#' node adjacent to every other node scores 1.
+#' The Gil-Schmidt power index (Gil and Schmidt 1996) is the mean reciprocal
+#' hop distance from a node to the nodes it reaches, \eqn{R(v)}:
+#' \deqn{GS(v) = \frac{1}{|R(v)|} \sum_{w \in R(v)} \frac{1}{d(v, w)}.}{
+#'   GS(v) = sum_{w in R(v)} 1 / d(v, w) / |R(v)|.}
+#' The score lies between 0 and 1; a node adjacent to every node it reaches
+#' scores 1, and a node that reaches none scores 0.
 #'
 #' @details
 #' Distances are hop counts, so edge weights are ignored and
 #' \code{invert_weights} has no effect. \code{mode} sets the direction of the
 #' paths. With \code{mode = "out"} the values match
-#' \code{sna::gilschmidt()} with its default settings.
+#' \code{sna::gilschmidt()} with its default settings (\code{normalize = TRUE}).
+#' cograph 2.7.19 and earlier divided by \eqn{n - 1}, which differs wherever a
+#' node does not reach every other node.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.
 #' @param mode For directed networks: \code{"all"} (default), \code{"out"} or

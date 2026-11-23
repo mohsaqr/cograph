@@ -23,10 +23,12 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-Average distance is the sum of the shortest-path distances from a node to
-every node, divided by \eqn{n + 1} as in the centiserve package:
-\deqn{AD(v) = \frac{1}{n + 1} \sum_{w} d(v, w).}{
-  AD(v) = sum_w d(v, w) / (n + 1).}
+Average distance is the mean shortest-path distance from a node to the
+other nodes, the definition the centiserve package states:
+\deqn{AD(v) = \frac{1}{n - 1} \sum_{w \ne v} d(v, w).}{
+  AD(v) = sum_{w != v} d(v, w) / (n - 1).}
+(centiserve's code, and cograph 2.7.19 and earlier, divide by
+\eqn{n + 1}.)
 Lower values mark more central nodes.
 }
 \details{

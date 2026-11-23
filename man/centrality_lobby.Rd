@@ -19,16 +19,17 @@ A named integer vector with one index per node, in input node
 order.
 }
 \description{
-The lobby index (Korn et al. 2009) is the h-index of the degrees in the
-closed neighborhood of a node. It is the largest \eqn{k} such that the
-node and its neighbors include at least \eqn{k} nodes of degree \eqn{k}
-or more.
+The lobby index (Korn, Schubert and Telcs 2009, Definition 1) is the
+largest \eqn{k} such that the node has at least \eqn{k} neighbors of
+degree \eqn{k} or more: the h-index of its neighbors' degrees.
 }
 \details{
 Edge weights are ignored. \code{mode} selects both the degree and the
 neighbors, and with \code{mode = "all"} on a directed network the degree
-is in plus out. An isolated node scores 0. On undirected networks the
-values equal \code{centiserve::lobby()}.
+is in plus out while a neighbor tied in both directions counts once. An
+isolated node scores 0. \code{centiserve::lobby()} (and cograph 2.7.19 and
+earlier) take the closed neighborhood, the node's own degree included,
+which can raise the index by one.
 }
 \examples{
 centrality_lobby(regulation_net)

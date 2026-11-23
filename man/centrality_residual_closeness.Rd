@@ -25,13 +25,14 @@ order.
 \description{
 Residual closeness (Dangalchev 2006) sums distances that decay by half
 with every step:
-\deqn{C(i) = \sum_{j} 2^{-d_{ij}},}{C(i) = sum_j 2^(-d_ij),}
+\deqn{C(i) = \sum_{j \ne i} 2^{-d_{ij}},}{C(i) = sum_{j != i} 2^(-d_ij),}
 with \eqn{2^{-\infty} = 0}{2^(-Inf) = 0}, so the score is defined on
 disconnected networks.
 }
 \details{
-The sum includes the node itself, which adds 1, and the values equal
-\code{centiserve::closeness.residual()} on undirected networks. Edge
+The sum runs over the other nodes, as Dangalchev (2006) and the help of
+\code{centiserve::closeness.residual()} state; centiserve's code (and
+cograph 2.7.19 and earlier) add the node itself, 1 more. Edge
 weights are read as distances; \code{weighted = FALSE} uses hop counts,
 and \code{invert_weights = TRUE} converts a weight \eqn{w} to the distance
 \eqn{1/w^\alpha}{1/w^alpha}. \code{mode = "all"} treats edges as

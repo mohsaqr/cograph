@@ -24,21 +24,22 @@ order.
 }
 \description{
 Radiality (Valente and Foreman 1998) reverses each distance against the
-diameter \eqn{D} and averages over the network:
-\deqn{R(i) = \frac{1}{n - 1} \sum_{j:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
-  R(i) = sum_{j: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
+diameter \eqn{D} and averages over the other nodes:
+\deqn{R(i) = \frac{1}{n - 1} \sum_{j \ne i:\, d_{ij} < \infty} (D + 1 - d_{ij}).}{
+  R(i) = sum_{j != i: d_ij < Inf} (D + 1 - d_ij) / (n - 1).}
 Nodes close to the others score high.
 }
 \details{
-The sum includes the node itself, which contributes \eqn{D + 1}, and the
-values equal \code{centiserve::radiality()} on undirected networks.
+The sum runs over the other nodes, as Valente and Foreman (1998) define
+it; \code{centiserve::radiality()} (and cograph 2.7.19 and earlier) also
+sum the node itself, which adds \eqn{(D + 1)/(n - 1)}.
 Unreachable nodes contribute 0. Edge weights are read as distances;
 \code{weighted = FALSE} uses hop counts, and \code{invert_weights = TRUE}
 converts a weight \eqn{w} to the distance \eqn{1/w^\alpha}{1/w^alpha}.
 \code{mode = "all"} treats edges as undirected, \code{"out"} uses
-distances from the node and \code{"in"} distances to it. The diameter is
-taken on the stored edge weights in the direction of the network,
-whatever \code{mode} and \code{invert_weights} are. A single-node network
+distances from the node and \code{"in"} distances to it. The diameter \eqn{D} is the
+largest finite distance of the same distances (before 2.7.20 it was taken
+on the stored weights in the direction of the network). A single-node network
 gives \code{NA}.
 }
 \examples{

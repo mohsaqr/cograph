@@ -20,18 +20,20 @@ A named numeric vector with one score per node, in input node
 order.
 }
 \description{
-The Gil-Schmidt power index sums the reciprocal hop distances from a node
-to the nodes it reaches and divides by \eqn{n - 1}:
-\deqn{GS(v) = \frac{1}{n - 1} \sum_{w \ne v} \frac{1}{d(v, w)}.}{
-  GS(v) = sum_{w != v} 1 / d(v, w) / (n - 1).}
-Unreachable nodes contribute 0, so the score lies between 0 and 1, and a
-node adjacent to every other node scores 1.
+The Gil-Schmidt power index (Gil and Schmidt 1996) is the mean reciprocal
+hop distance from a node to the nodes it reaches, \eqn{R(v)}:
+\deqn{GS(v) = \frac{1}{|R(v)|} \sum_{w \in R(v)} \frac{1}{d(v, w)}.}{
+  GS(v) = sum_{w in R(v)} 1 / d(v, w) / |R(v)|.}
+The score lies between 0 and 1; a node adjacent to every node it reaches
+scores 1, and a node that reaches none scores 0.
 }
 \details{
 Distances are hop counts, so edge weights are ignored and
 \code{invert_weights} has no effect. \code{mode} sets the direction of the
 paths. With \code{mode = "out"} the values match
-\code{sna::gilschmidt()} with its default settings.
+\code{sna::gilschmidt()} with its default settings (\code{normalize = TRUE}).
+cograph 2.7.19 and earlier divided by \eqn{n - 1}, which differs wherever a
+node does not reach every other node.
 }
 \examples{
 centrality_gilschmidt(regulation_net)

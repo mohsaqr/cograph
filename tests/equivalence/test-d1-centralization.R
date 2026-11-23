@@ -83,18 +83,15 @@ test_that("centralization(measure = 'degree') of in + out degree is at most 1 on
                    quantity = "degree centralization, mode all, reciprocated star", tolerance = exact)
 })
 
-test_that("centralization(measure = 'eigenvector') divides by n - 1 on an undirected network", {
+test_that("centralization(measure = 'eigenvector') divides by n - 2 on an undirected network", {
   skip_without_reference("igraph")
-  # The documented divisor is n - 1 for every network; igraph's maximum for an undirected network is n - 2 (a single
-  # edge), so the two differ by the factor (n - 2) / (n - 1).
-  n <- nrow(undirected)
-  expect_reference(centralization(undirected, "eigenvector"),
-                   d1_eigen_centralization(undirected, directed = FALSE) * (n - 2) / (n - 1),
-                   reference = "independent: eigenvector scores scaled to max 1, summed gap over n - 1",
+  # Freeman (1979) divides by the largest possible sum for n nodes: with scores scaled to a maximum of 1 that is
+  # n - 2 on an undirected network (a single edge), as igraph's centr_eigen_tmax(). cograph 2.7.19 and earlier
+  # divided by n - 1 on every network.
+  expect_reference(centralization(undirected, "eigenvector"), d1_eigen_centralization(undirected, directed = FALSE),
+                   reference = "independent: eigenvector scores scaled to max 1, summed gap over n - 2",
                    covers = "centralization()", quantity = "eigenvector centralization, undirected", tolerance = spectral)
-  expect_known_difference(centralization(undirected, "eigenvector"), igraph::centr_eigen(ref_igraph(undirected))$centralization,
-                          reference = "igraph", covers = "centralization()",
-                          quantity = "eigenvector centralization, undirected", tolerance = spectral,
-                          reason = paste("centralization() divides the summed gap by n - 1 on every network, as its help",
-                                         "page states; igraph's centr_eigen() divides by n - 2 on an undirected one."))
+  expect_reference(centralization(undirected, "eigenvector"), igraph::centr_eigen(ref_igraph(undirected))$centralization,
+                   reference = "igraph", covers = "centralization()",
+                   quantity = "eigenvector centralization, undirected", tolerance = spectral)
 })

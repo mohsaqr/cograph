@@ -720,8 +720,9 @@ in/out/all)}
 to other influential nodes (supports mode: in/out/all)}
 \item{subgraph}{Subgraph centrality. Participation in closed walks,
 with shorter walks weighted more heavily}
-\item{laplacian}{Laplacian centrality with the local formula of Qi et
-al. (2012). Matches NetworkX and \code{centiserve::laplacian()}}
+\item{laplacian}{Laplacian centrality (Qi et al. 2012): the drop in
+Laplacian energy when the node leaves, on the weights of a weighted
+undirected network. Matches NetworkX}
 \item{load}{Load centrality. Share of shortest-path load passing
 through the node, with load split evenly at each branching point}
 \item{current_flow_closeness}{Information centrality. Closeness based on
@@ -734,21 +735,21 @@ elected node scores 1 and the last scores \eqn{1/n}}
 \item{percolation}{Percolation centrality. Shortest-path betweenness
 weighted by the node states in \code{states}. With equal states it is
 betweenness divided by \eqn{(n-1)(n-2)}}
-\item{radiality}{Radiality centrality (centiserve). Sum of (diam + 1 - d)
-normalized by n-1.}
+\item{radiality}{Radiality (Valente and Foreman 1998). Sum of
+(diam + 1 - d) over the other nodes, over n - 1.}
 \item{lin}{Lin's centrality. Reachable nodes squared divided by sum of
 distances.}
 \item{decay}{Decay centrality. Sum of \eqn{\delta^d}{delta^d} over all nodes,
 the node itself included, with \eqn{\delta}{delta} = \code{decay_parameter}.}
-\item{residual_closeness}{Residual closeness. Sum of \eqn{1/2^d} over
-all nodes, the node itself included.}
+\item{residual_closeness}{Residual closeness (Dangalchev 2006). Sum of
+\eqn{1/2^d} over the other nodes.}
 \item{dangalchev}{Dangalchev closeness. Same values as
 \code{residual_closeness}.}
 \item{generalized_closeness}{Generalized closeness. Same formula as
 \code{decay}, using \code{decay_parameter}.}
 \item{harary}{Harary centrality. Sum of 1/d^2 for all reachable pairs.}
-\item{average_distance}{Average distance (centiserve). Sum of distances /
-(n+1).}
+\item{average_distance}{Average distance. Sum of distances to the other
+nodes / (n - 1).}
 \item{barycenter}{Barycenter centrality. 1 / sum of distances.}
 \item{wiener}{Wiener index. Total sum of shortest path distances from node.}
 \item{closeness_vitality}{Closeness vitality. Drop in Wiener index when
@@ -762,11 +763,12 @@ distances (requires connected graph).}
 \item{flow_betweenness}{Flow betweenness (Freeman, Borgatti and White
 1991). Summed loss of maximum flow between other pairs when the node
 is removed, as \code{sna::flowbet()}.}
-\item{lobby}{Lobby index (h-index of neighborhood).}
+\item{lobby}{Lobby index (Korn et al. 2009): h-index of the neighbors'
+degrees.}
 \item{entropy}{Graph entropy centrality. Entropy change on node removal.}
 \item{semilocal}{Semi-local centrality. Triple-nested neighborhood sum.}
-\item{clusterrank}{ClusterRank. Clustering coefficient times neighbor
-degree sum.}
+\item{clusterrank}{ClusterRank (Chen et al. 2013). \eqn{10^{-c}} times
+the neighbors' (followers') degree + 1 sum.}
 \item{bottleneck}{Bottleneck centrality. Count of shortest path trees where
 node is critical.}
 \item{centroid}{Centroid value (Wuchty and Stadler 2003). Minimum
@@ -797,7 +799,7 @@ Defined on connected undirected networks; otherwise \code{NA} with a
 (requires connected graph).}
 \item{integration}{Integration centrality. Distance-based influence.}
 \item{expected}{Expected centrality. Sum of neighbor degrees.}
-\item{gilschmidt}{Gil-Schmidt power index. Sum of 1/d normalized by n-1.}
+\item{gilschmidt}{Gil-Schmidt power index. Mean of 1/d over the nodes reached.}
 \item{salsa}{SALSA authority scores (directed graphs only).}
 \item{leaderrank}{LeaderRank. PageRank with ground node
 (directed graphs only).}

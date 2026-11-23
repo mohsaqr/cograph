@@ -75,20 +75,28 @@
   deg^2 + deg + 2 * vapply(out_adj, function(js) sum(deg[js]), numeric(1L))
 }
 
-#' Burt's effective size
-#' @param b Binary adjacency matrix. @param directed Whether directed.
-#' @return Numeric vector.
+#' Burt's effective size (Burt 1992), as networkx::effective_size()
+#'
+#' `e(u) = sum_{v in N(u)} (1 - sum_{w} p_uw m_vw)` with the mutual weight
+#' `a_uw + a_wu` of each pair: `p_uw` is u's mutual weight with w over its total,
+#' `m_vw` v's mutual weight with w over v's largest. `N(u)` holds the in- and
+#' out-neighbors. On an undirected graph every mutual weight is equal and this
+#' is Borgatti's (1997) `k - 2t/k`.
+#'
+#' @param b Binary adjacency matrix without self-loops.
+#' @param directed Whether directed (an undirected `b` is symmetric anyway).
+#' @return Numeric vector; 0 for a node without ties.
 #' @keywords internal
 #' @noRd
 .cg_effective_size <- function(b, directed) {
-  adj <- .cg_adjlist(b, directed, "all")
-  vapply(seq_along(adj), function(i) {
-    nbs <- adj[[i]]
-    k <- length(nbs)
-    if (k == 0L) return(0)
-    red <- sum(vapply(nbs, function(j)
-      length(intersect(unique(adj[[j]]), nbs)) / k, numeric(1L)))
-    k - red
+  mutual <- b + t(b)
+  diag(mutual) <- 0
+  share <- mutual / pmax(rowSums(mutual), 1)
+  relative <- mutual / pmax(apply(mutual, 1L, max), 1)
+  vapply(seq_len(nrow(b)), function(u) {
+    nbs <- which(mutual[u, ] != 0)
+    if (length(nbs) == 0L) return(0)
+    sum(1 - vapply(nbs, function(v) sum(share[u, ] * relative[v, ]), numeric(1L)))
   }, numeric(1L))
 }
 
@@ -185,11 +193,7 @@
 .cg_integration <- function(b, mode = "all") {
   n <- nrow(b)
   if (n <= 1L) return(rep(0, n))
-  d <- .cg_distances(b, mode)
-  mx <- .cg_diameter(d)
-  if (mx <= 0) return(rep(n, n))
-  filled <- ifelse(is.finite(d), d, mx + 1)
-  rowSums(1 - (filled - 1) / mx)
+  .cg_integration_rd(.cg_distances(b, mode), n)
 }
 
 #' Onion decomposition layers

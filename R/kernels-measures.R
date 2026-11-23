@@ -1,12 +1,19 @@
 # ===========================================================================
 # Distance-derived centralities, dependency-free
 # ===========================================================================
-# Each reduces the all-pairs matrix from .cg_distances(). Conventions here
-# follow igraph/cograph, which differ from the snajs originals in three
-# documented places (see the equivalence test).
+# Each reduces the all-pairs matrix from .cg_distances(). Each sums over the
+# other nodes j != i, as the papers define the measures (2.7.20: radiality,
+# residual closeness, average distance and the Gil-Schmidt index no longer
+# follow centiserve's or snajs's departures from them).
 
 .cg_offdiag <- function(d) row(d) != col(d)
 
+#' Radiality (Valente and Foreman 1998)
+#'
+#' The reverse distance `D + 1 - d(i, j)` summed over the other nodes j that i
+#' reaches, over `n - 1`; `D` is the diameter of the same distances. An
+#' unreached node contributes 0.
+#'
 #' @param d Distance matrix. @param n Vertex count.
 #' @param diameter Largest finite distance; defaults to `.cg_diameter(d)`.
 #' @return Numeric vector.
@@ -14,7 +21,21 @@
 #' @noRd
 .cg_radiality <- function(d, n, diameter = .cg_diameter(d)) {
   if (n <= 1L) return(rep(NaN, n))
-  rowSums(ifelse(is.finite(d), diameter + 1 - d, 0)) / (n - 1)
+  rowSums(ifelse(.cg_offdiag(d) & is.finite(d), diameter + 1 - d, 0)) / (n - 1)
+}
+
+#' Integration (Valente and Foreman 1998)
+#'
+#' Radiality read along the incoming paths: the reverse distance
+#' `D + 1 - d(j, i)` summed over the other nodes j that reach i, over `n - 1`.
+#'
+#' @inheritParams .cg_radiality
+#' @return Numeric vector.
+#' @keywords internal
+#' @noRd
+.cg_integration_rd <- function(d, n, diameter = .cg_diameter(d)) {
+  if (n <= 1L) return(rep(0, n))
+  colSums(ifelse(.cg_offdiag(d) & is.finite(d), diameter + 1 - d, 0)) / (n - 1)
 }
 
 #' @keywords internal
@@ -37,8 +58,9 @@
 #' @keywords internal
 #' @noRd
 .cg_residual_closeness <- function(d, n) {
-  if (n <= 1L) return(rep(1, n))
-  rowSums(ifelse(is.finite(d), 1 / 2^d, 0))
+  # Dangalchev (2006): sum over j != i of 2^-d(i, j); 0 for a lone node
+  if (n <= 1L) return(rep(0, n))
+  rowSums(ifelse(.cg_offdiag(d) & is.finite(d), 2^-d, 0))
 }
 
 #' @keywords internal
@@ -53,10 +75,10 @@
 #' @noRd
 .cg_average_distance <- function(d, n) {
   if (n <= 1L) return(rep(NA_real_, n))
-  # Unreachable vertices make the row sum infinite, and cograph propagates
-  # that Inf rather than masking it. (The JSON fixture set cannot represent
-  # Inf and stores it as null, which is why it must not be the oracle here.)
-  rowSums(d) / (n + 1)
+  # The mean distance to the other nodes, sum / (n - 1) (centiserve's own
+  # definition; its code divides by n + 1). Unreachable vertices make the row
+  # sum infinite, and cograph propagates that Inf rather than masking it.
+  rowSums(ifelse(.cg_offdiag(d), d, 0)) / (n - 1)
 }
 
 #' @keywords internal
@@ -77,9 +99,12 @@
 #' @keywords internal
 #' @noRd
 .cg_gilschmidt <- function(d, n) {
+  # Gil and Schmidt (1996), as sna::gilschmidt(normalize = TRUE): the mean of
+  # 1 / d(v, i) over the nodes v reaches, |R(v)|; 0 for a node that reaches none
   if (n <= 1L) return(rep(0, n))
   ok <- .cg_offdiag(d) & is.finite(d) & d > 0
-  rowSums(ifelse(ok, 1 / d, 0)) / (n - 1)
+  reached <- rowSums(ok)
+  ifelse(reached > 0, rowSums(ifelse(ok, 1 / d, 0)) / pmax(reached, 1), 0)
 }
 
 #' Centroid value (Wuchty and Stadler 2003)

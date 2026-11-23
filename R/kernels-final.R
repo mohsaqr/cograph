@@ -51,7 +51,9 @@
   out <- numeric(n)
   for (s in seq_len(n)) {
     paths <- .cg_sp_node_counts(b, directed, s, mode)
-    hit <- which(seq_len(n) != s & paths > n / 4)
+    # Przulj et al. (2004): more than a quarter of |T_s|, the nodes s reaches
+    # (each reached node lies on its own paths, so it has a count above 0)
+    hit <- which(seq_len(n) != s & paths > sum(paths > 0) / 4)
     out[hit] <- out[hit] + 1
   }
   out

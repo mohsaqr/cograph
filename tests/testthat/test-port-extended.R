@@ -34,14 +34,15 @@ score <- function(m, measure, ...) {
   as.numeric(res[[col]])
 }
 
-test_that("radiality on path_10: (diam + 1 - d) summed over all nodes, over n - 1", {
-  # Path 1-2-...-10, diameter 9. Node 1 sees distances 0..9, so the sum of
-  # (10 - d) is 10 + 9 + ... + 1 = 55; node 5 sees 4,3,2,1,0,1,2,3,4,5 giving
-  # 6 + 7 + 8 + 9 + 10 + 9 + 8 + 7 + 6 + 5 = 75. Both are divided by 9.
+test_that("radiality on path_10: (diam + 1 - d) summed over the other nodes, over n - 1", {
+  # Path 1-2-...-10, diameter 9 (Valente and Foreman 1998: the other nodes only). Node 1 sees distances 1..9, so
+  # the sum of (10 - d) is 9 + 8 + ... + 1 = 45; node 5 sees 4,3,2,1,1,2,3,4,5 giving
+  # 6 + 7 + 8 + 9 + 9 + 8 + 7 + 6 + 5 = 65. Both are divided by 9. (2.7.19 and earlier added the node's own
+  # term 10: 55 / 9 and 75 / 9.)
   rad <- score(nets$path_10, "radiality")
-  expect_equal(rad[1], 55 / 9)
-  expect_equal(rad[5], 75 / 9)
-  expect_equal(rad[10], 55 / 9)
+  expect_equal(rad[1], 45 / 9)
+  expect_equal(rad[5], 65 / 9)
+  expect_equal(rad[10], 45 / 9)
 })
 
 test_that("cross_clique on complete_6 counts every subset containing the node", {
@@ -56,12 +57,12 @@ test_that("bottleneck on star_10 credits only the hub", {
   expect_equal(score(nets$star_10, "bottleneck"), c(9, rep(0, 9)))
 })
 
-test_that("effective_size lists a directed self-loop once, as as_adj_list() does", {
-  # duplicate_edges: arcs 1->1, 1->2, 2->3, 3->1. Neighbour lists under
-  # mode "all" (loop once): 1: {1,2,3}, 2: {1,3}, 3: {1,2}.
-  # Node 1: k = 3, shared 3 + 2 + 2 = 7, size 3 - 7/3 = 2/3.
-  # Node 2: k = 2, shared 2 + 1 = 3, size 2 - 3/2 = 1/2. Node 3 likewise.
-  expect_equal(score(nets$duplicate_edges, "effective_size"), c(2 / 3, 1 / 2, 1 / 2))
+test_that("effective_size leaves a directed self-loop out (Burt 1992: ties to contacts)", {
+  # duplicate_edges: arcs 1->1, 1->2, 2->3, 3->1. Without the loop every pair has mutual weight 1. Node 1: contacts
+  # 2 and 3, each half of 1's ties; 2's tie to 3 is 2's largest (m = 1), so contact 2 is redundant by 1/2, and 3
+  # likewise: size (1 - 1/2) + (1 - 1/2) = 1. The same for nodes 2 and 3. (2.7.19 and earlier listed the loop as
+  # a neighbour of Borgatti's form: 2/3, 1/2, 1/2.)
+  expect_equal(score(nets$duplicate_edges, "effective_size"), c(1, 1, 1))
 })
 
 test_that("lac under mode in counts the loop once and keeps it in the subgraph", {

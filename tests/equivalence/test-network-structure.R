@@ -1,8 +1,8 @@
 # The structural network_*() measures (girth, radius, vertex connectivity, cut vertices, bridges, clique size,
 # global and local efficiency), estrada_index(), trophic_incoherence(), dispersion(), group_centrality() and
 # reaching_global(). The network_*() functions call igraph for the computation (igraph::girth(), radius(),
-# vertex_connectivity(), articulation_points(), bridges(), clique_num(), distances(),
-# average_local_efficiency()), so igraph is `internal` for them; NetworkX, brainGraph and the definitions are the
+# vertex_connectivity(), articulation_points(), bridges(), clique_num(), distances(); local efficiency on
+# induced subgraphs since 2.7.20), so igraph is `internal` for them; NetworkX, brainGraph and the definitions are the
 # counted references. estrada_index(), trophic_incoherence(), dispersion(), group_centrality() and
 # reaching_global() are cograph's own code.
 #
@@ -51,14 +51,11 @@ test_that("network_global_efficiency() and network_local_efficiency() equal Netw
                    unlist(on_unweighted[c("global", "local")]), reference = "networkx",
                    covers = c("network_global_efficiency()", "network_local_efficiency()"),
                    quantity = "efficiency, undirected unweighted", tolerance = exact)
-  expect_known_difference(network_local_efficiency(undirected), on_unweighted$induced, reference = "networkx",
-                          covers = "network_local_efficiency()", quantity = "local efficiency, induced subgraphs",
-                          tolerance = exact,
-                          reason = paste("network_local_efficiency() measures the distances between a node's neighbours",
-                                         "in the graph without the node (igraph::average_local_efficiency(), as its help",
-                                         "page states); NetworkX's local_efficiency() keeps them inside the subgraph",
-                                         "induced on the neighbours (Latora & Marchiori 2001). centrality(measures =",
-                                         "'local_efficiency') reports the induced form."))
+  # Latora & Marchiori (2001): the distances between a node's neighbours inside the subgraph they induce, as
+  # NetworkX's own local_efficiency() (cograph 2.7.20; before, igraph's form in the graph without the node).
+  expect_reference(network_local_efficiency(undirected), on_unweighted$induced, reference = "networkx",
+                   covers = "network_local_efficiency()", quantity = "local efficiency, induced subgraphs",
+                   tolerance = exact)
   # Weighted, and directed: the Latora-Marchiori definitions over NetworkX's Dijkstra distances.
   on_weighted <- ref_networkx(undirected_weighted, c(global = d1_py_global_efficiency, local = d1_py_local_efficiency))
   on_directed <- ref_networkx(directed_weighted, c(global = d1_py_global_efficiency, local = d1_py_local_efficiency))
@@ -88,12 +85,9 @@ test_that("efficiencies with weights = NA equal igraph's unweighted efficiencies
   tna_like <- structure(list(weights = regulation_net, labels = rownames(regulation_net),
                              inits = rep(1 / nrow(regulation_net), nrow(regulation_net))), class = c("tna", "list"))
   graph <- ref_igraph(regulation_net)
-  expect_reference(c(global = network_global_efficiency(tna_like, weights = NA),
-                     local = network_local_efficiency(tna_like, weights = NA)),
-                   c(global = igraph::global_efficiency(graph, weights = NA),
-                     local = igraph::average_local_efficiency(graph, weights = NA)),
-                   reference = "igraph, called by cograph", covers = c("network_global_efficiency()", "network_local_efficiency()"),
-                   quantity = "efficiency of tna input, weights = NA", tolerance = exact)
+  expect_reference(network_global_efficiency(tna_like, weights = NA), igraph::global_efficiency(graph, weights = NA),
+                   reference = "igraph, called by cograph", covers = "network_global_efficiency()",
+                   quantity = "global efficiency of tna input, weights = NA", tolerance = exact)
   on_regulation <- ref_networkx(d1_binary(regulation_net), c(global = d1_py_global_efficiency,
                                                              local = d1_py_local_efficiency))
   expect_reference(c(global = network_global_efficiency(tna_like, weights = NA),

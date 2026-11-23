@@ -18,15 +18,22 @@ order.
 }
 \description{
 Laplacian centrality (Qi et al. 2012) is the drop in the Laplacian energy
-of a network when a node is removed. Without edge weights the drop is
+of a network when a node is removed. On a weighted undirected network,
+with strengths \eqn{x}, the drop is
+\deqn{L(v) = x_v^2 + \sum_{u} w_{uv}^2 + 2 \sum_{u} x_u w_{uv};}{
+  L(v) = x_v^2 + sum_u w_uv^2 + 2 sum_u x_u w_uv;}
+without edge weights it is
 \deqn{L(v) = k_v^2 + k_v + 2 \sum_{u \in N(v)} k_u.}{
   L(v) = k_v^2 + k_v + 2 sum_{u in N(v)} k_u.}
 }
 \details{
-Edge weights are ignored, so the score is the unweighted case of the
-weighted measure of Qi et al. (2012). On a directed network \eqn{k} is the
-total degree, in plus out, and the neighbor sum runs over out-neighbors.
-A self-loop adds 2 to the degree. On undirected networks the values equal
+On a weighted undirected network the weights are read as in Qi et al.
+(2012) and the values equal \code{networkx::laplacian_centrality(weight =)}
+(cograph 2.7.19 and earlier ignored the weights); self-loops cancel in the
+Laplacian. \code{weighted = FALSE} gives the unweighted formula, where a
+self-loop adds 2 to the degree. On a directed network the weights are
+ignored, \eqn{k} is the total degree, in plus out, and the neighbor sum
+runs over out-neighbors. On unweighted undirected networks the values equal
 \code{centiserve::laplacian()}. \code{normalized = TRUE} divides the
 scores by their maximum.
 }

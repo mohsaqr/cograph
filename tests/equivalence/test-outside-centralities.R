@@ -104,15 +104,28 @@ test_that("expected centrality equals NetworkX's average neighbour degree times 
                    tolerance = exact)
 })
 
-test_that("integration equals tidygraph's centrality_integration()", {
+test_that("integration equals tidygraph's centrality_integration() rescaled to Valente and Foreman's form", {
   skip_without_reference("tidygraph")
+  # tidygraph (netrankr) sums 1 - (d - 1) / D over every node, the node itself included; Valente and Foreman (1998),
+  # which cograph follows since 2.7.20, sum D + 1 - d over the other nodes and divide by n - 1. On a connected
+  # graph the two are tied exactly: V&F = (tidygraph * D - (D + 1)) / (n - 1).
   graphs <- list(random = binary, karate = karate, small_world = small_world, scale_free = scale_free)
   lapply(names(graphs), \(name) {
-    tidy <- tidygraph::as_tbl_graph(ref_igraph(graphs[[name]]))
-    expect_reference(centrality_integration(graphs[[name]]),
-                     ref_named(tidygraph::with_graph(tidy, tidygraph::centrality_integration()), graphs[[name]]),
+    graph <- ref_igraph(graphs[[name]])
+    tidy <- ref_named(tidygraph::with_graph(tidygraph::as_tbl_graph(graph), tidygraph::centrality_integration()),
+                      graphs[[name]])
+    diameter <- igraph::diameter(graph, weights = NA)
+    expect_known_difference(centrality_integration(graphs[[name]]), tidy, reference = "tidygraph",
+                            covers = c("centrality_integration()", "centrality()"),
+                            quantity = sprintf("integration, %s", name), tolerance = exact,
+                            reason = paste("tidygraph's integration sums 1 - (d - 1) / D over every node, the node",
+                                           "itself included; Valente and Foreman (1998) sum D + 1 - d over the other",
+                                           "nodes and divide by n - 1."),
+                            agrees_with = "(tidygraph * D - (D + 1)) / (n - 1)")
+    expect_reference(centrality_integration(graphs[[name]]), (tidy * diameter - (diameter + 1)) / (nrow(graphs[[name]]) - 1),
                      reference = "tidygraph", covers = c("centrality_integration()", "centrality()"),
-                     quantity = sprintf("integration, %s", name), tolerance = exact)
+                     quantity = sprintf("integration, %s, tidygraph rescaled to Valente and Foreman", name),
+                     tolerance = exact)
   })
 })
 

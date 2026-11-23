@@ -5,8 +5,9 @@
 #
 # Conventions, read from the sources before the run:
 # - Spectral measures read a weight as a strength (an entry of the adjacency matrix), as igraph and NetworkX do.
-#   subgraph, communicability, communicability betweenness and laplacian use the 0/1 adjacency only, as do
-#   NetworkX's subgraph_centrality(), communicability() and communicability_betweenness_centrality().
+#   subgraph, communicability and communicability betweenness use the 0/1 adjacency only, as do NetworkX's
+#   subgraph_centrality(), communicability() and communicability_betweenness_centrality(). laplacian reads the
+#   weights of an undirected weighted network (Qi et al. 2012; cograph 2.7.20).
 # - cograph scales eigenvector, hub and authority scores so that the largest is 1 (igraph's scale). NetworkX
 #   scales the eigenvector to unit Euclidean norm and HITS to unit sum: the NetworkX vector is rescaled to maximum
 #   1 in the test (ref_unit_max()), which changes no ratio between nodes.
@@ -220,21 +221,21 @@ test_that("laplacian equals NetworkX's laplacian_centrality(normalized = False) 
                    quantity = "laplacian, undirected", tolerance = exact, measure = "scaled")
 })
 
-test_that("laplacian reads the 0/1 adjacency where NetworkX reads the weights", {
+test_that("laplacian of a weighted network equals NetworkX's laplacian_centrality(weight = 'weight')", {
   on_weighted <- ref_networkx(undirected_weighted, c(
     weighted = "nx.laplacian_centrality(G, normalized=False, weight='weight')",
     unweighted = "nx.laplacian_centrality(G, normalized=False, weight=None)"))
-  expect_known_difference(centrality_laplacian(undirected_weighted), on_weighted$weighted, reference = "networkx",
-                          covers = c("centrality()", "centrality_laplacian()"),
-                          quantity = "laplacian, undirected weighted, NetworkX weight='weight'",
-                          tolerance = exact, measure = "scaled",
-                          reason = paste("cograph computes Qi et al.'s local formula d^2 + d + 2 * (sum of neighbour degrees)",
-                                         "on the 0/1 adjacency and ignores the weights; NetworkX's laplacian_centrality()",
-                                         "uses the weighted Laplacian when weight='weight'."),
-                          agrees_with = "NetworkX laplacian_centrality(weight=None)")
-  expect_reference(centrality_laplacian(undirected_weighted), on_weighted$unweighted, reference = "networkx",
+  # Qi et al. (2012) define Laplacian centrality for weighted networks: the drop in Laplacian energy
+  # x_v^2 + sum_u w_uv^2 + 2 sum_u x_u w_uv (x the strengths). cograph reads the weights since 2.7.20 (before, the
+  # 0/1 adjacency only); weighted = FALSE gives the unweighted formula.
+  expect_reference(centrality_laplacian(undirected_weighted), on_weighted$weighted, reference = "networkx",
                    covers = c("centrality()", "centrality_laplacian()"),
-                   quantity = "laplacian, undirected weighted, NetworkX weight=None", tolerance = exact, measure = "scaled")
+                   quantity = "laplacian, undirected weighted, NetworkX weight='weight'", tolerance = exact,
+                   measure = "scaled")
+  expect_reference(centrality_laplacian(undirected_weighted, weighted = FALSE), on_weighted$unweighted,
+                   reference = "networkx", covers = c("centrality()", "centrality_laplacian()"),
+                   quantity = "laplacian, undirected weighted, weighted = FALSE, NetworkX weight=None",
+                   tolerance = exact, measure = "scaled")
 })
 
 test_that("non-backtracking centrality equals Martin, Zhang and Newman's (2014) reduced 2n x 2n matrix", {

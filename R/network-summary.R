@@ -47,7 +47,9 @@
 #'   \item{mean_distance}{Average shortest path length}
 #'   \item{min_cut}{Minimum number of edges whose removal disconnects the
 #'     network. Edge weights are not used.}
-#'   \item{centralization_degree}{Degree centralization over all ties (0-1)}
+#'   \item{centralization_degree}{Degree centralization over all ties (0-1),
+#'     Freeman (1979): self-loops left out of the degrees and of the maximum
+#'     (\code{igraph::centr_degree(loops = FALSE)})}
 #'   \item{centralization_in_degree}{In-degree centralization (directed only)}
 #'   \item{centralization_out_degree}{Out-degree centralization (directed only)}
 #'   \item{centralization_betweenness}{Betweenness centralization (0-1)}
@@ -156,14 +158,14 @@ network_summary <- function(x,
       igraph::min_cut(g, value.only = TRUE),
       error = function(e) NA_real_
     ),
-    centralization_degree = igraph::centr_degree(g, mode = "all")$centralization,
+    centralization_degree = igraph::centr_degree(g, mode = "all", loops = FALSE)$centralization,
     centralization_in_degree = if (is_directed) {
-      igraph::centr_degree(g, mode = "in")$centralization
+      igraph::centr_degree(g, mode = "in", loops = FALSE)$centralization
     } else {
       NA_real_
     },
     centralization_out_degree = if (is_directed) {
-      igraph::centr_degree(g, mode = "out")$centralization
+      igraph::centr_degree(g, mode = "out", loops = FALSE)$centralization
     } else {
       NA_real_
     },
@@ -779,14 +781,15 @@ network_global_efficiency <- function(x, directed = NULL, weights = NULL,
 
 #' Local Efficiency
 #'
-#' Computes the average local efficiency across all nodes with
-#' \code{igraph::average_local_efficiency()}. For each node, igraph removes
-#' the node and measures the distances between its neighbors through the rest
-#' of the network. The value can therefore exceed the Latora and Marchiori
-#' (2001) form, which restricts those distances to the subgraph induced on the
-#' neighbors. \code{centrality(x, measures = "local_efficiency")} reports the
-#' induced-subgraph form. The two agree when the neighbors have no path
-#' outside their induced subgraph.
+#' Computes the average local efficiency across all nodes (Latora and
+#' Marchiori 2001): the mean over the nodes of the efficiency of the subgraph
+#' induced on each node's neighbors (in- and out-neighbors on a directed
+#' network), the distances measured inside that subgraph; a node with fewer
+#' than two neighbors contributes 0. This is \code{networkx::local_efficiency()}
+#' and the mean of \code{centrality(x, measures = "local_efficiency")}.
+#' \code{igraph::average_local_efficiency()} instead measures the neighbors'
+#' distances in the network without the node, which can be shorter (cograph
+#' reported that form before 2.7.20).
 #'
 #' @param x Network input: matrix, igraph, network, cograph_network, or tna object
 #' @param weights Numeric vector of edge weights. Default NULL uses the
@@ -844,10 +847,20 @@ network_local_efficiency <- function(x, weights = NULL, invert_weights = NULL, a
     weights <- inv_weights
   }
 
-  # Use igraph's Latora-Marchiori (2001) implementation directly
-  igraph::average_local_efficiency(g, weights = weights,
-                                    directed = igraph::is_directed(g),
-                                    mode = "all")
+  # Latora and Marchiori (2001): the efficiency of the subgraph induced on
+  # the neighbors, its distances taken inside that subgraph
+  if (!is.null(weights) && !ignore_weights) igraph::E(g)$weight <- weights
+  directed <- igraph::is_directed(g)
+  per_node <- vapply(seq_len(n), function(v) {
+    nbs <- setdiff(as.integer(igraph::neighbors(g, v, mode = "all")), v)
+    k <- length(nbs)
+    if (k < 2L) return(0)
+    sub <- igraph::induced_subgraph(g, nbs)
+    d <- igraph::distances(sub, mode = "out",
+                           weights = if (ignore_weights) NA else NULL)
+    sum(1 / d[row(d) != col(d)]) / (k * (k - 1))
+  }, numeric(1L))
+  mean(per_node)
 }
 
 

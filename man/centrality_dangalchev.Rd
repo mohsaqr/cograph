@@ -25,9 +25,9 @@ order.
 \description{
 Dangalchev closeness, the residual closeness of Dangalchev (2006), sums an
 exponentially decaying function of the distance to every node:
-\deqn{D(v) = \sum_{w} 2^{-d(v, w)}.}{D(v) = sum_w 2^(-d(v, w)).}
-The sum includes the node itself, which adds one to every score, as in the
-centiserve package. Unreachable nodes contribute 0.
+\deqn{D(v) = \sum_{w \ne v} 2^{-d(v, w)}.}{D(v) = sum_{w != v} 2^(-d(v, w)).}
+The sum runs over the other nodes (cograph 2.7.19 and earlier, as the
+centiserve code, added the node itself). Unreachable nodes contribute 0.
 }
 \details{
 Edge weights are read as path lengths. \code{invert_weights = TRUE} uses

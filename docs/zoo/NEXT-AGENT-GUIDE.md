@@ -8,7 +8,7 @@
 `density_centrality`, `wksdn`, `mu_pci`) 59 (`all_cycle_betweenness`,
 `transportation`, `path_transfer`), 60 (`wfca`), 61 (`lric_max`), 62
 (`hybrid`) and 63 (`topsis_re`) are done; the ledger stands at 89
-implemented and 71 pending, the catalogue at 217 measures. Section 13 lists the measures audited as ready and not yet
+implemented and 71 pending, the catalogue at 225 measures after batch 64 (2026-11-26: `wd`, `ewd`, `mlc`, `spreading_probability`, `profitleader`, `hks`, `niccm`, `correlation_centrality`; ledger 97 implemented, 63 pending). Batch 65 (2026-11-26, same day) built fifteen more on the owner's decisions: `dsc`, `dsr`, `edsr`, `ksgc`, `lsc`, `classified_neighbors`, `hybrid_degree`, `topsis`, `all_around`, `egm`, `gls`, `ks_if`, `nl`, `improved_entropy`, `multi_evidence`; the ledger now stands at 112 implemented and 48 pending and the catalogue at 240 measures. Each decision is recorded in the note column of the ledger and in the measure's help page. Batches 66 to 69 (2026-11-26) built 34 more measures on the owner's decisions (66: thirteen, k-shell hybrids, MCDE family, LGC, WGravity, AC, WDC/EWDC; 67: eight, from mapping entropy to Ni's improved entropy, with Peng's measure renamed `entropy_influence` and Weighted TOPSIS mapped to `topsis`; 68: nine, PhysarumSpreader to weight neighborhood; 69: `rcfb`, `m_centrality`, `wksd`, `mapping_entropy_betweenness`, with Eigentrust and Seeley's index mapped to `pagerank` (`damping = 1 - a`, `personalized` = the pre-trust; `damping = 1`, where every node has an out-tie and the walk has one aperiodic closed class): an `eigentrust` measure built the same day was removed on the owner's decision because it was `pagerank` to 3e-15), so the ledger stands at 148 implemented and 12 pending and the catalogue at 274 measures. Their audits are in local_testing_and_equivalence/candidate_review54/ and candidate_review57/; PJRW and DFS-Gravity stay BLOCKED because the university network did not open their full texts without a sign-in (candidate_review57/pjrw-fulltext.md, random-walk-based-gravity-dfs-gravity-fulltext.md). The 20 paywalled papers of section 13 were read on 2026-11-26; their audits and the owner decisions they leave are in local_testing_and_equivalence/candidate_review56/ and HANDOFF.md. Section 13 lists the measures audited as ready and not yet
 implemented. The 65 rows with an empty ledger note were NOT unresearched: most have a
 September audit in `candidate_review40/` (82 files). They were re-audited
 from 2026-11-25 in
@@ -42,9 +42,9 @@ objective is incomplete; do not mark it complete.
 | Count | Meaning |
 |---|---|
 | 160 | Original candidate rows; fixed cohort |
-| 89 | Candidate labels now implemented/mapped within documented scopes |
-| 71 | Candidate labels still pending |
-| 217 | Total runtime measures, including the pre-existing catalogue |
+| 148 | Candidate labels now implemented/mapped within documented scopes (2026-11-26, after batch 69; 89 on 2026-09-07) |
+| 12 | Candidate labels still pending (71 on 2026-09-07) |
+| 274 | Total runtime measures, including the pre-existing catalogue (217 on 2026-09-07) |
 | 193 | Total Zoo label mappings; a different denominator from the candidate cohort |
 | 81 | New runtime measures since the start of batch 12: catalogue 136 → 217 |
 | 79 | Those new runtime measures that cover 81 original candidate labels |
@@ -1148,9 +1148,10 @@ replace what they say.
 - **Owner rule 2026-11-25: the full suite (`mini-ci test`) runs once per
   10-50 measures, not per measure.** Per measure, run its own testthat file
   (through a runner script in the repository root) and its equivalence file.
-  Last full run: after batch 59, FAIL 0 | SKIP 9 | PASS 8482. Batches 60
-  to 63 (`wfca`, `lric_max`, `hybrid`, `topsis_re`) have not been through a
-  full run.
+  Last full run: after `eigentrust` was removed (2026-11-26, batch 69), FAIL 0 |
+  WARN 130 | SKIP 9 | PASS 9230, covering batches 60 to 69 (the first attempt
+  hit the known PSOCK motif failure). The same day `mini-ci verify` gave
+  49,337 comparisons, 1 declared (pre-existing) defect, 0 new failures.
 - **Owner rule 2026-11-22: the paper wins** over another package's convention.
 - **`zoo_coverage.py` no longer writes the lookup article.** Until 2026-11-25
   it overwrote the hand-written
@@ -1198,8 +1199,8 @@ Ready once the owner decides one thing:
 
 | Measure | Decision |
 |---|---|
-| Eigentrust | It is `pagerank` with a teleport vector, and the paper gives no value for the mixing weight: own measure, wrapper or documentation note |
-| Seeley's index | On a connected undirected graph it is the degree share, and it equals Eigentrust without pre-trust: own measure or mapping |
+| Eigentrust | DECIDED 2026-11-26: mapped to `pagerank` (`damping = 1 - a`, `personalized` = the pre-trust), documented in its help page; no own measure |
+| Seeley's index | DECIDED 2026-11-26: mapped to `pagerank` with `damping = 1`, valid where every node has an out-tie and the walk has one aperiodic closed class |
 | RCFB | epsilon is only bounded above in the paper; the limit epsilon -> 0 is stable |
 | M-centrality | 0/0 in the entropy weights on regular graphs |
 | Wksd | no source default for alpha and mu: required arguments or chosen defaults |

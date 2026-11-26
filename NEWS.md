@@ -1,3 +1,174 @@
+# cograph 2.7.23
+
+* Added eight measures whose source papers were read in full:
+  `centrality_wd()` and `centrality_ewd()`, the RMD-weighted degree and its
+  extension of Yang et al. (2018, Eq. 1-2), which reproduce the worked values
+  of the paper's 15-node example;
+  `centrality_mlc()`, the modified local centrality of Ma and Ma (2017),
+  `semilocal` less twice the sum of the neighbours' degrees;
+  `centrality_spreading_probability()`, Bao, Ma, Xiang and Zhang (2017,
+  Eq. 5), with `sp_radius = 3` as in the paper;
+  `centrality_profitleader()`, Yu, Shao, Yang and Sun (2019, Eq. 1-4), with
+  the one the code its authors released adds to the available resource (see
+  below);
+  `centrality_hks()`, the hierarchical k-shell centrality of Zareie and
+  Sheikhahmadi (2018, Eq. 10-11);
+  `centrality_niccm()`, Hu, Fan and Mei (2015, Eq. 1-4), which reproduces
+  Tables 2 and 3 of the paper (31 printed values) with `niccm_layers = 2`
+  and is in the costly tier; and
+  `centrality_correlation_centrality()`, Fan, Liu and Hu (2013, Eq. 4), which
+  reproduces the 21 values of the paper's Table 1 with `coc_alpha = 3`.
+  All eight are computed on the simple undirected skeleton.
+* Added fifteen more measures from papers read in full, each built on a
+  decision recorded in its help page:
+  `centrality_dsc()`, `centrality_dsr()` and `centrality_edsr()`, the
+  diversity-strength centrality and its two rankings of Zareie, Sheikhahmadi
+  and Jalili (2019, Eq. 21-26), with the improved k-shell index throughout;
+  `centrality_ksgc()`, Yang and Xiao (2021, Eq. 7-10), with a radius of half
+  the average path length and a coefficient of 1 on a single-shell network;
+  `centrality_lsc()`, Gao et al. (2014, Eq. 5-6), `lsc_alpha = 0.2`, which
+  reproduces the ten values of the paper's Table 1 at 0.7;
+  `centrality_classified_neighbors()`, Li, Wang, Sun and Xia (2018, Eq. 1),
+  which reproduces the classes of the paper's Table 1;
+  `centrality_hybrid_degree()`, Ma and Ma (2017), whose spreading probability
+  `hc_p` must be given;
+  `centrality_topsis()`, Du et al. (2014, Eq. 6-12), on degree, closeness and
+  betweenness (or eigenvector centrality) with equal weights by default;
+  `centrality_all_around()`, Hou, Yao and Liao (2012, Eq. 1), each index
+  divided by its maximum;
+  `centrality_egm()`, the effective gravity model of Li and Xiao (2021,
+  Eq. 16-22), `NA` with a warning on a disconnected network;
+  `centrality_gls()`, Sheng et al. (2020), in the form the paper's numbers
+  follow, which reproduces its worked value, the order of its Table 3 and the
+  karate top ten of its Table 4;
+  `centrality_ks_if()`, Wang, Zhao, Xi and Du (2016, Eq. 1-2);
+  `centrality_nl()`, Shao, Liu, Zhao and Liu (2019, Eq. 5);
+  `centrality_entropy_influence()`, the entropy-based social influence of Peng
+  et al. (2017, Eq. 2-13), which uses direction and weights and reproduces
+  the direct influence of all 11 nodes of the paper's example; and
+  `centrality_multi_evidence()`, Mo and Deng (2019), which reproduces the 21
+  values of the paper's Table 1 to three decimals.
+* Added thirteen more measures from papers read in full, each built on a
+  decision recorded in its help page:
+  `centrality_ksh()` and `centrality_eskh()`, the k-shell hybrid method of
+  Namtirtha, Dutta and Dutta (2018, Eq. 1-4) and its neighbour sum, with
+  `ksh_mu = 0.4` (the paper's worked example; its authors tune it per
+  network) and `ksh_radius = 3`, which reproduce the values printed for the
+  paper's 13-node example in it and in Maji et al. (2020);
+  `centrality_ikh()` and `centrality_eikh()`, the improved k-shell hybrid
+  method of Maji, Namtirtha, Dutta and Curado Malta (2020, Eq. 16-19), with
+  the root of the product of the shell indices as the paper prints it (not
+  the sum the Centrality Zoo gives), which reproduce the paper's Table 1;
+  `centrality_mcde()`, `centrality_mcdwe()`, `centrality_mcsde()` and
+  `centrality_mcsdwe()`, the four mixed core measures of Sheikhahmadi and
+  Nematbakhsh (2017, Eq. 8-14), the first two as raw sums (MCDE reproduces
+  22 of the 23 values of the paper's Table 2 and its rank order), the
+  semi-local two with each term min-max scaled and `semilocal` as the
+  semi-local degree;
+  `centrality_lgc()`, the Laplacian gravity centrality of Zhang, Shuai and
+  Lu (2022, Eq. 10-12), which reproduces the paper's ARPA example;
+  `centrality_wgravity()`, the weighted gravity model of Liu, Wang and Deng
+  (2020, Eq. 7-9), with the eigenvector at unit length and `NA` with a
+  warning when it is not unique;
+  `centrality_asp_centrality()`, the average shortest path centrality of Lv,
+  Zhao, Xiong and Chen (2019, Eq. 9-11), with the removed node kept as an
+  isolate as in the paper's example, which it reproduces; and
+  `centrality_wdc()` and `centrality_ewdc()`, the weight degree centrality of
+  Liu, Wei, Du, Xiao and Deng (2016, Eq. 4-9) and its extension, with
+  `wdc_alpha` the absolute degree assortativity by default and 0 where the
+  assortativity is undefined. At `wdc_alpha = 0`, `wdc` equals `con`.
+  All thirteen are computed on the simple undirected skeleton.
+* Added eight more measures from papers read in full, each built on a
+  decision recorded in its help page:
+  `centrality_mapping_entropy()`, Nie, Guo, Zhao and Lu (2016, Eq. 3), with
+  the degree centrality inside the logarithm read as `d / (N - 1)`;
+  `centrality_dcc()`, the degree and clustering coefficient centrality of
+  Yang et al. (2020, Eq. 7-12), which reproduces the karate top five of the
+  paper's Table 3 and is `NA` with a warning on a network without a
+  triangle; the entropy weights of the paper's worked example do not follow
+  from its network, and its help page says so;
+  `centrality_edge_clustering()`, the edge clustering coefficient centrality
+  of Wang, Li, Wang and Pan (2012, Eq. 7-8), where an edge with an end of
+  degree one adds 0;
+  `centrality_ahp()`, the analytic hierarchy process centrality of Bian, Hu
+  and Deng (2017) as its worked example computes it, with `ahp_weights` one
+  third each by default;
+  `centrality_semi_ia()`, the semi-local iterative algorithm of Luan, Bao
+  and Zhang (2021, Eq. 8-9) with the neighbour's score in the sum, bounded by
+  `semi_ia_max_iter` and warning when it does not settle;
+  `centrality_synthesize()`, Liu, Yu and Lu (2013, Eq. 6-9), a sum of
+  normalised degree and betweenness over a normalised farness;
+  `centrality_inward_accessibility()`, Travencolo and Costa (2008, Eq. 4-5),
+  over exactly enumerated self-avoiding walks, whose number of steps
+  `ia_steps` must be given; and
+  `centrality_improved_entropy()`, the improved entropy-based centrality of
+  Ni, Yang and Kong (2020, Eq. 2-10), with `ie_beta = 2`.
+* `centrality_improved_entropy()` of the previous entry in this version (Peng
+  et al. 2017) is renamed `centrality_entropy_influence()`, with the
+  arguments `ei_alpha` and `ei_omega`. The new `centrality_improved_entropy()`
+  is the measure the Centrality Zoo describes under that name.
+* `centrality_profitleader()` now adds one to the available resource, as the
+  code the authors released does: with it the ordered top ten of the paper's
+  Table 5 is reproduced at all 40 positions on the four networks available
+  (36 without). The article's Eq. 2 and Fig. 3 have no added one.
+* `centrality_topsis()`: its help page shows that the Weighted TOPSIS of Hu
+  et al. (2016) is this measure with given weights, and reproduces the
+  paper's Table 2 with them.
+* Added nine more measures from papers read in full, each built on a
+  decision recorded in its help page:
+  `centrality_physarum_spreader()`, Wang, Zhang, Zhang, Mahadevan and Deng
+  (2015, Eq. 7-12), which uses direction and weights and whose number of
+  updates `physarum_steps` must be given, because the paper has no stopping
+  rule and every score tends to 1; after 52 updates it reproduces the
+  paper's example, with the scores of nodes 1 and 2 exchanged;
+  `centrality_articlerank()`, Li and Willett (2009, Eq. 2), with the mean
+  number of references as a multiplier, `ar_references` for the reference
+  counts (the out-degree by default), and `NA` with a warning where the
+  equation diverges, which happens on many networks with cycles;
+  `centrality_entropy_gravity()`, the entropy-based gravity model of Yan, Cui
+  and Ni (2020), read by the paper's text where its printed Eq. 3 and 5
+  contradict it, with `entropy_gravity_radius = 3`;
+  `centrality_influence_capability()`, Wang, Du, Fan and Xing (2017,
+  Eq. 1-7), which reproduces the rankings of the paper's Tables 1-3 but not
+  its printed entropy weights;
+  `centrality_ehc()`, the extended H-index centrality of Zareie and
+  Sheikhahmadi (2019, Eq. 19-24), `ehc_p = 0.8` and `ehc_r = 100`, which
+  reproduces the paper's worked example;
+  `centrality_erm()`, the entropy-based ranking measure of Zareie,
+  Sheikhahmadi and Fatemi (2017, Eq. 2-7), with the natural logarithm;
+  `centrality_shell_clustering()` and `centrality_ecrm()`, the shell
+  clustering coefficient and the extended cluster coefficient ranking
+  measure of Zareie, Sheikhahmadi, Jalili and Fasaei (2020, Eq. 2-6), with
+  a correlation that is 0/0 taken as 0; and
+  `centrality_weight_neighborhood()`, Wang, Hou, Li and Ding (2017,
+  Eq. 9-10), with the degree (`wnc_benchmark = "degree"`, the default) or the
+  coreness as benchmark, which reproduces the 20 values of the paper's
+  Table 1.
+  All but the first two are computed on the simple undirected skeleton.
+* Added four more measures, each built on a decision recorded in its help
+  page. None of their sources prints a node score, so each is checked
+  against its definition and the values its source audit computed:
+  `centrality_rcfb()`, the resized current-flow betweenness of Agryzkov,
+  Tortosa and Vicent (2019, Algorithm 2), with weights as conductances and
+  the limit of a vanishing conductance to the virtual target by default
+  (`rcfb_epsilon = 0`);
+  `centrality_m_centrality()`, Ibnoulouafi, El Haziti and Cherifi (2018,
+  Eq. 6-11), with equal weights where the entropy weights are 0/0;
+  `centrality_wksd()`, the weighted k-shell degree neighborhood of
+  Namtirtha, Dutta and Dutta (2018, 2020) as later papers restate it, whose
+  weights `wksd_alpha` and `wksd_mu` must be given; and
+  `centrality_mapping_entropy_betweenness()`, Gialampoukidis et al. (2016),
+  which leaves neighbours of betweenness 0 out of its sum of logarithms.
+  The last three are computed on the simple undirected skeleton.
+* EigenTrust (Kamvar, Schlosser and Garcia-Molina 2003) and Seeley's index
+  (Seeley 1949, as restated by Vigna 2016) are documented in
+  `centrality_pagerank()` as settings of `pagerank` rather than added as
+  measures: EigenTrust with mixing weight `a` is `damping = 1 - a` with the
+  pre-trust as `personalized`, and Seeley's index is `damping = 1` on a
+  network where every node has an out-tie and the walk is irreducible and
+  aperiodic.
+* The catalogue now holds 274 measures.
+
 # cograph 2.7.22
 
 * Added `centrality_ink()` (and `centrality(measures = "ink")`), Lin, Guo,

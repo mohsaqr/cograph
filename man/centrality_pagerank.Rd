@@ -41,6 +41,25 @@ is matched by position. A negative weight raises a
 \code{cograph_negative_weights} error, an invalid \code{personalized} a
 \code{cograph_bad_input} error, and a \code{damping} outside
 \eqn{[0, 1]} a \code{cograph_bad_parameter} error.
+
+EigenTrust (Kamvar, Schlosser and Garcia-Molina 2003) with mixing weight
+\eqn{a} is \code{damping = 1 - a} with the pre-trust distribution as
+\code{personalized}, on a network without loops whose weights are the
+nonnegative local trust values (in both, a node that trusts nobody
+passes its trust to the pre-trust distribution). Seeley's index (Seeley
+1949, as restated by Vigna 2016), the left eigenvector of the
+row-normalized matrix for the eigenvalue 1 scaled to sum 1, is
+\code{damping = 1} on a network in which every node has an out-edge and
+the walk has a single closed class that is aperiodic, such as a
+connected undirected network that is not bipartite. Outside that class
+the result is not Seeley's index: the iteration starts from the uniform
+vector and stops after 1000 sweeps without a warning, so with more than
+one closed class it returns whichever of the several stationary vectors
+that start leads to and on a periodic network such as a star one of the
+vectors it alternates between, and a node without out-edges, for which
+Seeley's index is not defined, sends its score to the reset
+distribution. On a slowly mixing network, inside the class too, the 1000
+sweeps can end short of convergence.
 }
 \examples{
 centrality_pagerank(regulation_net)
@@ -49,6 +68,18 @@ centrality_pagerank(regulation_net)
 Brin, S., & Page, L. (1998). The anatomy of a large-scale hypertextual Web
 search engine. Computer Networks and ISDN Systems, 30(1-7), 107-117.
 \doi{10.1016/S0169-7552(98)00110-X}.
+
+Kamvar, S. D., Schlosser, M. T. and Garcia-Molina, H. (2003). The
+EigenTrust algorithm for reputation management in P2P networks. In
+Proceedings of the 12th International Conference on World Wide Web (WWW
+'03), 640-651. \doi{10.1145/775152.775242}.
+
+Seeley, J. R. (1949). The net of reciprocal influence; a problem in
+treating sociometric data. Canadian Journal of Psychology, 3(4),
+234-240. \doi{10.1037/h0084096}.
+
+Vigna, S. (2016). Spectral ranking. Network Science, 4(4), 433-445.
+\doi{10.1017/nws.2016.21}.
 }
 \seealso{
 \code{\link{centrality_eigenvector}},

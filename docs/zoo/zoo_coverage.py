@@ -71,6 +71,82 @@ COVERED = {
     "Node importance evaluation matrix (NIEM) method": "niem",
     "Improved K-shell decomposition (IKSD)": "iksd",
     "Density centrality": "density_centrality",
+    "RMD-weighted degree (WD)": "wd",
+    "Extended RMD-weighted degree (EWD)": "ewd",
+    "Modified Local Centrality (MLC)": "mlc",
+    "Spreading probability (SP)": "spreading_probability",
+    "ProfitLeader": "profitleader",
+    "Hierarchical k-shell (HKS)": "hks",
+    "Node importance contribution correlation matrix (NICCM) method": "niccm",
+    "Correlation centrality": "correlation_centrality",
+    # Batch 65. Fifteen measures built on the owner's decisions of 2026-11-26.
+    "Diversity-strength centrality (DSC)": "dsc",
+    "Diversity-strength ranking (DSR)": "dsr",
+    "Extended diversity-strength ranking (EDSR)": "edsr",
+    "k-shell based on gravity centrality (KSGC)": "ksgc",
+    "Local structural centrality (LSC)": "lsc",
+    "Classified neighbors centrality": "classified_neighbors",
+    "Hybrid degree centrality": "hybrid_degree",
+    "TOPSIS": "topsis",
+    "All-around score": "all_around",
+    "Effective gravity model (EGM)": "egm",
+    "Global and Local Structure(GLS)": "gls",
+    "k-shell iteration factor(KS-IF)": "ks_if",
+    "NL centrality": "nl",
+    # Batch 67 remapped this label: it is Ni, Yang and Kong (2020), built as
+    # `improved_entropy`. Peng et al.'s (2017) measure, which batch 65 had
+    # built under this name, is kept as `entropy_influence` and is not a
+    # Zoo label.
+    "Improved entropy-based centrality": "improved_entropy",
+    "Multi-evidence centrality (MeC)": "multi_evidence",
+    # Batch 66. Thirteen measures built on the owner's decisions of 2026-11-26.
+    "k-shell hybrid method": "ksh",
+    "Extended k-shell hybrid method": "eskh",
+    "Improved k-shell hybrid (IKH)": "ikh",
+    "Extended improved k-shell hybrid (EIKH)": "eikh",
+    "Mixed core, degree and entropy (MCDE)": "mcde",
+    "Mixed core, degree and weighted entropy (MCDWE)": "mcdwe",
+    "Mixed core, semi-local degree and entropy (MCSDE)": "mcsde",
+    "Mixed core, semi-local degree and weighted entropy (MCSDWE)": "mcsdwe",
+    "Laplacian gravity centrality (LGC)": "lgc",
+    "Weighted gravity model (WGravity)": "wgravity",
+    "Average shortest path centrality (AC)": "asp_centrality",
+    "Weight degree centrality (Wdc)": "wdc",
+    "Extended weight degree centrality (EWdc)": "ewdc",
+    # Batch 67. Seven measures built on the owner's decisions of 2026-11-26,
+    # and Weighted TOPSIS mapped to `topsis` with given weights (Hu et al.
+    # 2016 differ from Du et al. 2014 only in a simulated weight rule).
+    "Mapping entropy (ME)": "mapping_entropy",
+    "Degree and clustering coefficient (DCC)": "dcc",
+    "Edge clustering coefficient centrality (NC)": "edge_clustering",
+    "Analytic Hierarchy Process (AHP) centrality": "ahp",
+    "Semi-local iterative algorithm (semi-IA)": "semi_ia",
+    "Synthesize centrality (SC)": "synthesize",
+    "Inward accessibility": "inward_accessibility",
+    "Weighted TOPSIS": "topsis",
+    # Batch 68. Nine measures built on the owner's decisions of 2026-11-26.
+    "PhysarumSpreader": "physarum_spreader",
+    "ArticleRank": "articlerank",
+    "Entropy-based gravity model": "entropy_gravity",
+    "Influence capability (IC)": "influence_capability",
+    "Extended H-index centrality (EHC)": "ehc",
+    "Entropy-Based Ranking Measure (ERM)": "erm",
+    "Shell clustering coefficient": "shell_clustering",
+    "Extended Cluster Coefficient Ranking Measure (ECRM)": "ecrm",
+    "Weight neighborhood centrality": "weight_neighborhood",
+    # Batch 69. Four measures built on the owner's decisions of 2026-11-26.
+    # Eigentrust and Seeley's index map to `pagerank` (owner decision
+    # 2026-11-26; the `eigentrust` measure built that day was removed):
+    # EigenTrust at mixing weight a is damping = 1 - a with the pre-trust as
+    # `personalized`; Seeley's index (Vigna's 2016 restatement of Seeley 1949)
+    # is damping = 1 where every node has an out-tie and the walk has one
+    # aperiodic closed class.
+    "Eigentrust": "pagerank",
+    "Seeley’s index": "pagerank",
+    "RCFB centrality": "rcfb",
+    "M-centrality": "m_centrality",
+    "Weighted k-shell degree neighborhood (Wksd)": "wksd",
+    "Mapping Entropy Betweenness (MEB)": "mapping_entropy_betweenness",
     "Weighted k-shell degree neighborhood (Maji)": "wksdn",
     "μ-Power Community Index (μ-PCI)": "mu_pci",
     # Batch 59. Exact enumeration with a step limit.
@@ -317,6 +393,14 @@ def call_for(measure, zoo_label=None):
         "k-betweenness": 'centrality(x, measures = "betweenness", cutoff = k)',
         "Diffusion centrality": 'centrality(x, measures = "diffusion_centrality", diffusion_q = 1, diffusion_steps = 3)',
         "Dynamics-sensitive (DS) centrality": 'centrality(x, measures = "dynamics_sensitive", ds_beta = 0.1, ds_mu = 1, ds_steps = 5)',
+        "Hybrid degree centrality": 'centrality(x, measures = "hybrid_degree", hc_p = p)',
+        "Inward accessibility": 'centrality(x, measures = "inward_accessibility", ia_steps = h)',
+        "Weighted TOPSIS": 'centrality(x, measures = "topsis", topsis_weights = w)',
+        "PhysarumSpreader": 'centrality(x, measures = "physarum_spreader", physarum_steps = t)',
+        "Eigentrust": 'centrality(x, measures = "pagerank", damping = 1 - a, personalized = p)',
+        "Seeley’s index": 'centrality(x, measures = "pagerank", damping = 1)',
+        "Weighted k-shell degree neighborhood (Wksd)":
+            'centrality(x, measures = "wksd", wksd_alpha = alpha, wksd_mu = mu)',
     }
     if zoo_label in overrides:
         return f'`{overrides[zoo_label]}`'

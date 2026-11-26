@@ -97,10 +97,13 @@ test_that("the uses_weights flag matches whether weights change the result", {
                    "brokerage_gatekeeper", "brokerage_liaison")
   tab <- tab[!tab$measure %in% undecidable, ]
   # epc is a Monte Carlo estimate, so it needs a fixed seed before the two
-  # calls can be compared at all.
+  # calls can be compared at all. physarum_spreader has no value without its
+  # number of updates, so it is given one; wksd likewise gets its required
+  # parameters.
   value <- function(gr, m) {
     out <- suppressWarnings(suppressMessages(centrality(
-      gr, measures = m, membership = memb, epc_seed = 1
+      gr, measures = m, membership = memb, epc_seed = 1, physarum_steps = 5,
+      wksd_alpha = 0.5, wksd_mu = 0.5
     )))
     out[[2]]
   }

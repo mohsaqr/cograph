@@ -750,5 +750,5 @@ centrality_geodesic_kpath <- function(x, mode = "all", kpath_k = 3, ...) {
     "dynamical_importance", "resistance_curvature", "exogenous",
     "rsp_betweenness", "iec", "trust_pagerank", "tec", "mec",
     "x_nonbacktracking", "counting_betweenness", "all_cycle_betweenness",
-    "transportation", "path_transfer", "wfca", "lric_max")
+    "transportation", "path_transfer", "wfca", "lric_max", "niccm")
 }

@@ -162,6 +162,25 @@
     "hybrid",
     # Batch 63 — TOPSIS with relative entropy
     "topsis_re",
+    # Batch 64 — eight measures read from their papers on 2026-11-26
+    "wd", "ewd", "mlc", "spreading_probability", "profitleader", "hks",
+    "niccm", "correlation_centrality",
+    # Batch 65 — fifteen measures built on the owner's decisions of 2026-11-26
+    "dsc", "dsr", "edsr", "ksgc", "lsc", "classified_neighbors",
+    "hybrid_degree", "topsis", "all_around", "egm", "gls", "ks_if", "nl",
+    "entropy_influence", "multi_evidence",
+    # Batch 66 — thirteen measures built on the owner's decisions of 2026-11-26
+    "ksh", "eskh", "ikh", "eikh", "mcde", "mcdwe", "mcsde", "mcsdwe", "lgc",
+    "wgravity", "asp_centrality", "wdc", "ewdc",
+    # Batch 67 — eight measures built on the owner's decisions of 2026-11-26
+    "mapping_entropy", "dcc", "edge_clustering", "ahp", "semi_ia", "synthesize",
+    "inward_accessibility", "improved_entropy",
+    # Batch 68 — nine measures built on the owner's decisions of 2026-11-26
+    "physarum_spreader", "articlerank", "entropy_gravity",
+    "influence_capability", "ehc", "erm", "shell_clustering", "ecrm",
+    "weight_neighborhood",
+    # Batch 69 — four measures built on the owner's decisions of 2026-11-26
+    "rcfb", "m_centrality", "wksd", "mapping_entropy_betweenness",
     # Batch 41 — relative-entropy integrated evaluation
     "relative_entropy")
 }
@@ -226,7 +245,9 @@
     "percolation", "radiality", "reaching_local", "residual_closeness",
     "resistance_curvature", "s_core", "spanning_tree", "strength", "stress", "two_way_rw",
     "weighted_kshell", "wiener", "wvoterank",
-    "rsp_betweenness", "con", "counting_betweenness", "lric_max", "hybrid")
+    "rsp_betweenness", "con", "counting_betweenness", "lric_max", "hybrid",
+    "entropy_influence", "improved_entropy", "physarum_spreader",
+    "rcfb")
 }
 
 #' Catalogue of the Centrality Measures

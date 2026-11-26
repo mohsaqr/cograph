@@ -472,6 +472,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Access and Hide Information
 - [`centrality_adaptive_leaderrank()`](https://sonsoles.me/cograph/reference/centrality_adaptive_leaderrank.md)
   : Adaptive LeaderRank
+- [`centrality_all_cycle_betweenness()`](https://sonsoles.me/cograph/reference/centrality_all_cycle_betweenness.md)
+  : All Cycle Betweenness
 - [`centrality_alpha()`](https://sonsoles.me/cograph/reference/centrality_alpha.md)
   : Alpha Centrality
 - [`centrality_authority()`](https://sonsoles.me/cograph/reference/centrality_authority.md)
@@ -485,6 +487,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Beta Measure
 - [`centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality_betweenness.md)
   : Betweenness Centrality
+- [`centrality_biased_random_walk()`](https://sonsoles.me/cograph/reference/centrality_biased_random_walk.md)
+  : Biased Random Walk Centrality
 - [`centrality_bottleneck()`](https://sonsoles.me/cograph/reference/centrality_bottleneck.md)
   : Bottleneck Centrality
 - [`centrality_bridging()`](https://sonsoles.me/cograph/reference/centrality_bridging.md)
@@ -525,12 +529,16 @@ Every verb takes any supported input and returns a cograph_network.
   : Community-Based Centralities
 - [`centrality_community_hub_bridge()`](https://sonsoles.me/cograph/reference/centrality_community_hub_bridge.md)
   : Community Hub-Bridge Centrality
+- [`centrality_con()`](https://sonsoles.me/cograph/reference/centrality_con.md)
+  : Common Out-Neighbor Score
 - [`centrality_constraint()`](https://sonsoles.me/cograph/reference/centrality_constraint.md)
   : Burt's Constraint
 - [`centrality_controlrank()`](https://sonsoles.me/cograph/reference/centrality_controlrank.md)
   : ControlRank Centrality
 - [`centrality_coreness()`](https://sonsoles.me/cograph/reference/centrality_coreness.md)
   : Coreness
+- [`centrality_counting_betweenness()`](https://sonsoles.me/cograph/reference/centrality_counting_betweenness.md)
+  : Counting Betweenness
 - [`centrality_cross_clique()`](https://sonsoles.me/cograph/reference/centrality_cross_clique.md)
   : Cross-Clique Connectivity
 - [`centrality_current_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.md)
@@ -548,6 +556,8 @@ Every verb takes any supported input and returns a cograph_network.
 - [`centrality_degree_discount()`](https://sonsoles.me/cograph/reference/centrality_degree_discount.md)
   [`centrality_single_discount()`](https://sonsoles.me/cograph/reference/centrality_degree_discount.md)
   : DegreeDiscountIC and SingleDiscount
+- [`centrality_density_centrality()`](https://sonsoles.me/cograph/reference/centrality_density_centrality.md)
+  : Density Centrality
 - [`centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.md)
   : Diffusion Centrality
 - [`centrality_diffusion_centrality()`](https://sonsoles.me/cograph/reference/centrality_diffusion_centrality.md)
@@ -562,6 +572,8 @@ Every verb takes any supported input and returns a cograph_network.
   : DK-Based Gravity Model
 - [`centrality_dmnc()`](https://sonsoles.me/cograph/reference/centrality_dmnc.md)
   : Density of Maximum Neighborhood Component
+- [`centrality_dst()`](https://sonsoles.me/cograph/reference/centrality_dst.md)
+  : Dynamical Spanning Tree Centrality
 - [`centrality_dynamical_importance()`](https://sonsoles.me/cograph/reference/centrality_dynamical_importance.md)
   : Dynamical Importance
 - [`centrality_dynamics_sensitive()`](https://sonsoles.me/cograph/reference/centrality_dynamics_sensitive.md)
@@ -576,6 +588,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Extended Hybrid Characteristic Centrality
 - [`centrality_eigenvector()`](https://sonsoles.me/cograph/reference/centrality_eigenvector.md)
   : Eigenvector Centrality
+- [`centrality_emi()`](https://sonsoles.me/cograph/reference/centrality_emi.md)
+  : Entropy and Mutual Information Centrality
 - [`centrality_entropy()`](https://sonsoles.me/cograph/reference/centrality_entropy.md)
   : Entropy Centrality
 - [`centrality_entropy_variation()`](https://sonsoles.me/cograph/reference/centrality_entropy_variation.md)
@@ -606,6 +620,10 @@ Every verb takes any supported input and returns a cograph_network.
   : Generalized Closeness
 - [`centrality_gilschmidt()`](https://sonsoles.me/cograph/reference/centrality_gilschmidt.md)
   : Gil-Schmidt Power Index
+- [`centrality_gin()`](https://sonsoles.me/cograph/reference/centrality_gin.md)
+  : Global Importance of Nodes
+- [`centrality_gli()`](https://sonsoles.me/cograph/reference/centrality_gli.md)
+  : Global and Local Information Centrality
 - [`centrality_global_structure()`](https://sonsoles.me/cograph/reference/centrality_global_structure.md)
   : Global Structure Model Centrality
 - [`centrality_graph_regularization()`](https://sonsoles.me/cograph/reference/centrality_graph_regularization.md)
@@ -629,24 +647,34 @@ Every verb takes any supported input and returns a cograph_network.
   Redundancy
 - [`centrality_hubbell()`](https://sonsoles.me/cograph/reference/centrality_hubbell.md)
   : Hubbell Centrality
+- [`centrality_hybrid()`](https://sonsoles.me/cograph/reference/centrality_hybrid.md)
+  : Hybrid Centrality
 - [`centrality_hybrid_global_structure()`](https://sonsoles.me/cograph/reference/centrality_hybrid_global_structure.md)
   : Hybrid Global Structure Model Centrality
+- [`centrality_icentr()`](https://sonsoles.me/cograph/reference/centrality_icentr.md)
+  : Icentr
 - [`centrality_iec()`](https://sonsoles.me/cograph/reference/centrality_iec.md)
   : Immediate Effects Centrality
 - [`centrality_iira()`](https://sonsoles.me/cograph/reference/centrality_iira.md)
   : Improved Iterative Resource Allocation
+- [`centrality_iksd()`](https://sonsoles.me/cograph/reference/centrality_iksd.md)
+  : Improved k-shell Decomposition
 - [`centrality_improved_closeness()`](https://sonsoles.me/cograph/reference/centrality_improved_closeness.md)
   : Improved Closeness Centrality
 - [`centrality_improved_global_structure()`](https://sonsoles.me/cograph/reference/centrality_improved_global_structure.md)
   : Improved Global Structure Model Centrality
 - [`centrality_information()`](https://sonsoles.me/cograph/reference/centrality_information.md)
   : Information Centrality
+- [`centrality_ink()`](https://sonsoles.me/cograph/reference/centrality_ink.md)
+  : Improved Neighbors' k-core
 - [`centrality_integration()`](https://sonsoles.me/cograph/reference/centrality_integration.md)
   : Integration Centrality
 - [`centrality_ira()`](https://sonsoles.me/cograph/reference/centrality_ira.md)
   : Iterative Resource Allocation
 - [`centrality_katz()`](https://sonsoles.me/cograph/reference/centrality_katz.md)
   : Katz Centrality
+- [`centrality_kdec()`](https://sonsoles.me/cograph/reference/centrality_kdec.md)
+  : KDEC Centrality
 - [`centrality_ked()`](https://sonsoles.me/cograph/reference/centrality_ked.md)
   : KED Centrality
 - [`centrality_kreach()`](https://sonsoles.me/cograph/reference/centrality_kreach.md)
@@ -694,6 +722,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Local Information Dimensionality
 - [`centrality_localized_bridging()`](https://sonsoles.me/cograph/reference/centrality_localized_bridging.md)
   : Localized Bridging Centrality
+- [`centrality_lric_max()`](https://sonsoles.me/cograph/reference/centrality_lric_max.md)
+  : Long-Range Interaction Centrality (Maximal Path)
 - [`centrality_malatya()`](https://sonsoles.me/cograph/reference/centrality_malatya.md)
   : Malatya Centrality
 - [`centrality_map_equation()`](https://sonsoles.me/cograph/reference/centrality_map_equation.md)
@@ -704,6 +734,8 @@ Every verb takes any supported input and returns a cograph_network.
   : Maximal Clique Centrality
 - [`centrality_mcgm()`](https://sonsoles.me/cograph/reference/centrality_mcgm.md)
   : Multi-Characteristics Gravity Model Centrality
+- [`centrality_mec()`](https://sonsoles.me/cograph/reference/centrality_mec.md)
+  : Mediative Effects Centrality
 - [`centrality_mixed_gravity()`](https://sonsoles.me/cograph/reference/centrality_mixed_gravity.md)
   : Mixed Gravitational Centrality
 - [`centrality_mnc()`](https://sonsoles.me/cograph/reference/centrality_mnc.md)
@@ -712,23 +744,31 @@ Every verb takes any supported input and returns a cograph_network.
   : Modified Expected Force Centrality
 - [`centrality_modularity_vitality()`](https://sonsoles.me/cograph/reference/centrality_modularity_vitality.md)
   : Modularity Vitality
+- [`centrality_mu_pci()`](https://sonsoles.me/cograph/reference/centrality_mu_pci.md)
+  : Mu-Power Community Index
 - [`centrality_ncvoterank()`](https://sonsoles.me/cograph/reference/centrality_ncvoterank.md)
   : NCVoteRank
 - [`centrality_neighbor_distance()`](https://sonsoles.me/cograph/reference/centrality_neighbor_distance.md)
   : Neighborhood Centrality
 - [`centrality_neighborhood_connectivity()`](https://sonsoles.me/cograph/reference/centrality_neighborhood_connectivity.md)
   : Neighborhood Connectivity
+- [`centrality_niem()`](https://sonsoles.me/cograph/reference/centrality_niem.md)
+  : Node Importance Evaluation Matrix Centrality
 - [`centrality_ninl()`](https://sonsoles.me/cograph/reference/centrality_ninl.md)
   : Node and Neighbor Layer Information Centrality
 - [`centrality_node_contraction()`](https://sonsoles.me/cograph/reference/centrality_node_contraction.md)
   [`centrality_node_contraction_improved()`](https://sonsoles.me/cograph/reference/centrality_node_contraction.md)
   : Node Contraction Centrality
+- [`centrality_nwrank()`](https://sonsoles.me/cograph/reference/centrality_nwrank.md)
+  : NWRank
 - [`centrality_pagerank()`](https://sonsoles.me/cograph/reference/centrality_pagerank.md)
   : PageRank Centrality
 - [`centrality_pairwisedis()`](https://sonsoles.me/cograph/reference/centrality_pairwisedis.md)
   : Pairwise Disconnectivity
 - [`centrality_participation()`](https://sonsoles.me/cograph/reference/centrality_participation.md)
   : Participation Coefficient
+- [`centrality_path_transfer()`](https://sonsoles.me/cograph/reference/centrality_path_transfer.md)
+  : Path-Transfer Centrality
 - [`centrality_percolation()`](https://sonsoles.me/cograph/reference/centrality_percolation.md)
   : Percolation Centrality
 - [`centrality_power()`](https://sonsoles.me/cograph/reference/centrality_power.md)
@@ -777,10 +817,16 @@ Every verb takes any supported input and returns a cograph_network.
   : Stress Centrality
 - [`centrality_subgraph()`](https://sonsoles.me/cograph/reference/centrality_subgraph.md)
   : Subgraph Centrality
+- [`centrality_tec()`](https://sonsoles.me/cograph/reference/centrality_tec.md)
+  : Total Effects Centrality
 - [`centrality_topological_coefficient()`](https://sonsoles.me/cograph/reference/centrality_topological_coefficient.md)
   : Topological Coefficient
+- [`centrality_topsis_re()`](https://sonsoles.me/cograph/reference/centrality_topsis_re.md)
+  : TOPSIS Relative-Entropy Centrality
 - [`centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality_transitivity.md)
   : Local Transitivity
+- [`centrality_transportation()`](https://sonsoles.me/cograph/reference/centrality_transportation.md)
+  : Transportation Centrality
 - [`centrality_truss()`](https://sonsoles.me/cograph/reference/centrality_truss.md)
   [`centrality_mdd()`](https://sonsoles.me/cograph/reference/centrality_truss.md)
   [`centrality_bridging_coefficient()`](https://sonsoles.me/cograph/reference/centrality_truss.md)
@@ -802,16 +848,22 @@ Every verb takes any supported input and returns a cograph_network.
   : Weighted k-shell, Renewed Coreness and Geodesic k-path
 - [`centrality_weighted_leaderrank()`](https://sonsoles.me/cograph/reference/centrality_weighted_leaderrank.md)
   : Weighted LeaderRank
+- [`centrality_wfca()`](https://sonsoles.me/cograph/reference/centrality_wfca.md)
+  : Weighted Formal Concept Analysis Centrality
 - [`centrality_wiener()`](https://sonsoles.me/cograph/reference/centrality_wiener.md)
   : Wiener Index Centrality
 - [`centrality_within_module_z()`](https://sonsoles.me/cograph/reference/centrality_within_module_z.md)
   : Within-Module Degree Z-Score
+- [`centrality_wksdn()`](https://sonsoles.me/cograph/reference/centrality_wksdn.md)
+  : Weighted k-shell Degree Neighborhood Centrality
 - [`centrality_wvoterank()`](https://sonsoles.me/cograph/reference/centrality_wvoterank.md)
   [`centrality_enrenew()`](https://sonsoles.me/cograph/reference/centrality_wvoterank.md)
   [`centrality_voterank_plus()`](https://sonsoles.me/cograph/reference/centrality_wvoterank.md)
   : WVoteRank, EnRenew and VoteRank++
 - [`centrality_x_degree()`](https://sonsoles.me/cograph/reference/centrality_x_degree.md)
   : X-Degree Centrality
+- [`centrality_x_nonbacktracking()`](https://sonsoles.me/cograph/reference/centrality_x_nonbacktracking.md)
+  : X-Nonbacktracking Centrality
 - [`community_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md)
   [`com_consensus()`](https://sonsoles.me/cograph/reference/community_consensus.md)
   : Consensus Community Detection

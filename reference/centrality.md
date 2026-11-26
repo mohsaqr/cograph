@@ -98,6 +98,19 @@ centrality(
   iira_steps = 50,
   hcc_delta = 0.5,
   lhc_radius = 2,
+  ink_alpha = 1,
+  nwrank_alpha = 0.5,
+  brw_alpha = 0.5,
+  brw_jump = 0.15,
+  gin_alpha = 1,
+  gli_radius = 3,
+  density_radius = 3,
+  pci_mu = 1,
+  cycle_alpha = 0.5,
+  transport_beta = 0.1,
+  enumeration_limit = 1e+06,
+  lric_quota = 0.5,
+  lric_path_length = Inf,
   tpr_alpha = 0.85,
   tpr_k = 0.85,
   tpr_decay = 1,
@@ -837,6 +850,91 @@ centrality(
   no longer changes. Values below one and non-integers raise an error.
   See
   [`centrality_lhc`](https://sonsoles.me/cograph/reference/centrality_lhc.md).
+
+- ink_alpha:
+
+  Exponent \\\alpha\\ on each neighbor's core number in `"ink"`; a
+  single finite nonnegative number, default 1 as in the source's
+  experiments. Zero gives the degree and one the sum of the neighbors'
+  core numbers. Negative values raise an error. See
+  [`centrality_ink`](https://sonsoles.me/cograph/reference/centrality_ink.md).
+
+- nwrank_alpha:
+
+  Weight of the degree term in the shares of `"nwrank"`, a single number
+  in \\\[0,1\]\\, default 0.5 as in the source. The link betweenness
+  term has weight one minus this. See
+  [`centrality_nwrank`](https://sonsoles.me/cograph/reference/centrality_nwrank.md).
+
+- brw_alpha:
+
+  Weight of the degree term in the move probabilities of
+  `"biased_random_walk"`, a single number in \\\[0,1\]\\, default 0.5 as
+  in the source. See
+  [`centrality_biased_random_walk`](https://sonsoles.me/cograph/reference/centrality_biased_random_walk.md).
+
+- brw_jump:
+
+  Probability that the walker of `"biased_random_walk"` jumps to a
+  uniformly chosen node, a single number in \\(0,1\]\\, default 0.15 as
+  in the source.
+
+- gin_alpha:
+
+  Weight of the node's own degree in the exponent of `"gin"`, a single
+  finite nonnegative number, default 1 as in the source. See
+  [`centrality_gin`](https://sonsoles.me/cograph/reference/centrality_gin.md).
+
+- gli_radius:
+
+  Distance range \\r\\ summed over by `"gli"`, a single whole number of
+  at least one, default 3 as in the source. See
+  [`centrality_gli`](https://sonsoles.me/cograph/reference/centrality_gli.md).
+
+- density_radius:
+
+  Largest distance summed over by `"density_centrality"`: a single whole
+  number of at least one, or `Inf`; default 3. See
+  [`centrality_density_centrality`](https://sonsoles.me/cograph/reference/centrality_density_centrality.md).
+
+- pci_mu:
+
+  The \\\mu\\ of `"mu_pci"`, a single whole number of at least one,
+  default 1 as in the source. See
+  [`centrality_mu_pci`](https://sonsoles.me/cograph/reference/centrality_mu_pci.md).
+
+- cycle_alpha:
+
+  Discount per edge of a cycle in `"all_cycle_betweenness"`, a single
+  number strictly between 0 and 1, default 0.5. See
+  [`centrality_all_cycle_betweenness`](https://sonsoles.me/cograph/reference/centrality_all_cycle_betweenness.md).
+
+- transport_beta:
+
+  Sensitivity to path length in `"transportation"`, a single finite
+  nonnegative number, default 0.1. See
+  [`centrality_transportation`](https://sonsoles.me/cograph/reference/centrality_transportation.md).
+
+- enumeration_limit:
+
+  Largest number of search steps taken by the measures that enumerate
+  all simple paths or cycles (`"all_cycle_betweenness"`,
+  `"transportation"`, `"path_transfer"`) and of formal concepts built by
+  `"wfca"`, default one million; `Inf` removes the limit. Past it the
+  measure is `NA` with a warning.
+
+- lric_quota:
+
+  Share of the weight entering a node that a group of its in-neighbors
+  needs in order to be critical in `"lric_max"`, a single number in
+  \\(0,1\]\\, default 0.5. See
+  [`centrality_lric_max`](https://sonsoles.me/cograph/reference/centrality_lric_max.md).
+
+- lric_path_length:
+
+  Largest number of ties of a path of influence in `"lric_max"`: a
+  single whole number of at least one, or `Inf` (default) for all simple
+  paths.
 
 - tpr_alpha:
 
@@ -1586,6 +1684,37 @@ The following centrality measures are available:
   has one node. Not the same measure as `markov`. See
   [`centrality_iec`](https://sonsoles.me/cograph/reference/centrality_iec.md).
 
+- x_nonbacktracking:
+
+  X-nonbacktracking centrality: the estimated fall of the largest
+  nonbacktracking eigenvalue when the node is removed, \\(\sum_i
+  a\_{ci}v^i)^2-\sum_i a\_{ci}(v^i)^2\\, with \\v^i\\ the
+  nonbacktracking centralities of the network without the node and the
+  eigenvector scaled by \\v^{\top}Pv=1\\. Costly (one eigenproblem on
+  the directed edges per node). `NA` where the network without the node
+  has no principal nonbacktracking eigenvector. See
+  [`centrality_x_nonbacktracking`](https://sonsoles.me/cograph/reference/centrality_x_nonbacktracking.md).
+
+- tec:
+
+  Total effects centrality: the stationary vector of the influence chain
+  \\W=A/\mathrm{rowSums}(A)\\ built with \\a\_{ii}=1\\, the average
+  total effect of a node when the influence process runs to consensus.
+  Scores sum to one. `NA` at every node when the chain is reducible or
+  the graph has one node. See
+  [`centrality_tec`](https://sonsoles.me/cograph/reference/centrality_tec.md).
+
+- mec:
+
+  Mediative effects centrality: the mean, over the other nodes \\i\\ and
+  \\k\\, of the probability \\t\_{(k)ij}/t\_{(k)jj}\\ that influence
+  from \\i\\ passes through the node before reaching \\k\\, with
+  \\T\_{(k)}=(I-W\_{(k)})^{-1}\\ on the same influence chain as `iec`.
+  Direction-sensitive and costly (one dense solve per node). `NA` at
+  every node when the chain is reducible or the graph has fewer than
+  three nodes. See
+  [`centrality_mec`](https://sonsoles.me/cograph/reference/centrality_mec.md).
+
 - dil:
 
   Degree and importance of lines: the degree plus the share of each
@@ -1595,6 +1724,192 @@ The following centrality measures are available:
   \\p\\ the number of triangles on the line. Two-hop local and
   component-local; never below the node's degree. See
   [`centrality_dil`](https://sonsoles.me/cograph/reference/centrality_dil.md).
+
+- ink:
+
+  Improved neighbors' k-core: the sum over a node's neighbors of their
+  core numbers raised to `ink_alpha`, \\\sum\_{j\in
+  J(i)}k_s(j)^{\alpha}\\. The node's own core number is not counted and
+  the scores are raw sums. See
+  [`centrality_ink`](https://sonsoles.me/cograph/reference/centrality_ink.md).
+
+- con:
+
+  Common out-neighbor score: the number of out-neighbors a node shares
+  with every other node, \\\sum\_{v\neq u}\sum_k\min(A\_{uk},A\_{vk})\\.
+  Direction-sensitive; with `weighted = TRUE` weights count as numbers
+  of interactions. See
+  [`centrality_con`](https://sonsoles.me/cograph/reference/centrality_con.md).
+
+- emi:
+
+  Entropy and mutual information-based centrality: the base-10 entropy
+  of the neighbors' degree shares plus the mutual information term
+  \\\sum\_{j\in
+  N_i}\frac{c\_{ij}}{d_i+d_j}\log\_{10}\frac{d_i+d_j-c\_{ij}}{d_i+d_j}\\
+  on common neighbors. See
+  [`centrality_emi`](https://sonsoles.me/cograph/reference/centrality_emi.md).
+
+- nwrank:
+
+  NWRank: the principal eigenvector of the node-link exchange \\WH\\, in
+  which a node shares its score among its links by the far node's degree
+  and the link betweenness, mixed by `nwrank_alpha`. Scores sum to one.
+  `NA` at every node when the linked nodes form more than one component.
+  See
+  [`centrality_nwrank`](https://sonsoles.me/cograph/reference/centrality_nwrank.md).
+
+- biased_random_walk:
+
+  Biased random walk centrality: the stationary distribution of a walk
+  that moves to a neighbor with probability proportional to \\\alpha
+  f\_{deg}+(1-\alpha)f\_{nd}\\ and jumps uniformly with probability
+  `brw_jump`. Scores sum to one. See
+  [`centrality_biased_random_walk`](https://sonsoles.me/cograph/reference/centrality_biased_random_walk.md).
+
+- dst:
+
+  Dynamical spanning tree centrality: the share of the network's
+  spanning trees lost when the node is removed, \\1-t(G\setminus
+  v_i)/t(G)\\. A cut node scores 1. `NA` at every node of a disconnected
+  network. See
+  [`centrality_dst`](https://sonsoles.me/cograph/reference/centrality_dst.md).
+
+- kdec:
+
+  KDEC: the influence \\W(i)W(k)/(n\\e^2)\\ summed over the nodes one
+  and two steps away, with \\W=k_s d\\ (core number times degree) and
+  the effective distance \\e\_{ij}=1-\log\_{10}(1/d_j)\\, added along
+  two-step paths. See
+  [`centrality_kdec`](https://sonsoles.me/cograph/reference/centrality_kdec.md).
+
+- counting_betweenness:
+
+  Counting betweenness: the expected number of visits a random walk pays
+  the node between its start and its first arrival at a target, averaged
+  over all ordered pairs. Uses direction, weights and loops. Costly (one
+  matrix inversion per node). `NA` at every node unless the nodes with
+  both incoming and outgoing ties are strongly connected. See
+  [`centrality_counting_betweenness`](https://sonsoles.me/cograph/reference/centrality_counting_betweenness.md).
+
+- gin:
+
+  Global importance of nodes: \\e^{\alpha k_i/n}\sum\_{j\neq
+  i}k_j/d\_{ij}\\, the degrees of all other nodes divided by their
+  distance, times a factor for the node's own degree. See
+  [`centrality_gin`](https://sonsoles.me/cograph/reference/centrality_gin.md).
+
+- icentr:
+
+  Icentr: the sum over the edges of a node's component of
+  \\2^{-(lev(e)-1)}\\, with the level of an edge its distance in steps
+  from the node. See
+  [`centrality_icentr`](https://sonsoles.me/cograph/reference/centrality_icentr.md).
+
+- gli:
+
+  Global and local information: the mass \\Iks+DC\\ (k-shell index plus
+  removal round plus degree) of the nodes within `gli_radius` steps,
+  divided by distance, times the exponential of the node's own share of
+  the total mass. See
+  [`centrality_gli`](https://sonsoles.me/cograph/reference/centrality_gli.md).
+
+- niem:
+
+  Node importance evaluation matrix: a node's efficiency
+  \\I_i=\frac{1}{n}\sum\_{j\neq i}1/d\_{ij}\\ times \\\sum\_{j\in
+  N(i)}D_jI_j/\langle k\rangle^2\\, the degree-weighted efficiency of
+  its neighbors. See
+  [`centrality_niem`](https://sonsoles.me/cograph/reference/centrality_niem.md).
+
+- iksd:
+
+  Improved k-shell decomposition: the iteration in which a node is
+  removed when each iteration takes away only the nodes of lowest
+  current degree. See
+  [`centrality_iksd`](https://sonsoles.me/cograph/reference/centrality_iksd.md).
+
+- density_centrality:
+
+  Density centrality: \\\sum\_{1\le d\_{ij}\le r}k_i/(\pi d\_{ij}^2)\\,
+  with `density_radius` the range \\r\\. See
+  [`centrality_density_centrality`](https://sonsoles.me/cograph/reference/centrality_density_centrality.md).
+
+- wksdn:
+
+  Weighted k-shell degree neighborhood: the sum over a node's ties of
+  \\(ks_i+ks_j)+\lambda(k_i+k_j)\\, with \\\lambda\\ the ratio of the
+  total k-shell index to the total degree. See
+  [`centrality_wksdn`](https://sonsoles.me/cograph/reference/centrality_wksdn.md).
+
+- mu_pci:
+
+  Mu-power community index: the largest \\k\\ such that at least \\\mu
+  k\\ nodes within \\\mu\\ steps have degree at least \\k\\, with
+  \\\mu\\ given by `pci_mu`. At 1 it equals `lobby`. See
+  [`centrality_mu_pci`](https://sonsoles.me/cograph/reference/centrality_mu_pci.md).
+
+- all_cycle_betweenness:
+
+  All cycle betweenness: the simple cycles through a node, a cycle of
+  \\k\\ edges weighing \\\alpha^{k-2}\\, with `cycle_alpha` the
+  discount. Costly (enumerates every simple cycle, up to
+  `enumeration_limit` steps). See
+  [`centrality_all_cycle_betweenness`](https://sonsoles.me/cograph/reference/centrality_all_cycle_betweenness.md).
+
+- transportation:
+
+  Transportation centrality: the share of traffic through a node when
+  traffic between two nodes spreads over all simple paths with weight
+  \\e^{-\beta C}\\, \\C\\ the length of the path, averaged over ordered
+  pairs. Direction-sensitive and costly (enumerates every simple path).
+  See
+  [`centrality_transportation`](https://sonsoles.me/cograph/reference/centrality_transportation.md).
+
+- path_transfer:
+
+  Path-transfer centrality: the entropy, in bits, of where a flow from
+  the node that never revisits a node and may stop at every step comes
+  to rest. Direction-sensitive and costly (enumerates every simple
+  path). See
+  [`centrality_path_transfer`](https://sonsoles.me/cograph/reference/centrality_path_transfer.md).
+
+- wfca:
+
+  Weighted formal concept analysis centrality: the sum of
+  \\\|T\|/\|P\|\\ over the formal concepts \\(T,P)\\ of the adjacency
+  table whose set of common targets \\P\\ holds the node.
+  Direction-sensitive and costly (the number of concepts can grow
+  exponentially; `enumeration_limit` applies). See
+  [`centrality_wfca`](https://sonsoles.me/cograph/reference/centrality_wfca.md).
+
+- lric_max:
+
+  Long-range interaction centrality, maximal path: the influence of a
+  node on every other node along the best path, the influence on one tie
+  being its weight over the smallest critical group of the target in
+  which the source is pivotal; summed with the targets weighted by their
+  share of all outgoing weight. Uses direction and weights. Costly
+  (subset sums over in-neighbors; `enumeration_limit` applies). See
+  [`centrality_lric_max`](https://sonsoles.me/cograph/reference/centrality_lric_max.md).
+
+- hybrid:
+
+  Hybrid centrality: the sum of a node's ranks on weighted and
+  unweighted betweenness, closeness and eigenvector centrality, on
+  degree and on strength, rescaled to run from 0 to 1. `NA` at every
+  node unless the network is undirected and connected. See
+  [`centrality_hybrid`](https://sonsoles.me/cograph/reference/centrality_hybrid.md).
+
+- topsis_re:
+
+  TOPSIS relative-entropy score: closeness to the ideal on four weighted
+  indicators (degree, closeness and betweenness centrality and the
+  improved k-shell index), with relative-entropy distances to the best
+  and the worst value of each. Between 0 and 1; a node with a zero
+  indicator scores 0. `NA` at every node unless the network is connected
+  and its nodes are not all alike. See
+  [`centrality_topsis_re`](https://sonsoles.me/cograph/reference/centrality_topsis_re.md).
 
 - trust_pagerank:
 

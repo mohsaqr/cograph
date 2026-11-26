@@ -49,5 +49,5 @@ The output `filename`, invisibly.
 ``` r
 sn_save(cograph(regulation_net),
   filename = file.path(tempdir(), "network.pdf"))
-#> Saved to: /tmp/Rtmp6DeZuX/network.pdf
+#> Saved to: /tmp/RtmpZUehvt/network.pdf
 ```

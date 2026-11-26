@@ -1,5 +1,26 @@
 # Centrality correlation audit
 
+## Rerun of 2026-11-26 after batch 69
+
+All data files were regenerated on the ci VM for 274 measures, 282
+configurations and 19 networks. Validation against SciPy and NumPy passed:
+590,768 pair observations, 2,363,072 values, 0 failures at 1e-12.
+The HTML report, the heatmap, `browser_validation.json` and
+`source_hashes.json` were not regenerated.
+
+Ledger calls that leave a value to the user were given one for the audit
+(`correlation_audit.R`, `placeholders`): `hybrid_degree` p = 0.05, `wksd`
+alpha = mu = 0.5, `physarum_spreader` 52 steps, `inward_accessibility`
+2 steps, EigenTrust weight 0.15 with a uniform pre-trust.
+
+Redundancy of the 57 measures added in batches 64 to 69: no pair has
+|tau| = 1 on every network, so none is a duplicate. The closest are
+`mlc` and `semilocal` (mean |tau| 0.996, at least 0.974), `ehc` and
+`diffusion_centrality` (0.995, at least 0.981), `gls` and `lnc` (0.993, at
+least 0.982), `hybrid_degree` at p = 0.05 and `lnc` (0.987), and `mcde` and
+`mcdwe` with each other (0.986). `articlerank` has no value on these
+undirected networks (its iteration diverges on cycles) and is not screened.
+
 ## Run of 2026-11-26 (current data files)
 
 The audit was rerun on the ci VM on 2026-11-26, after implementation batch 63.

@@ -14,11 +14,19 @@ signature <- function(args) jsonlite::toJSON(args[sort(names(args))],
                                             auto_unbox = TRUE, null = "null")
 keys <- vapply(configs, signature, character(1))
 labels <- list()
-k <- 3
+# The ledger writes a call with a symbol where the source leaves the value
+# to the user. The audit needs a number, so each symbol gets one here: the
+# value the source's example uses where it has one, a mid-range value
+# otherwise. `p` is a spreading probability in `hybrid_degree` and a
+# pre-trust vector in the EigenTrust call, where NULL is the uniform one.
+placeholders <- list(k = 3, p = 0.05, alpha = 0.5, mu = 0.5, t = 52,
+                     w = c(1, 1, 1) / 3, a = 0.15, h = 2)
 for (i in seq_len(nrow(ledger))) {
   expr <- as.list(match.call(centrality, parse(text = ledger$call[i])[[1]]))[-1]
   expr$x <- NULL
-  args <- lapply(expr, eval)
+  values <- placeholders
+  if (identical(ledger$zoo_label[i], "Eigentrust")) values["p"] <- list(NULL)
+  args <- lapply(expr, eval, envir = values, enclos = baseenv())
   for (nm in setdiff(names(args), "measures")) {
     default <- eval(formals(centrality)[[nm]])
     if (isTRUE(all.equal(args[[nm]], default))) args[nm] <- NULL

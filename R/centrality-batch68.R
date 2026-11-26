@@ -407,6 +407,9 @@ centrality_influence_capability <- function(x, ...) {
 #' \code{\link{centrality_semilocal}} the correlation is 0.91 to 0.92. A
 #' \code{ehc_p} outside \eqn{(0, 1]} or a \code{ehc_r} that is not a finite
 #' number above 0 raises a \code{cograph_bad_parameter} error.
+#' Over the 19 networks of the package's correlation audit the mean
+#' correlation with \code{diffusion_centrality} is 0.995 (0.981 at the
+#' least).
 #' \code{normalized = TRUE} divides the scores by their maximum.
 #'
 #' @param x Network input accepted by \code{\link{centrality}}.

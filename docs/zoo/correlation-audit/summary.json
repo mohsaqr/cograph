@@ -1,32 +1,37 @@
 {
-  "native_measures": 218,
-  "configurations": 221,
-  "candidate_labels": 89,
+  "native_measures": 274,
+  "configurations": 282,
+  "candidate_labels": 148,
   "networks": 19,
-  "usable_native_measures": 206,
-  "candidate_configurations": 87,
+  "usable_native_measures": 257,
+  "candidate_configurations": 144,
   "status_counts": {
-    "ok": 3728,
-    "nonfinite": 276,
-    "costly_above_40": 135,
-    "constant": 53,
+    "ok": 4743,
+    "nonfinite": 372,
+    "constant": 96,
+    "costly_above_40": 140,
     "error": 7
   },
   "unavailable_native": [
+    "articlerank",
     "brokerage_coordinator",
     "brokerage_gatekeeper",
     "brokerage_itinerant",
     "brokerage_liaison",
     "brokerage_representative",
     "hubbell",
+    "hybrid_degree",
+    "inward_accessibility",
     "leaderrank",
     "pairwisedis",
+    "physarum_spreader",
     "prestige_domain",
     "prestige_domain_proximity",
     "salsa",
-    "trophic_level"
+    "trophic_level",
+    "wksd"
   ],
-  "native_pairs_abs_mean_tau_ge_099": 73,
+  "native_pairs_abs_mean_tau_ge_099": 77,
   "mean_correlation_groups": [
     [
       "average_distance",
@@ -74,6 +79,11 @@
       "percolation"
     ],
     [
+      "gls",
+      "lnc",
+      "modified_expected_force"
+    ],
+    [
       "hindex_strength",
       "lobby",
       "mu_pci"
@@ -85,10 +95,6 @@
     [
       "authority",
       "hub"
-    ],
-    [
-      "beta_measure",
-      "inf"
     ],
     [
       "bridging_coefficient",
@@ -103,6 +109,10 @@
       "expected_influence_2"
     ],
     [
+      "diffusion_centrality",
+      "ehc"
+    ],
+    [
       "flow_coefficient",
       "transitivity"
     ],
@@ -115,8 +125,8 @@
       "redundancy"
     ],
     [
-      "lnc",
-      "modified_expected_force"
+      "mlc",
+      "semilocal"
     ],
     [
       "mnc",
@@ -127,18 +137,18 @@
       "spectralrank"
     ]
   ],
-  "zoo_comparable_pairs": 3653,
-  "zoo_matrix_pearson": 0.4691123359407265,
-  "zoo_matrix_spearman": 0.8027206854258936,
-  "zoo_mean_absolute_gap": 0.13081031431822662,
-  "zoo_median_absolute_gap": 0.03944827194286704,
-  "zoo_magnitude_matrix_pearson": 0.7266165162409811,
-  "zoo_magnitude_matrix_spearman": 0.8130282730335376,
-  "zoo_magnitude_mean_absolute_gap": 0.06707125412035672,
-  "zoo_magnitude_median_absolute_gap": 0.03786250543910885,
-  "strong_pairs_abs_tau_ge_099_every_observed_network": 68,
-  "strong_pairs_domain_balanced_ge_099": 70,
-  "strong_pairs_without_kite_ge_099": 71,
+  "zoo_comparable_pairs": 9865,
+  "zoo_matrix_pearson": 0.48147519071959627,
+  "zoo_matrix_spearman": 0.7619399324976676,
+  "zoo_mean_absolute_gap": 0.10365260674483102,
+  "zoo_median_absolute_gap": 0.039543682271591996,
+  "zoo_magnitude_matrix_pearson": 0.7004907873775164,
+  "zoo_magnitude_matrix_spearman": 0.7598794907822523,
+  "zoo_magnitude_mean_absolute_gap": 0.0644757488555998,
+  "zoo_magnitude_median_absolute_gap": 0.03850813016599863,
+  "strong_pairs_abs_tau_ge_099_every_observed_network": 67,
+  "strong_pairs_domain_balanced_ge_099": 74,
+  "strong_pairs_without_kite_ge_099": 75,
   "min_nodes": 10,
   "max_nodes": 81
 }

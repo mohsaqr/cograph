@@ -1,4 +1,69 @@
-# Centrality correlation audit — 2026-09-07
+# Centrality correlation audit
+
+## Run of 2026-11-26 (current data files)
+
+The audit was rerun on the ci VM on 2026-11-26, after implementation batch 63.
+Every data file in this folder (CSV, JSON, gz) is from that run. **The
+interactive report `index.html`, `candidate_heatmap.png`,
+`browser_validation.json` and `source_hashes.json` are still those of the
+2026-09-07 run and have not been regenerated**; the text below this section
+also describes the 2026-09-07 run. The method, the 19 networks and every
+convention are unchanged. Two scripts were changed only to read the number of
+configurations from `configurations.csv`, where they had 180 written in
+(`correlation_export.R`, `correlation_validate.py`).
+
+- 218 native measures and three parameter variants, 221 configurations, on the
+  same 19 networks. The ledger had 89 covered candidate labels, mapping to 87
+  configurations.
+- Of 4,199 network/configuration records: 3,728 usable, 276 nonfinite, 135
+  skipped by the costly-above-40-nodes rule, 53 constant, 7 errors (five
+  30-second time limits: flow betweenness twice, infection three times; two
+  singular alpha/power systems on Les Miserables). 206 native measures
+  produced usable rankings somewhere.
+- 73 native pairs have absolute mean Kendall tau-b of at least .99 on at least
+  10 networks; 68 of them meet the threshold on every observed network, 70 keep
+  it with equal domain weights and 71 without kite. Complete linkage gives 20
+  groups with two or more members.
+- Independent validation ([validation.json](validation.json)): 364,970 pair
+  observations and 1,459,880 correlation values recomputed with SciPy and
+  NumPy, zero failures at 1e-12.
+- Software: see [versions.csv](versions.csv); `igraphdata` 1.0.1 was installed
+  on the VM for this run.
+
+### The 41 measures added since batch 40
+
+The 2026-09-07 run stopped at batch 39, so these had never been screened.
+Pairs that reach |mean tau| of .99 with another native measure:
+
+| Added measure | Close to | Mean tau | Minimum abs tau | Networks | Reading |
+|---|---|---|---|---|---|
+| `inf` (batch 57) | `beta_measure` | 1.0000 | 1.0000 | 19 | The same numbers on every undirected graph (difference exactly 0 on the 1,312 undirected retained fixtures). A duplicate |
+| `mu_pci` (58) | `lobby`, `hindex_strength` | 1.0000 | 1.0000 | 19 | Equal to `lobby` at its default `pci_mu = 1`, as its help page states; differs for larger `pci_mu` |
+| `tec` (53) | `degree`, `strength`, `expected_influence_1`, `map_equation` | 1.0000 | 1.0000 | 14 | On an undirected network it is (degree + 1) / sum, a monotone function of degree; differs on directed networks, which this audit does not contain |
+| `iec` (49) | `markov` | 0.9992 | 0.9926 | 14 | Close, not equal; the two differ in the self-loop and the divisor |
+| `lnc` (44) | `modified_expected_force` | 0.9967 | 0.9904 | 19 | Close on these networks |
+| `neighbor_distance` (42) | `spectralrank` | 0.9917 | 0.9726 | 19 | Above the mean threshold, below it on 5 networks |
+
+No other measure of batches 40 to 63 reaches .99. The closest of the rest:
+`wksdn`-`lnc` .980, `counting_betweenness`-`weighted_leaderrank` .980,
+`con`-`expected` .978, `x_nonbacktracking`-`nonbacktracking` .976,
+`mec`-`graph_regularization` .976, `dkgm` .976, `ink`-`counting_betweenness`
+.972, `niem`-`expected` .972, `density_centrality`-`harary` .971,
+`iksd`-`onion` .971. The most distinct are `emi` (nearest `iec`, .686),
+`dil` (.858), `wfca` (.872) and `topsis_re` (.873).
+
+Three measures that enumerate all simple paths or cycles were hardly screened:
+`all_cycle_betweenness` is usable on 3 networks, `transportation` and
+`path_transfer` on 2. On the others they pass `enumeration_limit` and return
+`NA` (11 or 12 networks), or are skipped as costly above 40 nodes (5). They
+have no pair with 10 shared networks, so the audit says nothing about their
+redundancy.
+
+These statements describe 19 small undirected networks, twelve of them
+foodwebs. A correlation of 1 here is a lead to check, as was done for `inf`;
+a lower correlation does not establish that a measure is new.
+
+## Run of 2026-09-07 (the text from here on, the HTML report and the heatmap)
 
 For the wider implementation and source-verification workflow, see the
 [next-agent guide](../NEXT-AGENT-GUIDE.md).

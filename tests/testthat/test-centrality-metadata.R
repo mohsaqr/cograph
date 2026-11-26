@@ -140,7 +140,12 @@ test_that("naming a costly measure in measures = always computes it", {
   for (m in list_centralities(costly = TRUE)$measure) {
     df <- suppressWarnings(centrality(adj6, measures = m, membership = memb6))
     expect_equal(ncol(df), 2L, info = m)
-    expect_false(anyNA(df[[2]]), info = m)
+    # x_nonbacktracking is computed but has no value on adj6: the network
+    # without a node has no simple largest nonbacktracking eigenvalue. Its
+    # values are pinned in test-centrality-batch54.R.
+    if (!identical(m, "x_nonbacktracking")) {
+      expect_false(anyNA(df[[2]]), info = m)
+    }
   }
 })
 

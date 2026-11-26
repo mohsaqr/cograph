@@ -138,6 +138,30 @@
     "dil",
     # Batch 51 — trust-PageRank
     "trust_pagerank",
+    # Batch 52 — improved neighbors' k-core
+    "ink",
+    # Batch 53 — total and mediative effects centrality
+    "tec", "mec",
+    # Batch 54 — X-nonbacktracking centrality
+    "x_nonbacktracking",
+    # Batch 55 — common out-neighbor score, EMI, NWRank, biased random walk
+    "con", "emi", "nwrank", "biased_random_walk",
+    # Batch 56 — spanning-tree loss, KDEC, counting betweenness
+    "dst", "kdec", "counting_betweenness",
+    # Batch 57 — global importance of nodes, Icentr, GLI
+    "gin", "icentr", "gli",
+    # Batch 58 — NIEM, IKSD, density centrality, WKSDN, mu-PCI
+    "niem", "iksd", "density_centrality", "wksdn", "mu_pci",
+    # Batch 59 — measures over all simple cycles or paths
+    "all_cycle_betweenness", "transportation", "path_transfer",
+    # Batch 60 — weighted formal concept analysis
+    "wfca",
+    # Batch 61 — long-range interaction centrality, maximal path
+    "lric_max",
+    # Batch 62 — hybrid centrality
+    "hybrid",
+    # Batch 63 — TOPSIS with relative entropy
+    "topsis_re",
     # Batch 41 — relative-entropy integrated evaluation
     "relative_entropy")
 }
@@ -202,7 +226,7 @@
     "percolation", "radiality", "reaching_local", "residual_closeness",
     "resistance_curvature", "s_core", "spanning_tree", "strength", "stress", "two_way_rw",
     "weighted_kshell", "wiener", "wvoterank",
-    "rsp_betweenness")
+    "rsp_betweenness", "con", "counting_betweenness", "lric_max", "hybrid")
 }
 
 #' Catalogue of the Centrality Measures

@@ -19,7 +19,9 @@ with gzip.open(HERE / 'per_network_pairs.csv.gz', 'rt') as stream:
     for row in csv.DictReader(stream):
         pairs[row['network']].append(row)
 availability = list(csv.DictReader((HERE / 'availability.csv').open()))
-assert len(availability) == 19*180
+# One availability record per network and configuration of the audit.
+n_configs = len(list(csv.DictReader((HERE / 'configurations.csv').open())))
+assert len(availability) == 19*n_configs
 assert len({(r['network'], r['config']) for r in availability}) == len(availability)
 assert len(fixtures) == 19
 maximum = dict.fromkeys(['tau_b', 'spearman', 'pearson', 'tau_b_raw'], 0.)
@@ -43,7 +45,7 @@ for name, f in fixtures.items():
     raw = np.array([[hex_float(v) for v in row] for row in f['raw_hex']])
     ranked = np.array([[as_float(v) for v in row] for row in f['rank_input']])
     adjacency = np.asarray(f['adjacency'])
-    assert raw.shape == ranked.shape == (len(nodes), 180)
+    assert raw.shape == ranked.shape == (len(nodes), n_configs)
     assert len(set(nodes)) == len(nodes)
     assert np.array_equal(adjacency, adjacency.T)
     assert set(np.unique(adjacency)) <= {0, 1} and np.trace(adjacency) == 0

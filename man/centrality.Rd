@@ -95,6 +95,19 @@ centrality(
   iira_steps = 50,
   hcc_delta = 0.5,
   lhc_radius = 2,
+  ink_alpha = 1,
+  nwrank_alpha = 0.5,
+  brw_alpha = 0.5,
+  brw_jump = 0.15,
+  gin_alpha = 1,
+  gli_radius = 3,
+  density_radius = 3,
+  pci_mu = 1,
+  cycle_alpha = 0.5,
+  transport_beta = 0.1,
+  enumeration_limit = 1e+06,
+  lric_quota = 0.5,
+  lric_path_length = Inf,
   tpr_alpha = 0.85,
   tpr_k = 0.85,
   tpr_decay = 1,
@@ -590,6 +603,66 @@ as optimal. At one the ball contains only the neighbors. At or above the
 diameter the score no longer changes. Values below one and non-integers
 raise an error. See \code{\link{centrality_lhc}}.}
 
+\item{ink_alpha}{Exponent \eqn{\alpha}{alpha} on each neighbor's core
+number in \code{"ink"}; a single finite nonnegative number, default 1
+as in the source's experiments. Zero gives the degree and one the sum
+of the neighbors' core numbers. Negative values raise an error. See
+\code{\link{centrality_ink}}.}
+
+\item{nwrank_alpha}{Weight of the degree term in the shares of
+\code{"nwrank"}, a single number in \eqn{[0,1]}, default 0.5 as in the
+source. The link betweenness term has weight one minus this. See
+\code{\link{centrality_nwrank}}.}
+
+\item{brw_alpha}{Weight of the degree term in the move probabilities of
+\code{"biased_random_walk"}, a single number in \eqn{[0,1]}, default
+0.5 as in the source. See \code{\link{centrality_biased_random_walk}}.}
+
+\item{brw_jump}{Probability that the walker of
+\code{"biased_random_walk"} jumps to a uniformly chosen node, a single
+number in \eqn{(0,1]}, default 0.15 as in the source.}
+
+\item{gin_alpha}{Weight of the node's own degree in the exponent of
+\code{"gin"}, a single finite nonnegative number, default 1 as in the
+source. See \code{\link{centrality_gin}}.}
+
+\item{gli_radius}{Distance range \eqn{r} summed over by \code{"gli"}, a
+single whole number of at least one, default 3 as in the source. See
+\code{\link{centrality_gli}}.}
+
+\item{density_radius}{Largest distance summed over by
+\code{"density_centrality"}: a single whole number of at least one,
+or \code{Inf}; default 3. See
+\code{\link{centrality_density_centrality}}.}
+
+\item{pci_mu}{The \eqn{\mu}{mu} of \code{"mu_pci"}, a single whole
+number of at least one, default 1 as in the source. See
+\code{\link{centrality_mu_pci}}.}
+
+\item{cycle_alpha}{Discount per edge of a cycle in
+\code{"all_cycle_betweenness"}, a single number strictly between 0 and
+1, default 0.5. See \code{\link{centrality_all_cycle_betweenness}}.}
+
+\item{transport_beta}{Sensitivity to path length in
+\code{"transportation"}, a single finite nonnegative number, default
+0.1. See \code{\link{centrality_transportation}}.}
+
+\item{enumeration_limit}{Largest number of search steps taken by the
+measures that enumerate all simple paths or cycles
+(\code{"all_cycle_betweenness"}, \code{"transportation"},
+\code{"path_transfer"}) and of formal concepts built by
+\code{"wfca"}, default one million; \code{Inf} removes the
+limit. Past it the measure is \code{NA} with a warning.}
+
+\item{lric_quota}{Share of the weight entering a node that a group of
+its in-neighbors needs in order to be critical in \code{"lric_max"}, a
+single number in \eqn{(0,1]}, default 0.5. See
+\code{\link{centrality_lric_max}}.}
+
+\item{lric_path_length}{Largest number of ties of a path of influence in
+\code{"lric_max"}: a single whole number of at least one, or
+\code{Inf} (default) for all simple paths.}
+
 \item{tpr_alpha}{Jump probability of the trust-PageRank iteration used
 by \code{"trust_pagerank"}, a single number strictly between zero and
 one, default 0.85 as the source sets it below its equation (7). See
@@ -984,6 +1057,28 @@ Direction-sensitive and costly (one eigenproblem and two dense
 solves). \code{NA} at every node when the chain is reducible or the
 graph has one node. Not the same measure as \code{markov}. See
 \code{\link{centrality_iec}}.}
+\item{x_nonbacktracking}{X-nonbacktracking centrality: the estimated fall
+of the largest nonbacktracking eigenvalue when the node is removed,
+\eqn{(\sum_i a_{ci}v^i)^2-\sum_i a_{ci}(v^i)^2}{(sum_i a_ci v^i)^2-sum_i a_ci (v^i)^2}, with \eqn{v^i} the
+nonbacktracking centralities of the network without the node and the
+eigenvector scaled by \eqn{v^{\top}Pv=1}{v'Pv=1}. Costly (one eigenproblem on the
+directed edges per node). \code{NA} where the network without the
+node has no principal nonbacktracking eigenvector. See
+\code{\link{centrality_x_nonbacktracking}}.}
+\item{tec}{Total effects centrality: the stationary vector of the
+influence chain \eqn{W=A/\mathrm{rowSums}(A)}{W=A/rowSums(A)} built with \eqn{a_{ii}=1},
+the average total effect of a node when the influence process runs
+to consensus. Scores sum to one. \code{NA} at every node when the
+chain is reducible or the graph has one node. See
+\code{\link{centrality_tec}}.}
+\item{mec}{Mediative effects centrality: the mean, over the other
+nodes \eqn{i} and \eqn{k}, of the probability
+\eqn{t_{(k)ij}/t_{(k)jj}}{t_(k)ij/t_(k)jj} that influence from \eqn{i} passes through
+the node before reaching \eqn{k}, with
+\eqn{T_{(k)}=(I-W_{(k)})^{-1}}{T_(k)=(I-W_(k))^-1} on the same influence chain as
+\code{iec}. Direction-sensitive and costly (one dense solve per
+node). \code{NA} at every node when the chain is reducible or the
+graph has fewer than three nodes. See \code{\link{centrality_mec}}.}
 \item{dil}{Degree and importance of lines: the degree plus the share
 of each incident line's importance \eqn{I_e=(k_m-p-1)(k_n-p-1)/
     (p/2+1)} that the node's own degree claims,
@@ -991,6 +1086,120 @@ of each incident line's importance \eqn{I_e=(k_m-p-1)(k_n-p-1)/
 \eqn{p} the number of triangles on the line. Two-hop local and
 component-local; never below the node's degree. See
 \code{\link{centrality_dil}}.}
+\item{ink}{Improved neighbors' k-core: the sum over a node's neighbors
+of their core numbers raised to \code{ink_alpha},
+\eqn{\sum_{j\in J(i)}k_s(j)^{\alpha}}{sum_{j in J(i)}k_s(j)^alpha}. The node's own core number is not
+counted and the scores are raw sums. See
+\code{\link{centrality_ink}}.}
+\item{con}{Common out-neighbor score: the number of out-neighbors a
+node shares with every other node,
+\eqn{\sum_{v\neq u}\sum_k\min(A_{uk},A_{vk})}{sum_{v!=u} sum_k min(A_uk,A_vk)}. Direction-sensitive;
+with \code{weighted = TRUE} weights count as numbers of interactions.
+See \code{\link{centrality_con}}.}
+\item{emi}{Entropy and mutual information-based centrality: the
+base-10 entropy of the neighbors' degree shares plus the mutual
+information term
+\eqn{\sum_{j\in N_i}\frac{c_{ij}}{d_i+d_j}\log_{10}\frac{d_i+d_j-c_{ij}}{d_i+d_j}}{sum_{j in N_i} c_ij/(d_i+d_j) log10((d_i+d_j-c_ij)/(d_i+d_j))} on common
+neighbors. See \code{\link{centrality_emi}}.}
+\item{nwrank}{NWRank: the principal eigenvector of the node-link
+exchange \eqn{WH}, in which a node shares its score among its links by
+the far node's degree and the link betweenness, mixed by
+\code{nwrank_alpha}. Scores sum to one. \code{NA} at every node when
+the linked nodes form more than one component. See
+\code{\link{centrality_nwrank}}.}
+\item{biased_random_walk}{Biased random walk centrality: the stationary
+distribution of a walk that moves to a neighbor with probability
+proportional to \eqn{\alpha f_{deg}+(1-\alpha)f_{nd}}{alpha f_deg+(1-alpha) f_nd} and jumps
+uniformly with probability \code{brw_jump}. Scores sum to one. See
+\code{\link{centrality_biased_random_walk}}.}
+\item{dst}{Dynamical spanning tree centrality: the share of the
+network's spanning trees lost when the node is removed,
+\eqn{1-t(G\setminus v_i)/t(G)}{1-t(G-v_i)/t(G)}. A cut node scores 1. \code{NA} at every
+node of a disconnected network. See \code{\link{centrality_dst}}.}
+\item{kdec}{KDEC: the influence \eqn{W(i)W(k)/(n\,e^2)}{W(i)W(k)/(n e^2)} summed over the
+nodes one and two steps away, with \eqn{W=k_s d}{W=k_s d} (core number times
+degree) and the effective distance \eqn{e_{ij}=1-\log_{10}(1/d_j)}{e_ij=1-log10(1/d_j)},
+added along two-step paths. See \code{\link{centrality_kdec}}.}
+\item{counting_betweenness}{Counting betweenness: the expected number
+of visits a random walk pays the node between its start and its first
+arrival at a target, averaged over all ordered pairs. Uses direction,
+weights and loops. Costly (one matrix inversion per node). \code{NA}
+at every node unless the nodes with both incoming and outgoing ties
+are strongly connected. See
+\code{\link{centrality_counting_betweenness}}.}
+\item{gin}{Global importance of nodes:
+\eqn{e^{\alpha k_i/n}\sum_{j\neq i}k_j/d_{ij}}{exp(alpha k_i/n) sum_{j!=i} k_j/d_ij}, the degrees of all other
+nodes divided by their distance, times a factor for the node's own
+degree. See \code{\link{centrality_gin}}.}
+\item{icentr}{Icentr: the sum over the edges of a node's component of
+\eqn{2^{-(lev(e)-1)}}{2^-(lev(e)-1)}, with the level of an edge its distance in steps
+from the node. See \code{\link{centrality_icentr}}.}
+\item{gli}{Global and local information: the mass \eqn{Iks+DC}{Iks+DC} (k-shell
+index plus removal round plus degree) of the nodes within
+\code{gli_radius} steps, divided by distance, times the exponential
+of the node's own share of the total mass. See
+\code{\link{centrality_gli}}.}
+\item{niem}{Node importance evaluation matrix: a node's efficiency
+\eqn{I_i=\frac{1}{n}\sum_{j\neq i}1/d_{ij}}{I_i=(1/n) sum_{j!=i} 1/d_ij} times
+\eqn{\sum_{j\in N(i)}D_jI_j/\langle k\rangle^2}{sum_{j in N(i)} D_j I_j/<k>^2}, the degree-weighted efficiency of
+its neighbors. See \code{\link{centrality_niem}}.}
+\item{iksd}{Improved k-shell decomposition: the iteration in which a
+node is removed when each iteration takes away only the nodes of
+lowest current degree. See \code{\link{centrality_iksd}}.}
+\item{density_centrality}{Density centrality:
+\eqn{\sum_{1\le d_{ij}\le r}k_i/(\pi d_{ij}^2)}{sum_{1<=d_ij<=r} k_i/(pi d_ij^2)}, with \code{density_radius}
+the range \eqn{r}. See
+\code{\link{centrality_density_centrality}}.}
+\item{wksdn}{Weighted k-shell degree neighborhood: the sum over a
+node's ties of \eqn{(ks_i+ks_j)+\lambda(k_i+k_j)}{(ks_i+ks_j)+lambda(k_i+k_j)}, with
+\eqn{\lambda}{lambda} the ratio of the total k-shell index to the total
+degree. See \code{\link{centrality_wksdn}}.}
+\item{mu_pci}{Mu-power community index: the largest \eqn{k} such that
+at least \eqn{\mu k}{mu k} nodes within \eqn{\mu}{mu} steps have degree at
+least \eqn{k}, with \eqn{\mu}{mu} given by \code{pci_mu}. At 1 it equals
+\code{lobby}. See \code{\link{centrality_mu_pci}}.}
+\item{all_cycle_betweenness}{All cycle betweenness: the simple cycles
+through a node, a cycle of \eqn{k} edges weighing
+\eqn{\alpha^{k-2}}{alpha^(k-2)}, with \code{cycle_alpha} the discount. Costly
+(enumerates every simple cycle, up to \code{enumeration_limit}
+steps). See \code{\link{centrality_all_cycle_betweenness}}.}
+\item{transportation}{Transportation centrality: the share of traffic
+through a node when traffic between two nodes spreads over all simple
+paths with weight \eqn{e^{-\beta C}}{exp(-beta C)}, \eqn{C} the length of the path,
+averaged over ordered pairs. Direction-sensitive and costly
+(enumerates every simple path). See
+\code{\link{centrality_transportation}}.}
+\item{path_transfer}{Path-transfer centrality: the entropy, in bits, of
+where a flow from the node that never revisits a node and may stop
+at every step comes to rest. Direction-sensitive and costly
+(enumerates every simple path). See
+\code{\link{centrality_path_transfer}}.}
+\item{wfca}{Weighted formal concept analysis centrality: the sum of
+\eqn{|T|/|P|} over the formal concepts \eqn{(T,P)} of the adjacency
+table whose set of common targets \eqn{P} holds the node.
+Direction-sensitive and costly (the number of concepts can grow
+exponentially; \code{enumeration_limit} applies). See
+\code{\link{centrality_wfca}}.}
+\item{lric_max}{Long-range interaction centrality, maximal path: the
+influence of a node on every other node along the best path, the
+influence on one tie being its weight over the smallest critical
+group of the target in which the source is pivotal; summed with the
+targets weighted by their share of all outgoing weight. Uses
+direction and weights. Costly (subset sums over in-neighbors;
+\code{enumeration_limit} applies). See
+\code{\link{centrality_lric_max}}.}
+\item{hybrid}{Hybrid centrality: the sum of a node's ranks on weighted
+and unweighted betweenness, closeness and eigenvector centrality, on
+degree and on strength, rescaled to run from 0 to 1. \code{NA} at
+every node unless the network is undirected and connected. See
+\code{\link{centrality_hybrid}}.}
+\item{topsis_re}{TOPSIS relative-entropy score: closeness to the
+ideal on four weighted indicators (degree, closeness and betweenness
+centrality and the improved k-shell index), with relative-entropy
+distances to the best and the worst value of each. Between 0 and 1;
+a node with a zero indicator scores 0. \code{NA} at every node unless
+the network is connected and its nodes are not all alike. See
+\code{\link{centrality_topsis_re}}.}
 \item{trust_pagerank}{Trust-PageRank: a damped PageRank whose split of
 a node's score among its neighbors is the column-stochastic
 trust-value \eqn{T(i,j)=(1-k)s(i,j)/\sum_{l\in N_j}s(j,l)+

@@ -13,6 +13,8 @@ nets <- readRDS(file.path(private, "networks.rds"))
 scores <- readRDS(file.path(private, "scores.rds"))
 manifest <- utils::read.csv(file.path(here, "network_manifest.csv"))
 stopifnot(identical(names(nets), names(scores)), length(nets) == 19)
+# One score column per configuration of the audit that produced the scores.
+n_configs <- nrow(utils::read.csv(file.path(here, "configurations.csv")))
 # Correct NetworkX source metadata from the initial multiplicity import.
 # The binary graphs used for scores must remain exactly identical.
 nx <- reticulate::import("networkx")
@@ -38,7 +40,7 @@ for (nm in names(nets)) {
   x <- scores[[nm]]
   stopifnot(identical(rownames(x$raw), igraph::V(g)$name),
             identical(dimnames(x$raw), dimnames(x$rank_input)),
-            ncol(x$raw) == 180,
+            ncol(x$raw) == n_configs,
             identical(digest::digest(as.matrix(igraph::as_adjacency_matrix(g)),
                                      algo = "sha256"),
                       manifest$adjacency_sha256[match(nm, manifest$network)]))

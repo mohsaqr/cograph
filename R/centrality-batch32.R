@@ -32,7 +32,9 @@ calculate_beta_measure <- function(cg, beta_direction = "positive") {
 #' The measure is computed on the simple unweighted network with direction
 #' kept, so weights, loops and parallel edges are ignored. An undirected
 #' edge is a pair of reciprocal arcs, so on an undirected network both
-#' variants equal the sum of the reciprocal degrees of the neighbors. A
+#' variants equal the sum of the reciprocal degrees of the neighbors,
+#' which is the INF centrality of Huang et al. (2020) at the radius 1
+#' their paper uses. A
 #' node without successors has positive score zero, and a node without
 #' predecessors has negative score zero. The positive scores sum to the
 #' number of nodes with nonzero in-degree, and the negative scores sum to

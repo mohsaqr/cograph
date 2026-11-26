@@ -1,5 +1,21 @@
 # Zoo implementation and verification: next-agent guide
 
+**Update 2026-11-25: batches 52 (improved neighbors' k-core, `ink`) and 53
+(Friedkin's total and mediative effects centrality, `tec` and `mec`) are
+54 (`x_nonbacktracking`), 55 (`con`, `emi`, `nwrank`,
+`biased_random_walk`), 56 (`dst`, `kdec`, `counting_betweenness`), 57
+(`gin`, `icentr`, `gli`; `inf` was removed on 2026-11-26 and its label mapped to `beta_measure`), 58 (`niem`, `iksd`,
+`density_centrality`, `wksdn`, `mu_pci`) 59 (`all_cycle_betweenness`,
+`transportation`, `path_transfer`), 60 (`wfca`), 61 (`lric_max`), 62
+(`hybrid`) and 63 (`topsis_re`) are done; the ledger stands at 89
+implemented and 71 pending, the catalogue at 217 measures. Section 13 lists the measures audited as ready and not yet
+implemented. The 65 rows with an empty ledger note were NOT unresearched: most have a
+September audit in `candidate_review40/` (82 files). They were re-audited
+from 2026-11-25 in
+`local_testing_and_equivalence/candidate_review54/` (six scouts, one
+`SUMMARY-groupN.md` each). Read section 12 first: the repository changed between batches 51
+and 52 and several instructions below are superseded.**
+
 Snapshot: 2026-09-07, after implementation batch 51 (trust-PageRank),
 batch 50 (degree and importance
 of lines), batch 49 (immediate effects
@@ -26,17 +42,18 @@ objective is incomplete; do not mark it complete.
 | Count | Meaning |
 |---|---|
 | 160 | Original candidate rows; fixed cohort |
-| 63 | Candidate labels now implemented/mapped within documented scopes |
-| 97 | Candidate labels still pending |
-| 191 | Total runtime measures, including the pre-existing catalogue |
-| 166 | Total Zoo label mappings; a different denominator from the candidate cohort |
-| 55 | New runtime measures since the start of batch 12: catalogue 136 → 191 |
-| 53 | Those new runtime measures that cover 55 original candidate labels |
-| 2 | Additional runtime measures: `expected_force` and `localized_bridging` |
+| 89 | Candidate labels now implemented/mapped within documented scopes |
+| 71 | Candidate labels still pending |
+| 217 | Total runtime measures, including the pre-existing catalogue |
+| 193 | Total Zoo label mappings; a different denominator from the candidate cohort |
+| 81 | New runtime measures since the start of batch 12: catalogue 136 → 217 |
+| 79 | Those new runtime measures that cover 81 original candidate labels |
+| 3 | Additional runtime measures: `expected_force`, `localized_bridging` and `tec` |
 
-The 63 covered labels comprise seven previously mapped candidate rows, one newly
-verified mapping of existing `semilocal` to LocalRank, and 55 labels covered by 53
-new implementations. BG-index and beta-measure share one implementation, and so do
+The 89 covered labels comprise seven previously mapped candidate rows, one newly
+verified mapping of existing `semilocal` to LocalRank, and 81 labels covered by 79
+new implementations. `tec` (batch 53) is a further runtime measure whose Zoo label
+is outside the cohort, like `expected_force` and `localized_bridging`. BG-index and beta-measure share one implementation, and so do
 "Neighbor distance centrality" and "Neighborhood centrality", which the Zoo itself
 states are the same definition at two parameter settings. HCC and EHCC come from
 one paper but are two separate measures, one per label. The seven
@@ -253,6 +270,18 @@ and/or stress programs; inspect the directory before choosing commands.
 | 49 | `iec` | [Reference audit](../../local_testing_and_equivalence/batch49/run_equivalence.R) and [published audit](../../local_testing_and_equivalence/batch49/published_audit.R) | [API tests](../../tests/testthat/test-centrality-batch49.R) |
 | 50 | `dil` | [Reference audit](../../local_testing_and_equivalence/batch50/run_equivalence.R) and [published audit](../../local_testing_and_equivalence/batch50/published_audit.R) | [API tests](../../tests/testthat/test-centrality-batch50.R) |
 | 51 | `trust_pagerank` | [Reference audit](../../local_testing_and_equivalence/batch51/run_equivalence.R) and [published audit](../../local_testing_and_equivalence/batch51/published_audit.R) | [API tests](../../tests/testthat/test-centrality-batch51.R) |
+| 52 | `ink` | [Reference audit](../../local_testing_and_equivalence/batch52/run_equivalence.R); no published audit is possible | [API tests](../../tests/testthat/test-centrality-batch52.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-ink.R) |
+| 53 | `tec`, `mec` | [Reference audit](../../local_testing_and_equivalence/batch53/run_equivalence.R); Table 1 in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch53.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-friedkin.R) |
+| 54 | `x_nonbacktracking` | [Reference audit](../../local_testing_and_equivalence/batch54/run_equivalence.R); no published value exists | [API tests](../../tests/testthat/test-centrality-batch54.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-x-nonbacktracking.R) |
+| 55 | `con`, `emi`, `nwrank`, `biased_random_walk` | [Reference audit](../../local_testing_and_equivalence/batch55/run_equivalence.R); EMI's Fig. 3 in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch55.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-batch55.R) |
+| 56 | `dst`, `kdec`, `counting_betweenness` | [Reference audit](../../local_testing_and_equivalence/batch56/run_equivalence.R); KDEC and counting-betweenness prints in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch56.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-batch56.R) |
+| 57 | `inf`, `gin`, `icentr`, `gli` | [Reference audit](../../local_testing_and_equivalence/batch57/run_equivalence.R); printed values in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch57.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-batch57.R) |
+| 58 | `niem`, `iksd`, `density_centrality`, `wksdn`, `mu_pci` | [Reference audit](../../local_testing_and_equivalence/batch58/run_equivalence.R); NIEM tables and the mu-PCI figure in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch58.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-batch58.R) |
+| 59 | `all_cycle_betweenness`, `transportation`, `path_transfer` | [Reference audit](../../local_testing_and_equivalence/batch59/run_equivalence.R), fixtures of at most 8 nodes; printed examples in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch59.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-batch59.R) |
+| 60 | `wfca` | [Reference audit](../../local_testing_and_equivalence/batch60/run_equivalence.R), fixtures of at most 10 nodes | [API tests](../../tests/testthat/test-centrality-batch60.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-wfca.R) |
+| 61 | `lric_max` | [Reference audit](../../local_testing_and_equivalence/batch61/run_equivalence.R), fixtures of at most 7 nodes; Table 15 in the equivalence tests | [API tests](../../tests/testthat/test-centrality-batch61.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-lric.R) |
+| 62 | `hybrid` | none (a composition of rankings; checked against igraph in the equivalence tests) | [API tests](../../tests/testthat/test-centrality-batch62.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-hybrid.R) |
+| 63 | `topsis_re` | [Reference audit](../../local_testing_and_equivalence/batch63/run_equivalence.R); no published value exists | [API tests](../../tests/testthat/test-centrality-batch63.R) and [equivalence tests](../../tests/equivalence/test-centrality-zoo-b-topsis-re.R) |
 
 Runtime implementations are in `R/centrality-batchNN.R` and, where present,
 `R/kernels-batchNN.R`, integrated through `R/centrality.R`. Update wrapper exports,
@@ -894,6 +923,21 @@ row's `verified_scope` and `note` or its complete source audit.
 
 ## 8. Cross-correlation audit and comparisons
 
+**Rerun on 2026-11-26 after batch 63, on the ci VM** (218 measures, 221
+configurations, validation passed). The numbers in this section are those of
+the batch-39 run; the current ones, and the redundancy findings for the 41
+measures added since batch 40, are at the top of
+[correlation-audit/README.md](correlation-audit/README.md). The HTML report
+and the heatmap were not regenerated. To rerun: put a runner script in the
+repository root that sets `RETICULATE_PYTHON=~/equiv-py/bin/python`, adds
+`~/audit-rlib` (holding `igraphdata`) to the library path, sources
+`correlation_audit.R` and `correlation_export.R` and runs
+`correlation_validate.py` and `correlation_summary.py` with the system
+`python3`; `mini-ci -- Rscript <runner>` takes about eight minutes and the
+files come back under `~/ci-results/cograph/latest/fetched/`. **Screen a
+candidate for redundancy before building it**
+(`local_testing_and_equivalence/candidate_review55/prelim_corr.R`).
+
 The audit considers **177 native defaults plus three parameter variants**, yielding
 180 configurations. The 48 covered labels map to 47 candidate configurations.
 These are the batch-39 snapshot numbers. The correlation audit was **not** rerun
@@ -1068,3 +1112,114 @@ as part of routine discovery here. Subagents are authorized for this work since
 `R/centrality-metadata.R` and `NEWS.md`), research-only scouts in parallel.
 Follow current higher-priority instructions if a later session changes these
 operational rules.
+
+## 12. What changed after batch 51 (written 2026-11-25, batch 52)
+
+The sections above describe the repository as of 2026-09-07. These points
+replace what they say.
+
+- **Where things run.** Tests, `R CMD check` and lint run on the Mac mini `ci`
+  VM through `mini-ci` (`mini-ci test`, `mini-ci check`,
+  `mini-ci -- Rscript tests/equivalence/run.R <file-regex>`), not on this Mac.
+  The `devtools::test()` and local `R CMD check` commands of section 9 are
+  superseded. The batch runner `batchNN/run_equivalence.R` is an audit script
+  and still runs locally; it needs
+  `reticulate::py_require(c("networkx", "numpy"))` because the system Python
+  has no NetworkX.
+- **Native kernels.** `centrality()` no longer goes through igraph. A batch
+  is two files: `R/kernels-batchNN.R` (the arithmetic, with the source notes)
+  and `R/centrality-batchNN.R` (`calculate_*()` and the exported wrapper).
+- **Registration points of a new measure.** `R/centrality.R`: the argument in
+  both signatures, the pass-through list, the `switch()` arm, `@param` and the
+  `\item{}` of the measure list. `R/centrality-metadata.R`: the mode or
+  no-mode list. `NAMESPACE`. `tests/equivalence/verify.json`
+  (`exports.covered`), or the coverage check of `mini-ci verify` fails.
+  `vignettes/centrality-catalogue.Rmd` (one `rec()`), `NEWS.md`,
+  `docs/zoo/zoo_coverage.py` (`COVERED`) and `docs/zoo/parameter_status.py`
+  (`EVIDENCE`, scope and note).
+- **Rd by hand.** Local roxygen2 is 8.1.1 and the repository is on 7.3.3;
+  `devtools::document()` rewrites NAMESPACE and many Rd files. Write
+  `man/centrality_<name>.Rd` and edit `man/centrality.Rd` by hand, then run
+  `tools::checkRd()` on both.
+- **Two test files per measure.** `tests/testthat/test-centrality-batchNN.R`
+  holds hand-computed values, invariants and classed error paths.
+  `tests/equivalence/test-centrality-zoo-b-<name>.R` holds every comparison
+  with an outside reference, declared with `expect_reference()`.
+- **Owner rule 2026-11-25: the full suite (`mini-ci test`) runs once per
+  10-50 measures, not per measure.** Per measure, run its own testthat file
+  (through a runner script in the repository root) and its equivalence file.
+  Last full run: after batch 59, FAIL 0 | SKIP 9 | PASS 8482. Batches 60
+  to 63 (`wfca`, `lric_max`, `hybrid`, `topsis_re`) have not been through a
+  full run.
+- **Owner rule 2026-11-22: the paper wins** over another package's convention.
+- **`zoo_coverage.py` no longer writes the lookup article.** Until 2026-11-25
+  it overwrote the hand-written
+  `vignettes/articles/centrality-zoo-lookup.Rmd`; that write was removed.
+- **INK source.** `candidate_review49/` holds the audit that unblocked INK and
+  a second one, `dil-degree-importance-of-lines.md`, already used by batch 50.
+  The INK PDF there is a subscription copy: never commit or redistribute it.
+
+### Next candidates
+
+Ledger order, with the state recorded in the `note` column:
+
+1. Done in batch 53: mediative and total effects centrality. Note for
+   anyone reusing Table 1: network 6 in `batch49/source_graph_edges.csv` has
+   points 3 and 5 exchanged; `batch53/source_graph_edges.csv` is correct.
+2. **Mapping entropy betweenness (MEB)**: the published PDF was read; a
+   neighbor of zero betweenness gives `log 0`, which the source does not
+   handle. Needs an owner decision, not an invented epsilon.
+3. Done in batch 54: X-nonbacktracking centrality.
+4. **ArticleRank**, **DCC**, **NLC**, **inward accessibility**, **edge
+   clustering coefficient centrality**: each has one named open item in its
+   note.
+5. 19 rows are marked BLOCKED and 4 more (the MCDE family) have their formula
+   unread, most for a paywalled original; the DOIs are listed in
+   `local_testing_and_equivalence/inbox/README.md`. INK was unblocked by
+   opening the article in a browser that carries the owner's university
+   library session; the same route may open others.
+6. 65 rows have an empty note: no source audit has been done.
+
+## 13. Ready queue after the 2026-11-25 audits
+
+Audits are in `local_testing_and_equivalence/candidate_review54/<slug>.md`,
+summaries in `SUMMARY-group0.md` to `SUMMARY-group5.md`. **Scouts name
+authors loosely; take every citation from Crossref
+(`https://api.crossref.org/works/<doi>`) before writing it into the
+package.** Scout reports are claims: re-run the
+fixture before trusting it, as was done for batches 55 and 56.
+
+Ready, no decision needed (the eleven the owner asked for on 2026-11-25 are all implemented, batches 57-62; what is left of this table was audited as ready from a reproduction only):
+
+| Measure | Source read | Fixture |
+|---|---|---|
+
+Ready once the owner decides one thing:
+
+| Measure | Decision |
+|---|---|
+| Eigentrust | It is `pagerank` with a teleport vector, and the paper gives no value for the mixing weight: own measure, wrapper or documentation note |
+| Seeley's index | On a connected undirected graph it is the degree share, and it equals Eigentrust without pre-trust: own measure or mapping |
+| RCFB | epsilon is only bounded above in the paper; the limit epsilon -> 0 is stable |
+| M-centrality | 0/0 in the entropy weights on regular graphs |
+| Wksd | no source default for alpha and mu: required arguments or chosen defaults |
+| Biased-walk style Monte-Carlo measures (PJRW, DFS-Gravity) | whether a deterministic reading is acceptable, as was done for `biased_random_walk` |
+| wkpath, vertex- and edge-disjoint k-path | the sources give no graph invariant; a canonical definition would be cograph's own |
+| Mapping entropy betweenness | log 0 for a neighbor of zero betweenness |
+
+Blocked on a paywalled paper, most valuable first (10.1016/j.knosys.2015.03.026 was supplied by the owner on 2026-11-25 and read; on that day the Playwright browser was NOT signed in to the library and the Chrome extension was not connected, so the browser route needs the owner to sign in first, or to drop PDFs in `local_testing_and_equivalence/inbox/`):
+10.1016/j.future.2018.11.023 (DSC, DSR, EDSR),
+10.1016/j.physleta.2018.05.032 (WD, EWD),
+10.1016/j.physa.2015.02.002 (NICCM, NIEM),
+10.1016/j.physa.2016.08.041 (MLC, hybrid degree),
+10.1016/j.physa.2019.123262 (GLS), 10.1016/j.physa.2016.05.048 (KS-IF),
+10.1016/j.physa.2013.12.031 (TOPSIS), 10.1016/j.eswa.2017.10.018 (HKS),
+10.1016/j.physa.2016.10.086 (SP), 10.1016/j.ins.2016.08.023 (improved
+entropy), 10.1016/j.knosys.2021.107198 (KSGC),
+10.1007/s11280-018-0537-6 (ProfitLeader), 10.1016/j.physa.2014.02.032 (LSC),
+10.1016/j.amc.2017.10.001 (classified neighbors), 10.1007/s12083-018-0681-x
+(NL), 10.1016/j.physa.2012.02.033 (all-around), 10.1016/j.ins.2021.08.026
+(EGM), 10.1016/j.chaos.2017.05.040 (NEC), 10.1016/j.physa.2019.121538 (MeC),
+10.1088/0031-8949/88/06/065201 (correlation centrality). The ACM paper
+10.1145/3660395.3660462 (VMM) is open but blocks non-browser clients.
+

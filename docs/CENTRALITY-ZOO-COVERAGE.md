@@ -22,10 +22,10 @@ measures; edit the `COVERED` map in the script, not this file.
 
 | Group | Count |
 |---|---|
-| Zoo measures covered by cograph | 166 |
-| Zoo measures not in cograph | 183 |
-| ... very high average rank correlation (tau >= 0.99) | 23 |
-| ... high average rank correlation (0.90 <= tau < 0.99) | 95 |
+| Zoo measures covered by cograph | 193 |
+| Zoo measures not in cograph | 156 |
+| ... very high average rank correlation (tau >= 0.99) | 21 |
+| ... high average rank correlation (0.90 <= tau < 0.99) | 70 |
 | ... moderate average rank correlation (0.70 <= tau < 0.90) | 39 |
 | ... lower average rank correlation (tau < 0.70) | 26 |
 | cograph measures with no Zoo counterpart | 30 |
@@ -53,6 +53,7 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Decay | `decay` |
 | Subgraph | `subgraph` |
 | Laplacian | `laplacian` |
+| LRIC (max) | `lric_max` |
 | Percolation | `percolation` |
 | k-shell | `coreness` |
 | CollInf | `collective_influence` |
@@ -85,6 +86,7 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Topological | `topological_coefficient` |
 | Neighborhood connectivity | `neighborhood_connectivity [batch 7]` |
 | Local H-index | `local_hindex` |
+| CON score | `con` |
 | Eccentricity | `eccentricity` |
 | Stress | `stress` |
 | k-betweenness | `betweenness (with cutoff)` |
@@ -109,13 +111,16 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Gil-Schmidt Power Index | `gilschmidt` |
 | Participation coefficient | `participation` |
 | Total communicability | `communicability` |
+| Counting Betweenness | `counting_betweenness` |
 | Adaptive LeaderRank | `adaptive_leaderrank [batch 23]` |
 | Community-based centrality (CbC) | `community_based [batch 9]` |
+| Improved neighbors’ k-core (INK) | `ink` |
 | KED | `ked` |
 | Mixed Degree Decomposition (MDD) | `mdd [batch 12]` |
 | SpectralRank | `spectralrank` |
 | Weighted LeaderRank | `weighted_leaderrank [batch 22]` |
 | Non-backtracking centrality | `nonbacktracking` |
+| μ-Power Community Index (μ-PCI) | `mu_pci` |
 | Extended neighborhood coreness | `extended_coreness [batch 17]` |
 | Intra-module degree | `within_module_z` |
 | Gravity centrality | `gravity` |
@@ -123,10 +128,13 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Gravity model | `gravity (gravity_mass = degree, gravity_radius = NULL)` |
 | Local gravity model | `gravity (gravity_mass = degree, gravity_radius = auto)` |
 | Length-scaled betweenness | `length_scaled_betweenness [batch 11]` |
+| Mediative Effects Centrality (MEC) | `mec` |
 | Immediate Effects Centrality (IEC) | `iec` |
+| Total Effects Centrality (TEC) | `tec` |
 | Access information | `access_information [batch 8]` |
 | Hide information | `hide_information [batch 8]` |
 | Dynamical importance | `dynamical_importance [batch 14]` |
+| DST | `dst` |
 | Node contraction (IMC) | `node_contraction [batch 9]` |
 | Improved IMC | `node_contraction_improved [batch 9]` |
 | Diffusion centrality | `diffusion_centrality [batch 14]` |
@@ -143,11 +151,17 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Gateway coefficient | `gateway` |
 | Flow coefficient | `flow_coefficient [batch 9]` |
 | Diversity coefficient | `diversity` |
+| Hybrid centrality (HC) | `hybrid` |
 | Coleman-Theil disorder index | `coleman_theil` |
 | X-degree centrality | `x_degree` |
+| X-nonbacktracking centrality | `x_nonbacktracking` |
+| Biased random walk centrality | `biased_random_walk` |
+| NWRank | `nwrank` |
+| All cycle betweenness (ACC) | `all_cycle_betweenness` |
 | Graph regularization centrality (GRC) | `graph_regularization` |
 | Spanning tree centrality (STC) | `spanning_tree` |
 | Two-way random walk betweenness (2RW) | `two_way_rw [batch 9]` |
+| Icentr | `icentr` |
 | Malatya centrality | `malatya [batch 15]` |
 | Global Structure Model (GSM) | `global_structure [batch 21]` |
 | Weighted k-shell decomposition (Wks) | `weighted_kshell [batch 9]` |
@@ -159,6 +173,8 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Semi-local ranking (SLC) | `semilocal` |
 | Dynamics-sensitive (DS) centrality | `dynamics_sensitive [batch 15]` |
 | Iterative resource allocation (IRA) | `ira` |
+| Global importance of nodes (GIN) | `gin` |
+| Weighted formal concept analysis (WFCA) | `wfca` |
 | Local neighbor contribution (LNC) | `lnc` |
 | Trust-PageRank | `trust_pagerank` |
 | WVoteRank | `wvoterank [batch 9]` |
@@ -166,16 +182,20 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Local entropy (LE) | `local_entropy [batch 9]` |
 | SingleDiscount | `single_discount [batch 8]` |
 | DegreeDiscountIC | `degree_discount [batch 8]` |
+| Transportation centrality | `transportation` |
 | EnRenew | `enrenew [batch 9]` |
+| Entropy and mutual information-based centrality (EMI) | `emi` |
 | Expected force (ExF) | `expected_force` |
 | Expected force (ExFm) | `modified_expected_force` |
 | Entropy variation (degree) | `entropy_variation_degree [batch 8]` |
 | Entropy variation (betweenness) | `entropy_variation_betweenness [batch 8]` |
 | Relative entropy | `relative_entropy` |
+| Path-transfer centrality | `path_transfer` |
 | Distance entropy | `distance_entropy [batch 7]` |
 | Local information dimensionality (LID) | `local_information_dimension [batch 7]` |
 | Local dimension (LD) | `local_dimension_fixed [batch 9]` |
 | Local dimension (Pu) | `local_dimension [batch 7]` |
+| Weighted k-shell degree neighborhood (Maji) | `wksdn` |
 | Volume centrality | `volume [batch 13]` |
 | Infection number | `infection` |
 | Fuzzy local dimension (FLD) | `fuzzy_local_dimension [batch 9]` |
@@ -183,6 +203,8 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Renewed coreness | `renewed_coreness [batch 9]` |
 | Neighborhood centrality | `neighbor_distance` |
 | Improved iterative resource allocation (IIRA) | `iira` |
+| Improved K-shell decomposition (IKSD) | `iksd` |
+| TOPSIS-RE | `topsis_re` |
 | Weighted h-index | `weighted_h_index [batch 9]` |
 | h-index strength | `hindex_strength` |
 | Hybrid Characteristic Centrality (HCC) | `hcc` |
@@ -198,9 +220,14 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | DK-based gravity model (DKGM) | `dkgm` |
 | Multi-characteristics gravity model (MCGM) | `mcgm` |
 | Lhc method | `lhc` |
+| KDEC method | `kdec` |
+| INF centrality | `beta_measure` |
+| Density centrality | `density_centrality` |
 | Local volume dimension (LVD) | `local_volume_dimension [batch 9]` |
 | Improved closeness centrality (ICC) | `improved_closeness [batch 19]` |
 | Node and Neighbor Layer Information (NINL) centrality | `ninl` |
+| Global and local information (GLI) method | `gli` |
+| Node importance evaluation matrix (NIEM) method | `niem` |
 | VoteRank++ | `voterank_plus [batch 9]` |
 | Randomized shortest paths (RSP) betweenness | `rsp_betweenness` |
 | Resistance curvature | `resistance_curvature [batch 16]` |
@@ -211,27 +238,25 @@ a research lead: it does not establish mathematical or numerical equivalence.
 | Zoo measure | tau | nearest cograph twin |
 |---|---|---|
 | AIC | 1.00 | Lin's index (`lin`) |
-| Cumulative contact probability (CCP) | 1.00 | SALSA (`salsa`) |
+| Cumulative contact probability (CCP) | 1.00 | Total Effects Centrality (TEC) (`tec`) |
 | Degree mass | 1.00 | Diffusion Degree (`diffusion`) |
 | Efficiency centrality (EffC) | 1.00 | Distance-weighted fragmentation (`fragmentation [batch 10]`) |
 | Electrical closeness | 1.00 | Current-flow Closeness (`current_flow_closeness (also information)`) |
-| INF centrality | 1.00 | beta-measure (`beta_measure`) |
 | Linearly scaled betweenness | 1.00 | Percolation (`percolation`) |
+| Multi-evidence centrality (MeC) | 1.00 | Mediative Effects Centrality (MEC) (`mec`) |
 | Nieminen's closeness | 1.00 | Lin's index (`lin`) |
-| QJSD centrality | 1.00 | SALSA (`salsa`) |
+| QJSD centrality | 1.00 | Total Effects Centrality (TEC) (`tec`) |
 | Routing betweenness | 1.00 | Load (`load`) |
-| Total Effects Centrality (TEC) | 1.00 | SALSA (`salsa`) |
 | Total centrality | 1.00 | Distance-weighted fragmentation (`fragmentation [batch 10]`) |
 | Zeta vector centrality | 1.00 | Second order centrality (`second_order`) |
 | Dynamical Influence | 1.00 | Eigenvector (`eigenvector`) |
 | ViralRank | 1.00 | Current-flow Closeness (`current_flow_closeness (also information)`) |
 | PhysarumSpreader | 1.00 | beta-measure (`beta_measure`) |
 | epsilon-betweenness | 1.00 | Percolation (`percolation`) |
-| DirichletRank | 1.00 | SALSA (`salsa`) |
+| DirichletRank | 1.00 | Total Effects Centrality (TEC) (`tec`) |
 | Mixed core, semi-local degree and weighted entropy (MCSDWE) | 1.00 | LocalRank (`semilocal`) |
 | Mixed core, semi-local degree and entropy (MCSDE) | 1.00 | LocalRank (`semilocal`) |
 | Modified Local Centrality (MLC) | 1.00 | LocalRank (`semilocal`) |
-| Improved neighbors’ k-core (INK) | 1.00 | Local H-index (`local_hindex`) |
 | Hybrid degree centrality | 0.99 | Hubbel (`hubbell`) |
 
 ## High average rank correlation (0.90 <= tau < 0.99)
@@ -241,49 +266,41 @@ a definition review and independent verification before implementation.
 
 | cograph twin (Zoo label) | n | Zoo measures |
 |---|---|---|
-| Improved iterative resource allocation (IIRA) (`iira`) | 11 | Local structural centrality (LSC); Node importance contribution correlation matrix (NICCM) method; NL centrality; Diversity-strength ranking (DSR); Normalized local centrality (NLC); X-nonbacktracking centrality; Edge-disjoint k-path; Meta-centrality; Vertex-disjoint k-path; M-centrality; Cc-Burt |
-| SALSA (`salsa`) | 11 | Mixed core, degree and entropy (MCDE); VMM algorithm; Seeley’s index; Eigentrust; LRIC (PPR); Diversity-strength centrality (DSC); Probabilistic-jumping Random Walk (PJRW); New evidential centrality (NEC); Synthesize centrality (SC); Biased random walk centrality; LRIC (max) |
-| Infection number (`infection`) | 5 | Extended improved k-shell hybrid (EIKH); Extended k-shell hybrid method; wkpath; Correlation centrality; Spreading probability (SP) |
+| Improved iterative resource allocation (IIRA) (`iira`) | 10 | Local structural centrality (LSC); Node importance contribution correlation matrix (NICCM) method; NL centrality; Diversity-strength ranking (DSR); Normalized local centrality (NLC); Edge-disjoint k-path; Meta-centrality; Vertex-disjoint k-path; M-centrality; Cc-Burt |
+| Total Effects Centrality (TEC) (`tec`) | 9 | Mixed core, degree and entropy (MCDE); VMM algorithm; Seeley’s index; Eigentrust; LRIC (PPR); Diversity-strength centrality (DSC); Probabilistic-jumping Random Walk (PJRW); New evidential centrality (NEC); Synthesize centrality (SC) |
 | Node and Neighbor Layer Information (NINL) centrality (`ninl`) | 5 | Extended Cluster Coefficient Ranking Measure (ECRM); Extended H-index centrality (EHC); Influence capability (IC); Entropy-Based Ranking Measure (ERM); Extended diversity-strength ranking (EDSR) |
-| Communicability betweenness (`communicability_betweenness`) | 4 | Mediative Effects Centrality (MEC); Multi-evidence centrality (MeC); Entropy-based gravity model; NWRank |
 | Diffusion Degree (`diffusion`) | 4 | k-path; Weight degree centrality (Wdc); Laplacian gravity centrality (LGC); Degree and clustering coefficient (DCC) |
+| Infection number (`infection`) | 4 | Extended improved k-shell hybrid (EIKH); Extended k-shell hybrid method; wkpath; Correlation centrality |
 | Extended neighborhood coreness (`extended_coreness [batch 17]`) | 3 | Neighborhood core diversity centrality (Cncd); Extended RMD-weighted degree (EWD); k-shell iteration factor(KS-IF) |
-| Harmonic (`harmonic`) | 3 | Weighted TOPSIS; Analytic Hierarchy Process (AHP) centrality; Hybrid centrality (HC) |
-| Improved global structure model (IGSM) (`improved_global_structure [batch 21]`) | 3 | Global importance of nodes (GIN); Icentr; Global and local information (GLI) method |
-| LocalRank (`semilocal`) | 3 | Node importance evaluation matrix (NIEM) method; CON score; WRank |
 | Mixed Degree Decomposition (MDD) (`mdd [batch 12]`) | 3 | Mixed core, degree and weighted entropy (MCDWE); Classified neighbors centrality; All-around score |
-| Cross-Clique Connectivity (`cross_clique`) | 2 | All cycle betweenness (ACC); Edge clustering coefficient centrality (NC) |
-| Gravity model (`gravity (gravity_mass = degree, gravity_radius = NULL)`) | 2 | Density centrality; Effective gravity model (EGM) |
+| Density centrality (`density_centrality`) | 2 | Analytic Hierarchy Process (AHP) centrality; TOPSIS |
 | Hubbel (`hubbell`) | 2 | Mapping entropy (ME); k-shell based on gravity centrality (KSGC) |
-| KED (`ked`) | 2 | Improved entropy-based centrality; Counting Betweenness |
-| LineRank (`linerank`) | 2 | Weighted k-shell degree neighborhood (Maji); Global and Local Structure(GLS) |
-| Lobby index (`lobby`) | 2 | Improved K-shell decomposition (IKSD); μ-Power Community Index (μ-PCI) |
+| Icentr (`icentr`) | 2 | Semi-local iterative algorithm (semi-IA); Spreading probability (SP) |
 | Neighbor distance centrality (`neighbor_distance`) | 2 | Improved k-shell hybrid (IKH); k-shell hybrid method |
-| Relative entropy (`relative_entropy`) | 2 | Mapping Entropy Betweenness (MEB); TOPSIS-RE |
 | Closeness vitality (`closeness_vitality`) | 1 | Average shortest path centrality (AC) |
-| Coleman-Theil disorder index (`coleman_theil`) | 1 | Entropy and mutual information-based centrality (EMI) |
-| ControlRank (`controlrank`) | 1 | Path-transfer centrality |
+| Cross-Clique Connectivity (`cross_clique`) | 1 | Edge clustering coefficient centrality (NC) |
 | Current-flow betweenness (`current_flow_betweenness`) | 1 | RCFB centrality |
-| DK-based gravity model (DKGM) (`dkgm`) | 1 | Weight neighborhood centrality |
 | Degree and Importance of Lines (DIL) (`dil`) | 1 | Curvature index |
 | Diffusion centrality (`diffusion_centrality [batch 14]`) | 1 | Weighted gravity model (WGravity) |
-| Distance-weighted fragmentation (`fragmentation [batch 10]`) | 1 | TOPSIS |
 | Eigenvector (`eigenvector`) | 1 | Hierarchical k-shell (HKS) |
 | Expected force (ExFm) (`modified_expected_force`) | 1 | Shell clustering coefficient |
 | Gravity centrality (`gravity`) | 1 | Weighted k-shell degree neighborhood (Wksd) |
-| Improved closeness centrality (ICC) (`improved_closeness [batch 19]`) | 1 | Semi-local iterative algorithm (semi-IA) |
+| Gravity model (`gravity (gravity_mass = degree, gravity_radius = NULL)`) | 1 | Effective gravity model (EGM) |
+| Harmonic (`harmonic`) | 1 | Weighted TOPSIS |
+| KED (`ked`) | 1 | Improved entropy-based centrality |
 | Laplacian (`laplacian`) | 1 | Random walk-based gravity (DFS-Gravity) |
+| LineRank (`linerank`) | 1 | Global and Local Structure(GLS) |
 | Local H-index (`local_hindex`) | 1 | RMD-weighted degree (WD) |
-| MCC (`mcc [batch 13]`) | 1 | Weighted formal concept analysis (WFCA) |
 | Malatya centrality (`malatya [batch 15]`) | 1 | Similarity-based PageRank |
-| Mixed gravitational centrality (`mixed_gravity`) | 1 | KDEC method |
+| Mediative Effects Centrality (MEC) (`mec`) | 1 | Entropy-based gravity model |
 | Neighborhood centrality (`neighbor_distance`) | 1 | Integral k-shell |
+| Node importance evaluation matrix (NIEM) method (`niem`) | 1 | WRank |
 | PageRank (`pagerank`) | 1 | ArticleRank |
-| Randomized shortest paths (RSP) betweenness (`rsp_betweenness`) | 1 | Transportation centrality |
-| Resistance curvature (`resistance_curvature [batch 16]`) | 1 | DST |
+| Relative entropy (`relative_entropy`) | 1 | Mapping Entropy Betweenness (MEB) |
 | Support (`support [batch 12]`) | 1 | ProfitLeader |
 | Total communicability (`communicability`) | 1 | Extended weight degree centrality (EWdc) |
 | Trust-PageRank (`trust_pagerank`) | 1 | Inward accessibility |
+| Weighted k-shell degree neighborhood (Maji) (`wksdn`) | 1 | Weight neighborhood centrality |
 
 ## Moderate average rank correlation (0.70 <= tau < 0.90)
 
@@ -291,32 +308,32 @@ a definition review and independent verification before implementation.
 |---|---|---|
 | PathRank | 0.90 | Non-backtracking centrality |
 | theta-centrality | 0.90 | Gravity centrality |
+| MABIE | 0.90 | NWRank |
 | Isolating Centrality (ISC) | 0.89 | Pairwise disconnectivity |
-| MABIE | 0.89 | Degree and Importance of Lines (DIL) |
 | Multiple local attributes weighted centrality (LWC) | 0.89 | Support |
 | Graph Fourier Transform Centrality (GFT-C) | 0.88 | Mixed Degree Decomposition (MDD) |
 | Weighted community betweenness | 0.88 | Bridging centrality |
 | Contribution centrality | 0.88 | Improved closeness centrality (ICC) |
 | Local degree dimension (LDD) | 0.88 | Improved iterative resource allocation (IIRA) |
 | Spreading strength | 0.88 | Geodesic k-path |
-| Interdependence | 0.87 | SALSA |
-| Entropy-based influence disseminator (EbID) | 0.87 | SALSA |
+| Interdependence | 0.87 | Total Effects Centrality (TEC) |
+| Entropy-based influence disseminator (EbID) | 0.87 | Total Effects Centrality (TEC) |
+| Random walk accessibility (RWA) | 0.87 | Icentr |
 | Node local centrality (NLC) | 0.87 | MCC |
 | Hierarchical reduction by betweenness | 0.87 | Godfather index |
 | Shortest cycle closeness (SCC) | 0.86 | Improved closeness centrality (ICC) |
-| Random walk accessibility (RWA) | 0.86 | Improved closeness centrality (ICC) |
 | Generalized gravity centrality (GGC) | 0.86 | Gravity centrality |
-| Outward accessibility | 0.85 | Improved closeness centrality (ICC) |
-| Clustered local-degree (CLD) | 0.84 | Hybrid Characteristic Centrality (HCC) |
+| Outward accessibility | 0.85 | Icentr |
+| Clustered local-degree (CLD) | 0.85 | CON score |
 | Effective distance gravity (EffG) | 0.84 | Improved global structure model (IGSM) |
 | Return Random Walk Gravity (RRWG) | 0.84 | Improved iterative resource allocation (IIRA) |
+| Graphlet degree centrality (GDC) | 0.83 | Hybrid centrality (HC) |
 | SRIC | 0.82 | Leverage |
 | Mutual information | 0.82 | Shapley value (game 1) |
-| Graphlet degree centrality (GDC) | 0.82 | Local gravity model |
 | Relative local–global importance (RLGI) | 0.82 | Malatya centrality |
 | Node importance contribution matrix (NICM) method | 0.81 | Closeness vitality |
 | Gromov centrality | 0.81 | SALSA |
-| EPC | 0.80 | Random walk centrality |
+| EPC | 0.80 | μ-Power Community Index (μ-PCI) |
 | Multi-local dimension (MLD) | 0.80 | Fuzzy local dimension (FLD) |
 | Neighborhood density | 0.78 | Support |
 | Weighted volume centrality | 0.78 | Geodesic k-path |
@@ -324,16 +341,16 @@ a definition review and independent verification before implementation.
 | BridgeRank | 0.76 | Lin's index |
 | Semi-local degree and clustering coefficient | 0.76 | m-reach |
 | Algebraic centrality | 0.74 | Closeness vitality |
-| Shapley Value based Information Delimiters (SVID) | 0.74 | SALSA |
+| Shapley Value based Information Delimiters (SVID) | 0.74 | Total Effects Centrality (TEC) |
 | DSHC method | 0.73 | VoteRank++ |
+| LRIC (maxmin) | 0.72 | LRIC (max) |
 | E-Burt | 0.71 | Burt's constraint |
-| LRIC (maxmin) | 0.70 | Degree and Importance of Lines (DIL) |
 
 ## Lower average rank correlation (tau < 0.70)
 
 | Zoo measure | tau | nearest cograph twin |
 |---|---|---|
-| Hybrid (Pozzi) | 0.00 | s-shell index |
+| Hybrid (Pozzi) | 0.00 | μ-Power Community Index (μ-PCI) |
 | HybridRank | 0.27 | DegreeDiscountIC |
 | Local fuzzy information centrality (LFIC) | 0.28 | Neighborhood connectivity |
 | DegreeDistance | 0.30 | DegreeDiscountIC |
@@ -349,11 +366,11 @@ a definition review and independent verification before implementation.
 | Truncated curvature | 0.57 | Improved iterative resource allocation (IIRA) |
 | Degree and Clustering coefficient and Location (DCL) | 0.58 | ClusterRank |
 | Local RASP | 0.58 | Load |
-| Fractional Graph Fourier Transform (FrGFTC) | 0.59 | SALSA |
+| Fractional Graph Fourier Transform (FrGFTC) | 0.59 | Total Effects Centrality (TEC) |
 | Two-step framework (IF) | 0.60 | Effective size |
 | Game centrality (GC) | 0.61 | Local dimension (Pu) |
-| Information distance index | 0.63 | SALSA |
-| Partition-Based Spreaders Identification (PBSI) | 0.64 | SALSA |
+| Information distance index | 0.63 | Total Effects Centrality (TEC) |
+| Partition-Based Spreaders Identification (PBSI) | 0.64 | Total Effects Centrality (TEC) |
 | Absorbing Random-Walk (ARW) | 0.65 | SingleDiscount |
 | Community centrality | 0.66 | Egocentric betweenness |
 | LRIC-sim | 0.67 | VoteRank++ |

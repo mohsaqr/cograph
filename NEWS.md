@@ -1,3 +1,116 @@
+# cograph 2.7.22
+
+* Added `centrality_ink()` (and `centrality(measures = "ink")`), Lin, Guo,
+  Dong, Tang and Liu's (2014) improved neighbors' k-core: the sum over a
+  node's neighbours of their core numbers raised to `ink_alpha`,
+  S(i) = sum_{j in J(i)} k_s(j)^alpha (Eq. 1). The node's own core number is
+  not counted and the scores are raw sums, as the values printed for the
+  paper's Fig. 1 require. `ink_alpha = 1`, the default and the value of the
+  paper's experiments, is Bae and Kim's (2014) neighborhood coreness; 0 gives
+  the degree. Negative exponents raise `cograph_bad_parameter`. Computed on
+  the simple undirected skeleton.
+* Added `centrality_tec()` and `centrality_mec()`, the two measures of
+  Friedkin (1991) that accompany `centrality_iec()`. Total effects centrality
+  (Eq. 14 with the uniform total effects of the consensus process) is the
+  stationary vector of the influence chain `W = A / rowSums(A)` built with
+  `a_ii = 1`. Mediative effects centrality (Eq. 22-23) is the mean, over the
+  other nodes `i` and `k`, of the probability `t_(k)ij / t_(k)jj` that
+  influence from `i` passes through the node before it reaches `k`. Both
+  reproduce Table 1 of the paper (105 printed values each). Both return `NA`
+  with a `cograph_undefined_measure` warning when the chain is reducible;
+  `mec` also needs at least three nodes. Both are costly-tier measures,
+  computed when asked for by name.
+* Added `centrality_x_nonbacktracking()`, the X-nonbacktracking centrality of
+  Torres, Chan, Tong and Eliassi-Rad (2021), Proposition 3.7: the estimated
+  fall of the largest nonbacktracking eigenvalue when a node is removed,
+  with the eigenvector taken on the network without the node and scaled by
+  `v' P v = 1`. This is the exact quantity, not the approximation of the
+  paper's section 4 that the authors' program computes by default. A node is
+  `NA`, with a `cograph_undefined_measure` warning, when the network without
+  it has no simple largest nonbacktracking eigenvalue (a forest, single
+  cycles, or two tied parts). Costly-tier.
+* Added four measures:
+  `centrality_con()`, the common out-neighbor score of Bonato, Eikmeier,
+  Gleich and Malik (2019), sum over the other nodes of the out-neighbours
+  shared, counted with the smaller multiplicity;
+  `centrality_emi()`, the entropy and mutual information-based centrality of
+  Li, Cai, Li and Du (2020), undirected form (Eq. 22, 24, 25), which
+  reproduces the mutual information printed for the paper's Fig. 3;
+  `centrality_nwrank()`, the NWRank of Wang, Duenas-Osorio and Padgett
+  (2015), the principal eigenvector of the node-link exchange `W H`
+  (Eq. 5-7), with `nwrank_alpha = 0.5`; and
+  `centrality_biased_random_walk()`, Takes and Kosters (2011), returned as
+  the stationary distribution of the paper's walk, which the paper estimates
+  by a finite random walk (`brw_alpha = 0.5`, `brw_jump = 0.15`).
+* Added three measures:
+  `centrality_dst()`, dynamical spanning tree centrality, the share of
+  spanning trees lost when a node is removed (Chen et al. 2003, as given in
+  Lu et al. 2016, Eq. 50);
+  `centrality_kdec()`, the KDEC method of Zhang, Wang, Sheng, Dai, Hu and Chen (2019), which
+  reproduces the value the paper prints for its worked example (28.7212);
+  and `centrality_counting_betweenness()`, the counting betweenness of
+  Bloechl, Theis, Vega-Redondo and Fisher (2011, Eq. 6-8), which uses
+  direction, weights and self-loops (costly-tier).
+* Added three measures:
+  `centrality_gin()`, the global importance of nodes of Zhao, Wang and Deng
+  (2020), taken from two later papers that reproduce its equation;
+  `centrality_icentr()`, the Icentr of Mussone, Viseh and Notari (2022,
+  Eq. 9-13), unweighted form; and `centrality_gli()`, the global and local
+  information method of Yang, Hu and Huang (2020, Eq. 4-5), whose improved
+  k-shell reproduces the paper's Table 1.
+* Added five measures:
+  `centrality_niem()`, the node importance evaluation matrix method of Zhou,
+  Zhang, Li, Hui and Wu (2012), which reproduces both tables of the paper;
+  `centrality_iksd()`, the improved k-shell decomposition of Liu, Jiang, Wang
+  and Yu (2015, section 2.2.5);
+  `centrality_density_centrality()`, the density centrality of Ibnoulouafi
+  and El Haziti (2018), as given by Ullah et al. (2021), with
+  `density_radius = 3`; `centrality_wksdn()`, the weighted k-shell degree
+  neighborhood method of Maji (2020); and `centrality_mu_pci()`, the mu-power
+  community index of Papadimitriou, Katsaros and Manolopoulos (2010), with
+  `pci_mu = 1`. For `density_centrality` and `wksdn` the equations
+  come from later papers that reproduce them; the original articles were not
+  consulted, which each help page states.
+* Added three measures defined over all simple cycles or all simple paths:
+  `centrality_all_cycle_betweenness()` (Zhou, Liang, Zhao and Zhang 2018,
+  Eq. 10; `cycle_alpha = 0.5`), `centrality_transportation()` (Piraveenan and
+  Saripada 2023, Eq. 8-10; `transport_beta = 0.1`) and
+  `centrality_path_transfer()` (Tutzauer 2007, as restated by Oggier,
+  Phetsouvanh and Datta 2019). Each reproduces the example its source prints.
+  They enumerate exhaustively, so they are costly-tier and stop after
+  `enumeration_limit` search steps (default one million), returning `NA`
+  with a `cograph_undefined_measure` warning.
+* Added `centrality_wfca()`, the weighted formal concept analysis centrality
+  of Sun, Wang, Sheng, Hu, Wang and Shao (2017, formula 3): the sum of
+  `|T| / |P|` over the formal concepts of the adjacency table whose common
+  targets include the node. It reproduces the two weights the paper works
+  out (8/3 and 28/3). Costly-tier, bounded by `enumeration_limit`.
+* Added `centrality_lric_max()`, the long-range interaction centrality with
+  the maximal path of Aleskerov, Meshcheryakova and Shvydun (2017), following
+  the working-paper version (arXiv:1610.05892): direct influence through
+  pivotal membership of critical groups (`lric_quota = 0.5`), the best chain
+  of influences (`lric_path_length = Inf`), and aggregation weighted by the
+  targets' share of outgoing weight. It reproduces Table 15 of the working
+  paper. Uses direction and weights; costly-tier.
+* Added `centrality_hybrid()`, the hybrid centrality of Christensen, Kenett,
+  Aste, Silvia and Kwapil (2018): the rescaled sum of a node's ranks on
+  weighted and unweighted betweenness, closeness and eigenvector centrality,
+  on degree and on strength. Betweenness is Freeman's, as the paper states;
+  `NetworkToolbox::hybrid()` defaults to another betweenness and rounds
+  before ranking, so its values can differ. `NA` with a warning unless the
+  network is undirected and connected.
+* Added `centrality_topsis_re()`, the multi-attribute ranking method of Liu,
+  Jiang, Wang and Yu (2015): closeness to the ideal on degree, closeness and
+  betweenness centrality and the improved k-shell index, with the paper's
+  fixed weights and relative-entropy distances (Eq. 12-13). A node with an
+  indicator at zero scores 0, the limit of Eq. 12a; the paper does not
+  discuss that case. `NA` with a warning unless the network is connected and
+  its nodes are not all alike.
+* On an undirected network `centrality_beta_measure()` equals the INF
+  centrality of Huang, Chen, Wang and Ren (2020) at the paper's radius 1; its
+  help page now says so.
+* The catalogue now holds 217 measures.
+
 # cograph 2.7.21
 
 * `centrality_random_walk()` (and `centrality(measures = "random_walk")`) is

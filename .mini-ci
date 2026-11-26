@@ -20,3 +20,8 @@ fetch .ci/verify-capture
 #   sh ../equivalence/push.sh cograph
 # One file while writing it: mini-ci -- Rscript tests/equivalence/run.R <file-regex>
 job verify Rscript tests/equivalence/run.R
+
+# The Zoo correlation audit (docs/zoo/NEXT-AGENT-GUIDE.md, section 8), run on ci with a runner
+# script in the repo root; its public files and its private scores come back with the results.
+fetch docs/zoo/correlation-audit
+fetch local_testing_and_equivalence/correlation_audit

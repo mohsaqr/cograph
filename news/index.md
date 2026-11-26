@@ -1,5 +1,15 @@
 # Changelog
 
+## cograph 2.7.24
+
+- The correlation audit of the centrality catalogue
+  (`docs/zoo/correlation-audit`) was rerun for all 274 measures on 19
+  networks. None of the 57 measures added in 2.7.23 duplicates an
+  existing one; the closest pairs are `mlc` and `semilocal`, `ehc` and
+  `diffusion_centrality`, and `gls` and `lnc`. The help page of
+  [`centrality_ehc()`](https://sonsoles.me/cograph/reference/centrality_ehc.md)
+  now gives the audit’s figure.
+
 ## cograph 2.7.23
 
 - Added eight measures whose source papers were read in full:

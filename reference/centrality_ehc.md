@@ -58,7 +58,9 @@ test networks the score ranks nodes closest to
 [`centrality_semilocal`](https://sonsoles.me/cograph/reference/centrality_semilocal.md)
 the correlation is 0.91 to 0.92. A `ehc_p` outside \\(0, 1\]\\ or a
 `ehc_r` that is not a finite number above 0 raises a
-`cograph_bad_parameter` error. `normalized = TRUE` divides the scores by
+`cograph_bad_parameter` error. Over the 19 networks of the package's
+correlation audit the mean correlation with `diffusion_centrality` is
+0.995 (0.981 at the least). `normalized = TRUE` divides the scores by
 their maximum.
 
 ## References

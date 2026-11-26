@@ -17,7 +17,7 @@ with \(c_k(j)\) the number of neighbors of \(j\) of degree at least
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.23</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.24</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,9 @@ closest to <code><a href="centrality_ninl.html">centrality_ninl</a></code> (mean
 <code><a href="centrality_semilocal.html">centrality_semilocal</a></code> the correlation is 0.91 to 0.92. A
 <code>ehc_p</code> outside \((0, 1]\) or a <code>ehc_r</code> that is not a finite
 number above 0 raises a <code>cograph_bad_parameter</code> error.
+Over the 19 networks of the package's correlation audit the mean
+correlation with <code>diffusion_centrality</code> is 0.995 (0.981 at the
+least).
 <code>normalized = TRUE</code> divides the scores by their maximum.</p>
     </div>
     <div class="section level2">

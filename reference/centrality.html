@@ -11,7 +11,7 @@ cograph_network, or tna objects."><meta property="og:image" content="https://son
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,6 +156,39 @@ cograph_network, or tna objects.</p>
 <span>  gli_radius <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  density_radius <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  pci_mu <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  sp_radius <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  niccm_layers <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  coc_alpha <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  lsc_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  cn_weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.35</span>, <span class="fl">0.25</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  hc_p <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hc_alpha <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  hc_beta <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  topsis_attribute <span class="op">=</span> <span class="st">"betweenness"</span>,</span>
+<span>  topsis_weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">3</span>,</span>
+<span>  ei_alpha <span class="op">=</span> <span class="fl">0.4</span>,</span>
+<span>  ei_omega <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>  evidence_omega <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ksh_mu <span class="op">=</span> <span class="fl">0.4</span>,</span>
+<span>  ksh_radius <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  wdc_alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ahp_weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">3</span>,</span>
+<span>  semi_ia_radius <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  semi_ia_gamma <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  semi_ia_max_iter <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  ia_steps <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ia_stuck <span class="op">=</span> <span class="st">"vanish"</span>,</span>
+<span>  ie_beta <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  physarum_steps <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ar_references <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  entropy_gravity_radius <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  ehc_p <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>  ehc_r <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  wnc_benchmark <span class="op">=</span> <span class="st">"degree"</span>,</span>
+<span>  wnc_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  rcfb_epsilon <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  wksd_alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  wksd_mu <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cycle_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  transport_beta <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  enumeration_limit <span class="op">=</span> <span class="fl">1e+06</span>,</span>
@@ -920,6 +953,205 @@ single whole number of at least one, default 3 as in the source. See
 <code>"density_centrality"</code>: a single whole number of at least one,
 or <code>Inf</code>; default 3. See
 <code><a href="centrality_density_centrality.html">centrality_density_centrality</a></code>.</p></dd>
+
+
+<dt id="arg-sp-radius">sp_radius<a class="anchor" aria-label="anchor" href="#arg-sp-radius"></a></dt>
+<dd><p>Largest distance summed over by
+<code>"spreading_probability"</code>: a single whole number of at least
+one, or <code>Inf</code>; default 3 as in the source. See
+<code><a href="centrality_spreading_probability.html">centrality_spreading_probability</a></code>.</p></dd>
+
+
+<dt id="arg-niccm-layers">niccm_layers<a class="anchor" aria-label="anchor" href="#arg-niccm-layers"></a></dt>
+<dd><p>Number of layers a node contributes over in
+<code>"niccm"</code>: a single whole number of at least one, or <code>Inf</code>;
+default 2 as in the source. See <code><a href="centrality_niccm.html">centrality_niccm</a></code>.</p></dd>
+
+
+<dt id="arg-coc-alpha">coc_alpha<a class="anchor" aria-label="anchor" href="#arg-coc-alpha"></a></dt>
+<dd><p>Exponent of the distance in
+<code>"correlation_centrality"</code>, a single finite nonnegative number,
+default 3 as in the source. See
+<code><a href="centrality_correlation_centrality.html">centrality_correlation_centrality</a></code>.</p></dd>
+
+
+<dt id="arg-lsc-alpha">lsc_alpha<a class="anchor" aria-label="anchor" href="#arg-lsc-alpha"></a></dt>
+<dd><p>Weight of the neighborhood size against the clustering
+sum in <code>"lsc"</code>, a single number between 0 and 1; default 0.2, the
+value the source fixes for its experiments. See
+<code><a href="centrality_lsc.html">centrality_lsc</a></code>.</p></dd>
+
+
+<dt id="arg-cn-weights">cn_weights<a class="anchor" aria-label="anchor" href="#arg-cn-weights"></a></dt>
+<dd><p>Weights of the four classes of neighbors in
+<code>"classified_neighbors"</code>: higher shell, same shell removed at the
+same step or later, same shell removed earlier, lower shell. Four
+finite nonnegative numbers. See
+<code><a href="centrality_classified_neighbors.html">centrality_classified_neighbors</a></code>.</p></dd>
+
+
+<dt id="arg-hc-p">hc_p<a class="anchor" aria-label="anchor" href="#arg-hc-p"></a></dt>
+<dd><p>Spreading probability of <code>"hybrid_degree"</code>, a single
+number between 0 and 1. It has no default: without it the measure warns
+and returns <code>NA</code>. See <code><a href="centrality_hybrid_degree.html">centrality_hybrid_degree</a></code>.</p></dd>
+
+
+<dt id="arg-hc-alpha">hc_alpha<a class="anchor" aria-label="anchor" href="#arg-hc-alpha"></a></dt>
+<dd><p>Scale of the degree term in <code>"hybrid_degree"</code>, a
+single nonnegative number; default 1000 as in the source.</p></dd>
+
+
+<dt id="arg-hc-beta">hc_beta<a class="anchor" aria-label="anchor" href="#arg-hc-beta"></a></dt>
+<dd><p>Balance of the degree term in <code>"hybrid_degree"</code>, a
+single finite number; default 0.1.</p></dd>
+
+
+<dt id="arg-topsis-attribute">topsis_attribute<a class="anchor" aria-label="anchor" href="#arg-topsis-attribute"></a></dt>
+<dd><p>Third attribute of <code>"topsis"</code>, next to
+degree and closeness: <code>"betweenness"</code> (default) or
+<code>"eigenvector"</code>. See <code><a href="centrality_topsis.html">centrality_topsis</a></code>.</p></dd>
+
+
+<dt id="arg-topsis-weights">topsis_weights<a class="anchor" aria-label="anchor" href="#arg-topsis-weights"></a></dt>
+<dd><p>Weights of degree, closeness and the third
+attribute in <code>"topsis"</code>: three finite nonnegative numbers, default
+one third each.</p></dd>
+
+
+<dt id="arg-ei-alpha">ei_alpha<a class="anchor" aria-label="anchor" href="#arg-ei-alpha"></a></dt>
+<dd><p>Weight of the friend count in the direct influence of
+<code>"entropy_influence"</code>, a single number between 0 and 1; default 0.4
+as in the source. See <code><a href="centrality_entropy_influence.html">centrality_entropy_influence</a></code>.</p></dd>
+
+
+<dt id="arg-ei-omega">ei_omega<a class="anchor" aria-label="anchor" href="#arg-ei-omega"></a></dt>
+<dd><p>Weight of the direct influence in
+<code>"entropy_influence"</code>, a single number between 0 and 1; default 0.6
+as in the source.</p></dd>
+
+
+<dt id="arg-evidence-omega">evidence_omega<a class="anchor" aria-label="anchor" href="#arg-evidence-omega"></a></dt>
+<dd><p>The constant \(\omega\) of
+<code>"multi_evidence"</code>, a single number above 0 and at most 1; default
+1 as in the source. See <code><a href="centrality_multi_evidence.html">centrality_multi_evidence</a></code>.</p></dd>
+
+
+<dt id="arg-ksh-mu">ksh_mu<a class="anchor" aria-label="anchor" href="#arg-ksh-mu"></a></dt>
+<dd><p>Weight of the neighbor's degree in <code>"ksh"</code> and
+<code>"eskh"</code>, a single number between 0 and 1; default 0.4, the value
+of the source's worked example (its authors tune it per network). See
+<code><a href="centrality_ksh.html">centrality_ksh</a></code>.</p></dd>
+
+
+<dt id="arg-ksh-radius">ksh_radius<a class="anchor" aria-label="anchor" href="#arg-ksh-radius"></a></dt>
+<dd><p>Largest distance summed over by <code>"ksh"</code>,
+<code>"eskh"</code>, <code>"ikh"</code> and <code>"eikh"</code>: a single whole number of
+at least one, default 3 as in the sources; <code>Inf</code> is accepted by
+<code>"ksh"</code> and <code>"eskh"</code> only. See <code><a href="centrality_ikh.html">centrality_ikh</a></code>.</p></dd>
+
+
+<dt id="arg-wdc-alpha">wdc_alpha<a class="anchor" aria-label="anchor" href="#arg-wdc-alpha"></a></dt>
+<dd><p>Exponent of the degree in <code>"wdc"</code> and of the score
+in <code>"ewdc"</code>: <code>NULL</code> (default) for the absolute degree
+assortativity of the network, as in the source, or a single finite
+nonnegative number. See <code><a href="centrality_wdc.html">centrality_wdc</a></code>.</p></dd>
+
+
+<dt id="arg-ahp-weights">ahp_weights<a class="anchor" aria-label="anchor" href="#arg-ahp-weights"></a></dt>
+<dd><p>Weights of degree, betweenness and closeness in
+<code>"ahp"</code>: three finite nonnegative numbers, not all zero, used as
+given; default one third each. See <code><a href="centrality_ahp.html">centrality_ahp</a></code>.</p></dd>
+
+
+<dt id="arg-semi-ia-radius">semi_ia_radius<a class="anchor" aria-label="anchor" href="#arg-semi-ia-radius"></a></dt>
+<dd><p>Largest distance summed over by <code>"semi_ia"</code>:
+<code>NULL</code> (default) for 3 below 1000 nodes and 5 from there on, as in
+the source, a whole number of at least one, or <code>Inf</code>. See
+<code><a href="centrality_semi_ia.html">centrality_semi_ia</a></code>.</p></dd>
+
+
+<dt id="arg-semi-ia-gamma">semi_ia_gamma<a class="anchor" aria-label="anchor" href="#arg-semi-ia-gamma"></a></dt>
+<dd><p>Exponent of the number of shortest paths in
+<code>"semi_ia"</code>, a single number between 0 and 1; default 0.2 as in
+the source.</p></dd>
+
+
+<dt id="arg-semi-ia-max-iter">semi_ia_max_iter<a class="anchor" aria-label="anchor" href="#arg-semi-ia-max-iter"></a></dt>
+<dd><p>Iteration bound of <code>"semi_ia"</code>, a whole
+number of at least one, default 10000. Reaching it raises a
+<code>cograph_no_converge</code> warning.</p></dd>
+
+
+<dt id="arg-ia-steps">ia_steps<a class="anchor" aria-label="anchor" href="#arg-ia-steps"></a></dt>
+<dd><p>Number of steps of the self-avoiding walks of
+<code>"inward_accessibility"</code>, a whole number of at least one. It has
+no default: without it the measure warns and returns <code>NA</code>. See
+<code><a href="centrality_inward_accessibility.html">centrality_inward_accessibility</a></code>.</p></dd>
+
+
+<dt id="arg-ia-stuck">ia_stuck<a class="anchor" aria-label="anchor" href="#arg-ia-stuck"></a></dt>
+<dd><p>What <code>"inward_accessibility"</code> does with a walk
+that has no unvisited neighbor: <code>"vanish"</code> (default) removes
+it, <code>"stay"</code> keeps it at its last node.</p></dd>
+
+
+<dt id="arg-ie-beta">ie_beta<a class="anchor" aria-label="anchor" href="#arg-ie-beta"></a></dt>
+<dd><p>Exponent of the neighbor degree in
+<code>"improved_entropy"</code>, a single finite number; default 2 as in the
+source. See <code><a href="centrality_improved_entropy.html">centrality_improved_entropy</a></code>.</p></dd>
+
+
+<dt id="arg-physarum-steps">physarum_steps<a class="anchor" aria-label="anchor" href="#arg-physarum-steps"></a></dt>
+<dd><p>Number of updates of <code>"physarum_spreader"</code>,
+a whole number of at least one. It has no default, because the source
+gives no stopping rule: without it the measure warns and returns
+<code>NA</code>. See <code><a href="centrality_physarum_spreader.html">centrality_physarum_spreader</a></code>.</p></dd>
+
+
+<dt id="arg-ar-references">ar_references<a class="anchor" aria-label="anchor" href="#arg-ar-references"></a></dt>
+<dd><p>Number of references of each node in
+<code>"articlerank"</code>: <code>NULL</code> (default) for the out-degree, or one
+finite nonnegative number per node, in node order or named by node. See
+<code><a href="centrality_articlerank.html">centrality_articlerank</a></code>.</p></dd>
+
+
+<dt id="arg-entropy-gravity-radius">entropy_gravity_radius<a class="anchor" aria-label="anchor" href="#arg-entropy-gravity-radius"></a></dt>
+<dd><p>Largest distance summed over by
+<code>"entropy_gravity"</code>, a whole number of at least one or <code>Inf</code>;
+default 3 as in the source. See <code><a href="centrality_entropy_gravity.html">centrality_entropy_gravity</a></code>.</p></dd>
+
+
+<dt id="arg-ehc-p-ehc-r">ehc_p, ehc_r<a class="anchor" aria-label="anchor" href="#arg-ehc-p-ehc-r"></a></dt>
+<dd><p>The parameters \(p\), in \((0, 1]\), and \(r\),
+above 0, of <code>"ehc"</code>; defaults 0.8 and 100 as in the source. See
+<code><a href="centrality_ehc.html">centrality_ehc</a></code>.</p></dd>
+
+
+<dt id="arg-wnc-benchmark">wnc_benchmark<a class="anchor" aria-label="anchor" href="#arg-wnc-benchmark"></a></dt>
+<dd><p>Benchmark centrality of
+<code>"weight_neighborhood"</code>: <code>"degree"</code> (default) or
+<code>"coreness"</code>. See <code><a href="centrality_weight_neighborhood.html">centrality_weight_neighborhood</a></code>.</p></dd>
+
+
+<dt id="arg-wnc-alpha">wnc_alpha<a class="anchor" aria-label="anchor" href="#arg-wnc-alpha"></a></dt>
+<dd><p>Exponent of the edge importance in
+<code>"weight_neighborhood"</code>, a single finite number; default 1 as in
+the source.</p></dd>
+
+
+<dt id="arg-rcfb-epsilon">rcfb_epsilon<a class="anchor" aria-label="anchor" href="#arg-rcfb-epsilon"></a></dt>
+<dd><p>Conductance \(\varepsilon\) of the links
+to the virtual target in <code>"rcfb"</code>: 0 (default) for the limit
+\(\varepsilon \to 0\), or a positive number below the
+bound of the source's equation (14). See <code><a href="centrality_rcfb.html">centrality_rcfb</a></code>.</p></dd>
+
+
+<dt id="arg-wksd-alpha-wksd-mu">wksd_alpha, wksd_mu<a class="anchor" aria-label="anchor" href="#arg-wksd-alpha-wksd-mu"></a></dt>
+<dd><p>The weights of the degree and of the k-shell
+index in <code>"wksd"</code>, each a single number in \([0, 1]\). They
+have no default, because the source tunes them per network: without
+both the measure warns and returns <code>NA</code>. See
+<code><a href="centrality_wksd.html">centrality_wksd</a></code>.</p></dd>
 
 
 <dt id="arg-pci-mu">pci_mu<a class="anchor" aria-label="anchor" href="#arg-pci-mu"></a></dt>
@@ -1811,6 +2043,318 @@ distances to the best and the worst value of each. Between 0 and 1;
 a node with a zero indicator scores 0. <code>NA</code> at every node unless
 the network is connected and its nodes are not all alike. See
 <code><a href="centrality_topsis_re.html">centrality_topsis_re</a></code>.</p></dd>
+
+<dt>wd</dt>
+<dd><p>RMD-weighted degree: the sum over a node's neighbors of the round
+in which each is removed by the remaining-minimum-degree
+decomposition, divided by the number of rounds. See
+<code><a href="centrality_wd.html">centrality_wd</a></code>.</p></dd>
+
+<dt>ewd</dt>
+<dd><p>Extended RMD-weighted degree: the sum of <code>wd</code> over a node's
+neighbors. See <code><a href="centrality_ewd.html">centrality_ewd</a></code>.</p></dd>
+
+<dt>mlc</dt>
+<dd><p>Modified local centrality: <code>semilocal</code> less twice the sum of
+the neighbors' degrees. It can be negative. See
+<code><a href="centrality_mlc.html">centrality_mlc</a></code>.</p></dd>
+
+<dt>spreading_probability</dt>
+<dd><p>Spreading probability centrality: the number
+of shortest paths to each node within <code>sp_radius</code> steps, each
+divided by the mean degree once per step. See
+<code><a href="centrality_spreading_probability.html">centrality_spreading_probability</a></code>.</p></dd>
+
+<dt>profitleader</dt>
+<dd><p>ProfitLeader: over a node's neighbors, the degree
+mass the node holds apart from the neighbor times the Jaccard
+similarity of the two closed neighborhoods. See
+<code><a href="centrality_profitleader.html">centrality_profitleader</a></code>.</p></dd>
+
+<dt>hks</dt>
+<dd><p>Hierarchical k-shell centrality: a two-step sum of degree times
+the sum of two peeling positions. See <code><a href="centrality_hks.html">centrality_hks</a></code>.</p></dd>
+
+<dt>niccm</dt>
+<dd><p>Node importance by the contribution correlation matrix: a
+node's efficiency times the efficiency its surroundings hand to it,
+shared by the loss each deletion causes. Costly (all distances are
+recomputed once per node). See <code><a href="centrality_niccm.html">centrality_niccm</a></code>.</p></dd>
+
+<dt>correlation_centrality</dt>
+<dd><p>Correlation centrality: the efficiency of
+the other nodes, weighted by the number of shortest paths to each and
+divided by the distance to the power <code>coc_alpha</code>. See
+<code><a href="centrality_correlation_centrality.html">centrality_correlation_centrality</a></code>.</p></dd>
+
+<dt>dsc</dt>
+<dd><p>Diversity-strength centrality: the mean improved k-shell
+index of a node's neighbors, times the entropy of those indices,
+times the Jensen-Shannon divergence of the neighbors' shell
+distributions. See <code><a href="centrality_dsc.html">centrality_dsc</a></code>.</p></dd>
+
+<dt>dsr</dt>
+<dd><p>Diversity-strength ranking: the sum of <code>dsc</code> over the
+neighbors. See <code><a href="centrality_dsr.html">centrality_dsr</a></code>.</p></dd>
+
+<dt>edsr</dt>
+<dd><p>Extended diversity-strength ranking: the sum of <code>dsr</code>
+over the neighbors. See <code><a href="centrality_edsr.html">centrality_edsr</a></code>.</p></dd>
+
+<dt>ksgc</dt>
+<dd><p>K-shell based gravity centrality: a gravity model with
+degree masses, a coefficient that grows with the difference in
+k-shell index, and a radius of half the average path length. All 0
+when the average path length is below 2. See
+<code><a href="centrality_ksgc.html">centrality_ksgc</a></code>.</p></dd>
+
+<dt>lsc</dt>
+<dd><p>Local structural centrality: over the neighbors, the size of
+each one's two-step neighborhood and the clustering inside it, mixed
+by <code>lsc_alpha</code>. See <code><a href="centrality_lsc.html">centrality_lsc</a></code>.</p></dd>
+
+<dt>classified_neighbors</dt>
+<dd><p>Classified neighbors centrality: a degree
+in which each neighbor is weighted by its position in the k-shell
+decomposition relative to the node (<code>cn_weights</code>). See
+<code><a href="centrality_classified_neighbors.html">centrality_classified_neighbors</a></code>.</p></dd>
+
+<dt>hybrid_degree</dt>
+<dd><p>Hybrid degree centrality: degree and modified
+local centrality blended by the spreading probability <code>hc_p</code>,
+which must be given; <code>NA</code> with a warning otherwise. See
+<code><a href="centrality_hybrid_degree.html">centrality_hybrid_degree</a></code>.</p></dd>
+
+<dt>topsis</dt>
+<dd><p>TOPSIS centrality: closeness to the ideal node on degree,
+closeness and <code>topsis_attribute</code>, with weights
+<code>topsis_weights</code>. <code>NA</code> with a warning on a disconnected
+network. See <code><a href="centrality_topsis.html">centrality_topsis</a></code>.</p></dd>
+
+<dt>all_around</dt>
+<dd><p>All-around score: the Euclidean length of degree,
+betweenness and k-shell index, each divided by its maximum. See
+<code><a href="centrality_all_around.html">centrality_all_around</a></code>.</p></dd>
+
+<dt>egm</dt>
+<dd><p>Effective gravity model: a gravity model with
+entropy-weighted degree masses and a radius of its own for each node.
+<code>NA</code> with a warning on a disconnected network. See
+<code><a href="centrality_egm.html">centrality_egm</a></code>.</p></dd>
+
+<dt>gls</dt>
+<dd><p>Global and local structure centrality: the squared degree
+over \(n - 1\), times the sum over all other nodes of 1.1 to the
+power of the number of common neighbors. See
+<code><a href="centrality_gls.html">centrality_gls</a></code>.</p></dd>
+
+<dt>ks_if</dt>
+<dd><p>K-shell iteration factor: the k-shell index refined by the
+iteration of removal within the shell, times the degree, summed over
+a node and its neighbors. See <code><a href="centrality_ks_if.html">centrality_ks_if</a></code>.</p></dd>
+
+<dt>nl</dt>
+<dd><p>NL centrality: over the neighbors, the size of each one's
+two-step neighborhood plus the importance of the tie to it. See
+<code><a href="centrality_nl.html">centrality_nl</a></code>.</p></dd>
+
+<dt>entropy_influence</dt>
+<dd><p>Entropy-based social influence (Peng et al.
+2017): direct influence from the number of mutual ties and the
+entropy of the outgoing weights, plus indirect influence on the nodes
+two steps away. Uses direction and weights. See
+<code><a href="centrality_entropy_influence.html">centrality_entropy_influence</a></code>.</p></dd>
+
+<dt>multi_evidence</dt>
+<dd><p>Multi-evidence centrality: degree, betweenness,
+efficiency and correlation centrality fused by Dempster's rule;
+between -1 and 1. See <code><a href="centrality_multi_evidence.html">centrality_multi_evidence</a></code>.</p></dd>
+
+<dt>ksh</dt>
+<dd><p>K-shell hybrid method: over the nodes within
+<code>ksh_radius</code> steps, the root of the summed k-shell indices plus
+<code>ksh_mu</code> times the degree, divided by the squared distance. See
+<code><a href="centrality_ksh.html">centrality_ksh</a></code>.</p></dd>
+
+<dt>eskh</dt>
+<dd><p>Extended k-shell hybrid method: the sum of <code>ksh</code> over
+the neighbors. See <code><a href="centrality_eskh.html">centrality_eskh</a></code>.</p></dd>
+
+<dt>ikh</dt>
+<dd><p>Improved k-shell hybrid method: <code>ksh</code> with the root of
+the product of the k-shell indices and a degree weight that falls
+with the distance. See <code><a href="centrality_ikh.html">centrality_ikh</a></code>.</p></dd>
+
+<dt>eikh</dt>
+<dd><p>Extended improved k-shell hybrid method: the sum of
+<code>ikh</code> over the neighbors. See <code><a href="centrality_eikh.html">centrality_eikh</a></code>.</p></dd>
+
+<dt>mcde</dt>
+<dd><p>Mixed core, degree and entropy: the k-shell index plus the
+degree plus the entropy of the neighbors' shells. See
+<code><a href="centrality_mcde.html">centrality_mcde</a></code>.</p></dd>
+
+<dt>mcdwe</dt>
+<dd><p>Mixed core, degree and weighted entropy: <code>mcde</code> with
+the entropy weighted toward the inner shells. See
+<code><a href="centrality_mcdwe.html">centrality_mcdwe</a></code>.</p></dd>
+
+<dt>mcsde</dt>
+<dd><p>Mixed core, semi-local degree and entropy: the k-shell
+index, <code>semilocal</code> and the shell entropy, each min-max scaled,
+added up. See <code><a href="centrality_mcsde.html">centrality_mcsde</a></code>.</p></dd>
+
+<dt>mcsdwe</dt>
+<dd><p>Mixed core, semi-local degree and weighted entropy:
+<code>mcsde</code> with the weighted entropy. See
+<code><a href="centrality_mcsdwe.html">centrality_mcsdwe</a></code>.</p></dd>
+
+<dt>lgc</dt>
+<dd><p>Laplacian gravity centrality: a gravity model with the
+Laplacian centrality as mass and a radius of half the average path
+length. All 0 when the average path length is below 2. See
+<code><a href="centrality_lgc.html">centrality_lgc</a></code>.</p></dd>
+
+<dt>wgravity</dt>
+<dd><p>Weighted gravity model: the degree gravity model with a
+radius of half the average path length, times the node's entry of
+the unit-length leading eigenvector. <code>NA</code> with a warning when
+that eigenvector is not unique. See <code><a href="centrality_wgravity.html">centrality_wgravity</a></code>.</p></dd>
+
+<dt>asp_centrality</dt>
+<dd><p>Average shortest path centrality: the relative
+growth of the average distance when the node's ties are removed,
+unreachable pairs counted at the diameter. See
+<code><a href="centrality_asp_centrality.html">centrality_asp_centrality</a></code>.</p></dd>
+
+<dt>wdc</dt>
+<dd><p>Weight degree centrality: the number of non-backtracking
+two-step walks from a node times its degree to the power
+<code>wdc_alpha</code>. See <code><a href="centrality_wdc.html">centrality_wdc</a></code>.</p></dd>
+
+<dt>ewdc</dt>
+<dd><p>Extended weight degree centrality: <code>wdc</code> applied once
+more to the <code>wdc</code> scores; can be negative. See
+<code><a href="centrality_ewdc.html">centrality_ewdc</a></code>.</p></dd>
+
+<dt>mapping_entropy</dt>
+<dd><p>Mapping entropy: minus the degree centrality
+\(k/(N-1)\) of a node times the sum of the logarithms of its
+neighbors' degree centralities. See
+<code><a href="centrality_mapping_entropy.html">centrality_mapping_entropy</a></code>.</p></dd>
+
+<dt>dcc</dt>
+<dd><p>Degree and clustering coefficient centrality: a degree term
+and a two-step clustering term weighted by the entropy weight method.
+<code>NA</code> with a warning on a network without a triangle. See
+<code><a href="centrality_dcc.html">centrality_dcc</a></code>.</p></dd>
+
+<dt>edge_clustering</dt>
+<dd><p>Edge clustering coefficient centrality: the sum
+over a node's edges of the triangles on the edge divided by the most
+it could be in. See <code><a href="centrality_edge_clustering.html">centrality_edge_clustering</a></code>.</p></dd>
+
+<dt>ahp</dt>
+<dd><p>Analytic hierarchy process centrality: the weighted shares
+of degree, betweenness and closeness (<code>ahp_weights</code>). <code>NA</code>
+with a warning on a disconnected network. See
+<code><a href="centrality_ahp.html">centrality_ahp</a></code>.</p></dd>
+
+<dt>semi_ia</dt>
+<dd><p>Semi-local iterative algorithm: the steady state of an
+eigenvector-like update over the nodes within <code>semi_ia_radius</code>
+steps, weighted by path counts and distance. <code>NA</code> with a warning
+on a disconnected network. See <code><a href="centrality_semi_ia.html">centrality_semi_ia</a></code>.</p></dd>
+
+<dt>synthesize</dt>
+<dd><p>Synthesize centrality: normalised degree plus
+betweenness, divided by normalised farness. See
+<code><a href="centrality_synthesize.html">centrality_synthesize</a></code>.</p></dd>
+
+<dt>inward_accessibility</dt>
+<dd><p>Inward accessibility: the exponential
+entropy of the arrivals of self-avoiding walks of <code>ia_steps</code>
+steps, which must be given; <code>NA</code> with a warning otherwise. See
+<code><a href="centrality_inward_accessibility.html">centrality_inward_accessibility</a></code>.</p></dd>
+
+<dt>improved_entropy</dt>
+<dd><p>Improved entropy-based centrality (Ni et al.
+2020): the entropies of a node's tie weights and of its neighbors'
+degrees, plus an indirect term two steps away. Uses weights;
+<code>NA</code> with a warning on a directed network. See
+<code><a href="centrality_improved_entropy.html">centrality_improved_entropy</a></code>.</p></dd>
+
+<dt>physarum_spreader</dt>
+<dd><p>PhysarumSpreader: the resource a node holds
+after <code>physarum_steps</code> updates of a Physarum flow through a
+ground node; uses direction and weights. <code>NA</code> with a warning
+without <code>physarum_steps</code>. See
+<code><a href="centrality_physarum_spreader.html">centrality_physarum_spreader</a></code>.</p></dd>
+
+<dt>articlerank</dt>
+<dd><p>ArticleRank: a PageRank-like score in which a
+citing node passes a share set by its number of references
+(<code>ar_references</code>); uses direction. <code>NA</code> with a warning
+where the iteration diverges. See <code><a href="centrality_articlerank.html">centrality_articlerank</a></code>.</p></dd>
+
+<dt>entropy_gravity</dt>
+<dd><p>Entropy-based gravity model: a gravity sum
+whose masses combine node H-index, closeness, betweenness and PageRank
+with entropy weights. <code>NA</code> with a warning on a disconnected
+network. See <code><a href="centrality_entropy_gravity.html">centrality_entropy_gravity</a></code>.</p></dd>
+
+<dt>influence_capability</dt>
+<dd><p>Influence capability: entropy-weighted sum
+of a k-shell position term and a two-step degree sum. See
+<code><a href="centrality_influence_capability.html">centrality_influence_capability</a></code>.</p></dd>
+
+<dt>ehc</dt>
+<dd><p>Extended H-index centrality: the neighbors' weighted sums of
+cumulative neighbor-degree counts (<code>ehc_p</code>, <code>ehc_r</code>). See
+<code><a href="centrality_ehc.html">centrality_ehc</a></code>.</p></dd>
+
+<dt>erm</dt>
+<dd><p>Entropy-based ranking measure: neighbor-degree entropies
+summed over two-step walks. See <code><a href="centrality_erm.html">centrality_erm</a></code>.</p></dd>
+
+<dt>shell_clustering</dt>
+<dd><p>Shell clustering coefficient: a sum over
+neighbors of one minus the correlation of their shell vectors plus a
+degree term. See <code><a href="centrality_shell_clustering.html">centrality_shell_clustering</a></code>.</p></dd>
+
+<dt>ecrm</dt>
+<dd><p>Extended cluster coefficient ranking measure: the shell
+clustering coefficient summed over two-step walks. See
+<code><a href="centrality_ecrm.html">centrality_ecrm</a></code>.</p></dd>
+
+<dt>weight_neighborhood</dt>
+<dd><p>Weight neighborhood centrality: a
+benchmark centrality plus the neighbors' values weighted by the
+relative importance of the edge. See
+<code><a href="centrality_weight_neighborhood.html">centrality_weight_neighborhood</a></code>.</p></dd>
+
+<dt>rcfb</dt>
+<dd><p>RCFB: current-flow betweenness with every node in turn as
+the source and a common virtual target (<code>rcfb_epsilon</code>); uses
+weights as conductances. <code>NA</code> with a warning on a directed
+network. See <code><a href="centrality_rcfb.html">centrality_rcfb</a></code>.</p></dd>
+
+<dt>m_centrality</dt>
+<dd><p>M-centrality: coreness and a local degree
+variation mixed by entropy weights. See
+<code><a href="centrality_m_centrality.html">centrality_m_centrality</a></code>.</p></dd>
+
+<dt>wksd</dt>
+<dd><p>Weighted k-shell degree neighborhood: sums over the edges
+of products of <code>wksd_alpha</code> degree plus <code>wksd_mu</code> k-shell
+index. <code>NA</code> with a warning without both weights. See
+<code><a href="centrality_wksd.html">centrality_wksd</a></code>.</p></dd>
+
+<dt>mapping_entropy_betweenness</dt>
+<dd><p>Mapping entropy betweenness: the
+node's normalised betweenness times minus the sum of the logarithms of
+its neighbors'. See
+<code><a href="centrality_mapping_entropy_betweenness.html">centrality_mapping_entropy_betweenness</a></code>.</p></dd>
 
 <dt>trust_pagerank</dt>
 <dd><p>Trust-PageRank: a damped PageRank whose split of

@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,13 +89,13 @@ whether it is available and, more importantly, whether it adds
 information to simpler measures.</p>
 <p><code>cograph</code> offers the largest collection of node
 centralities of any package compared in this article, in R or in Python.
-Its 217 measures reach 193 of the 349 measures catalogued in the
+Its 274 measures reach 252 of the 349 measures catalogued in the
 Centrality Zoo (Shvydun, 2025). Nine established centrality packages,
 brainGraph, centiserve, CINNA, igraph, influenceR, keyplayer, NetworkX,
-sna and tidygraph, reach 60 between them when every function they offer
+sna and tidygraph, reach 62 between them when every function they offer
 is pooled (Table 1). The collection is also growing quickly:
 <code>cograph</code> 2.4.4, the release on CRAN in July 2026, offered 89
-measures, and the current version offers 217, 2.4 times as many. Every
+measures, and the current version offers 274, 3.1 times as many. Every
 measure is computed by a single function, <code><a href="../reference/centrality.html">centrality()</a></code>,
 which returns a tidy data frame.</p>
 <table class="table">
@@ -119,8 +119,8 @@ count once.</caption>
 <tr class="odd">
 <td align="left"><strong>cograph</strong></td>
 <td align="left">R</td>
-<td align="right">217</td>
-<td align="right">193</td>
+<td align="right">274</td>
+<td align="right">252</td>
 </tr>
 <tr class="even">
 <td align="left">CINNA</td>
@@ -138,19 +138,19 @@ count once.</caption>
 <td align="left">NetworkX</td>
 <td align="left">Python</td>
 <td align="right">30</td>
-<td align="right">24</td>
+<td align="right">26</td>
 </tr>
 <tr class="odd">
 <td align="left">tidygraph</td>
 <td align="left">R</td>
 <td align="right">25</td>
-<td align="right">19</td>
+<td align="right">21</td>
 </tr>
 <tr class="even">
 <td align="left">igraph</td>
 <td align="left">R</td>
 <td align="right">18</td>
-<td align="right">14</td>
+<td align="right">16</td>
 </tr>
 <tr class="odd">
 <td align="left">sna</td>
@@ -180,7 +180,7 @@ count once.</caption>
 <td align="left">All nine others, pooled</td>
 <td align="left"></td>
 <td align="right">181</td>
-<td align="right">60</td>
+<td align="right">62</td>
 </tr>
 </tbody>
 </table>
@@ -189,8 +189,8 @@ count once.</caption>
 </h2>
 <table class="table">
 <colgroup>
-<col width="62%">
-<col width="37%">
+<col width="66%">
+<col width="33%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Zoo measure</th>
@@ -208,6 +208,22 @@ count once.</caption>
 <tr class="odd">
 <td align="left">All cycle betweenness (ACC)</td>
 <td align="left"><code>all_cycle_betweenness</code></td>
+</tr>
+<tr class="even">
+<td align="left">All-around score</td>
+<td align="left"><code>all_around</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Analytic Hierarchy Process (AHP) centrality</td>
+<td align="left"><code>ahp</code></td>
+</tr>
+<tr class="even">
+<td align="left">ArticleRank</td>
+<td align="left"><code>articlerank</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Average shortest path centrality (AC)</td>
+<td align="left"><code>asp_centrality</code></td>
 </tr>
 <tr class="even">
 <td align="left">beta-measure</td>
@@ -254,56 +270,64 @@ count once.</caption>
 <td align="left"><code>centroid</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Classified neighbors centrality</td>
+<td align="left"><code>classified_neighbors</code></td>
+</tr>
+<tr class="even">
 <td align="left">Closeness</td>
 <td align="left"><code>closeness</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Closeness vitality</td>
 <td align="left"><code>closeness_vitality</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Clustering degree algorithm (CDA)</td>
 <td align="left"><code>cda</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">ClusterRank</td>
 <td align="left"><code>clusterrank</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Coleman-Theil disorder index</td>
 <td align="left"><code>coleman_theil</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">CollInf</td>
 <td align="left"><code>collective_influence</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Comm Centrality</td>
 <td align="left"><code>comm_centrality</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Communicability betweenness</td>
 <td align="left"><code>communicability_betweenness</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Community Hub‑Bridge measure</td>
 <td align="left"><code>community_hub_bridge</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Community-based centrality (CbC)</td>
 <td align="left"><code>community_based</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Community-based mediator (CbM)</td>
 <td align="left"><code>community_mediator</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">CON score</td>
 <td align="left"><code>con</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">ControlRank</td>
 <td align="left"><code>controlrank</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Correlation centrality</td>
+<td align="left"><code>correlation_centrality</code></td>
 </tr>
 <tr class="even">
 <td align="left">Counting Betweenness</td>
@@ -330,76 +354,100 @@ count once.</caption>
 <td align="left"><code>degree</code></td>
 </tr>
 <tr class="even">
+<td align="left">Degree and clustering coefficient (DCC)</td>
+<td align="left"><code>dcc</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Degree and Importance of Lines (DIL)</td>
 <td align="left"><code>dil</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">DegreeDiscountIC</td>
 <td align="left"><code>degree_discount</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">delta-betweenness</td>
 <td align="left"><code>delta_betweenness</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">delta-closeness</td>
 <td align="left"><code>delta_closeness</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Density centrality</td>
 <td align="left"><code>density_centrality</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Diffusion centrality</td>
 <td align="left"><code>diffusion_centrality</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Diffusion Degree</td>
 <td align="left"><code>diffusion</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Distance entropy</td>
 <td align="left"><code>distance_entropy</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Distance-weighted fragmentation</td>
 <td align="left"><code>fragmentation</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Diversity coefficient</td>
 <td align="left"><code>diversity</code></td>
 </tr>
+<tr class="odd">
+<td align="left">Diversity-strength centrality (DSC)</td>
+<td align="left"><code>dsc</code></td>
+</tr>
 <tr class="even">
+<td align="left">Diversity-strength ranking (DSR)</td>
+<td align="left"><code>dsr</code></td>
+</tr>
+<tr class="odd">
 <td align="left">DK-based gravity model (DKGM)</td>
 <td align="left"><code>dkgm</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">DMNC</td>
 <td align="left"><code>dmnc</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">DST</td>
 <td align="left"><code>dst</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Dynamical importance</td>
 <td align="left"><code>dynamical_importance</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Dynamics-sensitive (DS) centrality</td>
 <td align="left"><code>dynamics_sensitive</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Eccentricity</td>
 <td align="left"><code>eccentricity</code></td>
 </tr>
+<tr class="odd">
+<td align="left">Edge clustering coefficient centrality (NC)</td>
+<td align="left"><code>edge_clustering</code></td>
+</tr>
 <tr class="even">
+<td align="left">Effective gravity model (EGM)</td>
+<td align="left"><code>egm</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Effective size</td>
 <td align="left"><code>effective_size</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Egocentric betweenness</td>
 <td align="left"><code>ego_betweenness</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Eigentrust</td>
+<td align="left"><code>pagerank</code></td>
 </tr>
 <tr class="even">
 <td align="left">Eigenvector</td>
@@ -427,6 +475,14 @@ count once.</caption>
 <td align="left"><code>entropy_variation_degree</code></td>
 </tr>
 <tr class="even">
+<td align="left">Entropy-based gravity model</td>
+<td align="left"><code>entropy_gravity</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Entropy-Based Ranking Measure (ERM)</td>
+<td align="left"><code>erm</code></td>
+</tr>
+<tr class="even">
 <td align="left">Exogenous centrality</td>
 <td align="left"><code>exogenous</code></td>
 </tr>
@@ -439,52 +495,85 @@ count once.</caption>
 <td align="left"><code>modified_expected_force</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Extended Cluster Coefficient Ranking Measure
+(ECRM)</td>
+<td align="left"><code>ecrm</code></td>
+</tr>
+<tr class="even">
+<td align="left">Extended diversity-strength ranking (EDSR)</td>
+<td align="left"><code>edsr</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Extended gravity centrality</td>
 <td align="left"><code>extended_gravity</code></td>
 </tr>
 <tr class="even">
+<td align="left">Extended H-index centrality (EHC)</td>
+<td align="left"><code>ehc</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Extended hybrid characteristic centrality (EHCC)</td>
 <td align="left"><code>ehcc</code></td>
 </tr>
+<tr class="even">
+<td align="left">Extended improved k-shell hybrid (EIKH)</td>
+<td align="left"><code>eikh</code></td>
+</tr>
 <tr class="odd">
+<td align="left">Extended k-shell hybrid method</td>
+<td align="left"><code>eskh</code></td>
+</tr>
+<tr class="even">
 <td align="left">Extended LBC</td>
 <td align="left"><code>extended_local_bridging</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Extended mixed gravitational centrality</td>
 <td align="left"><code>extended_mixed_gravity</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Extended neighborhood coreness</td>
 <td align="left"><code>extended_coreness</code></td>
 </tr>
+<tr class="odd">
+<td align="left">Extended RMD-weighted degree (EWD)</td>
+<td align="left"><code>ewd</code></td>
+</tr>
 <tr class="even">
+<td align="left">Extended weight degree centrality (EWdc)</td>
+<td align="left"><code>ewdc</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Flow betweenness</td>
 <td align="left"><code>flow_betweenness</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Flow coefficient</td>
 <td align="left"><code>flow_coefficient</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Fuzzy local dimension (FLD)</td>
 <td align="left"><code>fuzzy_local_dimension</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Gateway coefficient</td>
 <td align="left"><code>gateway</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Geodesic k-path</td>
 <td align="left"><code>geodesic_kpath</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Gil-Schmidt Power Index</td>
 <td align="left"><code>gilschmidt</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Global and local information (GLI) method</td>
 <td align="left"><code>gli</code></td>
+</tr>
+<tr class="even">
+<td align="left">Global and Local Structure(GLS)</td>
+<td align="left"><code>gls</code></td>
 </tr>
 <tr class="odd">
 <td align="left">Global importance of nodes (GIN)</td>
@@ -527,16 +616,24 @@ count once.</caption>
 <td align="left"><code>hide_information</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Hierarchical k-shell (HKS)</td>
+<td align="left"><code>hks</code></td>
+</tr>
+<tr class="even">
 <td align="left">Hubbel</td>
 <td align="left"><code>hubbell</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Hybrid centrality (HC)</td>
 <td align="left"><code>hybrid</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Hybrid Characteristic Centrality (HCC)</td>
 <td align="left"><code>hcc</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Hybrid degree centrality</td>
+<td align="left"><code>hybrid_degree</code></td>
 </tr>
 <tr class="even">
 <td align="left">Hybrid Global Structure Model (H-GSM)</td>
@@ -555,20 +652,28 @@ count once.</caption>
 <td align="left"><code>improved_closeness</code></td>
 </tr>
 <tr class="even">
+<td align="left">Improved entropy-based centrality</td>
+<td align="left"><code>improved_entropy</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Improved global structure model (IGSM)</td>
 <td align="left"><code>improved_global_structure</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Improved IMC</td>
 <td align="left"><code>node_contraction_improved</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Improved iterative resource allocation (IIRA)</td>
 <td align="left"><code>iira</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Improved K-shell decomposition (IKSD)</td>
 <td align="left"><code>iksd</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Improved k-shell hybrid (IKH)</td>
+<td align="left"><code>ikh</code></td>
 </tr>
 <tr class="even">
 <td align="left">Improved neighbors’ k-core (INK)</td>
@@ -583,12 +688,20 @@ count once.</caption>
 <td align="left"><code>infection</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Influence capability (IC)</td>
+<td align="left"><code>influence_capability</code></td>
+</tr>
+<tr class="even">
 <td align="left">Integration</td>
 <td align="left"><code>integration</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Intra-module degree</td>
 <td align="left"><code>within_module_z</code></td>
+</tr>
+<tr class="even">
+<td align="left">Inward accessibility</td>
+<td align="left"><code>inward_accessibility</code></td>
 </tr>
 <tr class="odd">
 <td align="left">Iterative resource allocation (IRA)</td>
@@ -603,24 +716,40 @@ count once.</caption>
 <td align="left"><code>coreness</code></td>
 </tr>
 <tr class="even">
+<td align="left">k-shell based on gravity centrality (KSGC)</td>
+<td align="left"><code>ksgc</code></td>
+</tr>
+<tr class="odd">
+<td align="left">k-shell hybrid method</td>
+<td align="left"><code>ksh</code></td>
+</tr>
+<tr class="even">
+<td align="left">k-shell iteration factor(KS-IF)</td>
+<td align="left"><code>ks_if</code></td>
+</tr>
+<tr class="odd">
 <td align="left">k-truss number</td>
 <td align="left"><code>truss</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Katz</td>
 <td align="left"><code>katz</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">KDEC method</td>
 <td align="left"><code>kdec</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">KED</td>
 <td align="left"><code>ked</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Laplacian</td>
 <td align="left"><code>laplacian</code></td>
+</tr>
+<tr class="even">
+<td align="left">Laplacian gravity centrality (LGC)</td>
+<td align="left"><code>lgc</code></td>
 </tr>
 <tr class="odd">
 <td align="left">LeaderRank</td>
@@ -687,20 +816,28 @@ count once.</caption>
 <td align="left"><code>lnc</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Local structural centrality (LSC)</td>
+<td align="left"><code>lsc</code></td>
+</tr>
+<tr class="even">
 <td align="left">Local volume dimension (LVD)</td>
 <td align="left"><code>local_volume_dimension</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Localized bridging centrality</td>
 <td align="left"><code>localized_bridging</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">LocalRank</td>
 <td align="left"><code>semilocal</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">LRIC (max)</td>
 <td align="left"><code>lric_max</code></td>
+</tr>
+<tr class="even">
+<td align="left">M-centrality</td>
+<td align="left"><code>m_centrality</code></td>
 </tr>
 <tr class="odd">
 <td align="left">m-reach</td>
@@ -715,6 +852,14 @@ count once.</caption>
 <td align="left"><code>map_equation</code></td>
 </tr>
 <tr class="even">
+<td align="left">Mapping entropy (ME)</td>
+<td align="left"><code>mapping_entropy</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Mapping Entropy Betweenness (MEB)</td>
+<td align="left"><code>mapping_entropy_betweenness</code></td>
+</tr>
+<tr class="even">
 <td align="left">Markov</td>
 <td align="left"><code>markov</code></td>
 </tr>
@@ -725,6 +870,23 @@ count once.</caption>
 <tr class="even">
 <td align="left">Mediative Effects Centrality (MEC)</td>
 <td align="left"><code>mec</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Mixed core, degree and entropy (MCDE)</td>
+<td align="left"><code>mcde</code></td>
+</tr>
+<tr class="even">
+<td align="left">Mixed core, degree and weighted entropy (MCDWE)</td>
+<td align="left"><code>mcdwe</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Mixed core, semi-local degree and entropy (MCSDE)</td>
+<td align="left"><code>mcsde</code></td>
+</tr>
+<tr class="even">
+<td align="left">Mixed core, semi-local degree and weighted entropy
+(MCSDWE)</td>
+<td align="left"><code>mcsdwe</code></td>
 </tr>
 <tr class="odd">
 <td align="left">Mixed Degree Decomposition (MDD)</td>
@@ -739,12 +901,20 @@ count once.</caption>
 <td align="left"><code>mnc</code></td>
 </tr>
 <tr class="even">
+<td align="left">Modified Local Centrality (MLC)</td>
+<td align="left"><code>mlc</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Modularity vitality</td>
 <td align="left"><code>modularity_vitality</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Multi-characteristics gravity model (MCGM)</td>
 <td align="left"><code>mcgm</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Multi-evidence centrality (MeC)</td>
+<td align="left"><code>multi_evidence</code></td>
 </tr>
 <tr class="even">
 <td align="left">NCVoteRank</td>
@@ -763,13 +933,22 @@ count once.</caption>
 <td align="left"><code>neighborhood_connectivity</code></td>
 </tr>
 <tr class="even">
+<td align="left">NL centrality</td>
+<td align="left"><code>nl</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Node and Neighbor Layer Information (NINL)
 centrality</td>
 <td align="left"><code>ninl</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Node contraction (IMC)</td>
 <td align="left"><code>node_contraction</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Node importance contribution correlation matrix (NICCM)
+method</td>
+<td align="left"><code>niccm</code></td>
 </tr>
 <tr class="even">
 <td align="left">Node importance evaluation matrix (NIEM) method</td>
@@ -804,6 +983,14 @@ centrality</td>
 <td align="left"><code>percolation</code></td>
 </tr>
 <tr class="even">
+<td align="left">PhysarumSpreader</td>
+<td align="left"><code>physarum_spreader</code></td>
+</tr>
+<tr class="odd">
+<td align="left">ProfitLeader</td>
+<td align="left"><code>profitleader</code></td>
+</tr>
+<tr class="even">
 <td align="left">Proximal betwenness</td>
 <td align="left"><code>proximal_betweenness</code></td>
 </tr>
@@ -820,24 +1007,32 @@ centrality</td>
 <td align="left"><code>rsp_betweenness</code></td>
 </tr>
 <tr class="even">
+<td align="left">RCFB centrality</td>
+<td align="left"><code>rcfb</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Redundancy</td>
 <td align="left"><code>redundancy</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Relative entropy</td>
 <td align="left"><code>relative_entropy</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Renewed coreness</td>
 <td align="left"><code>renewed_coreness</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Residual closeness</td>
 <td align="left"><code>residual_closeness</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Resistance curvature</td>
 <td align="left"><code>resistance_curvature</code></td>
+</tr>
+<tr class="even">
+<td align="left">RMD-weighted degree (WD)</td>
+<td align="left"><code>wd</code></td>
 </tr>
 <tr class="odd">
 <td align="left">Rumor centrality</td>
@@ -856,6 +1051,14 @@ centrality</td>
 <td align="left"><code>second_order</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Seeley’s index</td>
+<td align="left"><code>pagerank</code></td>
+</tr>
+<tr class="even">
+<td align="left">Semi-local iterative algorithm (semi-IA)</td>
+<td align="left"><code>semi_ia</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Semi-local ranking (SLC)</td>
 <td align="left"><code>semilocal</code></td>
 </tr>
@@ -872,16 +1075,24 @@ centrality</td>
 <td align="left"><code>shapley_game3</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Shell clustering coefficient</td>
+<td align="left"><code>shell_clustering</code></td>
+</tr>
+<tr class="even">
 <td align="left">SingleDiscount</td>
 <td align="left"><code>single_discount</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spanning tree centrality (STC)</td>
 <td align="left"><code>spanning_tree</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">SpectralRank</td>
 <td align="left"><code>spectralrank</code></td>
+</tr>
+<tr class="odd">
+<td align="left">Spreading probability (SP)</td>
+<td align="left"><code>spreading_probability</code></td>
 </tr>
 <tr class="even">
 <td align="left">Stress</td>
@@ -896,8 +1107,16 @@ centrality</td>
 <td align="left"><code>support</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Synthesize centrality (SC)</td>
+<td align="left"><code>synthesize</code></td>
+</tr>
+<tr class="even">
 <td align="left">Topological</td>
 <td align="left"><code>topological_coefficient</code></td>
+</tr>
+<tr class="odd">
+<td align="left">TOPSIS</td>
+<td align="left"><code>topsis</code></td>
 </tr>
 <tr class="even">
 <td align="left">TOPSIS-RE</td>
@@ -936,38 +1155,58 @@ centrality</td>
 <td align="left"><code>voterank_plus</code></td>
 </tr>
 <tr class="odd">
+<td align="left">Weight degree centrality (Wdc)</td>
+<td align="left"><code>wdc</code></td>
+</tr>
+<tr class="even">
+<td align="left">Weight neighborhood centrality</td>
+<td align="left"><code>weight_neighborhood</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Weighted formal concept analysis (WFCA)</td>
 <td align="left"><code>wfca</code></td>
 </tr>
 <tr class="even">
+<td align="left">Weighted gravity model (WGravity)</td>
+<td align="left"><code>wgravity</code></td>
+</tr>
+<tr class="odd">
 <td align="left">Weighted h-index</td>
 <td align="left"><code>weighted_h_index</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Weighted k-shell decomposition (Wks)</td>
 <td align="left"><code>weighted_kshell</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Weighted k-shell degree neighborhood (Maji)</td>
 <td align="left"><code>wksdn</code></td>
+</tr>
+<tr class="even">
+<td align="left">Weighted k-shell degree neighborhood (Wksd)</td>
+<td align="left"><code>wksd</code></td>
 </tr>
 <tr class="odd">
 <td align="left">Weighted LeaderRank</td>
 <td align="left"><code>weighted_leaderrank</code></td>
 </tr>
 <tr class="even">
+<td align="left">Weighted TOPSIS</td>
+<td align="left"><code>topsis</code></td>
+</tr>
+<tr class="odd">
 <td align="left">WVoteRank</td>
 <td align="left"><code>wvoterank</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">X-degree centrality</td>
 <td align="left"><code>x_degree</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">X-nonbacktracking centrality</td>
 <td align="left"><code>x_nonbacktracking</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">μ-Power Community Index (μ-PCI)</td>
 <td align="left"><code>mu_pci</code></td>
 </tr>
@@ -977,11 +1216,11 @@ centrality</td>
 <div class="section level2">
 <h2 id="zoo-measures-missing-from-cograph">Zoo measures missing from cograph<a class="anchor" aria-label="anchor" href="#zoo-measures-missing-from-cograph"></a>
 </h2>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="58%">
-<col width="26%">
-<col width="14%">
+<col width="54%">
+<col width="28%">
+<col width="16%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Zoo measure</th>
@@ -1035,65 +1274,34 @@ centrality</td>
 <td align="left">1.00</td>
 </tr>
 <tr class="even">
-<td align="left">Mixed core, semi-local degree and entropy (MCSDE)</td>
-<td align="left"><code>semilocal</code></td>
-<td align="left">1.00</td>
-</tr>
-<tr class="odd">
-<td align="left">Mixed core, semi-local degree and weighted entropy
-(MCSDWE)</td>
-<td align="left"><code>semilocal</code></td>
-<td align="left">1.00</td>
-</tr>
-<tr class="even">
-<td align="left">Modified Local Centrality (MLC)</td>
-<td align="left"><code>semilocal</code></td>
-<td align="left">1.00</td>
-</tr>
-<tr class="odd">
-<td align="left">Multi-evidence centrality (MeC)</td>
-<td align="left"><code>mec</code></td>
-<td align="left">1.00</td>
-</tr>
-<tr class="even">
 <td align="left">Nieminen’s closeness</td>
 <td align="left"><code>closeness</code></td>
 <td align="left">1.00</td>
 </tr>
 <tr class="odd">
-<td align="left">PhysarumSpreader</td>
-<td align="left"><code>beta_measure</code></td>
-<td align="left">1.00</td>
-</tr>
-<tr class="even">
 <td align="left">QJSD centrality</td>
 <td align="left"><code>degree</code></td>
 <td align="left">1.00</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Routing betweenness</td>
 <td align="left"><code>load</code></td>
 <td align="left">1.00</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Total centrality</td>
 <td align="left"><code>fragmentation</code></td>
 <td align="left">1.00</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">ViralRank</td>
 <td align="left"><code>current_flow_closeness</code></td>
 <td align="left">1.00</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Zeta vector centrality</td>
 <td align="left"><code>second_order</code></td>
 <td align="left">1.00</td>
-</tr>
-<tr class="odd">
-<td align="left">Hybrid degree centrality</td>
-<td align="left"><code>hubbell</code></td>
-<td align="left">0.99</td>
 </tr>
 <tr class="even">
 <td align="left">k-path</td>
@@ -1101,139 +1309,18 @@ centrality</td>
 <td align="left">0.99</td>
 </tr>
 <tr class="odd">
-<td align="left">Average shortest path centrality (AC)</td>
-<td align="left"><code>closeness_vitality</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="even">
-<td align="left">Extended Cluster Coefficient Ranking Measure
-(ECRM)</td>
-<td align="left"><code>ninl</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">Extended H-index centrality (EHC)</td>
-<td align="left"><code>ninl</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="even">
-<td align="left">Extended improved k-shell hybrid (EIKH)</td>
-<td align="left"><code>infection</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">Extended k-shell hybrid method</td>
-<td align="left"><code>infection</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="even">
-<td align="left">Extended RMD-weighted degree (EWD)</td>
-<td align="left"><code>extended_coreness</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">Mapping entropy (ME)</td>
-<td align="left"><code>hubbell</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="even">
 <td align="left">Neighborhood core diversity centrality (Cncd)</td>
 <td align="left"><code>extended_coreness</code></td>
 <td align="left">0.98</td>
 </tr>
-<tr class="odd">
-<td align="left">Weight neighborhood centrality</td>
-<td align="left"><code>wksdn</code></td>
-<td align="left">0.98</td>
-</tr>
 <tr class="even">
-<td align="left">Weighted gravity model (WGravity)</td>
-<td align="left"><code>diffusion_centrality</code></td>
-<td align="left">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">Entropy-Based Ranking Measure (ERM)</td>
-<td align="left"><code>ninl</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">Extended weight degree centrality (EWdc)</td>
-<td align="left"><code>communicability</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="odd">
-<td align="left">Improved entropy-based centrality</td>
-<td align="left"><code>ked</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">Improved k-shell hybrid (IKH)</td>
-<td align="left"><code>neighbor_distance</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="odd">
-<td align="left">Influence capability (IC)</td>
-<td align="left"><code>ninl</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">k-shell hybrid method</td>
-<td align="left"><code>neighbor_distance</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="odd">
-<td align="left">Laplacian gravity centrality (LGC)</td>
-<td align="left"><code>diffusion</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">Mixed core, degree and entropy (MCDE)</td>
-<td align="left"><code>degree</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="odd">
-<td align="left">Mixed core, degree and weighted entropy (MCDWE)</td>
-<td align="left"><code>mdd</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">Shell clustering coefficient</td>
-<td align="left"><code>modified_expected_force</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="odd">
-<td align="left">Weight degree centrality (Wdc)</td>
-<td align="left"><code>diffusion</code></td>
-<td align="left">0.97</td>
-</tr>
-<tr class="even">
-<td align="left">Classified neighbors centrality</td>
-<td align="left"><code>mdd</code></td>
+<td align="left">Normalized local centrality (NLC)</td>
+<td align="left"><code>lsc</code></td>
 <td align="left">0.96</td>
 </tr>
 <tr class="odd">
-<td align="left">Global and Local Structure(GLS)</td>
-<td align="left"><code>linerank</code></td>
-<td align="left">0.96</td>
-</tr>
-<tr class="even">
-<td align="left">Mapping Entropy Betweenness (MEB)</td>
-<td align="left"><code>relative_entropy</code></td>
-<td align="left">0.96</td>
-</tr>
-<tr class="odd">
-<td align="left">RMD-weighted degree (WD)</td>
-<td align="left"><code>local_hindex</code></td>
-<td align="left">0.96</td>
-</tr>
-<tr class="even">
 <td align="left">VMM algorithm</td>
 <td align="left"><code>degree</code></td>
-<td align="left">0.96</td>
-</tr>
-<tr class="odd">
-<td align="left">Weighted k-shell degree neighborhood (Wksd)</td>
-<td align="left"><code>gravity</code></td>
 <td align="left">0.96</td>
 </tr>
 <tr class="even">
@@ -1242,99 +1329,8 @@ centrality</td>
 <td align="left">0.96</td>
 </tr>
 <tr class="odd">
-<td align="left">All-around score</td>
-<td align="left"><code>mdd</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">ArticleRank</td>
-<td align="left"><code>pagerank</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">Entropy-based gravity model</td>
-<td align="left"><code>mec</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">Extended diversity-strength ranking (EDSR)</td>
-<td align="left"><code>ninl</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">Hierarchical k-shell (HKS)</td>
-<td align="left"><code>eigenvector</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">k-shell based on gravity centrality (KSGC)</td>
-<td align="left"><code>hubbell</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">k-shell iteration factor(KS-IF)</td>
-<td align="left"><code>extended_coreness</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">Local structural centrality (LSC)</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">NL centrality</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">Node importance contribution correlation matrix (NICCM)
-method</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="odd">
-<td align="left">ProfitLeader</td>
-<td align="left"><code>support</code></td>
-<td align="left">0.95</td>
-</tr>
-<tr class="even">
-<td align="left">Analytic Hierarchy Process (AHP) centrality</td>
-<td align="left"><code>density_centrality</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="odd">
-<td align="left">Correlation centrality</td>
-<td align="left"><code>infection</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="even">
-<td align="left">Diversity-strength ranking (DSR)</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="odd">
-<td align="left">Normalized local centrality (NLC)</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="even">
 <td align="left">Random walk-based gravity (DFS-Gravity)</td>
 <td align="left"><code>laplacian</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="odd">
-<td align="left">Semi-local iterative algorithm (semi-IA)</td>
-<td align="left"><code>icentr</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="even">
-<td align="left">TOPSIS</td>
-<td align="left"><code>density_centrality</code></td>
-<td align="left">0.94</td>
-</tr>
-<tr class="odd">
-<td align="left">Weighted TOPSIS</td>
-<td align="left"><code>harmonic</code></td>
 <td align="left">0.94</td>
 </tr>
 <tr class="even">
@@ -1343,18 +1339,8 @@ method</td>
 <td align="left">0.93</td>
 </tr>
 <tr class="odd">
-<td align="left">Degree and clustering coefficient (DCC)</td>
-<td align="left"><code>diffusion</code></td>
-<td align="left">0.93</td>
-</tr>
-<tr class="even">
 <td align="left">Edge-disjoint k-path</td>
 <td align="left"><code>iira</code></td>
-<td align="left">0.93</td>
-</tr>
-<tr class="odd">
-<td align="left">Eigentrust</td>
-<td align="left"><code>degree</code></td>
 <td align="left">0.93</td>
 </tr>
 <tr class="even">
@@ -1368,39 +1354,9 @@ method</td>
 <td align="left">0.93</td>
 </tr>
 <tr class="even">
-<td align="left">Seeley’s index</td>
-<td align="left"><code>degree</code></td>
-<td align="left">0.93</td>
-</tr>
-<tr class="odd">
-<td align="left">Spreading probability (SP)</td>
-<td align="left"><code>icentr</code></td>
-<td align="left">0.93</td>
-</tr>
-<tr class="even">
-<td align="left">Effective gravity model (EGM)</td>
-<td align="left"><code>gravity</code></td>
-<td align="left">0.92</td>
-</tr>
-<tr class="odd">
-<td align="left">M-centrality</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.92</td>
-</tr>
-<tr class="even">
-<td align="left">RCFB centrality</td>
-<td align="left"><code>current_flow_betweenness</code></td>
-<td align="left">0.92</td>
-</tr>
-<tr class="odd">
 <td align="left">Vertex-disjoint k-path</td>
 <td align="left"><code>iira</code></td>
 <td align="left">0.92</td>
-</tr>
-<tr class="even">
-<td align="left">Diversity-strength centrality (DSC)</td>
-<td align="left"><code>degree</code></td>
-<td align="left">0.91</td>
 </tr>
 <tr class="odd">
 <td align="left">Integral k-shell</td>
@@ -1408,8 +1364,8 @@ method</td>
 <td align="left">0.91</td>
 </tr>
 <tr class="even">
-<td align="left">Inward accessibility</td>
-<td align="left"><code>trust_pagerank</code></td>
+<td align="left">MABIE</td>
+<td align="left"><code>topsis</code></td>
 <td align="left">0.91</td>
 </tr>
 <tr class="odd">
@@ -1428,75 +1384,65 @@ method</td>
 <td align="left">0.91</td>
 </tr>
 <tr class="even">
-<td align="left">Synthesize centrality (SC)</td>
-<td align="left"><code>degree</code></td>
-<td align="left">0.91</td>
-</tr>
-<tr class="odd">
 <td align="left">WRank</td>
 <td align="left"><code>niem</code></td>
 <td align="left">0.91</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Cc-Burt</td>
 <td align="left"><code>iira</code></td>
 <td align="left">0.90</td>
 </tr>
-<tr class="odd">
-<td align="left">Edge clustering coefficient centrality (NC)</td>
-<td align="left"><code>cross_clique</code></td>
-<td align="left">0.90</td>
-</tr>
 <tr class="even">
-<td align="left">MABIE</td>
-<td align="left"><code>nwrank</code></td>
-<td align="left">0.90</td>
-</tr>
-<tr class="odd">
 <td align="left">PathRank</td>
 <td align="left"><code>nonbacktracking</code></td>
 <td align="left">0.90</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">theta-centrality</td>
 <td align="left"><code>gravity</code></td>
 <td align="left">0.90</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Isolating Centrality (ISC)</td>
 <td align="left"><code>pairwisedis</code></td>
 <td align="left">0.89</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Multiple local attributes weighted centrality
 (LWC)</td>
 <td align="left"><code>support</code></td>
 <td align="left">0.89</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Contribution centrality</td>
-<td align="left"><code>improved_closeness</code></td>
+<td align="left"><code>semi_ia</code></td>
 <td align="left">0.88</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Graph Fourier Transform Centrality (GFT-C)</td>
 <td align="left"><code>mdd</code></td>
 <td align="left">0.88</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Local degree dimension (LDD)</td>
 <td align="left"><code>iira</code></td>
 <td align="left">0.88</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Spreading strength</td>
 <td align="left"><code>geodesic_kpath</code></td>
 <td align="left">0.88</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Weighted community betweenness</td>
 <td align="left"><code>bridging</code></td>
 <td align="left">0.88</td>
+</tr>
+<tr class="odd">
+<td align="left">Effective distance gravity (EffG)</td>
+<td align="left"><code>dcc</code></td>
+<td align="left">0.87</td>
 </tr>
 <tr class="even">
 <td align="left">Entropy-based influence disseminator (EbID)</td>
@@ -1544,8 +1490,8 @@ method</td>
 <td align="left">0.85</td>
 </tr>
 <tr class="odd">
-<td align="left">Effective distance gravity (EffG)</td>
-<td align="left"><code>improved_global_structure</code></td>
+<td align="left">Graphlet degree centrality (GDC)</td>
+<td align="left"><code>spreading_probability</code></td>
 <td align="left">0.84</td>
 </tr>
 <tr class="even">
@@ -1554,8 +1500,8 @@ method</td>
 <td align="left">0.84</td>
 </tr>
 <tr class="odd">
-<td align="left">Graphlet degree centrality (GDC)</td>
-<td align="left"><code>hybrid</code></td>
+<td align="left">Relative local–global importance (RLGI)</td>
+<td align="left"><code>articlerank</code></td>
 <td align="left">0.83</td>
 </tr>
 <tr class="even">
@@ -1564,8 +1510,8 @@ method</td>
 <td align="left">0.82</td>
 </tr>
 <tr class="odd">
-<td align="left">Relative local–global importance (RLGI)</td>
-<td align="left"><code>malatya</code></td>
+<td align="left">Node importance contribution matrix (NICM) method</td>
+<td align="left"><code>asp_centrality</code></td>
 <td align="left">0.82</td>
 </tr>
 <tr class="even">
@@ -1579,63 +1525,63 @@ method</td>
 <td align="left">0.81</td>
 </tr>
 <tr class="even">
-<td align="left">Node importance contribution matrix (NICM) method</td>
-<td align="left"><code>closeness_vitality</code></td>
-<td align="left">0.81</td>
-</tr>
-<tr class="odd">
 <td align="left">EPC</td>
 <td align="left"><code>mu_pci</code></td>
 <td align="left">0.80</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Multi-local dimension (MLD)</td>
 <td align="left"><code>fuzzy_local_dimension</code></td>
 <td align="left">0.80</td>
 </tr>
-<tr class="odd">
-<td align="left">Neighborhood density</td>
-<td align="left"><code>support</code></td>
-<td align="left">0.78</td>
-</tr>
 <tr class="even">
+<td align="left">Neighborhood density</td>
+<td align="left"><code>profitleader</code></td>
+<td align="left">0.80</td>
+</tr>
+<tr class="odd">
 <td align="left">Weighted volume centrality</td>
 <td align="left"><code>geodesic_kpath</code></td>
 <td align="left">0.78</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Expected rank</td>
 <td align="left"><code>resistance_curvature</code></td>
 <td align="left">0.77</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">BridgeRank</td>
 <td align="left"><code>closeness</code></td>
 <td align="left">0.76</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Semi-local degree and clustering coefficient</td>
 <td align="left"><code>kreach</code></td>
 <td align="left">0.76</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Algebraic centrality</td>
 <td align="left"><code>closeness_vitality</code></td>
 <td align="left">0.74</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Shapley Value based Information Delimiters (SVID)</td>
 <td align="left"><code>degree</code></td>
 <td align="left">0.74</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">DSHC method</td>
 <td align="left"><code>voterank_plus</code></td>
 <td align="left">0.73</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">LRIC (maxmin)</td>
 <td align="left"><code>lric_max</code></td>
+<td align="left">0.72</td>
+</tr>
+<tr class="odd">
+<td align="left">Multi-criteria influence maximization (MCIM)</td>
+<td align="left"><code>ksgc</code></td>
 <td align="left">0.72</td>
 </tr>
 <tr class="even">
@@ -1644,38 +1590,38 @@ method</td>
 <td align="left">0.71</td>
 </tr>
 <tr class="odd">
-<td align="left">Multi-criteria influence maximization (MCIM)</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.68</td>
-</tr>
-<tr class="even">
 <td align="left">Improved WVoteRank</td>
 <td align="left"><code>proximal_betweenness</code></td>
 <td align="left">0.67</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">LRIC-sim</td>
 <td align="left"><code>voterank_plus</code></td>
 <td align="left">0.67</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Community centrality</td>
 <td align="left"><code>ego_betweenness</code></td>
 <td align="left">0.66</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Absorbing Random-Walk (ARW)</td>
 <td align="left"><code>single_discount</code></td>
 <td align="left">0.65</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Partition-Based Spreaders Identification (PBSI)</td>
 <td align="left"><code>degree</code></td>
 <td align="left">0.64</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Information distance index</td>
 <td align="left"><code>degree</code></td>
+<td align="left">0.63</td>
+</tr>
+<tr class="odd">
+<td align="left">Truncated curvature</td>
+<td align="left"><code>edge_clustering</code></td>
 <td align="left">0.63</td>
 </tr>
 <tr class="even">
@@ -1705,24 +1651,24 @@ method</td>
 <td align="left">0.58</td>
 </tr>
 <tr class="odd">
-<td align="left">Truncated curvature</td>
-<td align="left"><code>iira</code></td>
-<td align="left">0.57</td>
-</tr>
-<tr class="even">
 <td align="left">DegreePunishment</td>
 <td align="left"><code>constraint</code></td>
 <td align="left">0.55</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">IS method</td>
 <td align="left"><code>dmnc</code></td>
 <td align="left">0.54</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Link influence entropy (LInE)</td>
 <td align="left"><code>flow_coefficient</code></td>
 <td align="left">0.53</td>
+</tr>
+<tr class="even">
+<td align="left">Graph-theoretic power index (GPI)</td>
+<td align="left"><code>ksgc</code></td>
+<td align="left">0.52</td>
 </tr>
 <tr class="odd">
 <td align="left">K-shell Physarum centrality</td>
@@ -1735,41 +1681,36 @@ method</td>
 <td align="left">0.44</td>
 </tr>
 <tr class="odd">
-<td align="left">Graph-theoretic power index (GPI)</td>
-<td align="left"><code>fuzzy_local_dimension</code></td>
-<td align="left">0.41</td>
-</tr>
-<tr class="even">
 <td align="left">Node information dimension (NID)</td>
 <td align="left"><code>local_dimension</code></td>
 <td align="left">0.41</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Improved coloring method (IIS)</td>
 <td align="left"><code>constraint</code></td>
 <td align="left">0.37</td>
 </tr>
-<tr class="even">
-<td align="left">Improved k-shell method (IKS)</td>
-<td align="left"><code>clusterrank</code></td>
-<td align="left">0.32</td>
-</tr>
 <tr class="odd">
+<td align="left">Improved k-shell method (IKS)</td>
+<td align="left"><code>lgc</code></td>
+<td align="left">0.36</td>
+</tr>
+<tr class="even">
 <td align="left">DegreeDistance</td>
 <td align="left"><code>degree_discount</code></td>
 <td align="left">0.30</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Local fuzzy information centrality (LFIC)</td>
 <td align="left"><code>neighborhood_connectivity</code></td>
 <td align="left">0.28</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">HybridRank</td>
 <td align="left"><code>degree_discount</code></td>
 <td align="left">0.27</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Hybrid (Pozzi)</td>
 <td align="left"><code>degree</code></td>
 <td align="left">0.00</td>

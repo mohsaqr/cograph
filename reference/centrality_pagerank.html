@@ -19,7 +19,7 @@ damping."><meta property="og:image" content="https://sonsoles.me/cograph/logo.pn
 
     <a class="navbar-brand me-2" href="../index.html">cograph</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.23</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,12 +111,42 @@ is matched by position. A negative weight raises a
 <code>cograph_negative_weights</code> error, an invalid <code>personalized</code> a
 <code>cograph_bad_input</code> error, and a <code>damping</code> outside
 \([0, 1]\) a <code>cograph_bad_parameter</code> error.</p>
+<p>EigenTrust (Kamvar, Schlosser and Garcia-Molina 2003) with mixing weight
+\(a\) is <code>damping = 1 - a</code> with the pre-trust distribution as
+<code>personalized</code>, on a network without loops whose weights are the
+nonnegative local trust values (in both, a node that trusts nobody
+passes its trust to the pre-trust distribution). Seeley's index (Seeley
+1949, as restated by Vigna 2016), the left eigenvector of the
+row-normalized matrix for the eigenvalue 1 scaled to sum 1, is
+<code>damping = 1</code> on a network in which every node has an out-edge and
+the walk has a single closed class that is aperiodic, such as a
+connected undirected network that is not bipartite. Outside that class
+the result is not Seeley's index: the iteration starts from the uniform
+vector and stops after 1000 sweeps without a warning, so with more than
+one closed class it returns whichever of the several stationary vectors
+that start leads to and on a periodic network such as a star one of the
+vectors it alternates between, and a node without out-edges, for which
+Seeley's index is not defined, sends its score to the reset
+distribution. On a slowly mixing network, inside the class too, the 1000
+sweeps can end short of convergence.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Brin, S., &amp; Page, L. (1998). The anatomy of a large-scale hypertextual Web
 search engine. Computer Networks and ISDN Systems, 30(1-7), 107-117.
 <a href="https://doi.org/10.1016/S0169-7552%2898%2900110-X" class="external-link">doi:10.1016/S0169-7552(98)00110-X</a>
+.</p>
+<p>Kamvar, S. D., Schlosser, M. T. and Garcia-Molina, H. (2003). The
+EigenTrust algorithm for reputation management in P2P networks. In
+Proceedings of the 12th International Conference on World Wide Web (WWW
+'03), 640-651. <a href="https://doi.org/10.1145/775152.775242" class="external-link">doi:10.1145/775152.775242</a>
+.</p>
+<p>Seeley, J. R. (1949). The net of reciprocal influence; a problem in
+treating sociometric data. Canadian Journal of Psychology, 3(4),
+234-240. <a href="https://doi.org/10.1037/h0084096" class="external-link">doi:10.1037/h0084096</a>
+.</p>
+<p>Vigna, S. (2016). Spectral ranking. Network Science, 4(4), 433-445.
+<a href="https://doi.org/10.1017/nws.2016.21" class="external-link">doi:10.1017/nws.2016.21</a>
 .</p>
     </div>
     <div class="section level2">

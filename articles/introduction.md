@@ -311,7 +311,7 @@ layout of a network object can be read and set with accessor functions.
 
 ## Centrality
 
-cograph offers 217 node centrality measures through
+cograph offers 274 node centrality measures through
 [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
 which returns a tidy data frame with a column for each measure, and
 through individual functions that return a single measure. The measures

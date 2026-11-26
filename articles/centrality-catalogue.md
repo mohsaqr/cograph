@@ -13,7 +13,7 @@ node, walks of all lengths, or the community structure of the network.
 Each measure describes a different aspect of position, and the choice
 between them depends on the process the network is assumed to carry.
 
-This catalogue documents the 217 measures available through
+This catalogue documents the 274 measures available through
 [`centrality()`](https://sonsoles.me/cograph/reference/centrality.md),
 organised by family. Each entry gives a short description, the formula
 as implemented, a guide to interpreting the scores, and an example. The
@@ -138,22 +138,32 @@ the graph Laplacian and $`\mathbf{1}`$ the all-ones vector.
 [X-degree](#cent-x_degree) · [Clustering Degree Algorithm](#cent-cda) ·
 [Weighted formal concept analysis (WFCA)](#cent-wfca) · [Node importance
 evaluation matrix (NIEM)](#cent-niem) · [Improved k-shell decomposition
-(IKSD)](#cent-iksd) · [Density centrality](#cent-density_centrality) ·
-[Weighted k-shell degree neighborhood (WKSDN)](#cent-wksdn) · [Mu-power
-community index](#cent-mu_pci) · [Global importance of nodes
-(GIN)](#cent-gin) · [Icentr](#cent-icentr) · [Global and local
-information (GLI)](#cent-gli) · [KDEC method](#cent-kdec) · [Common
-out-neighbor (CON) score](#cent-con) · [Entropy and mutual
-information-based centrality (EMI)](#cent-emi) · [Improved neighbors’
-k-core (INK)](#cent-ink) · [Extended Neighborhood
-Coreness](#cent-extended_coreness) · [Malatya Centrality](#cent-malatya)
-· [Volume Centrality](#cent-volume) · [Degree Centrality](#cent-degree)
-· [Indegree Centrality](#cent-indegree) · [Outdegree
-Centrality](#cent-outdegree) · [Strength Centrality](#cent-strength) ·
-[Instrength Centrality](#cent-instrength) · [Outstrength
-Centrality](#cent-outstrength) · [Expected Centrality](#cent-expected) ·
-[Leverage Centrality](#cent-leverage) · [Lobby Centrality](#cent-lobby)
-· [H-Index Strength Centrality](#cent-hindex_strength) · [Local H-Index
+(IKSD)](#cent-iksd) · [K-shell based gravity centrality
+(KSGC)](#cent-ksgc) · [Classified neighbors
+centrality](#cent-classified_neighbors) · [Hybrid degree
+centrality](#cent-hybrid_degree) · [Effective gravity model
+(EGM)](#cent-egm) · [Entropy-based social
+influence](#cent-entropy_influence) · [Weight degree centrality
+(Wdc)](#cent-wdc) · [Extended weight degree centrality
+(EWdc)](#cent-ewdc) · [Mapping entropy (ME)](#cent-mapping_entropy) ·
+[Improved entropy-based centrality](#cent-improved_entropy) · [Weight
+neighborhood centrality](#cent-weight_neighborhood) · [Density
+centrality](#cent-density_centrality) · [Weighted k-shell degree
+neighborhood (WKSDN)](#cent-wksdn) · [Mu-power community
+index](#cent-mu_pci) · [Global importance of nodes (GIN)](#cent-gin) ·
+[Icentr](#cent-icentr) · [Global and local information (GLI)](#cent-gli)
+· [KDEC method](#cent-kdec) · [Common out-neighbor (CON)
+score](#cent-con) · [Entropy and mutual information-based centrality
+(EMI)](#cent-emi) · [Improved neighbors’ k-core (INK)](#cent-ink) ·
+[Extended Neighborhood Coreness](#cent-extended_coreness) · [Malatya
+Centrality](#cent-malatya) · [Volume Centrality](#cent-volume) · [Degree
+Centrality](#cent-degree) · [Indegree Centrality](#cent-indegree) ·
+[Outdegree Centrality](#cent-outdegree) · [Strength
+Centrality](#cent-strength) · [Instrength Centrality](#cent-instrength)
+· [Outstrength Centrality](#cent-outstrength) · [Expected
+Centrality](#cent-expected) · [Leverage Centrality](#cent-leverage) ·
+[Lobby Centrality](#cent-lobby) · [H-Index Strength
+Centrality](#cent-hindex_strength) · [Local H-Index
 Centrality](#cent-local_hindex) · [Semi-Local
 Centrality](#cent-semilocal) · [ClusterRank
 Centrality](#cent-clusterrank) · [Collective Influence
@@ -172,7 +182,13 @@ h-index](#cent-weighted_h_index) · [Redundancy](#cent-redundancy)
 [Global Structure Model](#cent-global_structure) · [Hybrid Global
 Structure Model](#cent-hybrid_global_structure) · [Exogenous
 Centrality](#cent-exogenous) · [Improved Closeness
-Centrality](#cent-improved_closeness) · [Extended Gravity
+Centrality](#cent-improved_closeness) · [Spreading probability
+(SP)](#cent-spreading_probability) · [Node importance contribution
+correlation matrix (NICCM)](#cent-niccm) · [Correlation
+centrality](#cent-correlation_centrality) · [Laplacian gravity
+centrality (LGC)](#cent-lgc) · [Weighted gravity model
+(WGravity)](#cent-wgravity) · [Average shortest path centrality
+(AC)](#cent-asp_centrality) · [Extended Gravity
 Centrality](#cent-extended_gravity) · [Closeness
 Centrality](#cent-closeness) · [Incloseness
 Centrality](#cent-incloseness) · [Outcloseness
@@ -216,7 +232,9 @@ centrality](#cent-mixed_gravity) · [Extended mixed gravitational
 centrality](#cent-extended_mixed_gravity) · [Localized bridging
 centrality](#cent-localized_bridging) · [Extended local bridging
 centrality](#cent-extended_local_bridging) · [Proximal
-betweenness](#cent-proximal_betweenness) · [Betweenness
+betweenness](#cent-proximal_betweenness) · [RCFB (resized current-flow
+betweenness)](#cent-rcfb) · [Mapping entropy betweenness
+(MEB)](#cent-mapping_entropy_betweenness) · [Betweenness
 Centrality](#cent-betweenness) · [Stress Centrality](#cent-stress) ·
 [Load Centrality](#cent-load) · [Length-scaled
 Betweenness](#cent-length_scaled_betweenness) · [Distance-decayed
@@ -243,7 +261,16 @@ capital](#cent-bridging_capital) · [LineRank](#cent-linerank) · [Random
 walk decay](#cent-random_walk_decay) · [Graph regularization
 centrality](#cent-graph_regularization) · [Adaptive
 LeaderRank](#cent-adaptive_leaderrank) · [Weighted
-LeaderRank](#cent-weighted_leaderrank) · [Node Resistance
+LeaderRank](#cent-weighted_leaderrank) · [TOPSIS
+centrality](#cent-topsis) · [All-around score](#cent-all_around) ·
+[Multi-evidence centrality (MeC)](#cent-multi_evidence) · [Analytic
+Hierarchy Process (AHP) centrality](#cent-ahp) · [Semi-local iterative
+algorithm (semi-IA)](#cent-semi_ia) · [Synthesize centrality
+(SC)](#cent-synthesize) · [Inward
+accessibility](#cent-inward_accessibility) ·
+[PhysarumSpreader](#cent-physarum_spreader) ·
+[ArticleRank](#cent-articlerank) · [Entropy-based gravity
+model](#cent-entropy_gravity) · [Node Resistance
 Curvature](#cent-resistance_curvature) · [Dynamics-Sensitive
 Centrality](#cent-dynamics_sensitive) · [Finite-Horizon Diffusion
 Centrality](#cent-diffusion_centrality) · [Dynamical
@@ -295,7 +322,31 @@ index](#cent-lhc) · [Hybrid characteristic centrality (HCC)](#cent-hcc)
 · [Extended hybrid characteristic centrality (EHCC)](#cent-ehcc) · [KED
 method](#cent-ked) · [Local neighbor contribution (LNC)](#cent-lnc) ·
 [Neighborhood (neighbor distance) centrality](#cent-neighbor_distance) ·
-[Coleman-Theil hierarchy](#cent-coleman_theil) · [Maximal Clique
+[Coleman-Theil hierarchy](#cent-coleman_theil) · [RMD-weighted degree
+(WD)](#cent-wd) · [Extended RMD-weighted degree (EWD)](#cent-ewd) ·
+[Modified local centrality (MLC)](#cent-mlc) ·
+[ProfitLeader](#cent-profitleader) · [Hierarchical k-shell
+(HKS)](#cent-hks) · [Diversity-strength centrality (DSC)](#cent-dsc) ·
+[Diversity-strength ranking (DSR)](#cent-dsr) · [Extended
+diversity-strength ranking (EDSR)](#cent-edsr) · [Local structural
+centrality (LSC)](#cent-lsc) · [Global and local structure
+(GLS)](#cent-gls) · [K-shell iteration factor (KS-IF)](#cent-ks_if) ·
+[NL centrality](#cent-nl) · [K-shell hybrid method (ksh)](#cent-ksh) ·
+[Extended k-shell hybrid method (ESKH)](#cent-eskh) · [Improved k-shell
+hybrid method (IKH)](#cent-ikh) · [Extended improved k-shell hybrid
+method (EIKH)](#cent-eikh) · [Mixed core, degree and entropy
+(MCDE)](#cent-mcde) · [Mixed core, degree and weighted entropy
+(MCDWE)](#cent-mcdwe) · [Mixed core, semi-local degree and entropy
+(MCSDE)](#cent-mcsde) · [Mixed core, semi-local degree and weighted
+entropy (MCSDWE)](#cent-mcsdwe) · [Degree and clustering coefficient
+(DCC)](#cent-dcc) · [Edge clustering coefficient centrality
+(NC)](#cent-edge_clustering) · [Influence capability
+(IC)](#cent-influence_capability) · [Extended H-index centrality
+(EHC)](#cent-ehc) · [Entropy-Based Ranking Measure (ERM)](#cent-erm) ·
+[Shell clustering coefficient](#cent-shell_clustering) · [Extended
+Cluster Coefficient Ranking Measure (ECRM)](#cent-ecrm) ·
+[M-centrality](#cent-m_centrality) · [Weighted k-shell degree
+neighborhood (Wksd)](#cent-wksd) · [Maximal Clique
 Centrality](#cent-mcc) · [Node Truss Number](#cent-truss) · [Mixed
 Degree Decomposition](#cent-mdd) · [Bridging
 Coefficient](#cent-bridging_coefficient) · [Godfather
@@ -444,6 +495,226 @@ the first round.
 ``` r
 
 centrality_iksd(student_interactions)
+```
+
+### K-shell based gravity centrality (KSGC)
+
+A gravity model with the degree as mass, in which the pull of a node on
+another grows with the difference of their k-shell indices. Only nodes
+within half the average path length count.
+
+``` math
+KSGC(i)=\sum_{j:\,d_{ij}\le\langle d\rangle/2}\exp\!\Bigl(\frac{ks_i-ks_j}{ks_{max}-ks_{min}}\Bigr)\frac{k_i k_j}{d_{ij}^{2}}
+```
+
+**Meaning.** A high value indicates a well-connected node in a deeper
+shell than the well-connected nodes near it. The radius is not rounded,
+so on a network whose average path length is below 2 every score is 0;
+the measure suits large sparse networks.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_ksgc(student_interactions)
+```
+
+### Classified neighbors centrality
+
+Count a node’s neighbours in four classes by where they stand in the
+k-shell decomposition, a higher shell, the same shell removed at the
+same step or later, the same shell removed earlier, or a lower shell,
+and weight the four counts.
+
+``` math
+k_{CN}(i)=\alpha\,e_u+\beta\,e_{eu}+\gamma\,e_{el}+\mu\,e_l
+```
+
+**Meaning.** A high value indicates a node with many neighbours that lie
+as deep in the network as it does, or deeper. With equal weights it is
+the degree. The default weights are (0.4, 0.35, 0.25, 0.1).
+
+**Arguments.** `cn_weights`, `normalized`
+
+``` r
+
+centrality_classified_neighbors(student_interactions)
+```
+
+### Hybrid degree centrality
+
+Blend the degree with the modified local centrality, in a proportion set
+by the spreading probability of the process the ranking is meant for.
+
+``` math
+HC(v)=(\beta-p)\,\alpha\,k_v+p\,MLC(v)
+```
+
+**Meaning.** A high value indicates a node with many ties when the
+spreading probability `hc_p` is low, and a node with wide two-step
+surroundings when it is high. `hc_p` has no default and must be given;
+without it the measure returns `NA` with a warning.
+
+**Arguments.** `hc_p`, `hc_alpha`, `hc_beta`, `normalized`
+
+``` r
+
+centrality_hybrid_degree(student_interactions, hc_p = 0.05)
+```
+
+### Effective gravity model (EGM)
+
+A gravity model in which the mass of a node is its degree times the
+entropy of the degrees around it, and each node has its own radius, set
+by its eccentricity and by the degree of the nodes farthest from it.
+
+``` math
+EGM(i)=\sum_{j\ne i:\,d_{ij}\le R_i}\frac{V_iV_j}{d_{ij}^{2}},\qquad V_i=I_ik_i,\qquad R_i=\frac{ecc_i}{1+\sqrt{\bar{k}_{far}/k_i}}
+```
+
+**Meaning.** A high value indicates a well-connected node with
+well-connected nodes inside its radius. A node whose radius is below 1
+scores 0. It needs a connected network; otherwise every node returns
+`NA` with a warning.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_egm(student_interactions)
+```
+
+### Entropy-based social influence
+
+Count two nodes as friends when each has interacted with the other. The
+direct influence of a node mixes the logarithm of its number of friends
+with the entropy of how its outgoing interactions are spread over them;
+its indirect influence is passed on to the friends of its friends.
+
+``` math
+I_i=\omega\,DI_i+(1-\omega)\,II_i,\qquad DI_i=\alpha\log_{10}n_i+(1-\alpha)\,H_i
+```
+
+**Meaning.** A high value indicates a node with many mutual ties, evenly
+used, whose friends are themselves influential. It uses direction and
+weights; on a directed network without mutual ties every score is 0. The
+measure is that of Peng et al. (2017). It is not a Centrality Zoo label:
+the Zoo’s improved entropy-based centrality is the measure of Ni et
+al. (2020), `improved_entropy`.
+
+**Arguments.** `ei_alpha`, `ei_omega`, `weighted`, `normalized`
+
+``` r
+
+centrality_entropy_influence(student_interactions)
+```
+
+### Weight degree centrality (Wdc)
+
+Count the two-step walks out of a node that do not come straight back,
+and multiply by its degree raised to the absolute degree assortativity
+of the network.
+
+``` math
+Wdc(i)=\Bigl(\sum_{j\in N(i)}k_j-k_i\Bigr)k_i^{\alpha},\qquad \alpha=|r|
+```
+
+**Meaning.** A high value indicates a node whose neighbours have many
+other ties. With `wdc_alpha = 0` it is the common-neighbour score `con`;
+on a regular network the assortativity is undefined and the exponent is
+0.
+
+**Arguments.** `wdc_alpha`, `normalized`
+
+``` r
+
+centrality_wdc(student_interactions)
+```
+
+### Extended weight degree centrality (EWdc)
+
+Apply the weight degree construction once more, to the weight degree
+centrality of the neighbours.
+
+``` math
+EWdc(i)=\Bigl(\sum_{j\in N(i)}Wdc(j)-Wdc(i)\Bigr)Wdc(i)^{\alpha}
+```
+
+**Meaning.** A high value indicates a node whose neighbours score high
+on weight degree centrality. The score can be negative, for instance at
+the leaves of a star.
+
+**Arguments.** `wdc_alpha`, `normalized`
+
+``` r
+
+centrality_ewdc(student_interactions)
+```
+
+### Mapping entropy (ME)
+
+Take the degree centrality of a node, the degree divided by one less
+than the number of nodes, and multiply it by minus the sum of the
+logarithms of its neighbours’ degree centralities.
+
+``` math
+ME_i=-DC_i\sum_{j\in N(i)}\log DC_j,\qquad DC_i=\frac{k_i}{N-1}
+```
+
+**Meaning.** A high value indicates a well-connected node whose
+neighbours have few ties relative to the network. The source does not
+define its degree centrality; the usual normalised degree is used, and
+the raw degree of the Centrality Zoo reverses the ranking.
+`local_entropy` is a different equation of the same source.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mapping_entropy(student_interactions)
+```
+
+### Improved entropy-based centrality
+
+Mix the entropy of how a node’s tie weights are spread over its
+neighbours with the entropy of their degrees raised to a power, and add
+an indirect part passed on to the nodes two steps away.
+
+``` math
+I_i=\tfrac12 DI_i+\tfrac12 II_i,\qquad DI_i=\tfrac12 H(p_{i\cdot})+\tfrac12 H(T_{i\cdot}),\qquad T_{ij}=\frac{k_j^{\beta}}{\sum_{l\in N(i)}k_l^{\beta}}
+```
+
+**Meaning.** A high value indicates a node with evenly used ties to
+neighbours of varied degree, whose own neighbours are influential. It
+uses weights and is `NA` with a warning on a directed network. This is
+the measure of Ni et al. (2020); Peng et al.’s measure is
+`entropy_influence`.
+
+**Arguments.** `ie_beta`, `weighted`, `normalized`
+
+``` r
+
+centrality_improved_entropy(student_interactions)
+```
+
+### Weight neighborhood centrality
+
+Add to the degree (or coreness) of a node those of its neighbours, each
+weighted by the product of the two degrees relative to the average edge.
+
+``` math
+C_i=\phi_i+\sum_{j\in N(i)}\frac{w_{ij}}{\langle w\rangle}\phi_j,\qquad w_{ij}=(k_ik_j)^{\alpha}
+```
+
+**Meaning.** A high value indicates a node of high degree (or coreness)
+tied to other such nodes by important edges. The average edge importance
+is taken over the whole network.
+
+**Arguments.** `wnc_benchmark`, `wnc_alpha`, `normalized`
+
+``` r
+
+centrality_weight_neighborhood(student_interactions)
 ```
 
 ### Density centrality
@@ -1262,6 +1533,132 @@ every node.
 ``` r
 
 centrality_improved_closeness(student_interactions)
+```
+
+### Spreading probability (SP)
+
+Count the shortest paths from a node to every node within a few steps,
+and divide each count by the mean degree of the network once per step.
+
+``` math
+SP(i)=\sum_{j:\,1\le d_{ij}\le r}\sigma_{ij}\langle k\rangle^{-d_{ij}}
+```
+
+**Meaning.** A high value indicates a node from which an infection,
+crossing each tie with probability one over the mean degree, reaches
+many nodes by many shortest routes. With `sp_radius = 1` it is the
+degree divided by the mean degree.
+
+**Arguments.** `sp_radius`, `normalized`
+
+``` r
+
+centrality_spreading_probability(student_interactions)
+```
+
+### Node importance contribution correlation matrix (NICCM)
+
+Let each node hand its efficiency to the nodes one and two steps away,
+shared in proportion to the efficiency each of them loses when the node
+is deleted. A node’s score is its own efficiency times what it receives.
+
+``` math
+H_j=I_j\sum_{i:\,1\le d_{ij}\le n_l}\frac{\delta_{ij}I_i}{d_{ij}},\qquad I_i=\frac{1}{n}\sum_{p\ne i}\frac{1}{d_{ip}}
+```
+
+**Meaning.** A high value indicates an efficient node on which efficient
+nodes nearby depend. Costly: every node is deleted in turn and all
+distances are recomputed, so it is computed only when named.
+
+**Arguments.** `niccm_layers`, `normalized`
+
+``` r
+
+centrality_niccm(student_interactions)
+```
+
+### Correlation centrality
+
+Add up the efficiency of the other nodes, each multiplied by the number
+of shortest paths to it and divided by a power of the distance.
+
+``` math
+CoC(i)=\frac{1}{n}\sum_{j\ne i}EC(j)\frac{\sigma_{ij}}{d_{ij}^{\alpha}},\qquad EC(j)=\frac{1}{n}\sum_{k\ne j}\frac{1}{d_{jk}}
+```
+
+**Meaning.** A high value indicates a node close, by several shortest
+routes, to nodes that are themselves close to everyone. With the default
+`coc_alpha = 3` the direct neighbours carry most of the score.
+
+**Arguments.** `coc_alpha`, `normalized`
+
+``` r
+
+centrality_correlation_centrality(student_interactions)
+```
+
+### Laplacian gravity centrality (LGC)
+
+A gravity model: for every node within half the average path length,
+multiply the two nodes’ Laplacian centralities and divide by the squared
+distance.
+
+``` math
+LGC(i)=\sum_{j\ne i:\,d_{ij}\le\langle d\rangle/2}\frac{LC(i)\,LC(j)}{d_{ij}^{2}},\qquad LC(i)=k_i^2+k_i+2\sum_{j\in N(i)}k_j
+```
+
+**Meaning.** A high value indicates a node whose removal costs the
+network much Laplacian energy, near other such nodes. On a network whose
+average path length is below 2 every score is 0.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_lgc(student_interactions)
+```
+
+### Weighted gravity model (WGravity)
+
+Multiply the degree gravity model of a node, over the nodes within half
+the average path length, by the node’s entry of the unit-length leading
+eigenvector.
+
+``` math
+C_{WG}(i)=\sum_{j\ne i:\,d_{ij}\le\langle d\rangle/2}\frac{e_i\,k_i\,k_j}{d_{ij}^{2}}
+```
+
+**Meaning.** A high value indicates a well-connected node near other
+well-connected nodes, in the part of the network the leading eigenvector
+picks out. On a network whose average path length is below 2 every score
+is 0.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_wgravity(student_interactions)
+```
+
+### Average shortest path centrality (AC)
+
+Remove the ties of a node, keep the node, and measure how much the
+average distance of the network grows, counting a pair that is cut off
+at the diameter of the original network.
+
+``` math
+AC(k)=\frac{|ASP(G'_k)-ASP(G)|}{ASP(G)},\qquad ASP(G)=\frac{1}{N(N-1)}\sum_{i\ne j}d_{ij}
+```
+
+**Meaning.** A high value indicates a node whose loss lengthens many
+routes or cuts many pairs apart. Without cut vertices it ranks nodes in
+exactly the opposite order to closeness vitality.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_asp_centrality(student_interactions)
 ```
 
 ### Extended Gravity Centrality
@@ -2154,6 +2551,48 @@ counted as the last intermediary before the destination;
 centrality_proximal_betweenness(student_interactions)
 ```
 
+### RCFB (resized current-flow betweenness)
+
+Inject a unit of current at each node in turn, drain it through links of
+small conductance from every node to a virtual target, and credit the
+current of each edge to its end of higher potential.
+
+``` math
+b_i=\frac{1}{n}\sum_s\sum_{j:\,u^{(s)}_i>u^{(s)}_j}q_{ij}\bigl(u^{(s)}_i-u^{(s)}_j\bigr),\qquad u^{(s)}=(\varepsilon I+L)^{-1}e_s
+```
+
+**Meaning.** A high value indicates a node through which current from
+many sources flows. Weights are conductances. The default takes the
+limit of a vanishing conductance to the target; the network may be
+disconnected. `NA` with a warning on a directed network.
+
+**Arguments.** `rcfb_epsilon`, `weighted`, `normalized`
+
+``` r
+
+centrality_rcfb(to_undirected(student_interactions))
+```
+
+### Mapping entropy betweenness (MEB)
+
+Weigh minus the sum of the logarithms of the neighbours’ normalised
+betweenness by the node’s own normalised betweenness.
+
+``` math
+MEB_i=-BC_i\sum_{j\in N(i),\,BC_j>0}\log BC_j
+```
+
+**Meaning.** A high value indicates a node of high betweenness next to
+nodes of moderate betweenness. Neighbours of betweenness 0 are left out
+of the sum.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mapping_entropy_betweenness(student_interactions)
+```
+
 ### Betweenness Centrality
 
 Betweenness centrality measures how often a node lies on shortest paths
@@ -2727,6 +3166,227 @@ in-degree is favoured; at zero the measure is ordinary LeaderRank.
 ``` r
 
 centrality_weighted_leaderrank(student_interactions)
+```
+
+### TOPSIS centrality
+
+Rate every node on degree, closeness and a third measure, betweenness or
+eigenvector centrality, and score it by how near it comes to the best
+value of each and how far it stays from the worst.
+
+``` math
+C_i=\frac{S_i^{-}}{S_i^{-}+S_i^{+}},\qquad S_i^{\pm}=\Bigl\{\sum_j\bigl(v_j^{\pm}-v_{ij}\bigr)^2\Bigr\}^{1/2},\qquad v_{ij}=w_j\frac{x_{ij}}{\sqrt{\sum_i x_{ij}^2}}
+```
+
+**Meaning.** A high value indicates a node close to the best observed
+value on all three measures at once; a node best on all three scores 1
+and a node worst on all three scores 0. The weights are equal by
+default. It needs a connected network whose nodes are not all alike;
+otherwise every node returns `NA` with a warning.
+
+**Arguments.** `topsis_attribute`, `topsis_weights`, `normalized`
+
+``` r
+
+centrality_topsis(student_interactions)
+```
+
+### All-around score
+
+Divide the degree, the betweenness and the k-shell index each by its
+largest value, and take the length of the three together.
+
+``` math
+d(i)=\sqrt{\tilde{k}(i)^2+\tilde{C}_B(i)^2+\tilde{k}_s(i)^2}
+```
+
+**Meaning.** A high value indicates a node that is high on degree,
+betweenness and k-shell index together. The score lies between 0 and the
+square root of 3.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_all_around(student_interactions)
+```
+
+### Multi-evidence centrality (MeC)
+
+Turn four measures of a node, degree, betweenness, efficiency and
+correlation centrality, into degrees of belief that the node is
+important or not, and combine the four with Dempster’s rule.
+
+``` math
+MeC(i)=m_i(h)-m_i(l),\qquad m_X(h)=\frac{X_i-X_{min}}{X_{max}-X_{min}+\omega},\qquad m_X(l)=\frac{X_{max}-X_i}{X_{max}-X_{min}+\omega}
+```
+
+**Meaning.** A positive value indicates a node the four measures
+together rate as important, a negative value one they rate as
+unimportant. The score lies between -1 and 1.
+
+**Arguments.** `evidence_omega`, `coc_alpha`, `normalized`
+
+``` r
+
+centrality_multi_evidence(student_interactions)
+```
+
+### Analytic Hierarchy Process (AHP) centrality
+
+Take the share each node holds of the degree, the betweenness and the
+closeness of the network, discount each by the share of nodes where that
+measure is not zero, and add them with weights.
+
+``` math
+AHP(i)=\sum_{j=1}^{3}w_j\frac{N^+_j}{N}\frac{x_{ij}}{\sum_l x_{lj}}
+```
+
+**Meaning.** A high value indicates a node that holds a large share of
+the ties, the shortest paths and the closeness of the network. The
+source’s weights come from a simulation whose printed values cannot be
+regenerated; they are one third each by default. `NA` with a warning on
+a disconnected network.
+
+**Arguments.** `ahp_weights`, `normalized`
+
+``` r
+
+centrality_ahp(student_interactions)
+```
+
+### Semi-local iterative algorithm (semi-IA)
+
+Repeat an update in which each node collects the normalised scores of
+the nodes within a few steps, weighted by the number of shortest paths
+to them and divided by the distance, until it settles.
+
+``` math
+X_i(t+1)=\sum_{j\ne i:\,d_{ij}\le r}\frac{n_{ij}^{\gamma}}{d_{ij}}\frac{X_j(t)}{\|X(t)\|}
+```
+
+**Meaning.** A high value indicates a node close, by many short paths,
+to other high-scoring nodes. The source prints the update with the
+node’s own score in the sum, which collapses onto one node; the
+neighbour’s score is used. `NA` with a warning on a disconnected
+network.
+
+**Arguments.** `semi_ia_radius`, `semi_ia_gamma`, `semi_ia_max_iter`,
+`normalized`
+
+``` r
+
+centrality_semi_ia(student_interactions)
+```
+
+### Synthesize centrality (SC)
+
+Add the normalised degree and betweenness of a node and divide by its
+normalised sum of distances, with 1000 for a node it cannot reach.
+
+``` math
+SC(v)=\frac{d_d(v)+d_b(v)}{d_c(v)},\qquad d_d=\frac{k_v}{n-1},\qquad d_b=\frac{2B(v)}{(n-1)^2},\qquad d_c=\frac{\sum_i l(i,v)}{(n-1)^2}
+```
+
+**Meaning.** A high value indicates a well-connected broker close to the
+rest of the network. The Centrality Zoo’s squares and closeness
+denominator are not in the source.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_synthesize(student_interactions)
+```
+
+### Inward accessibility
+
+Start a self-avoiding random walk at every other node, take the
+probabilities that each is at the node after a given number of steps,
+and turn their entropy into an effective number of origins.
+
+``` math
+IA_h(i)=\frac{1}{N-1}\exp\Bigl(-\sum_{j\ne i}q_{ji}\log q_{ji}\Bigr),\qquad q_{ji}=\frac{P_h(j\to i)}{N-1}
+```
+
+**Meaning.** A high value indicates a node reached evenly from many
+other nodes in the given number of steps. `ia_steps` has no default;
+walks are enumerated exactly, so the cost grows exponentially with it. A
+node no walk reaches scores 1/(N - 1).
+
+**Arguments.** `ia_steps`, `ia_stuck`, `enumeration_limit`, `normalized`
+
+``` r
+
+centrality_inward_accessibility(student_interactions, ia_steps = 2)
+```
+
+### PhysarumSpreader
+
+Let a resource flow over the network through a ground node linked to
+every node, with the conductivity of each arc adapting to its flow as in
+the Physarum model, and take the resource a node holds after a given
+number of updates.
+
+``` math
+S_i=I_i(t)+\frac{I_g(t)}{N},\qquad I_i(t+1)=\sum_j Q_{ji}(t)I_j(t),\qquad Q_{ij}(t)=\frac{w_{ij}D_{ij}(t)}{\sum_l w_{il}D_{il}(t)},\qquad D_{ij}(t+1)=\frac{Q_{ij}(t)+D_{ij}(t)}{2}
+```
+
+**Meaning.** A high value indicates a node that gathers the flow. It
+uses direction and weights. `physarum_steps` has no default, because the
+source gives no stopping rule and every score tends to 1 as the updates
+go on; the source’s example prints the scores after 52 updates.
+
+**Arguments.** `physarum_steps`, `weighted`, `normalized`
+
+``` r
+
+centrality_physarum_spreader(student_interactions, physarum_steps = 52)
+```
+
+### ArticleRank
+
+A PageRank-style score for citation networks in which a citing node
+passes on its score in a share that falls with its number of references.
+
+``` math
+AR(A)=1-d+d\,\overline{NR}\sum_{P\to A}\frac{AR(P)}{\overline{NR}+NR(P)}
+```
+
+**Meaning.** A high value indicates a node cited by highly ranked nodes
+with few references. It uses direction. The number of references of each
+node is `ar_references`, the out-degree by default. On a network with
+cycles the equation can diverge (here at the default damping); the
+measure is then `NA` with a warning, so the example uses
+`damping = 0.25`.
+
+**Arguments.** `ar_references`, `damping`, `normalized`
+
+``` r
+
+centrality_articlerank(student_interactions, damping = 0.25)
+```
+
+### Entropy-based gravity model
+
+Combine node H-index, closeness, betweenness and PageRank into one mass
+per node with weights from their entropies over the nodes, and add the
+gravity between the node and the nodes within a few steps.
+
+``` math
+G(i)=\sum_{j:\,1\le d_{ij}\le r}\frac{C_iC_j}{d_{ij}^2},\qquad C_i=\sum_k w_kb_{ik},\qquad w_k=\frac{1-S_k}{4-\sum_l S_l}
+```
+
+**Meaning.** A high value indicates a node with a large combined mass
+close to other nodes of large mass. The source’s printed equations
+contradict its text; the text is followed. `NA` with a warning on a
+disconnected network or when an attribute is the same at every node.
+
+**Arguments.** `entropy_gravity_radius`, `damping`, `normalized`
+
+``` r
+
+centrality_entropy_gravity(student_interactions)
 ```
 
 ### Node Resistance Curvature
@@ -4021,6 +4681,596 @@ node with one contact scores 1 and an isolate 0.
 ``` r
 
 centrality_coleman_theil(student_interactions)
+```
+
+### RMD-weighted degree (WD)
+
+Peel the network round by round, each round removing every node of
+lowest current degree. Add up, over a node’s neighbours, the round in
+which each neighbour is removed, as a share of the number of rounds.
+
+``` math
+WD(v)=\sum_{u\in N(v)}\frac{Iter(u)}{MaxIter}
+```
+
+**Meaning.** A high value indicates a node whose neighbours are removed
+late, that is, neighbours deep inside the network. The removal round is
+the index `iksd` returns.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_wd(student_interactions)
+```
+
+### Extended RMD-weighted degree (EWD)
+
+Add up the RMD-weighted degree of a node’s neighbours, which carries the
+score `wd` one step further out.
+
+``` math
+EWD(v)=\sum_{u\in N(v)}WD(u)
+```
+
+**Meaning.** A high value indicates a node whose neighbours themselves
+have deep neighbours. The node is counted once for each of its
+neighbours, as the worked value in the source requires.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_ewd(student_interactions)
+```
+
+### Modified local centrality (MLC)
+
+Take the semi-local centrality of a node and subtract twice the sum of
+its neighbours’ degrees, the part of the score that the node and its
+neighbours contribute themselves.
+
+``` math
+MLC(v)=\sum_{u\in N(v)}\sum_{w\in N(u)}N_2(w)-2\sum_{u\in N(v)}k_u
+```
+
+**Meaning.** A high value indicates a node whose surroundings reach many
+nodes beyond its own neighbourhood. It ranks nodes almost as `semilocal`
+does, and it can be negative on a small component.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mlc(student_interactions)
+```
+
+### ProfitLeader
+
+For each neighbour, multiply the degree mass a node holds apart from
+that neighbour by the Jaccard similarity of their closed neighbourhoods,
+and add the products up.
+
+``` math
+PC(u)=\sum_{v\in N(u)}\Bigl(k_u+\sum_{s\in N(u)\setminus N[v]}k_s\Bigr)\frac{|N[u]\cap N[v]|}{|N[u]\cup N[v]|}
+```
+
+**Meaning.** A high value indicates a node with many well-connected
+neighbours of its own and much overlap with the neighbours it shares
+them with. The article is followed where it differs from the code its
+authors released.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_profitleader(student_interactions)
+```
+
+### Hierarchical k-shell (HKS)
+
+Peel the network round by round and record for each node the round it
+leaves in and how close it lies to the nodes that leave last. Multiply
+the sum of the two by the degree, then add the result up over two steps.
+
+``` math
+HKS(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}k_l\,(b_l+f_l),\qquad f_l=\max_u\,(b_u-d_{lu})
+```
+
+**Meaning.** A high value indicates a node whose two-step surroundings
+are well connected and lie near the innermost part of the network.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_hks(student_interactions)
+```
+
+### Diversity-strength centrality (DSC)
+
+Peel the network round by round, each round removing every node of
+lowest current degree. For a node, multiply three things: the mean
+removal round of its neighbours, the entropy of those rounds, and how
+much the neighbours’ own neighbourhoods differ in the rounds they hold.
+
+``` math
+DSC(v)=\frac{S(v)}{k_v}\,H_1(v)\,JSD(v),\qquad S(v)=\sum_{u\in N(v)}IKs(u)
+```
+
+**Meaning.** A high value indicates a node whose neighbours lie deep in
+the network, at varied depths, and reach different parts of it. A node
+with one neighbour scores 0, and so does a node whose neighbours all
+have the same mix of neighbours.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_dsc(student_interactions)
+```
+
+### Diversity-strength ranking (DSR)
+
+Add up the diversity-strength centrality of a node’s neighbours.
+
+``` math
+DSR(v)=\sum_{u\in N(v)}DSC(u)
+```
+
+**Meaning.** A high value indicates a node surrounded by neighbours that
+score high on `dsc`.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_dsr(student_interactions)
+```
+
+### Extended diversity-strength ranking (EDSR)
+
+Add up the diversity-strength ranking of a node’s neighbours, which
+reaches the nodes two steps away.
+
+``` math
+EDSR(v)=\sum_{u\in N(v)}DSR(u)
+```
+
+**Meaning.** A high value indicates a node whose two-step surroundings
+score high on `dsc`. The node itself is counted once for each of its
+neighbours, as the source prints the sum.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_edsr(student_interactions)
+```
+
+### Local structural centrality (LSC)
+
+For each neighbour of a node, count the nodes within two steps of the
+neighbour and add up their clustering coefficients; mix the two by
+`lsc_alpha` and sum over the neighbours.
+
+``` math
+LSC(v)=\sum_{u\in N(v)}\Bigl(\alpha\,|N_2(u)|+(1-\alpha)\sum_{w\in N_2(u)}c_w\Bigr)
+```
+
+**Meaning.** A high value indicates a node whose neighbours have large
+and tightly knit surroundings. The default `lsc_alpha = 0.2` is the
+value the source fixes for its experiments; its worked example uses 0.7.
+
+**Arguments.** `lsc_alpha`, `normalized`
+
+``` r
+
+centrality_lsc(student_interactions)
+```
+
+### Global and local structure (GLS)
+
+For each other node, raise 1.1 to the number of neighbours it shares
+with the node, add these up over the whole network, and multiply by the
+squared degree over n - 1.
+
+``` math
+GLS(i)=\Bigl(k_i\sum_{j\ne i}1.1^{c_{ij}}\Bigr)\frac{k_i}{n-1}
+```
+
+**Meaning.** A high value indicates a node with many ties that shares
+neighbours with many other nodes. The formula is the one the numbers of
+the source follow; its printed equations do not reproduce them.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_gls(student_interactions)
+```
+
+### K-shell iteration factor (KS-IF)
+
+Refine the k-shell index of a node by the iteration in which it is
+removed within its shell, multiply by the degree, and add the result for
+the node and its neighbours.
+
+``` math
+IC(i)=\delta_ik_i+\sum_{j\in N(i)}\delta_jk_j,\qquad\delta_i=ks_i\Bigl(1+\frac{n_i}{m_i}\Bigr)
+```
+
+**Meaning.** A high value indicates a well-connected node that is
+removed late within a deep shell and has such neighbours. No published
+value checks the implementation, because the illustration in the source
+is inconsistent.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_ks_if(student_interactions)
+```
+
+### NL centrality
+
+For each neighbour of a node, add the number of nodes within two steps
+of the neighbour and the importance of the tie to it.
+
+``` math
+NL(v)=\sum_{u\in N(v)}\Bigl(\phi(u)+I_{uv}\frac{k_v-1}{k_v+k_u-2}\Bigr),\qquad I_{uv}=\frac{(k_u-t-1)(k_v-t-1)}{t/2+1}
+```
+
+**Meaning.** A high value indicates a node whose neighbours have large
+two-step surroundings and whose ties bridge otherwise separate nodes.
+The first term carries most of the score; the second is the tie term of
+`dil`.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_nl(student_interactions)
+```
+
+### K-shell hybrid method (ksh)
+
+For every node within a few steps, add the square root of the two nodes’
+summed k-shell indices and a share of the other node’s degree, and
+divide by the squared distance.
+
+``` math
+ksh(m)=\sum_{n:\,1\le d_{mn}\le r}\frac{\sqrt{ks_m+ks_n}+\mu\,k_n}{d_{mn}^{2}}
+```
+
+**Meaning.** A high value indicates a node close to many deep or
+well-connected nodes. `ksh_mu = 0.4` is the value of the source’s worked
+example; its authors tune it per network.
+
+**Arguments.** `ksh_mu`, `ksh_radius`, `normalized`
+
+``` r
+
+centrality_ksh(student_interactions)
+```
+
+### Extended k-shell hybrid method (ESKH)
+
+Add up the k-shell hybrid score of a node’s neighbours.
+
+``` math
+ESKH(m)=\sum_{j\in N(m)}ksh(j)
+```
+
+**Meaning.** A high value indicates a node whose neighbours themselves
+sit near many deep or well-connected nodes. The node’s own score is not
+added.
+
+**Arguments.** `ksh_mu`, `ksh_radius`, `normalized`
+
+``` r
+
+centrality_eskh(student_interactions)
+```
+
+### Improved k-shell hybrid method (IKH)
+
+As the k-shell hybrid method, but with the square root of the product of
+the k-shell indices, and a degree weight that falls with the distance
+and sums to one over the levels.
+
+``` math
+IKH(i)=\sum_{j:\,1\le d_{ij}\le r}\frac{\sqrt{ks_i\,ks_j}+\mu(d_{ij})\,k_j}{d_{ij}^{2}},\qquad \mu(l)=\frac{2(r-l+1)}{r(r+1)}
+```
+
+**Meaning.** A high value indicates a node close to many deep nodes and
+to well-connected nodes nearby. There is no free weight; `ksh_radius`
+must be finite.
+
+**Arguments.** `ksh_radius`, `normalized`
+
+``` r
+
+centrality_ikh(student_interactions)
+```
+
+### Extended improved k-shell hybrid method (EIKH)
+
+Add up the improved k-shell hybrid score of a node’s neighbours.
+
+``` math
+EIKH(i)=\sum_{j\in N(i)}IKH(j)
+```
+
+**Meaning.** A high value indicates a node whose neighbours themselves
+sit near many deep nodes. The node’s own score is not added.
+
+**Arguments.** `ksh_radius`, `normalized`
+
+``` r
+
+centrality_eikh(student_interactions)
+```
+
+### Mixed core, degree and entropy (MCDE)
+
+Add the k-shell index of a node, its degree, and the entropy of the
+shells its neighbours lie in.
+
+``` math
+MCDE(v)=ks(v)+k_v-\sum_i p_i(v)\log_2 p_i(v)
+```
+
+**Meaning.** A high value indicates a node deep in the network with many
+neighbours spread over several shells. The degree is the largest term,
+so the ranking is close to that of degree.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mcde(student_interactions)
+```
+
+### Mixed core, degree and weighted entropy (MCDWE)
+
+As MCDE, with each entropy term divided by the number of shells between
+it and the innermost shell, plus one.
+
+``` math
+MCDWE(v)=ks(v)+k_v-\sum_i \frac{p_i(v)\log_2 p_i(v)}{K-i+1}
+```
+
+**Meaning.** A high value indicates a node deep in the network with many
+neighbours spread over the inner shells.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mcdwe(student_interactions)
+```
+
+### Mixed core, semi-local degree and entropy (MCSDE)
+
+Rescale the k-shell index, the semi-local centrality and the shell
+entropy of the neighbours each to the range 0 to 1, and add them.
+
+``` math
+MCSDE(v)=\widetilde{ks}(v)+\widetilde{SL}(v)+\widetilde{H}(v)
+```
+
+**Meaning.** A high value indicates a node deep in the network with a
+large two-step neighbourhood and neighbours in several shells. The score
+lies between 0 and 3.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mcsde(student_interactions)
+```
+
+### Mixed core, semi-local degree and weighted entropy (MCSDWE)
+
+As MCSDE, with the weighted entropy of MCDWE.
+
+``` math
+MCSDWE(v)=\widetilde{ks}(v)+\widetilde{SL}(v)+\widetilde{WH}(v)
+```
+
+**Meaning.** A high value indicates a node deep in the network with a
+large two-step neighbourhood and neighbours in the inner shells. The
+score lies between 0 and 3.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_mcsdwe(student_interactions)
+```
+
+### Degree and clustering coefficient (DCC)
+
+Add the degrees of a node and its neighbours, and the clustering
+coefficients of the nodes within two steps discounted by the node’s own,
+with weights from the entropy weight method.
+
+``` math
+DCC(i)=\alpha I_D(i)+\beta I_C(i),\qquad I_D(i)=k_i+\sum_{j\in N(i)}k_j,\qquad I_C(i)=e^{-C_i}\sum_{j\in N_2(i)}C_j
+```
+
+**Meaning.** A high value indicates a node in a well-connected and
+clustered neighbourhood. On a network without a triangle the weights are
+undefined and the score is `NA` with a warning. The entropy weights
+printed in the source’s worked example do not follow from its network.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_dcc(student_interactions)
+```
+
+### Edge clustering coefficient centrality (NC)
+
+For each tie of a node, divide the number of triangles on the tie by the
+largest number it could be in, and add these up.
+
+``` math
+NC(u)=\sum_{v\in N(u)}\frac{z_{uv}}{\min(k_u-1,k_v-1)}
+```
+
+**Meaning.** A high value indicates a node whose ties sit in many
+triangles. A tie to a node of degree one adds nothing.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_edge_clustering(student_interactions)
+```
+
+### Influence capability (IC)
+
+Add a position term from the k-shell decomposition and the two-step sum
+of degrees, each divided by its total and weighted by their entropies.
+
+``` math
+IC(i)=w_1\frac{ICP(i)}{\sum_l ICP(l)}+w_2\frac{ICN(i)}{\sum_l ICN(l)},\qquad ICN(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}k_l
+```
+
+**Meaning.** A high value indicates a node with many ties that is
+removed late in the k-shell decomposition, close to well-connected
+nodes. The entropy weights the source prints do not follow from its
+equations; its rankings do.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_influence_capability(student_interactions)
+```
+
+### Extended H-index centrality (EHC)
+
+For each neighbour, count its neighbours of degree at least k for every
+k, weight the counts by a slowly falling factor, and add over the
+neighbours.
+
+``` math
+EHC(i)=\sum_{j\in N(i)}\sum_{k=1}^{h}p^{1+kp/r}c_k(j)
+```
+
+**Meaning.** A high value indicates a node whose neighbours have many
+well-connected neighbours. With `ehc_p = 1` it is the sum of degrees
+over walks of two steps.
+
+**Arguments.** `ehc_p`, `ehc_r`, `normalized`
+
+``` r
+
+centrality_ehc(student_interactions)
+```
+
+### Entropy-Based Ranking Measure (ERM)
+
+Give each node the entropy of its neighbours’ degrees and of their
+degree sums, and add these over the walks of two steps from the node.
+
+``` math
+ERM(i)=\sum_{j\in N(i)}\sum_{l\in N(j)}EC(l),\qquad EC(i)=E_1(i)+\lambda_iE_2(i)
+```
+
+**Meaning.** A high value indicates a node two steps from nodes whose
+neighbours have varied, high degrees. The logarithm is natural.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_erm(student_interactions)
+```
+
+### Shell clustering coefficient
+
+For each neighbour, add how little its spread over the hierarchies of
+the lowest-degree peeling agrees with the node’s own, and a term for its
+degree.
+
+``` math
+SCC_i=\sum_{j\in N(i)}\Bigl[(2-C_{ij})+\Bigl(2\frac{k_j}{\max_l k_l}+1\Bigr)\Bigr]
+```
+
+**Meaning.** A high value indicates a node with many high-degree
+neighbours placed differently in the network’s peeling order. A
+correlation that is 0/0 counts as 0.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_shell_clustering(student_interactions)
+```
+
+### Extended Cluster Coefficient Ranking Measure (ECRM)
+
+Add the shell clustering coefficient over the walks of two steps from
+the node.
+
+``` math
+ECRM_i=\sum_{j\in N(i)}\sum_{l\in N(j)}SCC_l
+```
+
+**Meaning.** A high value indicates a node two steps from many nodes of
+high shell clustering coefficient.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_ecrm(student_interactions)
+```
+
+### M-centrality
+
+Mix the coreness of a node with how much its neighbours’ degrees differ
+from its own, by weights from the entropy of the two terms over the
+network.
+
+``` math
+M_i=\mu K_s(i)+(1-\mu)\Delta D_i,\qquad \Delta D_i=k_i\sum_{j\in N(i)}\frac{|k_j-k_i|}{\sum_{l\in N(i)}k_l}
+```
+
+**Meaning.** A high value indicates a deep node, or one whose
+neighbours’ degrees differ much from its own. On a regular network the
+weights are 0/0 and are taken as 1/2.
+
+**Arguments.** `normalized`
+
+``` r
+
+centrality_m_centrality(student_interactions)
+```
+
+### Weighted k-shell degree neighborhood (Wksd)
+
+Weight each edge by the product of a mix of degree and k-shell index at
+its two ends, and add the weights of the node’s edges.
+
+``` math
+Wksd(i)=\sum_{j\in N(i)}(\alpha k_i+\mu k_s(i))(\alpha k_j+\mu k_s(j))
+```
+
+**Meaning.** A high value indicates a deep, well-connected node with
+deep, well-connected neighbours. Both weights are required; the source
+tunes them per network. `wksdn` is a parameter-free variant.
+
+**Arguments.** `wksd_alpha`, `wksd_mu`, `normalized`
+
+``` r
+
+centrality_wksd(student_interactions, wksd_alpha = 0.2, wksd_mu = 0.9)
 ```
 
 ### Maximal Clique Centrality

@@ -106,6 +106,39 @@ centrality(
   gli_radius = 3,
   density_radius = 3,
   pci_mu = 1,
+  sp_radius = 3,
+  niccm_layers = 2,
+  coc_alpha = 3,
+  lsc_alpha = 0.2,
+  cn_weights = c(0.4, 0.35, 0.25, 0.1),
+  hc_p = NULL,
+  hc_alpha = 1000,
+  hc_beta = 0.1,
+  topsis_attribute = "betweenness",
+  topsis_weights = c(1, 1, 1)/3,
+  ei_alpha = 0.4,
+  ei_omega = 0.6,
+  evidence_omega = 1,
+  ksh_mu = 0.4,
+  ksh_radius = 3,
+  wdc_alpha = NULL,
+  ahp_weights = c(1, 1, 1)/3,
+  semi_ia_radius = NULL,
+  semi_ia_gamma = 0.2,
+  semi_ia_max_iter = 10000,
+  ia_steps = NULL,
+  ia_stuck = "vanish",
+  ie_beta = 2,
+  physarum_steps = NULL,
+  ar_references = NULL,
+  entropy_gravity_radius = 3,
+  ehc_p = 0.8,
+  ehc_r = 100,
+  wnc_benchmark = "degree",
+  wnc_alpha = 1,
+  rcfb_epsilon = 0,
+  wksd_alpha = NULL,
+  wksd_mu = NULL,
   cycle_alpha = 0.5,
   transport_beta = 0.1,
   enumeration_limit = 1e+06,
@@ -896,6 +929,201 @@ centrality(
   Largest distance summed over by `"density_centrality"`: a single whole
   number of at least one, or `Inf`; default 3. See
   [`centrality_density_centrality`](https://sonsoles.me/cograph/reference/centrality_density_centrality.md).
+
+- sp_radius:
+
+  Largest distance summed over by `"spreading_probability"`: a single
+  whole number of at least one, or `Inf`; default 3 as in the source.
+  See
+  [`centrality_spreading_probability`](https://sonsoles.me/cograph/reference/centrality_spreading_probability.md).
+
+- niccm_layers:
+
+  Number of layers a node contributes over in `"niccm"`: a single whole
+  number of at least one, or `Inf`; default 2 as in the source. See
+  [`centrality_niccm`](https://sonsoles.me/cograph/reference/centrality_niccm.md).
+
+- coc_alpha:
+
+  Exponent of the distance in `"correlation_centrality"`, a single
+  finite nonnegative number, default 3 as in the source. See
+  [`centrality_correlation_centrality`](https://sonsoles.me/cograph/reference/centrality_correlation_centrality.md).
+
+- lsc_alpha:
+
+  Weight of the neighborhood size against the clustering sum in `"lsc"`,
+  a single number between 0 and 1; default 0.2, the value the source
+  fixes for its experiments. See
+  [`centrality_lsc`](https://sonsoles.me/cograph/reference/centrality_lsc.md).
+
+- cn_weights:
+
+  Weights of the four classes of neighbors in `"classified_neighbors"`:
+  higher shell, same shell removed at the same step or later, same shell
+  removed earlier, lower shell. Four finite nonnegative numbers. See
+  [`centrality_classified_neighbors`](https://sonsoles.me/cograph/reference/centrality_classified_neighbors.md).
+
+- hc_p:
+
+  Spreading probability of `"hybrid_degree"`, a single number between 0
+  and 1. It has no default: without it the measure warns and returns
+  `NA`. See
+  [`centrality_hybrid_degree`](https://sonsoles.me/cograph/reference/centrality_hybrid_degree.md).
+
+- hc_alpha:
+
+  Scale of the degree term in `"hybrid_degree"`, a single nonnegative
+  number; default 1000 as in the source.
+
+- hc_beta:
+
+  Balance of the degree term in `"hybrid_degree"`, a single finite
+  number; default 0.1.
+
+- topsis_attribute:
+
+  Third attribute of `"topsis"`, next to degree and closeness:
+  `"betweenness"` (default) or `"eigenvector"`. See
+  [`centrality_topsis`](https://sonsoles.me/cograph/reference/centrality_topsis.md).
+
+- topsis_weights:
+
+  Weights of degree, closeness and the third attribute in `"topsis"`:
+  three finite nonnegative numbers, default one third each.
+
+- ei_alpha:
+
+  Weight of the friend count in the direct influence of
+  `"entropy_influence"`, a single number between 0 and 1; default 0.4 as
+  in the source. See
+  [`centrality_entropy_influence`](https://sonsoles.me/cograph/reference/centrality_entropy_influence.md).
+
+- ei_omega:
+
+  Weight of the direct influence in `"entropy_influence"`, a single
+  number between 0 and 1; default 0.6 as in the source.
+
+- evidence_omega:
+
+  The constant \\\omega\\ of `"multi_evidence"`, a single number above 0
+  and at most 1; default 1 as in the source. See
+  [`centrality_multi_evidence`](https://sonsoles.me/cograph/reference/centrality_multi_evidence.md).
+
+- ksh_mu:
+
+  Weight of the neighbor's degree in `"ksh"` and `"eskh"`, a single
+  number between 0 and 1; default 0.4, the value of the source's worked
+  example (its authors tune it per network). See
+  [`centrality_ksh`](https://sonsoles.me/cograph/reference/centrality_ksh.md).
+
+- ksh_radius:
+
+  Largest distance summed over by `"ksh"`, `"eskh"`, `"ikh"` and
+  `"eikh"`: a single whole number of at least one, default 3 as in the
+  sources; `Inf` is accepted by `"ksh"` and `"eskh"` only. See
+  [`centrality_ikh`](https://sonsoles.me/cograph/reference/centrality_ikh.md).
+
+- wdc_alpha:
+
+  Exponent of the degree in `"wdc"` and of the score in `"ewdc"`: `NULL`
+  (default) for the absolute degree assortativity of the network, as in
+  the source, or a single finite nonnegative number. See
+  [`centrality_wdc`](https://sonsoles.me/cograph/reference/centrality_wdc.md).
+
+- ahp_weights:
+
+  Weights of degree, betweenness and closeness in `"ahp"`: three finite
+  nonnegative numbers, not all zero, used as given; default one third
+  each. See
+  [`centrality_ahp`](https://sonsoles.me/cograph/reference/centrality_ahp.md).
+
+- semi_ia_radius:
+
+  Largest distance summed over by `"semi_ia"`: `NULL` (default) for 3
+  below 1000 nodes and 5 from there on, as in the source, a whole number
+  of at least one, or `Inf`. See
+  [`centrality_semi_ia`](https://sonsoles.me/cograph/reference/centrality_semi_ia.md).
+
+- semi_ia_gamma:
+
+  Exponent of the number of shortest paths in `"semi_ia"`, a single
+  number between 0 and 1; default 0.2 as in the source.
+
+- semi_ia_max_iter:
+
+  Iteration bound of `"semi_ia"`, a whole number of at least one,
+  default 10000. Reaching it raises a `cograph_no_converge` warning.
+
+- ia_steps:
+
+  Number of steps of the self-avoiding walks of
+  `"inward_accessibility"`, a whole number of at least one. It has no
+  default: without it the measure warns and returns `NA`. See
+  [`centrality_inward_accessibility`](https://sonsoles.me/cograph/reference/centrality_inward_accessibility.md).
+
+- ia_stuck:
+
+  What `"inward_accessibility"` does with a walk that has no unvisited
+  neighbor: `"vanish"` (default) removes it, `"stay"` keeps it at its
+  last node.
+
+- ie_beta:
+
+  Exponent of the neighbor degree in `"improved_entropy"`, a single
+  finite number; default 2 as in the source. See
+  [`centrality_improved_entropy`](https://sonsoles.me/cograph/reference/centrality_improved_entropy.md).
+
+- physarum_steps:
+
+  Number of updates of `"physarum_spreader"`, a whole number of at least
+  one. It has no default, because the source gives no stopping rule:
+  without it the measure warns and returns `NA`. See
+  [`centrality_physarum_spreader`](https://sonsoles.me/cograph/reference/centrality_physarum_spreader.md).
+
+- ar_references:
+
+  Number of references of each node in `"articlerank"`: `NULL` (default)
+  for the out-degree, or one finite nonnegative number per node, in node
+  order or named by node. See
+  [`centrality_articlerank`](https://sonsoles.me/cograph/reference/centrality_articlerank.md).
+
+- entropy_gravity_radius:
+
+  Largest distance summed over by `"entropy_gravity"`, a whole number of
+  at least one or `Inf`; default 3 as in the source. See
+  [`centrality_entropy_gravity`](https://sonsoles.me/cograph/reference/centrality_entropy_gravity.md).
+
+- ehc_p, ehc_r:
+
+  The parameters \\p\\, in \\(0, 1\]\\, and \\r\\, above 0, of `"ehc"`;
+  defaults 0.8 and 100 as in the source. See
+  [`centrality_ehc`](https://sonsoles.me/cograph/reference/centrality_ehc.md).
+
+- wnc_benchmark:
+
+  Benchmark centrality of `"weight_neighborhood"`: `"degree"` (default)
+  or `"coreness"`. See
+  [`centrality_weight_neighborhood`](https://sonsoles.me/cograph/reference/centrality_weight_neighborhood.md).
+
+- wnc_alpha:
+
+  Exponent of the edge importance in `"weight_neighborhood"`, a single
+  finite number; default 1 as in the source.
+
+- rcfb_epsilon:
+
+  Conductance \\\varepsilon\\ of the links to the virtual target in
+  `"rcfb"`: 0 (default) for the limit \\\varepsilon \to 0\\, or a
+  positive number below the bound of the source's equation (14). See
+  [`centrality_rcfb`](https://sonsoles.me/cograph/reference/centrality_rcfb.md).
+
+- wksd_alpha, wksd_mu:
+
+  The weights of the degree and of the k-shell index in `"wksd"`, each a
+  single number in \\\[0, 1\]\\. They have no default, because the
+  source tunes them per network: without both the measure warns and
+  returns `NA`. See
+  [`centrality_wksd`](https://sonsoles.me/cograph/reference/centrality_wksd.md).
 
 - pci_mu:
 
@@ -1910,6 +2138,384 @@ The following centrality measures are available:
   indicator scores 0. `NA` at every node unless the network is connected
   and its nodes are not all alike. See
   [`centrality_topsis_re`](https://sonsoles.me/cograph/reference/centrality_topsis_re.md).
+
+- wd:
+
+  RMD-weighted degree: the sum over a node's neighbors of the round in
+  which each is removed by the remaining-minimum-degree decomposition,
+  divided by the number of rounds. See
+  [`centrality_wd`](https://sonsoles.me/cograph/reference/centrality_wd.md).
+
+- ewd:
+
+  Extended RMD-weighted degree: the sum of `wd` over a node's neighbors.
+  See
+  [`centrality_ewd`](https://sonsoles.me/cograph/reference/centrality_ewd.md).
+
+- mlc:
+
+  Modified local centrality: `semilocal` less twice the sum of the
+  neighbors' degrees. It can be negative. See
+  [`centrality_mlc`](https://sonsoles.me/cograph/reference/centrality_mlc.md).
+
+- spreading_probability:
+
+  Spreading probability centrality: the number of shortest paths to each
+  node within `sp_radius` steps, each divided by the mean degree once
+  per step. See
+  [`centrality_spreading_probability`](https://sonsoles.me/cograph/reference/centrality_spreading_probability.md).
+
+- profitleader:
+
+  ProfitLeader: over a node's neighbors, the degree mass the node holds
+  apart from the neighbor times the Jaccard similarity of the two closed
+  neighborhoods. See
+  [`centrality_profitleader`](https://sonsoles.me/cograph/reference/centrality_profitleader.md).
+
+- hks:
+
+  Hierarchical k-shell centrality: a two-step sum of degree times the
+  sum of two peeling positions. See
+  [`centrality_hks`](https://sonsoles.me/cograph/reference/centrality_hks.md).
+
+- niccm:
+
+  Node importance by the contribution correlation matrix: a node's
+  efficiency times the efficiency its surroundings hand to it, shared by
+  the loss each deletion causes. Costly (all distances are recomputed
+  once per node). See
+  [`centrality_niccm`](https://sonsoles.me/cograph/reference/centrality_niccm.md).
+
+- correlation_centrality:
+
+  Correlation centrality: the efficiency of the other nodes, weighted by
+  the number of shortest paths to each and divided by the distance to
+  the power `coc_alpha`. See
+  [`centrality_correlation_centrality`](https://sonsoles.me/cograph/reference/centrality_correlation_centrality.md).
+
+- dsc:
+
+  Diversity-strength centrality: the mean improved k-shell index of a
+  node's neighbors, times the entropy of those indices, times the
+  Jensen-Shannon divergence of the neighbors' shell distributions. See
+  [`centrality_dsc`](https://sonsoles.me/cograph/reference/centrality_dsc.md).
+
+- dsr:
+
+  Diversity-strength ranking: the sum of `dsc` over the neighbors. See
+  [`centrality_dsr`](https://sonsoles.me/cograph/reference/centrality_dsr.md).
+
+- edsr:
+
+  Extended diversity-strength ranking: the sum of `dsr` over the
+  neighbors. See
+  [`centrality_edsr`](https://sonsoles.me/cograph/reference/centrality_edsr.md).
+
+- ksgc:
+
+  K-shell based gravity centrality: a gravity model with degree masses,
+  a coefficient that grows with the difference in k-shell index, and a
+  radius of half the average path length. All 0 when the average path
+  length is below 2. See
+  [`centrality_ksgc`](https://sonsoles.me/cograph/reference/centrality_ksgc.md).
+
+- lsc:
+
+  Local structural centrality: over the neighbors, the size of each
+  one's two-step neighborhood and the clustering inside it, mixed by
+  `lsc_alpha`. See
+  [`centrality_lsc`](https://sonsoles.me/cograph/reference/centrality_lsc.md).
+
+- classified_neighbors:
+
+  Classified neighbors centrality: a degree in which each neighbor is
+  weighted by its position in the k-shell decomposition relative to the
+  node (`cn_weights`). See
+  [`centrality_classified_neighbors`](https://sonsoles.me/cograph/reference/centrality_classified_neighbors.md).
+
+- hybrid_degree:
+
+  Hybrid degree centrality: degree and modified local centrality blended
+  by the spreading probability `hc_p`, which must be given; `NA` with a
+  warning otherwise. See
+  [`centrality_hybrid_degree`](https://sonsoles.me/cograph/reference/centrality_hybrid_degree.md).
+
+- topsis:
+
+  TOPSIS centrality: closeness to the ideal node on degree, closeness
+  and `topsis_attribute`, with weights `topsis_weights`. `NA` with a
+  warning on a disconnected network. See
+  [`centrality_topsis`](https://sonsoles.me/cograph/reference/centrality_topsis.md).
+
+- all_around:
+
+  All-around score: the Euclidean length of degree, betweenness and
+  k-shell index, each divided by its maximum. See
+  [`centrality_all_around`](https://sonsoles.me/cograph/reference/centrality_all_around.md).
+
+- egm:
+
+  Effective gravity model: a gravity model with entropy-weighted degree
+  masses and a radius of its own for each node. `NA` with a warning on a
+  disconnected network. See
+  [`centrality_egm`](https://sonsoles.me/cograph/reference/centrality_egm.md).
+
+- gls:
+
+  Global and local structure centrality: the squared degree over \\n -
+  1\\, times the sum over all other nodes of 1.1 to the power of the
+  number of common neighbors. See
+  [`centrality_gls`](https://sonsoles.me/cograph/reference/centrality_gls.md).
+
+- ks_if:
+
+  K-shell iteration factor: the k-shell index refined by the iteration
+  of removal within the shell, times the degree, summed over a node and
+  its neighbors. See
+  [`centrality_ks_if`](https://sonsoles.me/cograph/reference/centrality_ks_if.md).
+
+- nl:
+
+  NL centrality: over the neighbors, the size of each one's two-step
+  neighborhood plus the importance of the tie to it. See
+  [`centrality_nl`](https://sonsoles.me/cograph/reference/centrality_nl.md).
+
+- entropy_influence:
+
+  Entropy-based social influence (Peng et al. 2017): direct influence
+  from the number of mutual ties and the entropy of the outgoing
+  weights, plus indirect influence on the nodes two steps away. Uses
+  direction and weights. See
+  [`centrality_entropy_influence`](https://sonsoles.me/cograph/reference/centrality_entropy_influence.md).
+
+- multi_evidence:
+
+  Multi-evidence centrality: degree, betweenness, efficiency and
+  correlation centrality fused by Dempster's rule; between -1 and 1. See
+  [`centrality_multi_evidence`](https://sonsoles.me/cograph/reference/centrality_multi_evidence.md).
+
+- ksh:
+
+  K-shell hybrid method: over the nodes within `ksh_radius` steps, the
+  root of the summed k-shell indices plus `ksh_mu` times the degree,
+  divided by the squared distance. See
+  [`centrality_ksh`](https://sonsoles.me/cograph/reference/centrality_ksh.md).
+
+- eskh:
+
+  Extended k-shell hybrid method: the sum of `ksh` over the neighbors.
+  See
+  [`centrality_eskh`](https://sonsoles.me/cograph/reference/centrality_eskh.md).
+
+- ikh:
+
+  Improved k-shell hybrid method: `ksh` with the root of the product of
+  the k-shell indices and a degree weight that falls with the distance.
+  See
+  [`centrality_ikh`](https://sonsoles.me/cograph/reference/centrality_ikh.md).
+
+- eikh:
+
+  Extended improved k-shell hybrid method: the sum of `ikh` over the
+  neighbors. See
+  [`centrality_eikh`](https://sonsoles.me/cograph/reference/centrality_eikh.md).
+
+- mcde:
+
+  Mixed core, degree and entropy: the k-shell index plus the degree plus
+  the entropy of the neighbors' shells. See
+  [`centrality_mcde`](https://sonsoles.me/cograph/reference/centrality_mcde.md).
+
+- mcdwe:
+
+  Mixed core, degree and weighted entropy: `mcde` with the entropy
+  weighted toward the inner shells. See
+  [`centrality_mcdwe`](https://sonsoles.me/cograph/reference/centrality_mcdwe.md).
+
+- mcsde:
+
+  Mixed core, semi-local degree and entropy: the k-shell index,
+  `semilocal` and the shell entropy, each min-max scaled, added up. See
+  [`centrality_mcsde`](https://sonsoles.me/cograph/reference/centrality_mcsde.md).
+
+- mcsdwe:
+
+  Mixed core, semi-local degree and weighted entropy: `mcsde` with the
+  weighted entropy. See
+  [`centrality_mcsdwe`](https://sonsoles.me/cograph/reference/centrality_mcsdwe.md).
+
+- lgc:
+
+  Laplacian gravity centrality: a gravity model with the Laplacian
+  centrality as mass and a radius of half the average path length. All 0
+  when the average path length is below 2. See
+  [`centrality_lgc`](https://sonsoles.me/cograph/reference/centrality_lgc.md).
+
+- wgravity:
+
+  Weighted gravity model: the degree gravity model with a radius of half
+  the average path length, times the node's entry of the unit-length
+  leading eigenvector. `NA` with a warning when that eigenvector is not
+  unique. See
+  [`centrality_wgravity`](https://sonsoles.me/cograph/reference/centrality_wgravity.md).
+
+- asp_centrality:
+
+  Average shortest path centrality: the relative growth of the average
+  distance when the node's ties are removed, unreachable pairs counted
+  at the diameter. See
+  [`centrality_asp_centrality`](https://sonsoles.me/cograph/reference/centrality_asp_centrality.md).
+
+- wdc:
+
+  Weight degree centrality: the number of non-backtracking two-step
+  walks from a node times its degree to the power `wdc_alpha`. See
+  [`centrality_wdc`](https://sonsoles.me/cograph/reference/centrality_wdc.md).
+
+- ewdc:
+
+  Extended weight degree centrality: `wdc` applied once more to the
+  `wdc` scores; can be negative. See
+  [`centrality_ewdc`](https://sonsoles.me/cograph/reference/centrality_ewdc.md).
+
+- mapping_entropy:
+
+  Mapping entropy: minus the degree centrality \\k/(N-1)\\ of a node
+  times the sum of the logarithms of its neighbors' degree centralities.
+  See
+  [`centrality_mapping_entropy`](https://sonsoles.me/cograph/reference/centrality_mapping_entropy.md).
+
+- dcc:
+
+  Degree and clustering coefficient centrality: a degree term and a
+  two-step clustering term weighted by the entropy weight method. `NA`
+  with a warning on a network without a triangle. See
+  [`centrality_dcc`](https://sonsoles.me/cograph/reference/centrality_dcc.md).
+
+- edge_clustering:
+
+  Edge clustering coefficient centrality: the sum over a node's edges of
+  the triangles on the edge divided by the most it could be in. See
+  [`centrality_edge_clustering`](https://sonsoles.me/cograph/reference/centrality_edge_clustering.md).
+
+- ahp:
+
+  Analytic hierarchy process centrality: the weighted shares of degree,
+  betweenness and closeness (`ahp_weights`). `NA` with a warning on a
+  disconnected network. See
+  [`centrality_ahp`](https://sonsoles.me/cograph/reference/centrality_ahp.md).
+
+- semi_ia:
+
+  Semi-local iterative algorithm: the steady state of an
+  eigenvector-like update over the nodes within `semi_ia_radius` steps,
+  weighted by path counts and distance. `NA` with a warning on a
+  disconnected network. See
+  [`centrality_semi_ia`](https://sonsoles.me/cograph/reference/centrality_semi_ia.md).
+
+- synthesize:
+
+  Synthesize centrality: normalised degree plus betweenness, divided by
+  normalised farness. See
+  [`centrality_synthesize`](https://sonsoles.me/cograph/reference/centrality_synthesize.md).
+
+- inward_accessibility:
+
+  Inward accessibility: the exponential entropy of the arrivals of
+  self-avoiding walks of `ia_steps` steps, which must be given; `NA`
+  with a warning otherwise. See
+  [`centrality_inward_accessibility`](https://sonsoles.me/cograph/reference/centrality_inward_accessibility.md).
+
+- improved_entropy:
+
+  Improved entropy-based centrality (Ni et al. 2020): the entropies of a
+  node's tie weights and of its neighbors' degrees, plus an indirect
+  term two steps away. Uses weights; `NA` with a warning on a directed
+  network. See
+  [`centrality_improved_entropy`](https://sonsoles.me/cograph/reference/centrality_improved_entropy.md).
+
+- physarum_spreader:
+
+  PhysarumSpreader: the resource a node holds after `physarum_steps`
+  updates of a Physarum flow through a ground node; uses direction and
+  weights. `NA` with a warning without `physarum_steps`. See
+  [`centrality_physarum_spreader`](https://sonsoles.me/cograph/reference/centrality_physarum_spreader.md).
+
+- articlerank:
+
+  ArticleRank: a PageRank-like score in which a citing node passes a
+  share set by its number of references (`ar_references`); uses
+  direction. `NA` with a warning where the iteration diverges. See
+  [`centrality_articlerank`](https://sonsoles.me/cograph/reference/centrality_articlerank.md).
+
+- entropy_gravity:
+
+  Entropy-based gravity model: a gravity sum whose masses combine node
+  H-index, closeness, betweenness and PageRank with entropy weights.
+  `NA` with a warning on a disconnected network. See
+  [`centrality_entropy_gravity`](https://sonsoles.me/cograph/reference/centrality_entropy_gravity.md).
+
+- influence_capability:
+
+  Influence capability: entropy-weighted sum of a k-shell position term
+  and a two-step degree sum. See
+  [`centrality_influence_capability`](https://sonsoles.me/cograph/reference/centrality_influence_capability.md).
+
+- ehc:
+
+  Extended H-index centrality: the neighbors' weighted sums of
+  cumulative neighbor-degree counts (`ehc_p`, `ehc_r`). See
+  [`centrality_ehc`](https://sonsoles.me/cograph/reference/centrality_ehc.md).
+
+- erm:
+
+  Entropy-based ranking measure: neighbor-degree entropies summed over
+  two-step walks. See
+  [`centrality_erm`](https://sonsoles.me/cograph/reference/centrality_erm.md).
+
+- shell_clustering:
+
+  Shell clustering coefficient: a sum over neighbors of one minus the
+  correlation of their shell vectors plus a degree term. See
+  [`centrality_shell_clustering`](https://sonsoles.me/cograph/reference/centrality_shell_clustering.md).
+
+- ecrm:
+
+  Extended cluster coefficient ranking measure: the shell clustering
+  coefficient summed over two-step walks. See
+  [`centrality_ecrm`](https://sonsoles.me/cograph/reference/centrality_ecrm.md).
+
+- weight_neighborhood:
+
+  Weight neighborhood centrality: a benchmark centrality plus the
+  neighbors' values weighted by the relative importance of the edge. See
+  [`centrality_weight_neighborhood`](https://sonsoles.me/cograph/reference/centrality_weight_neighborhood.md).
+
+- rcfb:
+
+  RCFB: current-flow betweenness with every node in turn as the source
+  and a common virtual target (`rcfb_epsilon`); uses weights as
+  conductances. `NA` with a warning on a directed network. See
+  [`centrality_rcfb`](https://sonsoles.me/cograph/reference/centrality_rcfb.md).
+
+- m_centrality:
+
+  M-centrality: coreness and a local degree variation mixed by entropy
+  weights. See
+  [`centrality_m_centrality`](https://sonsoles.me/cograph/reference/centrality_m_centrality.md).
+
+- wksd:
+
+  Weighted k-shell degree neighborhood: sums over the edges of products
+  of `wksd_alpha` degree plus `wksd_mu` k-shell index. `NA` with a
+  warning without both weights. See
+  [`centrality_wksd`](https://sonsoles.me/cograph/reference/centrality_wksd.md).
+
+- mapping_entropy_betweenness:
+
+  Mapping entropy betweenness: the node's normalised betweenness times
+  minus the sum of the logarithms of its neighbors'. See
+  [`centrality_mapping_entropy_betweenness`](https://sonsoles.me/cograph/reference/centrality_mapping_entropy_betweenness.md).
 
 - trust_pagerank:
 
